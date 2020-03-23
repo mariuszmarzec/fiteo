@@ -2,14 +2,6 @@ package sample
 
 import com.marzec.di.DI
 
-expect class Sample() {
-    fun checkMe(): Int
-}
-
-expect object Platform {
-    val name: String
-}
-
 fun hello(): String {
     try {
         val obj = DI.provideExercisesReader().parse("""

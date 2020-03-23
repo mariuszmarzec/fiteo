@@ -4,7 +4,7 @@ import kotlinx.serialization.*
 
 @Serializable
 data class ExercisesFileDto(
-        val category: Map<String, CategoryFileDto>?,
+        val category: Map<String, CategoryFileDto>?, // url to category
         val exercises: List<ExerciseFileDto>?,
         val neededEquipment: Map<String, NeededEquipmentDto>?
 )
