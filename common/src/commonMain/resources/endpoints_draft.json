@@ -1,0 +1,41 @@
+// trainings
+
+// PUT /trainings/templates
+// REQUEST
+
+{
+  "exercises" : "List<TrainingTemplatePartDto>",
+  "availableEquipment" : "List<Equipment_ids>"
+}
+
+// GET /trainings/templates
+// RESPONSE List<TrainingTemplate>
+
+// DELETE /trainings/templates/<template_id>
+
+// RESPONSE List<TrainingTemplate>
+
+//TrainingTemplatePartDto
+{
+  "categoryId" : "String",
+  "excludedExercise": "List<excludedExercise_ids>",
+  "excludedEquipment": "List<excludedEquipment_ids>"
+}
+
+// RESPONSE TrainingTemplate DTO
+
+// GET trainings/new?templateId=<template_id>
+// RESPONSE TrainingDto
+
+// GET trainings/<training_id>
+// RESPONSE TrainingDto
+
+// PATCH trainings/<training_id>
+// REQUEST TrainingDto
+// RESPONSE TrainingDto
+
+// GET trainings
+// RESPONSE List<TrainingDto>
+
+// DELETE trainings/<training_id>
+
