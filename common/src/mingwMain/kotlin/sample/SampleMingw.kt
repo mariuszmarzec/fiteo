@@ -1,5 +1,4 @@
 package sample
 
 fun main() {
-    
 }
