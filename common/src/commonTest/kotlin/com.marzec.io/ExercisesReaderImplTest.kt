@@ -11,7 +11,11 @@ import kotlin.test.assertEquals
 
 class ExercisesReaderImplTest {
 
-    val json = Json(JsonConfiguration.Stable.copy(strictMode = false, useArrayPolymorphism = true))
+    val json = Json(JsonConfiguration.Stable.copy(
+            ignoreUnknownKeys = true,
+            isLenient = true,
+            useArrayPolymorphism = true
+    ))
     val exercisesReader: ExercisesReaderImpl = ExercisesReaderImpl(json)
 
     @Test

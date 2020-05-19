@@ -1,10 +1,9 @@
-package sample
+package com.marzec
 
 import com.marzec.Constants.PATH_EXERCISES
 import com.marzec.di.DI
-import com.marzec.model.dto.CategoryFileDto
-import io.ktor.application.call
-import io.ktor.application.install
+import com.marzec.io.ResourceFileReaderImpl
+import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.response.respond
@@ -15,12 +14,14 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 
 fun main() {
-
     val api = DI.provideApi()
 
-    DI.provideDataSource().loadData()
-
+    val onServerStart: (Application) -> Unit = {
+        DI.provideDataSource().loadData()
+    }
     embeddedServer(Netty, 8080) {
+
+        environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
         install(ContentNegotiation) {
             json(
@@ -31,7 +32,7 @@ fun main() {
 
         routing {
             get(PATH_EXERCISES) {
-                call.respond(api.getExercises())
+                call.respond(api.getExercises().data)
             }
         }
     }.start(wait = true)
