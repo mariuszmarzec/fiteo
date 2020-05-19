@@ -1,15 +1,15 @@
-package com.marzec.model.exercises
+package com.marzec.exercises
 
 import com.marzec.model.domain.Exercise
 import com.marzec.repositories.ExercisesRepository
 
-interface ExercisesModel {
+interface ExercisesService {
     fun getExercises(): List<Exercise>
 }
 
-class ExercisesModelImpl(
+class ExercisesServiceImpl(
         private val exercisesRepository: ExercisesRepository
-) : ExercisesModel {
+) : ExercisesService {
 
     override fun getExercises(): List<Exercise> {
         return exercisesRepository.getExercises()
