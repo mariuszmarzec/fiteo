@@ -1,12 +1,16 @@
 package com.marzec
 
 import com.marzec.Constants.PATH_EXERCISES
+import com.marzec.api.Controller
 import com.marzec.di.DI
-import com.marzec.io.ResourceFileReaderImpl
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.ApplicationStarted
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.response.respond
+import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.serialization.json
@@ -31,9 +35,13 @@ fun main() {
         }
 
         routing {
-            get(PATH_EXERCISES) {
-                call.respond(api.getExercises().data)
-            }
+            exercises(api)
         }
     }.start(wait = true)
+}
+
+fun Route.exercises(api: Controller) {
+    get(PATH_EXERCISES) {
+        call.respond(api.getExercises().data)
+    }
 }

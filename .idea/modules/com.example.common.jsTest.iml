@@ -6,8 +6,8 @@
         <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
           <sourceSet>com.example.common.commonTest</sourceSet>
-          <sourceSet>com.example.common.commonMain</sourceSet>
           <sourceSet>com.example.common.jsMain</sourceSet>
+          <sourceSet>com.example.common.commonMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>
