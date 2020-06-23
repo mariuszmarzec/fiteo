@@ -11,4 +11,5 @@ object Constants {
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
     const val PATH_EXERCISES = "$API_ROOT/exercises"
+    const val PATH_CATEGORIES = "$API_ROOT/categories"
 }

@@ -1,5 +1,6 @@
 package com.marzec
 
+import com.marzec.Constants.PATH_CATEGORIES
 import com.marzec.Constants.PATH_EXERCISES
 import com.marzec.api.Controller
 import com.marzec.di.DI
@@ -36,6 +37,7 @@ fun main() {
 
         routing {
             exercises(api)
+            categories(api)
         }
     }.start(wait = true)
 }
@@ -43,5 +45,11 @@ fun main() {
 fun Route.exercises(api: Controller) {
     get(PATH_EXERCISES) {
         call.respond(api.getExercises().data)
+    }
+}
+
+fun Route.categories(api: Controller) {
+    get(PATH_CATEGORIES) {
+        call.respond(api.getCategories().data)
     }
 }

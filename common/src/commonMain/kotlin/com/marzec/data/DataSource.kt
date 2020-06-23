@@ -2,14 +2,16 @@ package com.marzec.data
 
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
+import com.marzec.model.domain.Category
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.ExercisesData
 import com.marzec.model.mappers.toDomain
 
 interface DataSource {
-    fun getExercises(): List<Exercise>
 
     fun loadData()
+    fun getExercises(): List<Exercise>
+    fun getCategories(): List<Category>
 }
 
 class DataSourceImpl(
@@ -21,6 +23,10 @@ class DataSourceImpl(
 
     override fun getExercises(): List<Exercise> {
         return exercisesData.exercises
+    }
+
+    override fun getCategories(): List<Category> {
+        return exercisesData.categories
     }
 
     override fun loadData() {
