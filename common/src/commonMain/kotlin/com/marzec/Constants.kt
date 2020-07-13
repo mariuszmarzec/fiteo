@@ -12,4 +12,5 @@ object Constants {
 
     const val PATH_EXERCISES = "$API_ROOT/exercises"
     const val PATH_CATEGORIES = "$API_ROOT/categories"
+    const val PATH_EQUIPMENT = "$API_ROOT/equipment"
 }
