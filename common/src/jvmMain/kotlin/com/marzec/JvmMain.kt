@@ -3,6 +3,8 @@ package com.marzec
 import com.marzec.Constants.PATH_CATEGORIES
 import com.marzec.Constants.PATH_EQUIPMENT
 import com.marzec.Constants.PATH_EXERCISES
+import com.marzec.Constants.PATH_TRAININGS
+import com.marzec.Constants.PATH_TRAINING_TEMPLATES
 import com.marzec.api.Controller
 import com.marzec.di.DI
 import io.ktor.application.Application
@@ -59,5 +61,14 @@ fun Route.categories(api: Controller) {
 fun Route.equipment(api: Controller) {
     get(PATH_EQUIPMENT) {
         call.respond(api.getEquipment().data)
+    }
+}
+
+fun Route.trainings(api: Controller) {
+    get(PATH_TRAININGS) {
+        call.respond(api.getTrainings().data)
+    }
+    get(PATH_TRAINING_TEMPLATES) {
+        call.respond(api.getTrainingTemplates().data)
     }
 }

@@ -3,7 +3,7 @@ package com.marzec.di
 import com.marzec.api.Controller
 import com.marzec.api.ControllerImpl
 import com.marzec.data.DataSource
-import com.marzec.data.DataSourceImpl
+import com.marzec.data.MemoryDataSource
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ExercisesReaderImpl
 import com.marzec.io.ResourceFileReader
@@ -18,7 +18,7 @@ import kotlinx.serialization.json.JsonConfiguration
 object DI {
 
     private val dataSource: DataSource by lazy {
-        DataSourceImpl(provideExercisesReader(), provideResourceFileReader())
+        MemoryDataSource(provideExercisesReader(), provideResourceFileReader())
     }
 
     private fun provideResourceFileReader(): ResourceFileReader {
