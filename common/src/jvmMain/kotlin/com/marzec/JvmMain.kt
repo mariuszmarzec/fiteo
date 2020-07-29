@@ -42,6 +42,7 @@ fun main() {
             exercises(api)
             categories(api)
             equipment(api)
+            trainings(api)
         }
     }.start(wait = true)
 }
