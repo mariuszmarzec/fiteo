@@ -6,11 +6,13 @@
         <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
           <sourceSet>com.example.common.commonMain</sourceSet>
-          <sourceSet>com.example.common.commonTest</sourceSet>
           <sourceSet>com.example.common.jvmMain</sourceSet>
+          <sourceSet>com.example.common.commonTest</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
-        <externalSystemTestTasks>jvmTest|common:jvmTest|jvm</externalSystemTestTasks>
+        <externalSystemTestTasks>
+          <externalSystemTestTask>jvmTest|common:jvmTest|jvm</externalSystemTestTask>
+        </externalSystemTestTasks>
         <compilerSettings>
           <option name="additionalArguments" value="-Xallow-no-source-files" />
         </compilerSettings>
