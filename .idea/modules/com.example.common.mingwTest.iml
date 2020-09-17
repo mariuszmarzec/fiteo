@@ -6,8 +6,8 @@
         <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
           <sourceSet>com.example.common.commonMain</sourceSet>
-          <sourceSet>com.example.common.mingwMain</sourceSet>
           <sourceSet>com.example.common.commonTest</sourceSet>
+          <sourceSet>com.example.common.mingwMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>
@@ -15,8 +15,8 @@
         </externalSystemTestTasks>
         <compilerSettings />
         <compilerArguments>
-          <option name="languageVersion" value="1.3" />
-          <option name="apiVersion" value="1.3" />
+          <option name="languageVersion" value="1.4" />
+          <option name="apiVersion" value="1.4" />
           <option name="pluginOptions">
             <array />
           </option>
