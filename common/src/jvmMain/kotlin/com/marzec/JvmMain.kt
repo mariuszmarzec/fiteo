@@ -7,6 +7,7 @@ import com.marzec.Constants.PATH_TRAININGS
 import com.marzec.Constants.PATH_TRAINING_TEMPLATES
 import com.marzec.api.Controller
 import com.marzec.di.DI
+import com.marzec.fiteo.BuildKonfig
 import io.ktor.application.Application
 import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
@@ -20,6 +21,7 @@ import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import org.jetbrains.exposed.sql.Database
 
 fun main() {
     val api = DI.provideApi()
@@ -27,6 +29,14 @@ fun main() {
     val onServerStart: (Application) -> Unit = {
         DI.provideDataSource().loadData()
     }
+
+    Database.connect(
+            url = BuildKonfig.DB_ENDPOINT,
+            driver = "com.mysql.jdbc.Driver",
+            user = BuildKonfig.DB_USER,
+            password = BuildKonfig.DB_PASSWORD
+    )
+
     embeddedServer(Netty, 8080) {
 
         environment.monitor.subscribe(ApplicationStarted, onServerStart)

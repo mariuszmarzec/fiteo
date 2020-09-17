@@ -1,22 +1,29 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 buildscript {
-    ext.kotlin_version = '1.4.10'
-    ext.ktor_version = '1.3.2'
-    ext.serialization_version = '0.20.0'
+    ext.kotlin_version = '1.4.0'
+    ext.ktor_version = '1.4.0'
+    ext.serialization_version = '1.0.0-RC'
     ext.sl4j_version = '1.6.1'
-    repositories { jcenter() }
+    ext.exposed_version = '0.24.1'
+    ext.buildkonfig_version = '0.7.0'
+    ext.flyway_version = '6.5.6'
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+        classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$buildkonfig_version"
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.3.72'
-    id "org.flywaydb.flyway" version "6.5.6"
+    id 'org.jetbrains.kotlin.multiplatform' version "$kotlin_version"
+    id "org.flywaydb.flyway" version "$flyway_version"
 }
 
 Properties properties = new Properties()
@@ -25,8 +32,11 @@ def dbEndpoint = properties.getProperty('database.endpoint')
 def dbUser = properties.getProperty('database.user')
 def dbPassword = properties.getProperty('database.password')
 
+def projectPackageName = "com.marzec.fiteo"
+
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'application'
+apply plugin: 'com.codingfeline.buildkonfig'
 
 mainClassName = 'com.marzec.JvmMainKt'
 
@@ -36,7 +46,7 @@ repositories {
     mavenCentral()
     jcenter()
 }
-group 'com.example'
+group projectPackageName
 version '0.0.1'
 
 apply plugin: 'maven-publish'
@@ -70,8 +80,11 @@ kotlin {
         commonMain {
             dependencies {
                 implementation kotlin('stdlib-common')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
                 implementation "io.ktor:ktor-client-core:$ktor_version"
+                implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
+                implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
+                implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
             }
         }
         commonTest {
@@ -83,7 +96,6 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
                 implementation "io.ktor:ktor-serialization:$ktor_version"
                 implementation "io.ktor:ktor-server-netty:$ktor_version"
                 implementation "org.slf4j:slf4j-simple:$sl4j_version"
@@ -99,7 +111,6 @@ kotlin {
         jsMain {
             dependencies {
                 implementation kotlin('stdlib-js')
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
             }
         }
         jsTest {
@@ -109,7 +120,6 @@ kotlin {
         }
         mingwMain {
             dependencies {
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:$serialization_version"
             }
         }
         mingwTest {
@@ -131,4 +141,13 @@ flyway {
     url = dbEndpoint
     user = dbUser
     password = dbPassword
+}
+
+buildkonfig {
+    packageName projectPackageName
+    defaultConfigs {
+        buildConfigField 'String', 'DB_ENDPOINT', '"' + dbEndpoint + '"'
+        buildConfigField 'String', 'DB_USER', '"' + dbUser + '"'
+        buildConfigField 'String', 'DB_PASSWORD', '"' + dbPassword + '"'
+    }
 }

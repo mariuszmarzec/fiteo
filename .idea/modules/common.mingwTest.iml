@@ -2,15 +2,16 @@
 <module version="4">
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
-      <configuration version="3" platform="Native (mingw_x64) " allPlatforms="Native []/Native [mingw_x64]" useProjectSettings="false" isTestModule="false" externalProjectId="common">
-        <dependsOnModuleNames>common:commonMain</dependsOnModuleNames>
+      <configuration version="3" platform="Native (mingw_x64) " allPlatforms="Native []/Native [mingw_x64]" useProjectSettings="false" isTestModule="true" externalProjectId="common">
+        <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
-          <sourceSet>com.example.common.commonMain</sourceSet>
+          <sourceSet>common.mingwMain</sourceSet>
+          <sourceSet>common.commonMain</sourceSet>
+          <sourceSet>common.commonTest</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>
-          <externalSystemNativeMainRunTask>runDebugExecutableMingw|common:mingwMain|mingw|main|true</externalSystemNativeMainRunTask>
-          <externalSystemNativeMainRunTask>runReleaseExecutableMingw|common:mingwMain|mingw|main|false</externalSystemNativeMainRunTask>
+          <externalSystemTestTask>mingwTest|common:mingwTest|mingw</externalSystemTestTask>
         </externalSystemTestTasks>
         <compilerSettings />
         <compilerArguments>

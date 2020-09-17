@@ -13,7 +13,6 @@ import com.marzec.exercises.ExercisesServiceImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 object DI {
 
@@ -25,11 +24,11 @@ object DI {
         return ResourceFileReaderImpl()
     }
 
-    fun provideJson() = Json(JsonConfiguration.Stable.copy(
-            ignoreUnknownKeys = true,
-            isLenient = true,
-            useArrayPolymorphism = true
-    ))
+    fun provideJson() = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        useArrayPolymorphism = true
+    }
 
     fun provideExercisesReader(): ExercisesReader = ExercisesReaderImpl(provideJson())
 

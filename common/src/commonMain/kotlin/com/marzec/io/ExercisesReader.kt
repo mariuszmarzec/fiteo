@@ -13,6 +13,6 @@ class ExercisesReaderImpl(
 ) : ExercisesReader {
 
     override fun parse(json: String): ExercisesFileDto {
-        return this.json.parse(ExercisesFileDto.serializer(), json)
+        return this.json.decodeFromString(ExercisesFileDto.serializer(), json)
     }
 }
