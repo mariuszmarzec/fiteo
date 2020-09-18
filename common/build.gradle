@@ -8,6 +8,7 @@ buildscript {
     ext.exposed_version = '0.24.1'
     ext.buildkonfig_version = '0.7.0'
     ext.flyway_version = '6.5.6'
+    ext.mysql_connector_version = '8.0.19'
     repositories {
         mavenCentral()
         jcenter()
@@ -15,6 +16,7 @@ buildscript {
 
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+        classpath 'mysql:mysql-connector-java:8.0.12'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$buildkonfig_version"
@@ -31,6 +33,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 def dbEndpoint = properties.getProperty('database.endpoint')
 def dbUser = properties.getProperty('database.user')
 def dbPassword = properties.getProperty('database.password')
+def dbDatabase = properties.getProperty('database.database')
 
 def projectPackageName = "com.marzec.fiteo"
 
@@ -85,6 +88,7 @@ kotlin {
                 implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
                 implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
                 implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
+                implementation "mysql:mysql-connector-java:$mysql_connector_version"
             }
         }
         commonTest {
@@ -141,13 +145,22 @@ flyway {
     url = dbEndpoint
     user = dbUser
     password = dbPassword
+    schemas = [dbDatabase]
+    createSchemas=true
+    placeholders = [
+            'database_name': dbDatabase
+    ]
+    locations = [
+            'filesystem:/' + projectDir.toString() + '/src/commonMain/resources/db/migration'
+    ]
 }
 
 buildkonfig {
     packageName projectPackageName
     defaultConfigs {
-        buildConfigField 'String', 'DB_ENDPOINT', '"' + dbEndpoint + '"'
-        buildConfigField 'String', 'DB_USER', '"' + dbUser + '"'
-        buildConfigField 'String', 'DB_PASSWORD', '"' + dbPassword + '"'
+        buildConfigField 'String', 'DB_ENDPOINT', dbEndpoint
+        buildConfigField 'String', 'DB_USER', dbUser
+        buildConfigField 'String', 'DB_PASSWORD', dbPassword
+        buildConfigField 'String', 'DB_DATABASE', dbDatabase
     }
 }

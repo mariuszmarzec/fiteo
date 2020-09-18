@@ -6,22 +6,23 @@ import com.marzec.Constants.PATH_EXERCISES
 import com.marzec.Constants.PATH_TRAININGS
 import com.marzec.Constants.PATH_TRAINING_TEMPLATES
 import com.marzec.api.Controller
+import com.marzec.database.DbSettings
+import com.marzec.database.UserEntity
 import com.marzec.di.DI
 import com.marzec.fiteo.BuildKonfig
-import io.ktor.application.Application
-import io.ktor.application.ApplicationStarted
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.http.ContentType
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.routing
-import io.ktor.serialization.json
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import org.jetbrains.exposed.sql.Database
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.serialization.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import org.jetbrains.exposed.sql.Schema
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun main() {
     val api = DI.provideApi()
@@ -30,12 +31,16 @@ fun main() {
         DI.provideDataSource().loadData()
     }
 
-    Database.connect(
-            url = BuildKonfig.DB_ENDPOINT,
-            driver = "com.mysql.jdbc.Driver",
-            user = BuildKonfig.DB_USER,
-            password = BuildKonfig.DB_PASSWORD
-    )
+    println("Database version: ${DbSettings.database.version}")
+
+    transaction {
+        addLogger(StdOutSqlLogger)
+
+        SchemaUtils.setSchema(Schema(BuildKonfig.DB_DATABASE))
+
+        val users = UserEntity.all()
+        println(users.toList())
+    }
 
     embeddedServer(Netty, 8080) {
 
