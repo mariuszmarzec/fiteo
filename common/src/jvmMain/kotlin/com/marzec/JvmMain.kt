@@ -42,7 +42,7 @@ fun main() {
         println(users.toList())
     }
 
-    embeddedServer(Netty, 8080) {
+    embeddedServer(Netty, 5000) {
 
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
