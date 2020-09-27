@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 buildscript {
-    ext.kotlin_version = '1.4.0'
+    ext.kotlin_version = '1.4.10'
     ext.ktor_version = '1.4.0'
     ext.serialization_version = '1.0.0-RC'
     ext.sl4j_version = '1.6.1'
