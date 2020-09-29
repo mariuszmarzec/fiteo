@@ -2,9 +2,7 @@ package com.marzec.database
 
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.*
 import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.*
 
 object UserTable : IntIdTable("users") {
     val email = varchar("email", 100)

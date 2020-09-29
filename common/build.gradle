@@ -84,7 +84,6 @@ kotlin {
             dependencies {
                 implementation kotlin('stdlib-common')
                 implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
-                implementation "io.ktor:ktor-client-core:$ktor_version"
                 implementation "org.jetbrains.exposed:exposed-core:$exposed_version"
                 implementation "org.jetbrains.exposed:exposed-dao:$exposed_version"
                 implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
@@ -100,6 +99,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
+                implementation "io.ktor:ktor-server-sessions:$ktor_version"
                 implementation "io.ktor:ktor-serialization:$ktor_version"
                 implementation "io.ktor:ktor-server-netty:$ktor_version"
                 implementation "org.slf4j:slf4j-simple:$sl4j_version"
