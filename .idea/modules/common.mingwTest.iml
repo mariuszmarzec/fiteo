@@ -5,9 +5,9 @@
       <configuration version="3" platform="Native (mingw_x64) " allPlatforms="Native []/Native [mingw_x64]" useProjectSettings="false" isTestModule="true" externalProjectId="common">
         <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
+          <sourceSet>common.commonMain</sourceSet>
           <sourceSet>common.mingwMain</sourceSet>
           <sourceSet>common.commonTest</sourceSet>
-          <sourceSet>common.commonMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>

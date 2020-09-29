@@ -1,5 +1,6 @@
 package com.marzec.database
 
+import com.marzec.model.domain.User
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -21,4 +22,6 @@ class UserEntity(id: EntityID<Int>): IntEntity(id) {
     override fun toString(): String {
         return email + " " + password
     }
+
+    fun toDomain() = User(id.value, email)
 }

@@ -3,4 +3,4 @@ package com.marzec.model.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ErrorDto(val reason: String)
+data class UserDto(val id: Int, val email: String)

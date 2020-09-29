@@ -5,9 +5,9 @@
       <configuration version="3" platform="JavaScript " allPlatforms="JS []" useProjectSettings="false" isTestModule="true" externalProjectId="common">
         <dependsOnModuleNames>common:commonTest</dependsOnModuleNames>
         <sourceSets>
+          <sourceSet>common.commonMain</sourceSet>
           <sourceSet>common.jsMain</sourceSet>
           <sourceSet>common.commonTest</sourceSet>
-          <sourceSet>common.commonMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <externalSystemTestTasks>

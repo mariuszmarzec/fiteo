@@ -4,6 +4,8 @@ import com.marzec.api.Controller
 import com.marzec.api.ControllerImpl
 import com.marzec.data.DataSource
 import com.marzec.data.MemoryDataSource
+import com.marzec.exercises.AuthenticationService
+import com.marzec.exercises.AuthenticationServiceImpl
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ExercisesReaderImpl
 import com.marzec.io.ResourceFileReader
@@ -12,6 +14,8 @@ import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.ExercisesServiceImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
+import com.marzec.repositories.UserRepository
+import com.marzec.repositories.UserRepositoryImpl
 import kotlinx.serialization.json.Json
 
 object DI {
@@ -32,7 +36,11 @@ object DI {
 
     fun provideExercisesReader(): ExercisesReader = ExercisesReaderImpl(provideJson())
 
-    fun provideApi(): Controller = ControllerImpl(provideExercisesModel())
+    fun provideApi(): Controller = ControllerImpl(provideExercisesModel(), provideAuthenticationService())
+
+    private fun provideAuthenticationService() = AuthenticationServiceImpl(provideUserRepository())
+
+    private fun provideUserRepository() = UserRepositoryImpl()
 
     fun provideExercisesModel(): ExercisesService = ExercisesServiceImpl(provideExercisesRepository())
 

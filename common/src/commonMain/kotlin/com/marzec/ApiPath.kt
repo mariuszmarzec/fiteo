@@ -22,3 +22,7 @@ object ApiPath {
 object Headers {
     const val AUTHORIZATION = "Authorization"
 }
+
+object Auth {
+    const val NAME = "fiteo_auth"
+}

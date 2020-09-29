@@ -7,12 +7,14 @@ import com.marzec.extensions.replace
 import com.marzec.model.domain.Request
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplateDto
+import com.marzec.model.domain.User
 import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
 import com.marzec.model.dto.ErrorDto
 import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.SuccessDto
+import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 
@@ -35,11 +37,18 @@ class ControllerImpl(
     override fun getTrainingTemplates(): HttpResponse<List<TrainingTemplateDto>> =
             HttpResponse.Success(exercisesService.getTrainingTemplates().map { it.toDto() })
 
-    override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<SuccessDto> {
+    override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> {
         val email = httpRequest.data?.email.orEmpty()
         val password = httpRequest.data?.password.orEmpty()
         return when (val result = authenticationService.checkPassword(email, password)) {
-            is Request.Success -> HttpResponse.Success(SuccessDto())
+            is Request.Success -> HttpResponse.Success(result.data.toDto())
+            is Request.Error -> HttpResponse.Error(ErrorDto(result.reason))
+        }
+    }
+
+    override fun getUser(userId: Int): HttpResponse<UserDto> {
+        return when (val result = authenticationService.getUser(userId)) {
+            is Request.Success -> HttpResponse.Success(result.data.toDto())
             is Request.Error -> HttpResponse.Error(ErrorDto(result.reason))
         }
     }

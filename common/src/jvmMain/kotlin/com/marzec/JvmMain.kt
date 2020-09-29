@@ -3,9 +3,13 @@ package com.marzec
 import com.marzec.api.Controller
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
+import com.marzec.database.UserPrincipal
+import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.fiteo.BuildKonfig
+import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
+import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import io.ktor.application.Application
@@ -13,6 +17,11 @@ import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.auth.Authentication
+import io.ktor.auth.UnauthorizedResponse
+import io.ktor.auth.authenticate
+import io.ktor.auth.principal
+import io.ktor.auth.session
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -26,6 +35,7 @@ import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionStorageMemory
+import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
@@ -35,13 +45,9 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
-
-data class UserSession(
-        val id: String,
-        val userId: String,
-        val authToken: String
-)
+import org.slf4j.Logger
+import java.lang.System.currentTimeMillis
+import javax.crypto.spec.SecretKeySpec
 
 fun main() {
     val api = DI.provideApi()
@@ -74,14 +80,29 @@ fun main() {
 
         install(Sessions) {
             header<UserSession>(Headers.AUTHORIZATION, SessionStorageMemory()) {
-                identity {
-                    UUID.randomUUID().toString()
+                transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
+            }
+        }
+
+        install(Authentication) {
+            session<UserSession>(Auth.NAME) {
+                challenge {
+                    call.respond(UnauthorizedResponse())
+                }
+                validate { session: UserSession ->
+                    when (val httpResponse = api.getUser(session.userId)) {
+                        is HttpResponse.Success -> httpResponse.data.toPrincipal()
+                        is HttpResponse.Error -> null
+                    }
                 }
             }
         }
 
         routing {
             login(api)
+            authenticate(Auth.NAME) {
+                equipment(api)
+            }
             exercises(api)
             categories(api)
             equipment(api)
@@ -94,6 +115,9 @@ fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
         val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
+        if (httpResponse is HttpResponse.Success<UserDto>) {
+            call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
+        }
         dispatch(httpResponse)
     }
 }
@@ -125,9 +149,14 @@ fun Route.trainings(api: Controller) {
     }
 }
 
-private suspend fun <T: Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {
+private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {
     when (response) {
-        is HttpResponse.Success -> call.respond(response.data)
+        is HttpResponse.Success -> {
+            response.headers.forEach { (header, value) ->
+                call.response.headers.append(header, value)
+            }
+            call.respond(response.data)
+        }
         is HttpResponse.Error -> call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)
     }
 }
