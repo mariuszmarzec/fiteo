@@ -3,7 +3,6 @@ package com.marzec
 import com.marzec.api.Controller
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
-import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.fiteo.BuildKonfig
@@ -20,7 +19,6 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
-import io.ktor.auth.principal
 import io.ktor.auth.session
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
@@ -45,7 +43,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.Logger
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 
@@ -105,7 +102,6 @@ fun main() {
             }
             exercises(api)
             categories(api)
-            equipment(api)
             trainings(api)
         }
     }.start(wait = true)
