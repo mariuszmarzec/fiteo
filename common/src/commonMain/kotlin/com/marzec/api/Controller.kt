@@ -20,5 +20,5 @@ interface Controller {
     fun getTrainings(): HttpResponse<List<TrainingDto>>
     fun getTrainingTemplates(): HttpResponse<List<TrainingTemplateDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
-    fun getUser(userId: Int): HttpResponse<UserDto>
+    fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto>
 }

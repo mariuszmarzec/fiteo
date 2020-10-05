@@ -1,19 +1,17 @@
 package com.marzec.api
 
+import com.marzec.ApiPath
 import com.marzec.exercises.AuthenticationService
 import com.marzec.model.domain.toDto
 import com.marzec.exercises.ExercisesService
-import com.marzec.extensions.replace
 import com.marzec.model.domain.Request
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplateDto
-import com.marzec.model.domain.User
 import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
 import com.marzec.model.dto.ErrorDto
 import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.LoginRequestDto
-import com.marzec.model.dto.SuccessDto
 import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
@@ -46,7 +44,9 @@ class ControllerImpl(
         }
     }
 
-    override fun getUser(userId: Int): HttpResponse<UserDto> {
+    override fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto> {
+        val userId = httpRequest.parameters[ApiPath.ARG_ID]?.toIntOrNull()
+                ?: return HttpResponse.Error(ErrorDto("Argument ${ApiPath.ARG_ID} is not integer"))
         return when (val result = authenticationService.getUser(userId)) {
             is Request.Success -> HttpResponse.Success(result.data.toDto())
             is Request.Error -> HttpResponse.Error(ErrorDto(result.reason))

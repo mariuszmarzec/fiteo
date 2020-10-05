@@ -37,6 +37,8 @@ import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
+import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.getOrFail
 import io.ktor.util.pipeline.PipelineContext
 import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -44,8 +46,11 @@ import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.lang.System.currentTimeMillis
+import java.util.logging.Level
+import java.util.logging.Logger
 import javax.crypto.spec.SecretKeySpec
 
+@KtorExperimentalAPI
 fun main() {
     val api = DI.provideApi()
 
@@ -87,7 +92,7 @@ fun main() {
                     call.respond(UnauthorizedResponse())
                 }
                 validate { session: UserSession ->
-                    when (val httpResponse = api.getUser(session.userId)) {
+                    when (val httpResponse = api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
                         is HttpResponse.Success -> httpResponse.data.toPrincipal()
                         is HttpResponse.Error -> null
                     }
@@ -98,8 +103,9 @@ fun main() {
         routing {
             login(api)
             authenticate(Auth.NAME) {
-                equipment(api)
+                users(api)
             }
+            equipment(api)
             exercises(api)
             categories(api)
             trainings(api)
@@ -115,6 +121,14 @@ fun Route.login(api: Controller) {
             call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
         }
         dispatch(httpResponse)
+    }
+}
+
+@KtorExperimentalAPI
+fun Route.users(api: Controller) {
+    get(ApiPath.USER_BY_ID) {
+        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.parameters.getOrFail(ApiPath.ARG_ID))
+        dispatch(api.getUser(httpRequest))
     }
 }
 
@@ -153,6 +167,10 @@ private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(re
             }
             call.respond(response.data)
         }
-        is HttpResponse.Error -> call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)
+        is HttpResponse.Error -> {
+            call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)
+        }
     }
 }
+
+fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = HttpRequest(Unit, mapOf(key to arg.toString()))

@@ -8,8 +8,11 @@ object ApiPath {
 
     const val APPLICATION_NAME = "fiteo"
 
+    const val ARG_ID = "id"
+
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
+    const val USER_BY_ID = "$API_ROOT/users/{$ARG_ID}"
     const val EXERCISES = "$API_ROOT/exercises"
     const val CATEGORIES = "$API_ROOT/categories"
     const val EQUIPMENT = "$API_ROOT/equipment"

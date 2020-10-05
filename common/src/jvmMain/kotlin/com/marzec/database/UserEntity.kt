@@ -20,7 +20,7 @@ class UserEntity(id: EntityID<Int>): IntEntity(id) {
     var password by UserTable.password
 
     override fun toString(): String {
-        return email + " " + password
+        return "${id._value} $email $password"
     }
 
     fun toDomain() = User(id.value, email)
