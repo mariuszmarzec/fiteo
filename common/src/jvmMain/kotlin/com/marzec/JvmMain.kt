@@ -35,6 +35,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
+import io.ktor.sessions.clear
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.KtorExperimentalAPI
@@ -46,8 +47,6 @@ import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.lang.System.currentTimeMillis
-import java.util.logging.Level
-import java.util.logging.Logger
 import javax.crypto.spec.SecretKeySpec
 
 @KtorExperimentalAPI
@@ -104,6 +103,7 @@ fun main() {
             login(api)
             authenticate(Auth.NAME) {
                 users(api)
+                logout()
             }
             equipment(api)
             exercises(api)
@@ -121,6 +121,13 @@ fun Route.login(api: Controller) {
             call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
         }
         dispatch(httpResponse)
+    }
+}
+
+fun Route.logout() {
+    get(ApiPath.LOGOUT) {
+        call.sessions.clear<UserSession>()
+        dispatch(HttpResponse.Success(Unit))
     }
 }
 
