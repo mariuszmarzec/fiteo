@@ -7,3 +7,5 @@ inline fun <Class, Return> Class.replaceOrNull(replaceFunction: (Class?) -> Retu
 } else {
     null
 }
+
+fun emptyString() = ""

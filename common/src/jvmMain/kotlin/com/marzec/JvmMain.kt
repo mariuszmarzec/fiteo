@@ -1,16 +1,21 @@
 package com.marzec
 
 import com.marzec.api.Controller
+import com.marzec.database.CachedSessionTable
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
+import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.DI
+import com.marzec.extensions.emptyString
 import com.marzec.fiteo.BuildKonfig
+import com.marzec.model.domain.CachedSession
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
+import com.marzec.sessions.DatabaseSessionStorage
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -19,6 +24,7 @@ import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
+import io.ktor.auth.principal
 import io.ktor.auth.session
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
@@ -80,7 +86,7 @@ fun main() {
         }
 
         install(Sessions) {
-            header<UserSession>(Headers.AUTHORIZATION, SessionStorageMemory()) {
+            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(DI.provideCachedSessionsRepository())) {
                 transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
             }
         }
@@ -133,8 +139,8 @@ fun Route.logout() {
 
 @KtorExperimentalAPI
 fun Route.users(api: Controller) {
-    get(ApiPath.USER_BY_ID) {
-        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.parameters.getOrFail(ApiPath.ARG_ID))
+    get(ApiPath.USER) {
+        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
         dispatch(api.getUser(httpRequest))
     }
 }

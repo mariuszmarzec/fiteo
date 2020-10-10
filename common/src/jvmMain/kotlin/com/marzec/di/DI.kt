@@ -12,6 +12,8 @@ import com.marzec.io.ResourceFileReader
 import com.marzec.io.ResourceFileReaderImpl
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.ExercisesServiceImpl
+import com.marzec.repositories.CachedSessionsRepository
+import com.marzec.repositories.CachedSessionsRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import com.marzec.repositories.UserRepository
@@ -49,5 +51,7 @@ object DI {
     fun provideDataSource(): DataSource {
         return dataSource
     }
+
+    fun provideCachedSessionsRepository(): CachedSessionsRepository = CachedSessionsRepositoryImpl()
 
 }
