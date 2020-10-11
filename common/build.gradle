@@ -99,6 +99,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation kotlin('stdlib-jdk8')
+                implementation "io.ktor:ktor-html-builder:$ktor_version"
                 implementation "io.ktor:ktor-server-sessions:$ktor_version"
                 implementation "io.ktor:ktor-serialization:$ktor_version"
                 implementation "io.ktor:ktor-auth:$ktor_version"

@@ -1,7 +1,6 @@
 package com.marzec
 
 import com.marzec.api.Controller
-import com.marzec.database.CachedSessionTable
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
@@ -9,7 +8,7 @@ import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.extensions.emptyString
 import com.marzec.fiteo.BuildKonfig
-import com.marzec.model.domain.CachedSession
+import com.marzec.html.renderExercises
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.UserDto
@@ -26,7 +25,12 @@ import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.auth.session
+import io.ktor.features.Compression
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.deflate
+import io.ktor.features.gzip
+import io.ktor.features.minimumSize
+import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receiveOrNull
@@ -38,14 +42,12 @@ import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.KtorExperimentalAPI
-import io.ktor.util.getOrFail
 import io.ktor.util.pipeline.PipelineContext
 import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -78,6 +80,14 @@ fun main() {
 
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
+        install(Compression) {
+            gzip()
+            deflate {
+                priority = 10.0
+                minimumSize(1024)
+            }
+        }
+        
         install(ContentNegotiation) {
             json(
                     contentType = ContentType.Application.Json,
@@ -148,6 +158,12 @@ fun Route.users(api: Controller) {
 fun Route.exercises(api: Controller) {
     get(ApiPath.EXERCISES) {
         dispatch(api.getExercises())
+    }
+
+    get(ApiPath.EXERCISES_PAGE) {
+        call.respondHtml {
+            renderExercises(api.getExercises())
+        }
     }
 }
 
