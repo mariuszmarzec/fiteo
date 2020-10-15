@@ -16,6 +16,15 @@ class UserRepositoryImpl : UserRepository {
         }
     }
 
+    override fun createUser(email: String, password: String): User {
+        return dbCall {
+            UserEntity.new {
+                this.email = email
+                this.password = password
+            }
+        }.toDomain()
+    }
+
     override fun getUser(id: Int): User {
         return dbCall {
             UserEntity[id]

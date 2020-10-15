@@ -20,6 +20,7 @@ object ApiPath {
     const val TRAININGS = "$API_ROOT/trainings"
     const val TRAINING_TEMPLATES = "$API_ROOT/trainings/templates"
 
+    const val REGISTRATION = "$API_ROOT/registration"
     const val LOGIN = "$API_ROOT/login"
     const val LOGOUT = "$API_ROOT/logout"
 }

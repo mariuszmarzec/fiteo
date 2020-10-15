@@ -11,6 +11,7 @@ import com.marzec.fiteo.BuildKonfig
 import com.marzec.html.renderExercises
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
+import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
@@ -33,6 +34,7 @@ import io.ktor.features.minimumSize
 import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -117,6 +119,7 @@ fun main() {
 
         routing {
             login(api)
+            register(api)
             authenticate(Auth.NAME) {
                 users(api)
                 logout()
@@ -127,6 +130,14 @@ fun main() {
             trainings(api)
         }
     }.start(wait = true)
+}
+
+fun Route.register(api: Controller) {
+    post(ApiPath.REGISTRATION) {
+        val registerRequestDto = call.receive<RegisterRequestDto>()
+        val httpResponse = api.postRegister(HttpRequest(registerRequestDto))
+        dispatch(httpResponse)
+    }
 }
 
 fun Route.login(api: Controller) {
