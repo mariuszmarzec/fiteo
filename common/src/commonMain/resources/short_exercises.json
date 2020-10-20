@@ -6,10 +6,10 @@
       "category": "Klatka piersiowa",
       "url": "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4"
     },
-    "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11": {
+    "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14": {
       "py/object": "crawler.Category",
-      "category": "Brzuch",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11"
+      "category": "Rozciagajace",
+      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14"
     }
   },
   "exercises": [
@@ -69,8 +69,8 @@
       "animationUrl": "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
       "category": {
         "py/tuple": [
-          "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4",
-          "Klatka piersiowa"
+          "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
+          "Rozciagajace"
         ]
       },
       "descriptionsToImages": [

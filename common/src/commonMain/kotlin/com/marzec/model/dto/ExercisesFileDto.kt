@@ -23,6 +23,12 @@ data class ExerciseFileDto(
         val category: Map<String, List<String>>?, // key: py/tuple, value: list of url, name
         val imagesNames: List<String>?,
         val imagesUrls: List<String>?,
+        val descriptionsToImages: List<String>?,
+        val imagesMistakesUrls: List<String>?,
+        val imagesMistakesNames: List<String>?,
+        val descriptionsToMistakes: List<String>?,
+        val muscles: List<String>?,
+        val musclesName: List<String>?,
         val neededEquipment: NeededEquipmentDto?,
         val thumbnailName: String?,
         val thumbnailUrl: String?,
