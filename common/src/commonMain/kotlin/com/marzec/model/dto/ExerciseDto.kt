@@ -17,6 +17,12 @@ data class ExerciseDto(
         val category: CategoryDto,
         val imagesNames: List<String>,
         val imagesUrls: List<String>,
+        val descriptionsToImages: List<String>,
+        val imagesMistakesUrls: List<String>,
+        val imagesMistakesNames: List<String>,
+        val descriptionsToMistakes: List<String>,
+        val muscles: List<String>,
+        val musclesName: List<String>,
         val neededEquipment: List<EquipmentDto>,
         val thumbnailName: String,
         val thumbnailUrl: String

@@ -4,6 +4,7 @@ import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.ExercisesData
+import com.marzec.model.domain.toDto
 import com.marzec.model.dto.CategoryFileDto
 import com.marzec.model.dto.ExerciseFileDto
 import com.marzec.model.dto.ExercisesFileDto
@@ -31,6 +32,12 @@ fun ExerciseFileDto.toDomain() = Exercise(
         } ?: unknownCategory,
         imagesNames = imagesNames.orEmpty(),
         imagesUrls = imagesUrls.orEmpty(),
+        descriptionsToImages = this.descriptionsToImages.orEmpty(),
+        imagesMistakesUrls = this.imagesMistakesUrls.orEmpty(),
+        imagesMistakesNames = this.imagesMistakesNames.orEmpty(),
+        descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
+        muscles = this.muscles.orEmpty(),
+        musclesName = this.musclesName.orEmpty(),
         neededEquipment = neededEquipment?.toDomain() ?: listOf(noEquipment),
         thumbnailName = thumbnailName.orEmpty(),
         thumbnailUrl = thumbnailUrl.orEmpty()
