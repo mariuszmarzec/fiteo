@@ -15,7 +15,6 @@ object UserTable : IntIdTable("users") {
 }
 
 class UserEntity(id: EntityID<Int>): IntEntity(id) {
-    companion object : IntEntityClass<UserEntity>(UserTable)
     var email by UserTable.email
     var password by UserTable.password
 
@@ -24,4 +23,6 @@ class UserEntity(id: EntityID<Int>): IntEntity(id) {
     }
 
     fun toDomain() = User(id.value, email)
+
+    companion object : IntEntityClass<UserEntity>(UserTable)
 }
