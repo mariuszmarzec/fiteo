@@ -16,6 +16,10 @@ import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
+import com.marzec.todo.database.TaskToSubtasksTable
+import com.marzec.todo.database.TasksTable
+import com.marzec.todo.database.ToDoListTable
+import com.marzec.todo.database.ToDoListsToTasksTable
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -73,6 +77,7 @@ fun main() {
         addLogger(StdOutSqlLogger)
 
         SchemaUtils.setSchema(Schema(BuildKonfig.DB_DATABASE))
+        SchemaUtils.create(ToDoListTable, TasksTable, ToDoListsToTasksTable, TaskToSubtasksTable)
 
         val users = UserEntity.all()
         println(users.toList())

@@ -22,12 +22,12 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
     var modifiedTime by TasksTable.modifiedTime
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
-    var subtasks by TaskEntity.via(TaskToSubtasks.parent, TaskToSubtasks.child)
+    var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
 
     companion object : IntEntityClass<TaskEntity>(TasksTable)
 }
 
-object TaskToSubtasks : IntIdTable("tasks_to_subtasks") {
+object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {
     val parent = reference("parent_id", TasksTable)
     val child = reference("child_id", TasksTable)
 }

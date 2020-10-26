@@ -9,6 +9,7 @@ buildscript {
     ext.buildkonfig_version = '0.7.0'
     ext.flyway_version = '6.5.6'
     ext.mysql_connector_version = '8.0.19'
+    ext.h2_version = '1.4.200'
     repositories {
         mavenCentral()
         jcenter()
@@ -17,6 +18,7 @@ buildscript {
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
         classpath 'mysql:mysql-connector-java:8.0.12'
+        classpath "com.h2database:h2:$h2_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:$buildkonfig_version"
@@ -89,6 +91,7 @@ kotlin {
                 implementation "org.jetbrains.exposed:exposed-java-time:$exposed_version"
                 implementation "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
                 implementation "mysql:mysql-connector-java:$mysql_connector_version"
+                implementation "com.h2database:h2:$h2_version"
             }
         }
         commonTest {
