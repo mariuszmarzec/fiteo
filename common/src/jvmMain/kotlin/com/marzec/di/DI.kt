@@ -2,6 +2,7 @@ package com.marzec.di
 
 import com.marzec.api.Controller
 import com.marzec.api.ControllerImpl
+import com.marzec.core.UuidImpl
 import com.marzec.data.DataSource
 import com.marzec.data.MemoryDataSource
 import com.marzec.exercises.AuthenticationService
@@ -22,8 +23,10 @@ import kotlinx.serialization.json.Json
 
 object DI {
 
+    private val uuid by lazy { UuidImpl() }
+
     private val dataSource: DataSource by lazy {
-        MemoryDataSource(provideExercisesReader(), provideResourceFileReader())
+        MemoryDataSource(provideExercisesReader(), provideResourceFileReader(), uuid)
     }
 
     private fun provideResourceFileReader(): ResourceFileReader {

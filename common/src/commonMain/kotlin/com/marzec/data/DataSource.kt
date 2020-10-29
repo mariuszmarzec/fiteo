@@ -1,5 +1,6 @@
 package com.marzec.data
 
+import com.marzec.core.Uuid
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
 import com.marzec.model.domain.*
@@ -17,7 +18,8 @@ interface DataSource {
 
 class MemoryDataSource(
         private val reader: ExercisesReader,
-        private val resourceFileReader: ResourceFileReader
+        private val resourceFileReader: ResourceFileReader,
+        private val uuid: Uuid
 ) : DataSource {
 
     private val training = mutableListOf<Training>()
@@ -46,6 +48,6 @@ class MemoryDataSource(
     }
 
     override fun loadData() {
-        exercisesData = reader.parse(resourceFileReader.read("/exercises.json")).toDomain()
+        exercisesData = reader.parse(resourceFileReader.read("/exercises.json")).toDomain(uuid)
     }
 }
