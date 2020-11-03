@@ -32,10 +32,10 @@ fun HTML.renderExercises(response: HttpResponse<List<ExerciseDto>>) {
     }
 }
 
-fun BODY.renderExercise(categoryDto: CategoryDto, exercises: List<ExerciseDto>) {
-    h1 { +categoryDto.name }
+fun BODY.renderExercise(categories: List<CategoryDto>, exercises: List<ExerciseDto>) {
+    h1 { +categories.fold("") { acc, value -> "$acc$value " } }
     div {
-        exercises.forEach {  exercise ->
+        exercises.forEach { exercise ->
             div {
                 h3 { +exercise.name }
                 img { src = exercise.animationUrl }

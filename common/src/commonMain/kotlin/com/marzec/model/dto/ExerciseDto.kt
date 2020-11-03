@@ -14,7 +14,7 @@ data class ExerciseDto(
         val name: String,
         val animationImageName: String,
         val animationUrl: String,
-        val category: CategoryDto,
+        val category: List<CategoryDto>,
         val imagesNames: List<String>,
         val imagesUrls: List<String>,
         val descriptionsToImages: List<String>,

@@ -42,9 +42,9 @@ fun ExerciseFileDto.toDomain(
             name = name.orEmpty(),
             animationImageName = animationImageName.orEmpty(),
             animationUrl = animationUrl.orEmpty(),
-            category = category?.values?.firstOrNull()?.getOrNull(1)?.let { categoryName ->
+            category = listOf(category?.values?.firstOrNull()?.getOrNull(1)?.let { categoryName ->
                 hashToCategories[categoryName.hashCode().toString()]
-            } ?: unknownCategory,
+            } ?: unknownCategory),
             imagesNames = imagesNames.orEmpty(),
             imagesUrls = imagesUrls.orEmpty(),
             descriptionsToImages = this.descriptionsToImages.orEmpty(),

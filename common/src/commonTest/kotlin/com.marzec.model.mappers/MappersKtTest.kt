@@ -147,7 +147,7 @@ class MappersKtTest {
                                 Exercise(
                                         animationImageName = "anim_14.gif",
                                         animationUrl = "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
-                                        category = Category("1", "Rozciagajace"),
+                                        category = listOf(Category("1", "Rozciagajace")),
                                         descriptionsToImages = listOf(
                                                 "Stań prosto w lekkim rozkroku. Chwyć drążek za głową na wysokości barków. ",
                                                 "Wykonaj skręt tułowia w lewą stronę. Stopy całą powierzchnią dotykają podłoża. Nogi i miednica mają być zablokowane. Wykonaj wydech w końcowej fazie skrętu.",
