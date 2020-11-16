@@ -5,12 +5,12 @@ import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
 import com.marzec.model.domain.*
 import com.marzec.model.mappers.toDomain
+import com.marzec.repositories.CategoriesRepository
 
 interface DataSource {
 
     fun loadData()
     fun getExercises(): List<Exercise>
-    fun getCategories(): List<Category>
     fun getEquipment(): List<Equipment>
     fun getTrainings(): List<Training>
     fun getTrainingTemplates(): List<TrainingTemplate>
@@ -19,6 +19,7 @@ interface DataSource {
 class MemoryDataSource(
         private val reader: ExercisesReader,
         private val resourceFileReader: ResourceFileReader,
+        private val categoriesRepository: CategoriesRepository,
         private val uuid: Uuid
 ) : DataSource {
 
@@ -29,10 +30,6 @@ class MemoryDataSource(
 
     override fun getExercises(): List<Exercise> {
         return exercisesData.exercises
-    }
-
-    override fun getCategories(): List<Category> {
-        return exercisesData.categories
     }
 
     override fun getEquipment(): List<Equipment> {
@@ -49,5 +46,8 @@ class MemoryDataSource(
 
     override fun loadData() {
         exercisesData = reader.parse(resourceFileReader.read("/exercises.json")).toDomain(uuid)
+        if (categoriesRepository.getAll().isEmpty()) {
+            categoriesRepository.addAll(exercisesData.categories)
+        }
     }
 }

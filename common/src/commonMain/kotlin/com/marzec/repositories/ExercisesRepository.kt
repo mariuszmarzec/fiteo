@@ -12,14 +12,15 @@ interface ExercisesRepository {
 }
 
 class ExercisesRepositoryImpl(
-        private val dataSource: DataSource
+        private val dataSource: DataSource,
+        private val categoriesRepository: CategoriesRepository
 ): ExercisesRepository {
     override fun getExercises(): List<Exercise> {
         return dataSource.getExercises()
     }
 
     override fun getCategories(): List<Category> {
-        return dataSource.getCategories()
+        return categoriesRepository.getAll()
     }
 
     override fun getEquipment(): List<Equipment> {

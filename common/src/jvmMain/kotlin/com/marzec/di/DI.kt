@@ -15,6 +15,8 @@ import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.ExercisesServiceImpl
 import com.marzec.repositories.CachedSessionsRepository
 import com.marzec.repositories.CachedSessionsRepositoryImpl
+import com.marzec.repositories.CategoriesRepository
+import com.marzec.repositories.CategoriesRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import com.marzec.repositories.UserRepository
@@ -26,7 +28,12 @@ object DI {
     private val uuid by lazy { UuidImpl() }
 
     private val dataSource: DataSource by lazy {
-        MemoryDataSource(provideExercisesReader(), provideResourceFileReader(), uuid)
+        MemoryDataSource(
+                provideExercisesReader(),
+                provideResourceFileReader(),
+                provideCategoriesRepository(),
+                uuid
+        )
     }
 
     private fun provideResourceFileReader(): ResourceFileReader {
@@ -49,7 +56,10 @@ object DI {
 
     fun provideExercisesModel(): ExercisesService = ExercisesServiceImpl(provideExercisesRepository())
 
-    fun provideExercisesRepository(): ExercisesRepository = ExercisesRepositoryImpl(provideDataSource())
+    fun provideExercisesRepository(): ExercisesRepository = ExercisesRepositoryImpl(
+            provideDataSource(),
+            provideCategoriesRepository()
+    )
 
     fun provideDataSource(): DataSource {
         return dataSource
@@ -57,4 +67,5 @@ object DI {
 
     fun provideCachedSessionsRepository(): CachedSessionsRepository = CachedSessionsRepositoryImpl()
 
+    fun provideCategoriesRepository(): CategoriesRepository = CategoriesRepositoryImpl()
 }

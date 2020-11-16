@@ -1,6 +1,8 @@
 package com.marzec
 
 import com.marzec.api.Controller
+import com.marzec.database.CategoryEntity
+import com.marzec.database.CategoryTable
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
@@ -77,7 +79,6 @@ fun main() {
         addLogger(StdOutSqlLogger)
 
         SchemaUtils.setSchema(Schema(BuildKonfig.DB_DATABASE))
-        SchemaUtils.create(ToDoListTable, TasksTable, ToDoListsToTasksTable, TaskToSubtasksTable)
 
         val users = UserEntity.all()
         println(users.toList())

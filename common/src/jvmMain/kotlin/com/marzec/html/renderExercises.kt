@@ -33,7 +33,7 @@ fun HTML.renderExercises(response: HttpResponse<List<ExerciseDto>>) {
 }
 
 fun BODY.renderExercise(categories: List<CategoryDto>, exercises: List<ExerciseDto>) {
-    h1 { +categories.fold("") { acc, value -> "$acc$value " } }
+    h1 { +categories.fold("") { acc, value -> "$acc${value.name} " } }
     div {
         exercises.forEach { exercise ->
             div {
