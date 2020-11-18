@@ -6,7 +6,6 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
     }
 
     dependencies {
@@ -44,6 +43,7 @@ val projectPackageName = "com.marzec.fiteo"
 repositories {
     mavenCentral()
     jcenter()
+    maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
 }
 group = projectPackageName
 version = "0.0.1"
@@ -52,14 +52,14 @@ kotlin {
 
     jvm {
         withJava()
-        val jvmJar by tasks.getting(org.gradle.jvm.tasks.Jar::class) {
-            doFirst {
-                manifest {
-                    attributes["Main-Class"] = "com.marzec.JvmMainKt"
-                }
-                from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) })
-            }
-        }
+//        val jvmJar by tasks.getting(org.gradle.jvm.tasks.Jar::class) {
+//            doFirst {
+//                manifest {
+//                    attributes["Main-Class"] = "com.marzec.JvmMainKt"
+//                }
+//                from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) })
+//            }
+//        }
     }
     js {
         browser {
@@ -117,24 +117,30 @@ kotlin {
     }
 }
 
-//tasks.getByName<Jar>("jvmJar") {
-//    val taskName = if (project.hasProperty("isProduction")) {
-//        "jsBrowserProductionWebpack"
-//    } else {
-//        "jsBrowserDevelopmentWebpack"
-//    }
-//    val webpackTask = tasks.getByName<KotlinWebpack>(taskName)
-//    dependsOn(webpackTask) // make sure JS gets compiled first
-//    from(File(webpackTask.destinationDirectory, webpackTask.outputFileName)) // bring output file along into the JAR
-//}
-//
-//tasks {
-//    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-//        kotlinOptions {
-//            jvmTarget = "1.8"
-//        }
-//    }
-//}
+tasks.getByName<Jar>("jvmJar") {
+    doFirst {
+        manifest {
+            attributes["Main-Class"] = "com.marzec.JvmMainKt"
+        }
+        from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) })
+    }
+    val taskName = if (project.hasProperty("isProduction")) {
+        "jsBrowserProductionWebpack"
+    } else {
+        "jsBrowserDevelopmentWebpack"
+    }
+    val webpackTask = tasks.getByName<KotlinWebpack>(taskName)
+    dependsOn(webpackTask) // make sure JS gets compiled first
+    from(File(webpackTask.destinationDirectory, webpackTask.outputFileName)) // bring output file along into the JAR
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
 
 distributions {
     main {

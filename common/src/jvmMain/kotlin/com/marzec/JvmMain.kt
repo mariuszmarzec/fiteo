@@ -43,6 +43,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
+import io.ktor.response.respondText
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -124,6 +125,14 @@ fun main() {
         }
 
         routing {
+
+            get("/") {
+                call.respondText(
+                        this::class.java.classLoader.getResource("index.html")!!.readText(),
+                        ContentType.Text.Html
+                )
+            }
+
             login(api)
             register(api)
             authenticate(Auth.NAME) {
