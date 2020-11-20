@@ -1,6 +1,7 @@
 package com.marzec
 
 import com.marzec.api.Controller
+import com.marzec.cheatday.db.WeightsTable
 import com.marzec.database.CategoryEntity
 import com.marzec.database.CategoryTable
 import com.marzec.database.DbSettings
