@@ -33,14 +33,23 @@ import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.auth.session
+import io.ktor.features.CORS
 import io.ktor.features.Compression
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.DefaultHeaders
 import io.ktor.features.deflate
 import io.ktor.features.gzip
 import io.ktor.features.minimumSize
 import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.file
+import io.ktor.http.content.files
+import io.ktor.http.content.resource
+import io.ktor.http.content.resources
+import io.ktor.http.content.static
+import io.ktor.http.content.staticRootFolder
 import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
@@ -59,6 +68,7 @@ import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
+import java.io.File
 import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
@@ -90,6 +100,8 @@ fun main() {
 
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
+        install(DefaultHeaders)
+
         install(Compression) {
             gzip()
             deflate {
@@ -97,7 +109,14 @@ fun main() {
                 minimumSize(1024)
             }
         }
-        
+
+        install(CORS) {
+            method(HttpMethod.Get)
+            method(HttpMethod.Post)
+            method(HttpMethod.Delete)
+            anyHost()
+        }
+
         install(ContentNegotiation) {
             json(
                     contentType = ContentType.Application.Json,
@@ -132,6 +151,9 @@ fun main() {
                         this::class.java.classLoader.getResource("index.html")!!.readText(),
                         ContentType.Text.Html
                 )
+            }
+            static("/") {
+                resources("")
             }
 
             login(api)
