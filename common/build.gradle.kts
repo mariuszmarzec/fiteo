@@ -43,6 +43,7 @@ val projectPackageName = "com.marzec.fiteo"
 repositories {
     mavenCentral()
     jcenter()
+    maven(url = "https://kotlin.bintray.com/kotlinx/")
     maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
 }
 group = projectPackageName
@@ -62,6 +63,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-common"))
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Dependency.datetime_version}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${Dependency.serialization_version}")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Dependency.serialization_version}")
             }

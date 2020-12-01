@@ -1,9 +1,7 @@
 package com.marzec
 
 import com.marzec.api.Controller
-import com.marzec.cheatday.db.WeightsTable
-import com.marzec.database.CategoryEntity
-import com.marzec.database.CategoryTable
+import com.marzec.cheatday.CheatDayController
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
@@ -19,10 +17,6 @@ import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
-import com.marzec.todo.database.TaskToSubtasksTable
-import com.marzec.todo.database.TasksTable
-import com.marzec.todo.database.ToDoListTable
-import com.marzec.todo.database.ToDoListsToTasksTable
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -44,12 +38,8 @@ import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.file
-import io.ktor.http.content.files
-import io.ktor.http.content.resource
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.http.content.staticRootFolder
 import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
@@ -68,14 +58,14 @@ import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
-import java.io.File
+import java.lang.System.currentTimeMillis
+import javax.crypto.spec.SecretKeySpec
 import org.jetbrains.exposed.sql.Schema
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.lang.System.currentTimeMillis
-import javax.crypto.spec.SecretKeySpec
+import com.marzec.cheatday.ApiPath as CheatDayApiPath
 
 @KtorExperimentalAPI
 fun main() {
@@ -159,6 +149,7 @@ fun main() {
             login(api)
             register(api)
             authenticate(Auth.NAME) {
+                weights(DI.provideCheatDayController())
                 users(api)
                 logout()
             }
@@ -168,6 +159,13 @@ fun main() {
             trainings(api)
         }
     }.start(wait = true)
+}
+
+fun Route.weights(api: CheatDayController) {
+    get(CheatDayApiPath.WEIGHTS) {
+        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
+        dispatch(api.getWeights(httpRequest))
+    }
 }
 
 fun Route.register(api: Controller) {

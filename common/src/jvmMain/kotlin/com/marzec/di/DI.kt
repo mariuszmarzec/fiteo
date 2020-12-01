@@ -2,6 +2,9 @@ package com.marzec.di
 
 import com.marzec.api.Controller
 import com.marzec.api.ControllerImpl
+import com.marzec.cheatday.CheatDayController
+import com.marzec.cheatday.CheatDayService
+import com.marzec.cheatday.WeightsRepository
 import com.marzec.core.UuidImpl
 import com.marzec.data.DataSource
 import com.marzec.data.MemoryDataSource
@@ -21,6 +24,7 @@ import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import com.marzec.repositories.UserRepository
 import com.marzec.repositories.UserRepositoryImpl
+import com.marzec.repositories.WeightsRepositoryImpl
 import kotlinx.serialization.json.Json
 
 object DI {
@@ -68,4 +72,6 @@ object DI {
     fun provideCachedSessionsRepository(): CachedSessionsRepository = CachedSessionsRepositoryImpl()
 
     fun provideCategoriesRepository(): CategoriesRepository = CategoriesRepositoryImpl()
+
+    fun provideCheatDayController(): CheatDayController = CheatDayController(CheatDayService(WeightsRepositoryImpl()))
 }

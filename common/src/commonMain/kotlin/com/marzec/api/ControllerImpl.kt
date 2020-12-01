@@ -5,6 +5,7 @@ import com.marzec.exceptions.HttpException
 import com.marzec.exercises.AuthenticationService
 import com.marzec.model.domain.toDto
 import com.marzec.exercises.ExercisesService
+import com.marzec.extensions.serviceCall
 import com.marzec.model.domain.Request
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplateDto
@@ -61,15 +62,4 @@ class ControllerImpl(
                     authenticationService.register(email, password, repeatedPassword).toDto()
                 }
             }
-
-    private fun <T> serviceCall(call: () -> T): HttpResponse<T> {
-        return try {
-            HttpResponse.Success(call())
-        } catch (e: Exception) {
-            when (e) {
-                is HttpException -> HttpResponse.Error(ErrorDto(e.message.orEmpty()), e.httpStatus)
-                else -> HttpResponse.Error(ErrorDto(e.message.orEmpty()), 500)
-            }
-        }
-    }
 }
