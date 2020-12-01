@@ -13,14 +13,13 @@ class WeightsRepositoryImpl: WeightsRepository {
 
     override fun getWeights(userId: Int): List<Weight> {
         return dbCall {
-//            WeightsTable.selectAll().andWhere { WeightsTable.userId.eq(userId) }.map {
-//                Weight(
-//                    id = it[WeightsTable.id].value,
-//                    value = it[WeightsTable.value],
-//                    date = it[WeightsTable.date].toKotlinLocalDateTime(),
-//                )
-//            }
-            WeightEntity.all().map { it.toDomain() }
+            WeightsTable.selectAll().andWhere { WeightsTable.userId.eq(userId) }.map {
+                Weight(
+                    id = it[WeightsTable.id].value,
+                    value = it[WeightsTable.value],
+                    date = it[WeightsTable.date].toKotlinLocalDateTime(),
+                )
+            }
         }
     }
 }
