@@ -18,20 +18,21 @@ data class Category(
 data class Exercise(
         val id: String, // hash
         val name: String,
-        val animationImageName: String,
-        val animationUrl: String,
+        val animationImageName: String?,
+        val animationUrl: String?,
+        val videoUrl: String?,
         val category: List<Category>,
-        val imagesNames: List<String>,
-        val imagesUrls: List<String>,
+        val imagesNames: List<String>?,
+        val imagesUrls: List<String>?,
         val descriptionsToImages: List<String>?,
         val imagesMistakesUrls: List<String>?,
         val imagesMistakesNames: List<String>?,
         val descriptionsToMistakes: List<String>?,
         val muscles: List<String>?,
         val musclesName: List<String>?,
-        val neededEquipment: List<Equipment>,
-        val thumbnailName: String,
-        val thumbnailUrl: String
+        val neededEquipment: List<Equipment>?,
+        val thumbnailName: String?,
+        val thumbnailUrl: String?
 )
 
 data class Equipment(
@@ -45,22 +46,23 @@ fun Category.toDto() = CategoryDto(
 )
 
 fun Exercise.toDto() = ExerciseDto(
-    id = this.id,
-    name = this.name,
-    animationImageName = this.animationImageName,
-    animationUrl = this.animationUrl,
-    category = this.category.map { it.toDto() },
-    imagesNames = this.imagesNames,
-    imagesUrls = this.imagesUrls,
-    descriptionsToImages = this.descriptionsToImages.orEmpty(),
-    imagesMistakesUrls = this.imagesMistakesUrls.orEmpty(),
-    imagesMistakesNames = this.imagesMistakesNames.orEmpty(),
-    descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
-    muscles = this.muscles.orEmpty(),
-    musclesName = this.musclesName.orEmpty(),
-    neededEquipment = this.neededEquipment.map { it.toDto() },
-    thumbnailName = this.thumbnailName,
-    thumbnailUrl = this.thumbnailUrl
+        id = this.id,
+        name = this.name,
+        animationImageName = this.animationImageName,
+        animationUrl = this.animationUrl,
+        videoUrl = this.videoUrl,
+        category = this.category.map { it.toDto() },
+        imagesNames = this.imagesNames,
+        imagesUrls = this.imagesUrls,
+        descriptionsToImages = this.descriptionsToImages.orEmpty(),
+        imagesMistakesUrls = this.imagesMistakesUrls.orEmpty(),
+        imagesMistakesNames = this.imagesMistakesNames.orEmpty(),
+        descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
+        muscles = this.muscles.orEmpty(),
+        musclesName = this.musclesName.orEmpty(),
+        neededEquipment = this.neededEquipment?.map { it.toDto() },
+        thumbnailName = this.thumbnailName,
+        thumbnailUrl = this.thumbnailUrl
 )
 
 fun Equipment.toDto() = EquipmentDto(

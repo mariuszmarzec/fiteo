@@ -199,7 +199,8 @@ class MappersKtTest {
                                         id = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14".hashCode().toString(),
                                         neededEquipment = listOf(
                                                 Equipment("2", "Drążek")
-                                        )
+                                        ),
+                                        videoUrl = null
                                 )
                         ),
                         equipment = listOf(

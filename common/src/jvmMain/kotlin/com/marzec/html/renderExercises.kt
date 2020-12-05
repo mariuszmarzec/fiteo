@@ -38,7 +38,7 @@ fun BODY.renderExercise(categories: List<CategoryDto>, exercises: List<ExerciseD
         exercises.forEach { exercise ->
             div {
                 h3 { +exercise.name }
-                img { src = exercise.animationUrl }
+                exercise.animationUrl?.let { animationUrl -> img { src = animationUrl } }
             }
         }
     }

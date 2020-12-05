@@ -93,6 +93,11 @@ kotlin {
 
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test-junit"))
+            }
+        }
         val jsMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-js"))
@@ -152,7 +157,7 @@ flyway {
     user = dbUser
     password = dbPassword
     schemas = arrayOf(dbDatabase)
-    createSchemas=true
+    createSchemas = true
     placeholders = mapOf("database_name" to dbDatabase)
     locations = arrayOf("filesystem:/$projectDir/src/commonMain/resources/db/migration")
 }

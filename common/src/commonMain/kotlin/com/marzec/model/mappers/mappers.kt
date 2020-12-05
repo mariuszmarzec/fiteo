@@ -56,6 +56,7 @@ fun ExerciseFileDto.toDomain(
             neededEquipment = neededEquipment?.needed?.mapNotNull { hashToEquipment[it.hashCode().toString()] } ?: defaultEquipment
             ?: emptyList(),
             thumbnailName = thumbnailName.orEmpty(),
-            thumbnailUrl = thumbnailUrl.orEmpty()
+            thumbnailUrl = thumbnailUrl.orEmpty(),
+            videoUrl = null
     )
 }
