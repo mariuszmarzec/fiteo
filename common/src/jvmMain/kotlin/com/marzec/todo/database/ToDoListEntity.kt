@@ -20,8 +20,8 @@ object ToDoListsToTasksTable : IntIdTable("todo_lists_to_tasks") {
 
 class ToDoListEntity(id: EntityID<Int>) : IntEntity(id) {
     var title by ToDoListTable.title
-    var tasks by via(ToDoListsToTasksTable.toDoList, ToDoListsToTasksTable.task)
-    val user by via(UserTable)
+    var tasks by TaskEntity via ToDoListsToTasksTable
+    val user by UserEntity via UserTable
 
     companion object : IntEntityClass<UserEntity>(UserTable)
 }

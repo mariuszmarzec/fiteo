@@ -1,5 +1,6 @@
 package com.marzec.todo.database
 
+import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import java.time.LocalDateTime
 import org.jetbrains.exposed.dao.IntEntity
@@ -26,7 +27,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
-    val user by via(UserTable)
+    val user by UserEntity via UserTable
 
     companion object : IntEntityClass<TaskEntity>(TasksTable)
 }
