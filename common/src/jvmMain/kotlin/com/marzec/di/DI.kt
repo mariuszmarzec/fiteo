@@ -4,11 +4,9 @@ import com.marzec.api.Controller
 import com.marzec.api.ControllerImpl
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
-import com.marzec.cheatday.WeightsRepository
 import com.marzec.core.UuidImpl
-import com.marzec.data.DataSource
-import com.marzec.data.MemoryDataSource
-import com.marzec.exercises.AuthenticationService
+import com.marzec.data.InitialDataLoader
+import com.marzec.data.InitialDataLoaderImpl
 import com.marzec.exercises.AuthenticationServiceImpl
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ExercisesReaderImpl
@@ -22,7 +20,6 @@ import com.marzec.repositories.CategoriesRepository
 import com.marzec.repositories.CategoriesRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
-import com.marzec.repositories.UserRepository
 import com.marzec.repositories.UserRepositoryImpl
 import com.marzec.repositories.WeightsRepositoryImpl
 import kotlinx.serialization.json.Json
@@ -31,8 +28,8 @@ object DI {
 
     private val uuid by lazy { UuidImpl() }
 
-    private val dataSource: DataSource by lazy {
-        MemoryDataSource(
+    private val INITIAL_DATA_LOADER: InitialDataLoader by lazy {
+        InitialDataLoaderImpl(
                 provideExercisesReader(),
                 provideResourceFileReader(),
                 provideCategoriesRepository(),
@@ -65,8 +62,8 @@ object DI {
             provideCategoriesRepository()
     )
 
-    fun provideDataSource(): DataSource {
-        return dataSource
+    fun provideDataSource(): InitialDataLoader {
+        return INITIAL_DATA_LOADER
     }
 
     fun provideCachedSessionsRepository(): CachedSessionsRepository = CachedSessionsRepositoryImpl()

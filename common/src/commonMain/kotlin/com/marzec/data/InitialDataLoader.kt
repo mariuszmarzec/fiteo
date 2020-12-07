@@ -7,7 +7,7 @@ import com.marzec.model.domain.*
 import com.marzec.model.mappers.toDomain
 import com.marzec.repositories.CategoriesRepository
 
-interface DataSource {
+interface InitialDataLoader {
 
     fun loadData()
     fun getExercises(): List<Exercise>
@@ -16,12 +16,12 @@ interface DataSource {
     fun getTrainingTemplates(): List<TrainingTemplate>
 }
 
-class MemoryDataSource(
+class InitialDataLoaderImpl(
         private val reader: ExercisesReader,
         private val resourceFileReader: ResourceFileReader,
         private val categoriesRepository: CategoriesRepository,
         private val uuid: Uuid
-) : DataSource {
+) : InitialDataLoader {
 
     private val training = mutableListOf<Training>()
     private val trainingTemplate = mutableListOf<TrainingTemplate>()

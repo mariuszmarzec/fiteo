@@ -1,6 +1,6 @@
 package com.marzec.repositories
 
-import com.marzec.data.DataSource
+import com.marzec.data.InitialDataLoader
 import com.marzec.model.domain.*
 
 interface ExercisesRepository {
@@ -12,11 +12,11 @@ interface ExercisesRepository {
 }
 
 class ExercisesRepositoryImpl(
-        private val dataSource: DataSource,
+        private val initialDataLoader: InitialDataLoader,
         private val categoriesRepository: CategoriesRepository
 ): ExercisesRepository {
     override fun getExercises(): List<Exercise> {
-        return dataSource.getExercises()
+        return initialDataLoader.getExercises()
     }
 
     override fun getCategories(): List<Category> {
@@ -24,14 +24,14 @@ class ExercisesRepositoryImpl(
     }
 
     override fun getEquipment(): List<Equipment> {
-        return dataSource.getEquipment()
+        return initialDataLoader.getEquipment()
     }
 
     override fun getTrainings(): List<Training> {
-        return dataSource.getTrainings()
+        return initialDataLoader.getTrainings()
     }
 
     override fun getTrainingTemplates(): List<TrainingTemplate> {
-        return dataSource.getTrainingTemplates()
+        return initialDataLoader.getTrainingTemplates()
     }
 }
