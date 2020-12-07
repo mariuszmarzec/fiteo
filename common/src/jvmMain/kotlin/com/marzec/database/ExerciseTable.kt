@@ -12,19 +12,19 @@ import org.jetbrains.exposed.sql.Column
 
 object ExerciseTable : IntIdTable("exercises") {
     val name = varchar("name", length = 300)
-    val animationImageName = varchar("animationImageName", length = 1000).nullable()
-    val animationUrl = varchar("animationUrl", length = 1000).nullable()
-    val videoUrl = varchar("videoUrl", length = 1000).nullable()
-    val imagesNames = text("imagesNames")
-    val imagesUrls = text("imagesUrls")
-    val descriptionsToImages = text("descriptionsToImages")
-    val imagesMistakesUrls = text("imagesMistakesUrls")
-    val imagesMistakesNames = text("imagesMistakesNames")
-    val descriptionsToMistakes = text("descriptionsToMistakes")
+    val animationImageName = varchar("animation_image_name", length = 1000).nullable()
+    val animationUrl = varchar("animation_url", length = 1000).nullable()
+    val videoUrl = varchar("video_url", length = 1000).nullable()
+    val imagesNames = text("images_names")
+    val imagesUrls = text("images_urls")
+    val descriptionsToImages = text("descriptions_to_images")
+    val imagesMistakesUrls = text("images_Mistakes_urls")
+    val imagesMistakesNames = text("images_Mistakes_names")
+    val descriptionsToMistakes = text("descriptions_to_mistakes")
     val muscles = text("muscles")
-    val musclesName = text("musclesName")
-    val thumbnailName = varchar("thumbnailName", length = 1000).nullable()
-    val thumbnailUrl = varchar("thumbnailUrl", length = 1000).nullable()
+    val musclesName = text("muscles_name")
+    val thumbnailName = varchar("thumbnail_name", length = 1000).nullable()
+    val thumbnailUrl = varchar("thumbnail_url", length = 1000).nullable()
 }
 
 class ExerciseEntity(id: EntityID<Int>) : IntEntity(id) {

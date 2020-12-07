@@ -16,6 +16,5 @@ object DbSettings {
 }
 
 fun<T> dbCall(statement: Transaction.() -> T) = transaction(DbSettings.database) {
-    SchemaUtils.setSchema(Schema(BuildKonfig.DB_DATABASE))
     statement()
 }

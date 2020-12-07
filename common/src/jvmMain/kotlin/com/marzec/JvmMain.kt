@@ -66,6 +66,10 @@ import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import com.marzec.cheatday.ApiPath as CheatDayApiPath
+import com.marzec.database.CategoriesToExercisesTable
+import com.marzec.database.ExerciseTable
+import com.marzec.database.ExercisesToEquipment
+import com.marzec.database.dbCall
 
 @KtorExperimentalAPI
 fun main() {
@@ -77,10 +81,8 @@ fun main() {
 
     println("Database version: ${DbSettings.database.version}")
 
-    transaction {
+    dbCall {
         addLogger(StdOutSqlLogger)
-
-        SchemaUtils.setSchema(Schema(BuildKonfig.DB_DATABASE))
 
         val users = UserEntity.all()
         println(users.toList())

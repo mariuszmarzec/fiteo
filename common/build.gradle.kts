@@ -156,7 +156,6 @@ flyway {
     url = dbEndpoint
     user = dbUser
     password = dbPassword
-    schemas = arrayOf(dbDatabase)
     createSchemas = true
     placeholders = mapOf("database_name" to dbDatabase)
     locations = arrayOf("filesystem:/$projectDir/src/commonMain/resources/db/migration")
