@@ -18,6 +18,8 @@ import com.marzec.repositories.CachedSessionsRepository
 import com.marzec.repositories.CachedSessionsRepositoryImpl
 import com.marzec.repositories.CategoriesRepository
 import com.marzec.repositories.CategoriesRepositoryImpl
+import com.marzec.repositories.EquipmentRepository
+import com.marzec.repositories.EquipmentRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import com.marzec.repositories.UserRepositoryImpl
@@ -33,8 +35,14 @@ object DI {
                 provideExercisesReader(),
                 provideResourceFileReader(),
                 provideCategoriesRepository(),
+                provideEquipmentRepository(),
+                provideExercisesRepository(),
                 uuid
         )
+    }
+
+    private fun provideEquipmentRepository(): EquipmentRepository {
+        return EquipmentRepositoryImpl()
     }
 
     private fun provideResourceFileReader(): ResourceFileReader {
@@ -55,12 +63,14 @@ object DI {
 
     private fun provideUserRepository() = UserRepositoryImpl()
 
-    fun provideExercisesModel(): ExercisesService = ExercisesServiceImpl(provideExercisesRepository())
-
-    fun provideExercisesRepository(): ExercisesRepository = ExercisesRepositoryImpl(
-            provideDataSource(),
-            provideCategoriesRepository()
+    fun provideExercisesModel(): ExercisesService = ExercisesServiceImpl(
+            provideExercisesRepository(),
+            provideCategoriesRepository(),
+            provideEquipmentRepository()
     )
+
+
+    fun provideExercisesRepository(): ExercisesRepository = ExercisesRepositoryImpl()
 
     fun provideDataSource(): InitialDataLoader {
         return INITIAL_DATA_LOADER

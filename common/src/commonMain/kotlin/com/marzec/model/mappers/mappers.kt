@@ -21,7 +21,7 @@ fun ExercisesFileDto.toDomain(uuid: Uuid): ExercisesData {
     return ExercisesData(
             hashToCategories.values.toList(),
             exercises?.map { it.toDomain(hashToCategories, hashToEquipment, unknownCategory) }.orEmpty(),
-            equipment
+            hashToEquipment.values.toList()
     )
 }
 
@@ -38,7 +38,7 @@ fun ExerciseFileDto.toDomain(
 ): Exercise {
     val defaultEquipment = hashToEquipment.values.firstOrNull { it.name.contains("brak", true) }?.let { listOf(it) }
     return Exercise(
-            id = url.hashCode().toString(),
+            id = url.hashCode(),
             name = name.orEmpty(),
             animationImageName = animationImageName.orEmpty(),
             animationUrl = animationUrl.orEmpty(),

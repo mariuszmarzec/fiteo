@@ -6,12 +6,12 @@ import com.marzec.io.ResourceFileReader
 import com.marzec.model.domain.*
 import com.marzec.model.mappers.toDomain
 import com.marzec.repositories.CategoriesRepository
+import com.marzec.repositories.EquipmentRepository
+import com.marzec.repositories.ExercisesRepository
 
 interface InitialDataLoader {
 
     fun loadData()
-    fun getExercises(): List<Exercise>
-    fun getEquipment(): List<Equipment>
     fun getTrainings(): List<Training>
     fun getTrainingTemplates(): List<TrainingTemplate>
 }
@@ -20,6 +20,8 @@ class InitialDataLoaderImpl(
         private val reader: ExercisesReader,
         private val resourceFileReader: ResourceFileReader,
         private val categoriesRepository: CategoriesRepository,
+        private val equipmentRepository: EquipmentRepository,
+        private val exercisesRepository: ExercisesRepository,
         private val uuid: Uuid
 ) : InitialDataLoader {
 
@@ -27,14 +29,6 @@ class InitialDataLoaderImpl(
     private val trainingTemplate = mutableListOf<TrainingTemplate>()
 
     private var exercisesData: ExercisesData = ExercisesData(emptyList(), emptyList(), emptyList())
-
-    override fun getExercises(): List<Exercise> {
-        return exercisesData.exercises
-    }
-
-    override fun getEquipment(): List<Equipment> {
-        return exercisesData.equipment
-    }
 
     override fun getTrainings(): List<Training> {
         return training
@@ -46,8 +40,13 @@ class InitialDataLoaderImpl(
 
     override fun loadData() {
         exercisesData = reader.parse(resourceFileReader.read("/exercises.json")).toDomain(uuid)
-        if (categoriesRepository.getAll().isEmpty()) {
+        if (categoriesRepository.getAll().isEmpty() ||
+                equipmentRepository.getAll().isEmpty() ||
+                exercisesRepository.getAll().isEmpty()
+        ) {
             categoriesRepository.addAll(exercisesData.categories)
+            equipmentRepository.addAll(exercisesData.equipment)
+            exercisesRepository.addAll(exercisesData.exercises)
         }
     }
 }

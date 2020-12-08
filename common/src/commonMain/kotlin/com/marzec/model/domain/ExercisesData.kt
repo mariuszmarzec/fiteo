@@ -16,7 +16,7 @@ data class Category(
 )
 
 data class Exercise(
-        val id: String, // hash
+        val id: Int,
         val name: String,
         val animationImageName: String?,
         val animationUrl: String?,
@@ -30,7 +30,7 @@ data class Exercise(
         val descriptionsToMistakes: List<String>?,
         val muscles: List<String>?,
         val musclesName: List<String>?,
-        val neededEquipment: List<Equipment>?,
+        val neededEquipment: List<Equipment>,
         val thumbnailName: String?,
         val thumbnailUrl: String?
 )
@@ -60,7 +60,7 @@ fun Exercise.toDto() = ExerciseDto(
         descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
         muscles = this.muscles.orEmpty(),
         musclesName = this.musclesName.orEmpty(),
-        neededEquipment = this.neededEquipment?.map { it.toDto() },
+        neededEquipment = this.neededEquipment.map { it.toDto() },
         thumbnailName = this.thumbnailName,
         thumbnailUrl = this.thumbnailUrl
 )

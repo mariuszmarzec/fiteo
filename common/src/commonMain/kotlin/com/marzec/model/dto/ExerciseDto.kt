@@ -10,7 +10,7 @@ data class CategoryDto(
 
 @Serializable
 data class ExerciseDto(
-        val id: String,
+        val id: Int,
         val name: String,
         val animationImageName: String?,
         val animationUrl: String?,

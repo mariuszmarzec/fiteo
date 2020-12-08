@@ -11,13 +11,13 @@ object EquipmentTable : IdTable<String>("equipment") {
 
     override val id: Column<EntityID<String>> = varchar("id", 36).entityId()
 
-    val name = varchar("name", 100)
+    val name = varchar("name", 300)
 
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }
 }
 
 class EquipmentEntity(id: EntityID<String>): Entity<String>(id) {
-    var name by CategoryTable.name
+    var name by EquipmentTable.name
 
     fun toDomain() = Equipment(id.value, name)
 

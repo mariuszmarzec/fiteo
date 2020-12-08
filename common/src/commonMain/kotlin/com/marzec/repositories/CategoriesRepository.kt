@@ -8,3 +8,4 @@ interface CategoriesRepository {
 
     fun addAll(categories: List<Category>)
 }
+
