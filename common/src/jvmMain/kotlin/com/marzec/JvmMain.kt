@@ -8,8 +8,6 @@ import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.extensions.emptyString
-import com.marzec.fiteo.BuildKonfig
-import com.marzec.html.renderExercises
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
@@ -138,12 +136,6 @@ fun main() {
 
         routing {
 
-            get("/") {
-                call.respondText(
-                        this::class.java.classLoader.getResource("index.html")!!.readText(),
-                        ContentType.Text.Html
-                )
-            }
             static("/") {
                 resources("")
             }
@@ -210,9 +202,10 @@ fun Route.exercises(api: Controller) {
     }
 
     get(ApiPath.EXERCISES_PAGE) {
-        call.respondHtml {
-            renderExercises(api.getExercises())
-        }
+        call.respondText(
+                this::class.java.classLoader.getResource("index.html")!!.readText(),
+                ContentType.Text.Html
+        )
     }
 }
 
