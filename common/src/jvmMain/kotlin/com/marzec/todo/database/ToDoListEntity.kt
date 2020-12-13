@@ -2,6 +2,7 @@ package com.marzec.todo.database
 
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
+import com.marzec.todo.model.ToDoList
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -23,5 +24,11 @@ class ToDoListEntity(id: EntityID<Int>) : IntEntity(id) {
     var tasks by TaskEntity via ToDoListsToTasksTable
     val user by UserEntity via UserTable
 
-    companion object : IntEntityClass<UserEntity>(UserTable)
+    fun toDomain() = ToDoList(
+            id = id.value,
+            title = title,
+            tasks = tasks.toList().map { it.toDomain() },
+    )
+
+    companion object : IntEntityClass<ToDoListEntity>(UserTable)
 }

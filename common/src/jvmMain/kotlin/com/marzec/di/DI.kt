@@ -24,6 +24,10 @@ import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
 import com.marzec.repositories.UserRepositoryImpl
 import com.marzec.repositories.WeightsRepositoryImpl
+import com.marzec.todo.api.ToDoApiController
+import com.marzec.todo.api.TodoService
+import com.marzec.todo.repositories.TodoRepository
+import com.marzec.todo.repositories.TodoRepositoryImpl
 import kotlinx.serialization.json.Json
 
 object DI {
@@ -81,4 +85,5 @@ object DI {
     fun provideCategoriesRepository(): CategoriesRepository = CategoriesRepositoryImpl()
 
     fun provideCheatDayController(): CheatDayController = CheatDayController(CheatDayService(WeightsRepositoryImpl()))
+    fun provideTodoController(): ToDoApiController = ToDoApiController(TodoService(TodoRepositoryImpl()))
 }

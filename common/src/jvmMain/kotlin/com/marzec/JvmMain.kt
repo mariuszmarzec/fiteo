@@ -1,10 +1,13 @@
 package com.marzec
 
+import com.marzec.cheatday.ApiPath as CheatDayApiPath
+import com.marzec.todo.ApiPath as TodoApiPath
 import com.marzec.api.Controller
 import com.marzec.cheatday.CheatDayController
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
+import com.marzec.database.dbCall
 import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.extensions.emptyString
@@ -15,6 +18,7 @@ import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
+import com.marzec.todo.api.ToDoApiController
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -32,7 +36,6 @@ import io.ktor.features.DefaultHeaders
 import io.ktor.features.deflate
 import io.ktor.features.gzip
 import io.ktor.features.minimumSize
-import io.ktor.html.respondHtml
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -58,16 +61,8 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
-import org.jetbrains.exposed.sql.Schema
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
-import org.jetbrains.exposed.sql.transactions.transaction
-import com.marzec.cheatday.ApiPath as CheatDayApiPath
-import com.marzec.database.CategoriesToExercisesTable
-import com.marzec.database.ExerciseTable
-import com.marzec.database.ExercisesToEquipment
-import com.marzec.database.dbCall
 
 @KtorExperimentalAPI
 fun main() {
@@ -143,7 +138,12 @@ fun main() {
             login(api)
             register(api)
             authenticate(Auth.NAME) {
+                // cheat
                 weights(DI.provideCheatDayController())
+
+                // todo
+                todoLists(DI.provideTodoController())
+
                 users(api)
                 logout()
             }
@@ -159,6 +159,13 @@ fun Route.weights(api: CheatDayController) {
     get(CheatDayApiPath.WEIGHTS) {
         val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
         dispatch(api.getWeights(httpRequest))
+    }
+}
+
+fun Route.todoLists(api: ToDoApiController) {
+    get(TodoApiPath.TODO_LISTS) {
+        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
+        dispatch(api.getLists(httpRequest))
     }
 }
 

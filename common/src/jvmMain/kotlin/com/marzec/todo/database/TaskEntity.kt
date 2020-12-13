@@ -2,7 +2,9 @@ package com.marzec.todo.database
 
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
+import com.marzec.todo.model.Task
 import java.time.LocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -26,8 +28,23 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
     var modifiedTime by TasksTable.modifiedTime
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
+    var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
-    val user by UserEntity via UserTable
+    val user by UserEntity via TasksTable
+
+    fun toDomain(): Task {
+        val parentTask = parents.firstOrNull()?.toDomain()
+        return Task(
+                id = id.value,
+                description = description,
+                addedTime = addedTime.toKotlinLocalDateTime(),
+                modifiedTime = modifiedTime.toKotlinLocalDateTime(),
+                parentTask = parentTask,
+                subTasks = subtasks.toList().map { it.toDomain() },
+                isToDo = isToDo,
+                priority = priority
+        )
+    }
 
     companion object : IntEntityClass<TaskEntity>(TasksTable)
 }
