@@ -4,6 +4,7 @@ import com.marzec.cheatday.ApiPath as CheatDayApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
 import com.marzec.api.Controller
 import com.marzec.cheatday.CheatDayController
+import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
@@ -67,6 +68,7 @@ import org.jetbrains.exposed.sql.addLogger
 @KtorExperimentalAPI
 fun main() {
     val api = DI.provideApi()
+    val cheatDayApi = DI.provideCheatDayController()
 
     val onServerStart: (Application) -> Unit = {
         DI.provideDataSource().loadData()
@@ -139,7 +141,9 @@ fun main() {
             register(api)
             authenticate(Auth.NAME) {
                 // cheat
-                weights(DI.provideCheatDayController())
+                weights(cheatDayApi)
+                putWeight(cheatDayApi)
+
 
                 // todo
                 todoLists(DI.provideTodoController())
@@ -159,6 +163,18 @@ fun Route.weights(api: CheatDayController) {
     get(CheatDayApiPath.WEIGHTS) {
         val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
         dispatch(api.getWeights(httpRequest))
+    }
+}
+
+fun Route.putWeight(api: CheatDayController) {
+    post(CheatDayApiPath.WEIGHT) {
+        val putWeightDto = call.receive<PutWeightDto>()
+        val httpRequest = wrapAsRequest(
+                putWeightDto,
+                ApiPath.ARG_ID,
+                call.principal<UserPrincipal>()?.id ?: emptyString()
+        )
+        dispatch(api.putWeight(httpRequest))
     }
 }
 
@@ -251,4 +267,6 @@ private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(re
     }
 }
 
-fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = HttpRequest(Unit, mapOf(key to arg.toString()))
+fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = wrapAsRequest(Unit, key, arg)
+
+fun <T> wrapAsRequest(body: T, key: String, arg: Any): HttpRequest<T> = HttpRequest(body, mapOf(key to arg.toString()))

@@ -1,6 +1,7 @@
 package com.marzec.cheatday.db
 
 import com.marzec.cheatday.domain.Weight
+import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.dao.IntEntity
@@ -17,9 +18,9 @@ object WeightsTable : IntIdTable("weights") {
 }
 
 class WeightEntity(id: EntityID<Int>) : IntEntity(id) {
-    val value by WeightsTable.value
-    val date by WeightsTable.date
-    val userId by WeightsTable.userId
+    var value by WeightsTable.value
+    var date by WeightsTable.date
+    var user by UserEntity referencedOn WeightsTable.userId
 
     fun toDomain() = Weight(
             id = id.value,

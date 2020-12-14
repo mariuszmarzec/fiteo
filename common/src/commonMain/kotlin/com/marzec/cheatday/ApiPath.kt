@@ -13,5 +13,6 @@ object ApiPath {
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
     const val WEIGHTS = "$API_ROOT/weights"
+    const val WEIGHT = "$API_ROOT/weight"
 
 }
