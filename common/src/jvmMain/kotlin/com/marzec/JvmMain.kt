@@ -5,6 +5,7 @@ import com.marzec.todo.ApiPath as TodoApiPath
 import com.marzec.api.Controller
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
+import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
@@ -47,7 +48,9 @@ import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.Route
+import io.ktor.routing.delete
 import io.ktor.routing.get
+import io.ktor.routing.patch
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.serialization.json
@@ -143,7 +146,8 @@ fun main() {
                 // cheat
                 weights(cheatDayApi)
                 putWeight(cheatDayApi)
-
+                removeWeight(cheatDayApi)
+                updateWeight(cheatDayApi)
 
                 // todo
                 todoLists(DI.provideTodoController())
@@ -175,6 +179,32 @@ fun Route.putWeight(api: CheatDayController) {
                 call.principal<UserPrincipal>()?.id ?: emptyString()
         )
         dispatch(api.putWeight(httpRequest))
+    }
+}
+
+fun Route.removeWeight(api: CheatDayController) {
+    delete(CheatDayApiPath.REMOVE_WEIGHT) {
+        val weightId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                Unit,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to weightId,
+                )
+        )
+        dispatch(api.removeWeight(httpRequest))
+    }
+}
+
+fun Route.updateWeight(api: CheatDayController) {
+    patch(CheatDayApiPath.UPDATE_WEIGHT) {
+        val weightDto = call.receive<WeightDto>()
+        val httpRequest = wrapAsRequest(
+                weightDto,
+                ApiPath.ARG_USER_ID,
+                call.principal<UserPrincipal>()?.id ?: emptyString()
+        )
+        dispatch(api.updateWeight(httpRequest))
     }
 }
 

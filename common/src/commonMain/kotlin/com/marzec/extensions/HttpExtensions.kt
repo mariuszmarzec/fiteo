@@ -17,5 +17,8 @@ fun <T> serviceCall(call: () -> T): HttpResponse<T> {
         }
     }
 
-fun <T> HttpRequest<T>.userIdOrThrow() = parameters[ApiPath.ARG_ID]?.toIntOrNull()
+fun <T> HttpRequest<T>.userIdOrThrow() = (parameters[ApiPath.ARG_USER_ID] ?: parameters[ApiPath.ARG_ID])?.toIntOrNull()
         ?: throw HttpException("Argument ${ApiPath.ARG_ID} is not integer", 400)
+
+fun <T> HttpRequest<T>.getIntOrThrow(key: String) = parameters[key]?.toIntOrNull()
+        ?: throw HttpException("Argument $key is empty or not integer", 400)

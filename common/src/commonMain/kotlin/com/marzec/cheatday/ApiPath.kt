@@ -7,6 +7,7 @@ object ApiPath {
     const val API = "api"
 
     const val ARG_ID = "id"
+    const val ARG_USER_ID = "userId"
 
     const val APPLICATION_NAME = "cheat"
 
@@ -14,5 +15,7 @@ object ApiPath {
 
     const val WEIGHTS = "$API_ROOT/weights"
     const val WEIGHT = "$API_ROOT/weight"
+    const val UPDATE_WEIGHT = "$API_ROOT/weight"
+    const val REMOVE_WEIGHT = "$API_ROOT/weight/{$ARG_ID}"
 
 }

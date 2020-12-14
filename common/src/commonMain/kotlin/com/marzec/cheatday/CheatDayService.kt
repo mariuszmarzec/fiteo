@@ -13,4 +13,12 @@ class CheatDayService(
     fun putWeight(userId: Int, weight: Float, date: String): Weight {
         return weightsRepository.addWeight(userId, weight, LocalDateTime.parse(date))
     }
+
+    fun removeWeight(userId: Int, weightId: Int): Weight {
+        return weightsRepository.removeWeight(userId, weightId)
+    }
+
+    fun updateWeight(userId: Int, weight: Weight): Weight {
+        return weightsRepository.updateWeight(userId, weight)
+    }
 }
