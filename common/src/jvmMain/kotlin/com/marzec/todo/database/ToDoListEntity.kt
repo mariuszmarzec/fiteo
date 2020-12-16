@@ -22,7 +22,7 @@ object ToDoListsToTasksTable : IntIdTable("todo_lists_to_tasks") {
 class ToDoListEntity(id: EntityID<Int>) : IntEntity(id) {
     var title by ToDoListTable.title
     var tasks by TaskEntity via ToDoListsToTasksTable
-    val user by UserEntity via UserTable
+    val user by UserEntity referencedOn ToDoListTable.userId
 
     fun toDomain() = ToDoList(
             id = id.value,
@@ -30,5 +30,5 @@ class ToDoListEntity(id: EntityID<Int>) : IntEntity(id) {
             tasks = tasks.toList().map { it.toDomain() },
     )
 
-    companion object : IntEntityClass<ToDoListEntity>(UserTable)
+    companion object : IntEntityClass<ToDoListEntity>(ToDoListTable)
 }

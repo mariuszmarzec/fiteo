@@ -7,6 +7,13 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
+import com.marzec.database.TrainingTemplatePartTable
+import com.marzec.database.TrainingTemplatePartToCategoriesTable
+import com.marzec.database.TrainingTemplatePartToExcludedEquipmentTable
+import com.marzec.database.TrainingTemplatePartToExcludedExercisesTable
+import com.marzec.database.TrainingTemplateTable
+import com.marzec.database.TrainingTemplateToAvailableEquipmentTable
+import com.marzec.database.TrainingTemplateToTrainingTemplatePartTable
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
@@ -65,6 +72,8 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 
@@ -81,6 +90,16 @@ fun main() {
 
     dbCall {
         addLogger(StdOutSqlLogger)
+
+        SchemaUtils.create(
+                TrainingTemplateTable,
+                TrainingTemplatePartToExcludedEquipmentTable,
+                TrainingTemplatePartToExcludedExercisesTable,
+                TrainingTemplatePartToCategoriesTable,
+                TrainingTemplatePartTable,
+                TrainingTemplateToTrainingTemplatePartTable,
+                TrainingTemplateToAvailableEquipmentTable,
+        )
 
         val users = UserEntity.all()
         println(users.toList())
