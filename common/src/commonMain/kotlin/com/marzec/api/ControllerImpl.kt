@@ -5,9 +5,13 @@ import com.marzec.exceptions.HttpException
 import com.marzec.exercises.AuthenticationService
 import com.marzec.model.domain.toDto
 import com.marzec.exercises.ExercisesService
+import com.marzec.exercises.TrainingService
 import com.marzec.extensions.serviceCall
+import com.marzec.model.domain.CreateTrainingTemplate
 import com.marzec.model.domain.Request
+import com.marzec.model.domain.Training
 import com.marzec.model.domain.TrainingDto
+import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
@@ -21,7 +25,8 @@ import com.marzec.model.http.HttpResponse
 
 class ControllerImpl(
         private val exercisesService: ExercisesService,
-        private val authenticationService: AuthenticationService
+        private val authenticationService: AuthenticationService,
+        private val trainingService: TrainingService
 ) : Controller {
     override fun getCategories(): HttpResponse<List<CategoryDto>> =
             HttpResponse.Success(exercisesService.getCategories().map { it.toDto() })
@@ -33,10 +38,7 @@ class ControllerImpl(
             HttpResponse.Success(exercisesService.getExercises().map { it.toDto() })
 
     override fun getTrainings(): HttpResponse<List<TrainingDto>> =
-            HttpResponse.Success(exercisesService.getTrainings().map { it.toDto() })
-
-    override fun getTrainingTemplates(): HttpResponse<List<TrainingTemplateDto>> =
-            HttpResponse.Success(exercisesService.getTrainingTemplates().map { it.toDto() })
+            HttpResponse.Success(emptyList<Training>().map { it.toDto() })
 
     override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> {
         val email = httpRequest.data?.email.orEmpty()
@@ -62,4 +64,16 @@ class ControllerImpl(
                     authenticationService.register(email, password, repeatedPassword).toDto()
                 }
             }
+
+    override fun getTrainingTemplates(userId: Int): HttpResponse<List<TrainingTemplateDto>> =
+            serviceCall { trainingService.getTrainingTemplates(userId).map { it.toDto() } }
+
+    override fun addTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): HttpResponse<TrainingTemplateDto> =
+            serviceCall { trainingService.addTrainingTemplate(userId, trainingTemplate).toDto() }
+
+    override fun updateTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): HttpResponse<TrainingTemplateDto> =
+            serviceCall { trainingService.updateTrainingTemplate(userId, trainingTemplate).toDto() }
+
+    override fun removeTrainingTemplate(userId: Int, trainingTemplateId: Int): HttpResponse<TrainingTemplateDto> =
+            serviceCall { trainingService.removeTrainingTemplate(userId, trainingTemplateId).toDto()  }
 }

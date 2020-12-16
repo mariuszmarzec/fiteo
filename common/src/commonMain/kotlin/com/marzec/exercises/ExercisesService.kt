@@ -9,8 +9,6 @@ interface ExercisesService {
     fun getExercises(): List<Exercise>
     fun getCategories(): List<Category>
     fun getEquipment(): List<Equipment>
-    fun getTrainings(): List<Training>
-    fun getTrainingTemplates(): List<TrainingTemplate>
 }
 
 class ExercisesServiceImpl(
@@ -29,13 +27,5 @@ class ExercisesServiceImpl(
 
     override fun getEquipment(): List<Equipment> {
         return equipmentRepository.getAll()
-    }
-
-    override fun getTrainings(): List<Training> {
-        return emptyList()
-    }
-
-    override fun getTrainingTemplates(): List<TrainingTemplate> {
-        return emptyList()
     }
 }
