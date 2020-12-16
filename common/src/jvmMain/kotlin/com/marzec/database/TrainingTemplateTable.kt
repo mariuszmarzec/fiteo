@@ -1,5 +1,7 @@
 package com.marzec.database
 
+import com.marzec.model.domain.TrainingTemplate
+import com.marzec.model.domain.TrainingTemplatePart
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -11,11 +13,21 @@ object TrainingTemplateTable : IntIdTable("training_templates") {
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
-class TrainingTemplateEntity(id: EntityID<Int>) : IntEntity(id) {
+class TrainingTemplateEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
+
     var name by TrainingTemplateTable.name
-    var user by UserEntity referencedOn TrainingTemplateTable.userId
-    var trainingTemplatePart by TrainingTemplatePartEntity via TrainingTemplateToTrainingTemplatePartTable
+    override var user by UserEntity referencedOn TrainingTemplateTable.userId
+    var parts by TrainingTemplatePartEntity via TrainingTemplateToTrainingTemplatePartTable
     var availableEquipment by EquipmentEntity via TrainingTemplateToAvailableEquipmentTable
+
+    fun toDomain() = TrainingTemplate(
+        id = id.value,
+        name = name,
+        exercises = parts.map { it.toDomain() },
+        availableEquipment = availableEquipment.map { it.toDomain() }
+    )
+
+    companion object : IntEntityClass<TrainingTemplateEntity>(TrainingTemplateTable)
 }
 
 object TrainingTemplateToAvailableEquipmentTable : IntIdTable("training_templates_to_available_equipment") {
@@ -37,6 +49,14 @@ class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
     var categories by CategoryEntity via TrainingTemplatePartToCategoriesTable
     var excludedExercises by ExerciseEntity via TrainingTemplatePartToExcludedExercisesTable
     var excludedEquipment by EquipmentEntity via TrainingTemplatePartToExcludedEquipmentTable
+
+    fun toDomain() = TrainingTemplatePart(
+            id = id.value,
+            name = name,
+            categories = categories.map { it.toDomain() },
+            excludedExercises = excludedExercises.map { it.toDomain() },
+            excludedEquipment = excludedEquipment.map { it.toDomain() }
+    )
 
     companion object : IntEntityClass<TrainingTemplatePartEntity>(TrainingTemplatePartTable)
 }

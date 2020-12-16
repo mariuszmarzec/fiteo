@@ -1,6 +1,7 @@
 package com.marzec.cheatday.db
 
 import com.marzec.cheatday.domain.Weight
+import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import kotlinx.datetime.toKotlinLocalDateTime
@@ -17,10 +18,10 @@ object WeightsTable : IntIdTable("weights") {
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
-class WeightEntity(id: EntityID<Int>) : IntEntity(id) {
+class WeightEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var value by WeightsTable.value
     var date by WeightsTable.date
-    var user by UserEntity referencedOn WeightsTable.userId
+    override var user: UserEntity by UserEntity referencedOn WeightsTable.userId
 
     fun toDomain() = Weight(
             id = id.value,
