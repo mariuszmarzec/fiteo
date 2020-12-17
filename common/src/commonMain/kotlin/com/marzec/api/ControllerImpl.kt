@@ -6,13 +6,17 @@ import com.marzec.exercises.AuthenticationService
 import com.marzec.model.domain.toDto
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.TrainingService
+import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
+import com.marzec.extensions.userIdOrThrow
 import com.marzec.model.domain.CreateTrainingTemplate
+import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.Request
 import com.marzec.model.domain.Training
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplateDto
+import com.marzec.model.domain.toDomain
 import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
 import com.marzec.model.dto.ErrorDto
@@ -65,15 +69,34 @@ class ControllerImpl(
                 }
             }
 
-    override fun getTrainingTemplates(userId: Int): HttpResponse<List<TrainingTemplateDto>> =
-            serviceCall { trainingService.getTrainingTemplates(userId).map { it.toDto() } }
+    override fun getTrainingTemplates(request: HttpRequest<Unit>): HttpResponse<List<TrainingTemplateDto>> =
+            serviceCall {
+                trainingService.getTrainingTemplates(
+                        request.userIdOrThrow()
+                ).map { it.toDto() }
+            }
 
-    override fun addTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): HttpResponse<TrainingTemplateDto> =
-            serviceCall { trainingService.addTrainingTemplate(userId, trainingTemplate).toDto() }
+    override fun addTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto> =
+            serviceCall {
+                trainingService.addTrainingTemplate(
+                        request.userIdOrThrow(),
+                        request.data.toDomain()
+                ).toDto()
+            }
 
-    override fun updateTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): HttpResponse<TrainingTemplateDto> =
-            serviceCall { trainingService.updateTrainingTemplate(userId, trainingTemplate).toDto() }
+    override fun updateTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto> =
+            serviceCall {
+                trainingService.updateTrainingTemplate(
+                        request.userIdOrThrow(),
+                        request.data.toDomain()
+                ).toDto()
+            }
 
-    override fun removeTrainingTemplate(userId: Int, trainingTemplateId: Int): HttpResponse<TrainingTemplateDto> =
-            serviceCall { trainingService.removeTrainingTemplate(userId, trainingTemplateId).toDto()  }
+    override fun removeTrainingTemplate(request: HttpRequest<Unit>): HttpResponse<TrainingTemplateDto> =
+            serviceCall {
+                trainingService.removeTrainingTemplate(
+                        request.userIdOrThrow(),
+                        request.getIntOrThrow(com.marzec.cheatday.ApiPath.ARG_ID)
+                ).toDto()
+            }
 }

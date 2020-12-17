@@ -27,10 +27,8 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
 
     override fun addTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate {
 
-        val trainingParts = dbCall {
-            trainingTemplate.exercises.map { templatePart ->
-                addTemplatePart(templatePart)
-            }
+        val trainingParts = trainingTemplate.exercises.map { templatePart ->
+            addTemplatePart(templatePart)
         }
 
         val availableEquipment = dbCall {
@@ -46,31 +44,34 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
             }
         }
 
-        dbCall {
+        return dbCall {
             templateEntity.parts = trainingParts.toSized()
             templateEntity.availableEquipment = availableEquipment.toSized()
+            templateEntity.toDomain()
         }
-        return templateEntity.toDomain()
     }
 
 
-    override fun updateTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate = dbCall {
-        val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplate.id).load(
-                TrainingTemplateEntity::parts,
-                TrainingTemplateEntity::availableEquipment,
-        )
-        templateEntity.belongsToUserOrThrow(userId)
+    override fun updateTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate {
+        val parts = trainingTemplate.exercises.map { addTemplatePart(it) }
+        return dbCall {
+            val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplate.id).load(
+                    TrainingTemplateEntity::parts,
+                    TrainingTemplateEntity::availableEquipment,
+            )
+            templateEntity.belongsToUserOrThrow(userId)
 
-        templateEntity.name = trainingTemplate.name
+            templateEntity.name = trainingTemplate.name
 
-        templateEntity.parts.forEach { it.delete() }
-        templateEntity.parts = trainingTemplate.exercises.map { addTemplatePart(it) }.toSized()
+            templateEntity.parts.forEach { it.delete() }
+            templateEntity.parts = parts.toSized()
 
-        templateEntity.availableEquipment = trainingTemplate.availableEquipmentIds.map {
-            EquipmentEntity.findByIdOrThrow(it)
-        }.toSized()
+            templateEntity.availableEquipment = trainingTemplate.availableEquipmentIds.map {
+                EquipmentEntity.findByIdOrThrow(it)
+            }.toSized()
 
-        templateEntity.toDomain()
+            templateEntity.toDomain()
+        }
     }
 
     override fun removeTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate = dbCall {
@@ -80,15 +81,22 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
     }
 
     private fun addTemplatePart(templatePart: CreateTrainingTemplatePart): TrainingTemplatePartEntity {
-        val categories = templatePart.categoryIds.map { CategoryEntity.findByIdOrThrow(it) }
-        val excludedEquipment = templatePart.excludedEquipmentIds.map { EquipmentEntity.findByIdOrThrow(it) }
-        val excludedExercises = templatePart.excludedExercisesIds.map { ExerciseEntity.findByIdOrThrow(it) }
+        val partEntity = dbCall {
+            TrainingTemplatePartEntity.new {
+                this.name = templatePart.name
+            }
+        }
+        return dbCall {
+            partEntity.apply {
+                val categories = templatePart.categoryIds.map { CategoryEntity.findByIdOrThrow(it) }
+                val excludedEquipment = templatePart.excludedEquipmentIds.map { EquipmentEntity.findByIdOrThrow(it) }
+                val excludedExercises = templatePart.excludedExercisesIds.map { ExerciseEntity.findByIdOrThrow(it) }
 
-        return TrainingTemplatePartEntity.new {
-            this.name = templatePart.name
-            this.categories = categories.toSized()
-            this.excludedEquipment = excludedEquipment.toSized()
-            this.excludedExercises = excludedExercises.toSized()
+                this.pinnedExercise = templatePart.pinnedExerciseId?.let { ExerciseEntity.findById(it) }
+                this.categories = categories.toSized()
+                this.excludedEquipment = excludedEquipment.toSized()
+                this.excludedExercises = excludedExercises.toSized()
+            }
         }
     }
 }

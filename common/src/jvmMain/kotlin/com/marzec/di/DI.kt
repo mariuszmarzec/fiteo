@@ -14,6 +14,9 @@ import com.marzec.io.ResourceFileReader
 import com.marzec.io.ResourceFileReaderImpl
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.ExercisesServiceImpl
+import com.marzec.exercises.TrainingService
+import com.marzec.exercises.TrainingServiceImpl
+import com.marzec.model.domain.TrainingTemplate
 import com.marzec.repositories.CachedSessionsRepository
 import com.marzec.repositories.CachedSessionsRepositoryImpl
 import com.marzec.repositories.CategoriesRepository
@@ -22,6 +25,8 @@ import com.marzec.repositories.EquipmentRepository
 import com.marzec.repositories.EquipmentRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
+import com.marzec.repositories.TrainingTemplateRepository
+import com.marzec.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.repositories.UserRepositoryImpl
 import com.marzec.repositories.WeightsRepositoryImpl
 import com.marzec.todo.api.ToDoApiController
@@ -61,7 +66,11 @@ object DI {
 
     fun provideExercisesReader(): ExercisesReader = ExercisesReaderImpl(provideJson())
 
-    fun provideApi(): Controller = ControllerImpl(provideExercisesModel(), provideAuthenticationService())
+    fun provideApi(): Controller = ControllerImpl(
+            provideExercisesModel(),
+            provideAuthenticationService(),
+            TrainingServiceImpl(TrainingTemplateRepositoryImpl())
+    )
 
     private fun provideAuthenticationService() = AuthenticationServiceImpl(provideUserRepository())
 

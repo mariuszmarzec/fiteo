@@ -42,10 +42,12 @@ object TrainingTemplateToTrainingTemplatePartTable : IntIdTable("training_templa
 
 object TrainingTemplatePartTable : IntIdTable("training_parts") {
     val name = varchar("name", 300)
+    val pinnedExercise = reference("pinned_exercise_id", ExerciseTable, onDelete = ReferenceOption.NO_ACTION).nullable()
 }
 
 class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
     var name by TrainingTemplatePartTable.name
+    var pinnedExercise by ExerciseEntity optionalReferencedOn TrainingTemplatePartTable.pinnedExercise
     var categories by CategoryEntity via TrainingTemplatePartToCategoriesTable
     var excludedExercises by ExerciseEntity via TrainingTemplatePartToExcludedExercisesTable
     var excludedEquipment by EquipmentEntity via TrainingTemplatePartToExcludedEquipmentTable
@@ -53,6 +55,7 @@ class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
     fun toDomain() = TrainingTemplatePart(
             id = id.value,
             name = name,
+            pinnedExercise = pinnedExercise?.toDomain(),
             categories = categories.map { it.toDomain() },
             excludedExercises = excludedExercises.map { it.toDomain() },
             excludedEquipment = excludedEquipment.map { it.toDomain() }
@@ -62,16 +65,16 @@ class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
 }
 
 object TrainingTemplatePartToCategoriesTable : IntIdTable("training_parts_to_categories") {
-    val trainingTemplatePartId = reference("training_part_id", TrainingTemplateTable, onDelete = ReferenceOption.CASCADE)
+    val trainingTemplatePartId = reference("training_part_id", TrainingTemplatePartTable, onDelete = ReferenceOption.CASCADE)
     val categoryId = reference("category_id", CategoryTable, onDelete = ReferenceOption.CASCADE)
 }
 
 object TrainingTemplatePartToExcludedExercisesTable : IntIdTable("training_parts_to_excluded_exercises") {
-    val trainingTemplatePartId = reference("training_part_id", TrainingTemplateTable, onDelete = ReferenceOption.CASCADE)
+    val trainingTemplatePartId = reference("training_part_id", TrainingTemplatePartTable, onDelete = ReferenceOption.CASCADE)
     val excludedExerciseId = reference("excluded_exercise_id", ExerciseTable, onDelete = ReferenceOption.CASCADE)
 }
 
 object TrainingTemplatePartToExcludedEquipmentTable : IntIdTable("training_parts_to_excluded_equipment") {
-    val trainingTemplatePartId = reference("training_part_id", TrainingTemplateTable, onDelete = ReferenceOption.CASCADE)
+    val trainingTemplatePartId = reference("training_part_id", TrainingTemplatePartTable, onDelete = ReferenceOption.CASCADE)
     val excludedEquipmentId = reference("excluded_equipment", EquipmentTable, onDelete = ReferenceOption.CASCADE)
 }

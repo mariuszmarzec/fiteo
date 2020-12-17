@@ -20,6 +20,7 @@ import com.marzec.database.dbCall
 import com.marzec.database.toPrincipal
 import com.marzec.di.DI
 import com.marzec.extensions.emptyString
+import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
@@ -171,6 +172,11 @@ fun main() {
                 // todo
                 todoLists(DI.provideTodoController())
 
+                // fiteo
+                templates(api)
+                putTemplate(api)
+                removeTemplate(api)
+                updateTemplate(api)
                 users(api)
                 logout()
             }
@@ -180,6 +186,51 @@ fun main() {
             trainings(api)
         }
     }.start(wait = true)
+}
+
+fun Route.templates(api: Controller) {
+    get(ApiPath.TRAINING_TEMPLATES) {
+        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
+        dispatch(api.getTrainingTemplates(httpRequest))
+    }
+}
+
+fun Route.putTemplate(api: Controller) {
+    post(ApiPath.TRAINING_TEMPLATE) {
+        val dto = call.receive<CreateTrainingTemplateDto>()
+        val httpRequest = wrapAsRequest(
+                dto,
+                ApiPath.ARG_ID,
+                call.principal<UserPrincipal>()?.id ?: emptyString()
+        )
+        dispatch(api.addTrainingTemplate(httpRequest))
+    }
+}
+
+fun Route.removeTemplate(api: Controller) {
+    delete(ApiPath.DELETE_TRAINING_TEMPLATES) {
+        val weightId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                Unit,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to weightId,
+                )
+        )
+        dispatch(api.removeTrainingTemplate(httpRequest))
+    }
+}
+
+fun Route.updateTemplate(api: Controller) {
+    patch(ApiPath.UPDATE_TRAINING_TEMPLATES) {
+        val dto = call.receive<CreateTrainingTemplateDto>()
+        val httpRequest = wrapAsRequest(
+                dto,
+                ApiPath.ARG_USER_ID,
+                call.principal<UserPrincipal>()?.id ?: emptyString()
+        )
+        dispatch(api.updateTrainingTemplate(httpRequest))
+    }
 }
 
 fun Route.weights(api: CheatDayController) {
@@ -296,9 +347,6 @@ fun Route.equipment(api: Controller) {
 fun Route.trainings(api: Controller) {
     get(ApiPath.TRAININGS) {
         dispatch(api.getTrainings())
-    }
-    get(ApiPath.TRAINING_TEMPLATES) {
-        dispatch(api.getTrainingTemplates())
     }
 }
 

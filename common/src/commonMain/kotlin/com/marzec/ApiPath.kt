@@ -20,6 +20,9 @@ object ApiPath {
     const val EQUIPMENT = "$API_ROOT/equipment"
     const val TRAININGS = "$API_ROOT/trainings"
     const val TRAINING_TEMPLATES = "$API_ROOT/trainings/templates"
+    const val TRAINING_TEMPLATE = "$API_ROOT/trainings/template"
+    const val DELETE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template/{$ARG_ID}"
+    const val UPDATE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template"
 
     const val REGISTRATION = "$API_ROOT/registration"
     const val LOGIN = "$API_ROOT/login"
