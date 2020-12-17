@@ -57,7 +57,7 @@ class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
             name = name,
             pinnedExercise = pinnedExercise?.toDomain(),
             categories = categories.map { it.toDomain() },
-            excludedExercises = excludedExercises.map { it.toDomain() },
+            excludedExercises = excludedExercises.map { it.id.value },
             excludedEquipment = excludedEquipment.map { it.toDomain() }
     )
 

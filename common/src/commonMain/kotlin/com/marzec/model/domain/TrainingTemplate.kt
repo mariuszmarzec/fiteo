@@ -18,7 +18,7 @@ data class TrainingTemplatePart(
         val name: String,
         val pinnedExercise: Exercise?,
         val categories: List<Category>,
-        val excludedExercises: List<Exercise>,
+        val excludedExercises: List<Int>,
         val excludedEquipment: List<Equipment>
 )
 
@@ -36,7 +36,7 @@ data class TrainingTemplatePartDto(
         val name: String,
         val pinnedExercise: ExerciseDto?,
         val categories: List<CategoryDto>,
-        val excludedExercises: List<ExerciseDto>,
+        val excludedExercises: List<Int>,
         val excludedEquipment: List<EquipmentDto>
 )
 
@@ -52,7 +52,7 @@ fun TrainingTemplatePart.toDto() = TrainingTemplatePartDto(
         name = name,
         pinnedExercise = pinnedExercise?.toDto(),
         categories = categories.map { it.toDto() },
-        excludedExercises = excludedExercises.map { it.toDto() },
+        excludedExercises = excludedExercises,
         excludedEquipment = excludedEquipment.map { it.toDto() }
 )
 
@@ -68,7 +68,7 @@ fun TrainingTemplatePartDto.toDomain() = TrainingTemplatePart(
         name = name,
         pinnedExercise = pinnedExercise?.toDomain(),
         categories = categories.map { it.toDomain() },
-        excludedExercises = excludedExercises.map { it.toDomain() },
+        excludedExercises = excludedExercises,
         excludedEquipment = excludedEquipment.map { it.toDomain() }
 )
 data class CreateTrainingTemplate(
