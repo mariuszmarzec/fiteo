@@ -29,6 +29,7 @@ import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
+import com.marzec.todo.dto.CreateTodoListDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -82,6 +83,7 @@ import org.jetbrains.exposed.sql.addLogger
 fun main() {
     val api = DI.provideApi()
     val cheatDayApi = DI.provideCheatDayController()
+    val todoController = DI.provideTodoController()
 
     val onServerStart: (Application) -> Unit = {
         DI.provideDataSource().loadData()
@@ -170,7 +172,9 @@ fun main() {
                 updateWeight(cheatDayApi)
 
                 // todo
-                todoLists(DI.provideTodoController())
+                todoLists(todoController)
+                addTodoList(todoController)
+                deleteTodoList(todoController)
 
                 // fiteo
                 templates(api)
@@ -283,6 +287,33 @@ fun Route.todoLists(api: ToDoApiController) {
         val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
         dispatch(api.getLists(httpRequest))
     }
+}
+
+fun Route.addTodoList(api: ToDoApiController) {
+    post(TodoApiPath.TODO_LIST) {
+        val createDto = call.receive<CreateTodoListDto>()
+        val httpRequest = wrapAsRequest(
+                createDto,
+                ApiPath.ARG_ID,
+                call.principal<UserPrincipal>()?.id ?: emptyString()
+        )
+        dispatch(api.addList(httpRequest))
+    }
+}
+
+fun Route.deleteTodoList(api: ToDoApiController) {
+    delete(TodoApiPath.DELETE_TODO_LIST) {
+        val weightId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                Unit,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to weightId,
+                )
+        )
+        dispatch(api.removeList(httpRequest))
+    }
+
 }
 
 fun Route.register(api: Controller) {

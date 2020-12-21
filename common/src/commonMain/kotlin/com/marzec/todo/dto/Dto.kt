@@ -1,5 +1,8 @@
 package com.marzec.todo.dto
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class TaskDto(
         val id: Int,
         val description: String,
@@ -11,8 +14,14 @@ data class TaskDto(
         val priority: Int
 )
 
+@Serializable
 data class ToDoListDto(
         val id: Int,
         val title: String,
         val tasks: List<TaskDto>
+)
+
+@Serializable
+data class CreateTodoListDto(
+        val title: String
 )

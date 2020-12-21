@@ -13,5 +13,6 @@ object ApiPath {
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
     const val TODO_LISTS = "$API_ROOT/lists"
-
+    const val TODO_LIST = "$API_ROOT/list"
+    const val DELETE_TODO_LIST = "$API_ROOT/list/{$ARG_ID}"
 }

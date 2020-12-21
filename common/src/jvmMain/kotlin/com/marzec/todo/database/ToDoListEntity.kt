@@ -1,5 +1,6 @@
 package com.marzec.todo.database
 
+import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.todo.model.ToDoList
@@ -19,10 +20,10 @@ object ToDoListsToTasksTable : IntIdTable("todo_lists_to_tasks") {
     val task = reference("task_id", TasksTable)
 }
 
-class ToDoListEntity(id: EntityID<Int>) : IntEntity(id) {
+class ToDoListEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var title by ToDoListTable.title
     var tasks by TaskEntity via ToDoListsToTasksTable
-    val user by UserEntity referencedOn ToDoListTable.userId
+    override var user by UserEntity referencedOn ToDoListTable.userId
 
     fun toDomain() = ToDoList(
             id = id.value,

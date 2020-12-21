@@ -9,4 +9,12 @@ class TodoService(
     fun getLists(userId: Int): List<ToDoList> {
         return repository.getLists(userId)
     }
+
+    fun addList(userId: Int, listName: String): ToDoList {
+        return repository.addList(userId, listName)
+    }
+
+    fun removeList(userId: Int, listId: Int): ToDoList {
+        return repository.removeList(userId, listId)
+    }
 }
