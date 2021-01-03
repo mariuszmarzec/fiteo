@@ -14,7 +14,8 @@ data class Series(
         val date: Long,
         val burden: Int,
         val timeInMillis: Long,
-        val repsNumber: Int
+        val repsNumber: Int,
+        val note: String
 )
 
 data class TrainingExerciseWithProgressDto(
@@ -29,7 +30,8 @@ data class SeriesDto(
         val date: Long,
         val burden: Int,
         val timeInMillis: Long,
-        val repsNumber: Int
+        val repsNumber: Int,
+        val note: String
 )
 
 fun TrainingExerciseWithProgress.toDto() = TrainingExerciseWithProgressDto(
@@ -44,5 +46,6 @@ fun Series.toDto() = SeriesDto(
         date = date,
         burden = burden,
         timeInMillis = timeInMillis,
-        repsNumber = repsNumber
+        repsNumber = repsNumber,
+        note = note
 )
