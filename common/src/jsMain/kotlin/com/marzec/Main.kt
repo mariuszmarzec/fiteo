@@ -40,15 +40,30 @@ fun main() {
 
 private val scope = MainScope()
 
+val defaultState = State.Loading<List<Exercise>>(emptyList())
+
+@ExperimentalCoroutinesApi
+val exerciseListViewModel = ViewModel<List<Exercise>, ExercisesListActions>(defaultState).apply {
+    intents = mapOf(
+            ExercisesListActions.Initialization to Intent(
+                    onTrigger = {
+                        getExercises()
+                    },
+                    reducer = { actionResult: Any?, state: State<List<Exercise>> ->
+                        (actionResult as? List<Exercise>)?.let { State.Data(it) } ?: State.Error("Data loading error")
+                    }
+            )
+    )
+}
+
 @ExperimentalCoroutinesApi
 val App = functionalComponent<RProps> { _ ->
-    val viewModel = ExerciseListViewModel()
-    val (state, setState) = useState<State<List<Exercise>>>(State.Loading(emptyList()))
+    val (state, setState) = useState<State<List<Exercise>>>(defaultState)
 
     useEffect(emptyList()) {
         scope.launch {
-            viewModel.sendAction(ExercisesListActions.Initialization)
-            viewModel.state.collect {
+            exerciseListViewModel.sendAction(ExercisesListActions.Initialization)
+            exerciseListViewModel.state.collect {
                 setState(it)
             }
         }
@@ -103,7 +118,7 @@ sealed class Resource<T> {
 }
 
 @ExperimentalCoroutinesApi
-open class ViewModel<Type, Action>(defaultState: State<Type>) {
+class ViewModel<Type, Action>(defaultState: State<Type>) {
 
     private val viewModelScope = MainScope()
 
@@ -138,20 +153,3 @@ data class Intent<Action, State>(
         val onTrigger: suspend () -> Any?,
         val reducer: suspend (Any?, State) -> State
 )
-
-@ExperimentalCoroutinesApi
-class ExerciseListViewModel : ViewModel<List<Exercise>, ExercisesListActions>(State.Loading(emptyList())) {
-
-    init {
-        intents = mapOf(
-                ExercisesListActions.Initialization to Intent(
-                        onTrigger = {
-                            getExercises()
-                        },
-                        reducer = { actionResult: Any?, state: State<List<Exercise>> ->
-                            (actionResult as? List<Exercise>)?.let { State.Data(it) } ?: State.Error("Data loading error")
-                        }
-                )
-        )
-    }
-}
