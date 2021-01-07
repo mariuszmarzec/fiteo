@@ -14,8 +14,8 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 
 object TasksTable : IntIdTable("todo_tasks") {
     val description = text("description")
-    val addedTime = datetime("added_time").default(LocalDateTime.now())
-    val modifiedTime = datetime("modified_time").default(LocalDateTime.now())
+    val addedTime = datetime("added_time").apply { defaultValueFun = { LocalDateTime.now()} }
+    val modifiedTime = datetime("modified_time").apply { defaultValueFun = { LocalDateTime.now()} }
     val isToDo = bool("is_to_do")
     val priority = integer("priority")
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
@@ -30,16 +30,15 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
     var priority by TasksTable.priority
     var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
-    val user by UserEntity via TasksTable
+    var user by UserEntity referencedOn TasksTable.userId
 
     fun toDomain(): Task {
-        val parentTask = parents.firstOrNull()?.toDomain()
         return Task(
                 id = id.value,
                 description = description,
                 addedTime = addedTime.toKotlinLocalDateTime(),
                 modifiedTime = modifiedTime.toKotlinLocalDateTime(),
-                parentTask = parentTask,
+                parentTaskId = parents.firstOrNull()?.id?.value,
                 subTasks = subtasks.toList().map { it.toDomain() },
                 isToDo = isToDo,
                 priority = priority

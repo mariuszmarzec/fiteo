@@ -7,7 +7,10 @@ import com.marzec.extensions.userIdOrThrow
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.todo.dto.CreateTodoListDto
+import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.dto.ToDoListDto
+import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.toDomain
 import com.marzec.todo.model.toDto
 
 class ToDoApiController(
@@ -27,7 +30,15 @@ class ToDoApiController(
     fun removeList(request: HttpRequest<Unit>): HttpResponse<ToDoListDto> = serviceCall {
         service.removeList(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_USER_ID)
+                request.getIntOrThrow(ApiPath.ARG_ID)
+        ).toDto()
+    }
+
+    fun addTask(request: HttpRequest<CreateTaskDto>): HttpResponse<TaskDto> = serviceCall {
+        service.addTask(
+                userId = request.userIdOrThrow(),
+                listId = request.getIntOrThrow(ApiPath.ARG_ID),
+                task = request.data.toDomain()
         ).toDto()
     }
 }

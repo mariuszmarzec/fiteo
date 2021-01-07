@@ -29,7 +29,11 @@ import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
+import com.marzec.todo.database.TaskEntity
+import com.marzec.todo.database.TasksTable
+import com.marzec.todo.database.ToDoListTable
 import com.marzec.todo.dto.CreateTodoListDto
+import com.marzec.todo.model.CreateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -74,7 +78,6 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -93,16 +96,6 @@ fun main() {
 
     dbCall {
         addLogger(StdOutSqlLogger)
-
-        SchemaUtils.create(
-                TrainingTemplateTable,
-                TrainingTemplatePartToExcludedEquipmentTable,
-                TrainingTemplatePartToExcludedExercisesTable,
-                TrainingTemplatePartToCategoriesTable,
-                TrainingTemplatePartTable,
-                TrainingTemplateToTrainingTemplatePartTable,
-                TrainingTemplateToAvailableEquipmentTable,
-        )
 
         val users = UserEntity.all()
         println(users.toList())
@@ -175,6 +168,8 @@ fun main() {
                 todoLists(todoController)
                 addTodoList(todoController)
                 deleteTodoList(todoController)
+
+                addTask(todoController)
 
                 // fiteo
                 templates(api)
@@ -303,17 +298,32 @@ fun Route.addTodoList(api: ToDoApiController) {
 
 fun Route.deleteTodoList(api: ToDoApiController) {
     delete(TodoApiPath.DELETE_TODO_LIST) {
-        val weightId = call.parameters[TodoApiPath.ARG_ID]
+        val todoList = call.parameters[TodoApiPath.ARG_ID]
         val httpRequest = HttpRequest(
                 Unit,
                 mapOf(
                         ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                        ApiPath.ARG_ID to weightId,
+                        ApiPath.ARG_ID to todoList,
                 )
         )
         dispatch(api.removeList(httpRequest))
     }
 
+}
+
+fun Route.addTask(api: ToDoApiController) {
+    post(TodoApiPath.ADD_TASK) {
+        val createDto = call.receive<CreateTaskDto>()
+        val todoList = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                createDto,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to todoList,
+                )
+        )
+        dispatch(api.addTask(httpRequest))
+    }
 }
 
 fun Route.register(api: Controller) {

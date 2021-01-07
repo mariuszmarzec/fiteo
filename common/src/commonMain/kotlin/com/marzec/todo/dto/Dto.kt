@@ -8,7 +8,7 @@ data class TaskDto(
         val description: String,
         val addedTime: String,
         val modifiedTime: String,
-        val parentTask: TaskDto?,
+        val parentTaskId: Int?,
         val subTasks: List<TaskDto>,
         val isToDo: Boolean,
         val priority: Int

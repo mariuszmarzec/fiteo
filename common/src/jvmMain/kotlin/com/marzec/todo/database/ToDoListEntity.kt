@@ -28,7 +28,7 @@ class ToDoListEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     fun toDomain() = ToDoList(
             id = id.value,
             title = title,
-            tasks = tasks.toList().map { it.toDomain() },
+            tasks = tasks.toList().filter { it.parents.count() == 0L }.map { it.toDomain() },
     )
 
     companion object : IntEntityClass<ToDoListEntity>(ToDoListTable)
