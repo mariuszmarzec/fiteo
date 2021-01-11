@@ -43,14 +43,17 @@ private val scope = MainScope()
 val defaultState = State.Loading<List<Exercise>>(emptyList())
 
 @ExperimentalCoroutinesApi
-val exerciseListViewModel = ViewModel<List<Exercise>, ExercisesListActions>(defaultState).apply {
+val exerciseListViewModel = Store<List<Exercise>, ExercisesListActions>(defaultState).apply {
     intents = mapOf(
             ExercisesListActions.Initialization to Intent(
                     onTrigger = {
                         getExercises()
                     },
                     reducer = { actionResult: Any?, state: State<List<Exercise>> ->
-                        (actionResult as? List<Exercise>)?.let { State.Data(it) } ?: State.Error("Data loading error")
+                        (actionResult as? List<Exercise>)?.let { State.Data(actionResult) } ?: State.Error("Data loading error")
+                    },
+                    sideEffect = { actionResult: Any?, state: State<List<Exercise>> ->
+                        console.log("Data loaded!")
                     }
             )
     )
@@ -118,11 +121,11 @@ sealed class Resource<T> {
 }
 
 @ExperimentalCoroutinesApi
-class ViewModel<Type, Action>(defaultState: State<Type>) {
+class Store<Type, Action>(defaultState: State<Type>) {
 
     private val viewModelScope = MainScope()
 
-    var intents = mapOf<Action, Intent<Action, State<Type>>>()
+    var intents = mapOf<Action, Intent<State<Type>>>()
 
     private val _state = MutableStateFlow(defaultState)
 
@@ -132,15 +135,15 @@ class ViewModel<Type, Action>(defaultState: State<Type>) {
     fun sendAction(action: Action) {
         viewModelScope.launch {
             val intent = intents[action]
-            console.log(intent)
             requireNotNull(intent)
 
             val result = intent.onTrigger.invoke()
-            console.log(result)
 
             val newState = intent.reducer(result, _state.value)
 
             _state.value = newState
+
+            intent.sideEffect?.invoke(result, _state.value)
         }
     }
 }
@@ -149,7 +152,8 @@ sealed class ExercisesListActions {
     object Initialization : ExercisesListActions()
 }
 
-data class Intent<Action, State>(
+data class Intent<State>(
         val onTrigger: suspend () -> Any?,
-        val reducer: suspend (Any?, State) -> State
+        val reducer: suspend (Any?, State) -> State,
+        val sideEffect: ((Any?, State) -> Unit)?
 )
