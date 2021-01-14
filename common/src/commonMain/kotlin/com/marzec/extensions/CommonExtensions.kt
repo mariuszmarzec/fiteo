@@ -9,3 +9,5 @@ inline fun <Class, Return> Class.replaceOrNull(replaceFunction: (Class?) -> Retu
 }
 
 fun emptyString() = ""
+
+fun <T: Any> T.toList() = listOf(this)

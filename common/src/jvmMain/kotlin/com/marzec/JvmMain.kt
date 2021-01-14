@@ -7,13 +7,6 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
-import com.marzec.database.TrainingTemplatePartTable
-import com.marzec.database.TrainingTemplatePartToCategoriesTable
-import com.marzec.database.TrainingTemplatePartToExcludedEquipmentTable
-import com.marzec.database.TrainingTemplatePartToExcludedExercisesTable
-import com.marzec.database.TrainingTemplateTable
-import com.marzec.database.TrainingTemplateToAvailableEquipmentTable
-import com.marzec.database.TrainingTemplateToTrainingTemplatePartTable
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
@@ -29,11 +22,10 @@ import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
-import com.marzec.todo.database.TaskEntity
-import com.marzec.todo.database.TasksTable
-import com.marzec.todo.database.ToDoListTable
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.UpdateTask
+import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -78,7 +70,6 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 
@@ -170,6 +161,8 @@ fun main() {
                 deleteTodoList(todoController)
 
                 addTask(todoController)
+                updateTask(todoController)
+                removeTask(todoController)
 
                 // fiteo
                 templates(api)
@@ -323,6 +316,35 @@ fun Route.addTask(api: ToDoApiController) {
                 )
         )
         dispatch(api.addTask(httpRequest))
+    }
+}
+
+fun Route.updateTask(api: ToDoApiController) {
+    patch(TodoApiPath.UPDATE_TASK) {
+        val createDto = call.receive<UpdateTaskDto>()
+        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                createDto,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to taskId,
+                )
+        )
+        dispatch(api.updateTask(httpRequest))
+    }
+}
+
+fun Route.removeTask(api: ToDoApiController) {
+    delete(TodoApiPath.DELETE_TASK) {
+        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                data = Unit,
+                parameters = mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to taskId,
+                )
+        )
+        dispatch(api.removeTask(httpRequest))
     }
 }
 

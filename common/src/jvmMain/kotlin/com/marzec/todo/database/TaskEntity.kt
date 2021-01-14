@@ -1,5 +1,6 @@
 package com.marzec.todo.database
 
+import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.todo.model.Task
@@ -21,7 +22,7 @@ object TasksTable : IntIdTable("todo_tasks") {
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
-class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
+class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
 
     var description by TasksTable.description
     var addedTime by TasksTable.addedTime
@@ -30,7 +31,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
     var priority by TasksTable.priority
     var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
-    var user by UserEntity referencedOn TasksTable.userId
+    override var user by UserEntity referencedOn TasksTable.userId
 
     fun toDomain(): Task {
         return Task(
@@ -49,6 +50,6 @@ class TaskEntity(id: EntityID<Int>) : IntEntity(id) {
 }
 
 object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {
-    val parent = reference("parent_id", TasksTable)
-    val child = reference("child_id", TasksTable)
+    val parent = reference("parent_id", TasksTable, onDelete = ReferenceOption.CASCADE)
+    val child = reference("child_id", TasksTable, onDelete = ReferenceOption.CASCADE)
 }

@@ -3,6 +3,7 @@ package com.marzec.todo.api
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.ToDoList
+import com.marzec.todo.model.UpdateTask
 import com.marzec.todo.repositories.TodoRepository
 
 class TodoService(
@@ -22,5 +23,13 @@ class TodoService(
 
     fun addTask(userId: Int, listId: Int, task: CreateTask): Task {
         return repository.addTask(userId, listId, task)
+    }
+
+    fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task {
+        return repository.updateTask(userId, taskId, task)
+    }
+
+    fun removeTask(userId: Int, taskId: Int): Task {
+        return repository.removeTask(userId, taskId)
     }
 }

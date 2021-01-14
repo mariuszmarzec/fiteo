@@ -16,8 +16,8 @@ object ToDoListTable : IntIdTable("todo_lists") {
 }
 
 object ToDoListsToTasksTable : IntIdTable("todo_lists_to_tasks") {
-    val toDoList = reference("todo_list_id", ToDoListTable)
-    val task = reference("task_id", TasksTable)
+    val toDoList = reference("todo_list_id", ToDoListTable, onDelete = ReferenceOption.CASCADE)
+    val task = reference("task_id", TasksTable, onDelete = ReferenceOption.CASCADE)
 }
 
 class ToDoListEntity(id: EntityID<Int>) : IntEntityWithUser(id) {

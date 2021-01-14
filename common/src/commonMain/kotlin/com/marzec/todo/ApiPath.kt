@@ -17,4 +17,6 @@ object ApiPath {
     const val DELETE_TODO_LIST = "$API_ROOT/list/{$ARG_ID}"
 
     const val ADD_TASK = "$API_ROOT/list/{$ARG_ID}/tasks"
+    const val UPDATE_TASK = "$API_ROOT/tasks/{$ARG_ID}"
+    const val DELETE_TASK = "$API_ROOT/tasks/{$ARG_ID}"
 }
