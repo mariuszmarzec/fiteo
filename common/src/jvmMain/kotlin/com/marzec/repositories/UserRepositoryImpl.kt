@@ -4,12 +4,12 @@ import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.database.dbCall
 import com.marzec.model.domain.User
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.Database
 
-class UserRepositoryImpl : UserRepository {
+class UserRepositoryImpl(private val database: Database) : UserRepository {
 
     override fun checkPassword(email: String, password: String): Boolean {
-        return dbCall {
+        return database.dbCall {
             UserEntity.find {
                 UserTable.email eq email
             }.first().password == password
@@ -17,7 +17,7 @@ class UserRepositoryImpl : UserRepository {
     }
 
     override fun createUser(email: String, password: String): User {
-        return dbCall {
+        return database.dbCall {
             UserEntity.new {
                 this.email = email
                 this.password = password
@@ -26,13 +26,13 @@ class UserRepositoryImpl : UserRepository {
     }
 
     override fun getUser(id: Int): User {
-        return dbCall {
+        return database.dbCall {
             UserEntity[id]
         }.toDomain()
     }
 
     override fun getUser(email: String): User {
-        return dbCall {
+        return database.dbCall {
             UserEntity.find { UserTable.email eq email }
                     .first().let {
                         User(it.id.value, it.email)

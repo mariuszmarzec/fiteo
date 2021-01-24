@@ -15,25 +15,26 @@ import com.marzec.model.domain.CreateTrainingExerciseWithProgress
 import com.marzec.model.domain.Series
 import com.marzec.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
-class TrainingRepositoryImpl : TrainingRepository {
+class TrainingRepositoryImpl(private val database: Database) : TrainingRepository {
 
     override fun createTraining(userId: Int, templateId: Int): Training {
-        val userEntity = dbCall { UserEntity.findByIdOrThrow(userId) }
-        val trainingTemplateEntity = dbCall { TrainingTemplateEntity.findByIdOrThrow(templateId) }
-        val trainingEntity = dbCall {
+        val userEntity = database.dbCall { UserEntity.findByIdOrThrow(userId) }
+        val trainingTemplateEntity = database.dbCall { TrainingTemplateEntity.findByIdOrThrow(templateId) }
+        val trainingEntity = database.dbCall {
             TrainingEntity.new {
                 template = trainingTemplateEntity
                 user = userEntity
             }
         }
-        return dbCall { trainingEntity.toDomain() }
+        return database.dbCall { trainingEntity.toDomain() }
     }
 
     override fun getTraining(userId: Int, trainingId: Int): Training {
-        return dbCall {
+        return database.dbCall {
             val trainingEntity = TrainingEntity.findByIdOrThrow(trainingId)
             trainingEntity.belongsToUserOrThrow(userId)
             trainingEntity.toDomain()
@@ -41,14 +42,14 @@ class TrainingRepositoryImpl : TrainingRepository {
     }
 
     override fun getTrainings(userId: Int): List<Training> {
-        return dbCall {
+        return database.dbCall {
             TrainingsTable.selectAll().andWhere { TrainingsTable.userId eq userId }
                     .map { TrainingEntity.wrapRow(it).toDomain() }
         }
     }
 
     override fun removeTrainings(userId: Int, trainingId: Int): Training {
-        return dbCall {
+        return database.dbCall {
             val trainingEntity = TrainingEntity.findByIdOrThrow(trainingId)
             trainingEntity.deleteIfBelongsToUserOrThrow(userId)
             trainingEntity.toDomain()
@@ -56,9 +57,9 @@ class TrainingRepositoryImpl : TrainingRepository {
     }
 
     override fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training {
-        val userEntity = dbCall { UserEntity.findByIdOrThrow(userId) }
+        val userEntity = database.dbCall { UserEntity.findByIdOrThrow(userId) }
 
-        val trainingEntity = dbCall {
+        val trainingEntity = database.dbCall {
             TrainingEntity.findByIdOrThrow(trainingId).apply {
                 belongsToUserOrThrow(userId)
             }
@@ -69,7 +70,7 @@ class TrainingRepositoryImpl : TrainingRepository {
         }
 
 
-        return dbCall {
+        return database.dbCall {
             trainingEntity.exercises = exercises.toSized()
             trainingEntity.toDomain()
         }
@@ -80,7 +81,7 @@ class TrainingRepositoryImpl : TrainingRepository {
             createSeries(userEntity, it)
         }
 
-        return dbCall {
+        return database.dbCall {
             TrainingExerciseWithProgressEntity.new {
                 this.exercise = ExerciseEntity.findByIdOrThrow(training.exerciseId)
                 this.series = series.toSized()
@@ -89,7 +90,7 @@ class TrainingRepositoryImpl : TrainingRepository {
     }
 
     private fun createSeries(userEntity: UserEntity, series: Series): SeriesEntity {
-        return dbCall {
+        return database.dbCall {
             SeriesEntity.new {
                 date = series.date.toJavaLocalDateTime()
                 burden = series.burden

@@ -11,7 +11,7 @@ import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
 import com.marzec.database.toPrincipal
-import com.marzec.di.DI
+import com.marzec.di.Di
 import com.marzec.extensions.emptyString
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.UserSession
@@ -24,7 +24,6 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
-import com.marzec.todo.model.UpdateTask
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
@@ -57,6 +56,7 @@ import io.ktor.routing.delete
 import io.ktor.routing.get
 import io.ktor.routing.patch
 import io.ktor.routing.post
+import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
@@ -75,17 +75,16 @@ import org.jetbrains.exposed.sql.addLogger
 
 @KtorExperimentalAPI
 fun main() {
-    val api = DI.provideApi()
-    val cheatDayApi = DI.provideCheatDayController()
-    val todoController = DI.provideTodoController()
+    val di = Di(DbSettings.database)
+    val testDi = Di(DbSettings.testDatabase)
 
     val onServerStart: (Application) -> Unit = {
-        DI.provideDataSource().loadData()
+        di.provideDataSource().loadData()
     }
 
     println("Database version: ${DbSettings.database.version}")
 
-    dbCall {
+    DbSettings.database.dbCall {
         addLogger(StdOutSqlLogger)
 
         val users = UserEntity.all()
@@ -116,12 +115,12 @@ fun main() {
         install(ContentNegotiation) {
             json(
                     contentType = ContentType.Application.Json,
-                    json = DI.provideJson()
+                    json = di.provideJson()
             )
         }
 
         install(Sessions) {
-            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(DI.provideCachedSessionsRepository())) {
+            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.provideCachedSessionsRepository())) {
                 transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
             }
         }
@@ -132,7 +131,7 @@ fun main() {
                     call.respond(UnauthorizedResponse())
                 }
                 validate { session: UserSession ->
-                    when (val httpResponse = api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                    when (val httpResponse = di.provideApi().getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
                         is HttpResponse.Success -> httpResponse.data.toPrincipal()
                         is HttpResponse.Error -> null
                     }
@@ -146,36 +145,42 @@ fun main() {
                 resources("")
             }
 
-            login(api)
-            register(api)
-            authenticate(Auth.NAME) {
-                // cheat
-                weights(cheatDayApi)
-                putWeight(cheatDayApi)
-                removeWeight(cheatDayApi)
-                updateWeight(cheatDayApi)
+            apiSetup(testDi, di) {
+                val api: Controller = di.provideApi()
+                val cheatDayApi: CheatDayController = di.provideCheatDayController()
+                val todoController: ToDoApiController = di.provideTodoController()
 
-                // todo
-                todoLists(todoController)
-                addTodoList(todoController)
-                deleteTodoList(todoController)
+                login(api)
+                register(api)
+                authenticate(Auth.NAME) {
+                    // cheat
+                    weights(cheatDayApi)
+                    putWeight(cheatDayApi)
+                    removeWeight(cheatDayApi)
+                    updateWeight(cheatDayApi)
 
-                addTask(todoController)
-                updateTask(todoController)
-                removeTask(todoController)
+                    // todo
+                    todoLists(todoController)
+                    addTodoList(todoController)
+                    deleteTodoList(todoController)
 
-                // fiteo
-                templates(api)
-                putTemplate(api)
-                removeTemplate(api)
-                updateTemplate(api)
-                users(api)
-                logout()
+                    addTask(todoController)
+                    updateTask(todoController)
+                    removeTask(todoController)
+
+                    // fiteo
+                    templates(api)
+                    putTemplate(api)
+                    removeTemplate(api)
+                    updateTemplate(api)
+                    users(api)
+                    logout()
+                }
+                equipment(api)
+                exercises(api)
+                categories(api)
+                trainings(api)
             }
-            equipment(api)
-            exercises(api)
-            categories(api)
-            trainings(api)
         }
     }.start(wait = true)
 }
@@ -411,6 +416,14 @@ fun Route.trainings(api: Controller) {
     get(ApiPath.TRAININGS) {
         dispatch(api.getTrainings())
     }
+}
+
+fun Route.apiSetup(testDi: Di, prodDi: Di, setup: Route.(di: Di) -> Unit) {
+
+    route(ApiPath.TEST_API_PREFIX) {
+        setup(testDi)
+    }
+    setup(prodDi)
 }
 
 private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {

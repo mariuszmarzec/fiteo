@@ -5,13 +5,14 @@ import com.marzec.database.CachedSessionTable
 import com.marzec.database.dbCall
 import com.marzec.database.toDomain
 import com.marzec.model.domain.CachedSession
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 
-class CachedSessionsRepositoryImpl : CachedSessionsRepository {
+class CachedSessionsRepositoryImpl(private val database: Database) : CachedSessionsRepository {
 
     override fun createSession(session: CachedSession) {
-        dbCall {
+        database.dbCall {
             CachedSessionEntity.new(session.id) {
                 this.session = ExposedBlob(session.session)
             }
@@ -19,13 +20,13 @@ class CachedSessionsRepositoryImpl : CachedSessionsRepository {
     }
 
     override fun getSession(id: String): CachedSession? {
-        return dbCall {
+        return database.dbCall {
             CachedSessionEntity.findById(id)?.toDomain()
         }
     }
 
     override fun removeSession(id: String) {
-        dbCall {
+        database.dbCall {
             CachedSessionTable.deleteWhere { CachedSessionTable.id eq id }
         }
     }

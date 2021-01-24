@@ -14,13 +14,14 @@ import com.marzec.todo.model.Task
 import com.marzec.todo.model.ToDoList
 import com.marzec.todo.model.UpdateTask
 import java.time.LocalDateTime
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
-class TodoRepositoryImpl : TodoRepository {
+class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
     override fun getLists(userId: Int): List<ToDoList> {
-        return dbCall {
+        return database.dbCall {
             ToDoListTable.selectAll()
                     .andWhere { ToDoListTable.userId.eq(userId) }
                     .map { ToDoListEntity.wrapRow(it).toDomain() }
@@ -35,7 +36,7 @@ class TodoRepositoryImpl : TodoRepository {
     }
 
     override fun addList(userId: Int, listName: String): ToDoList {
-        return dbCall {
+        return database.dbCall {
             ToDoListEntity.new {
                 title = listName
                 user = UserEntity.findByIdOrThrow(userId)
@@ -44,7 +45,7 @@ class TodoRepositoryImpl : TodoRepository {
     }
 
     override fun removeList(userId: Int, listId: Int): ToDoList {
-        return dbCall {
+        return database.dbCall {
             val entity = ToDoListEntity.findByIdOrThrow(listId)
             val list = entity.toDomain()
             entity.deleteIfBelongsToUserOrThrow(userId)
@@ -53,7 +54,7 @@ class TodoRepositoryImpl : TodoRepository {
     }
 
     override fun addTask(userId: Int, listId: Int, task: CreateTask): Task {
-        val listEntity = dbCall {
+        val listEntity = database.dbCall {
             val listEntity = ToDoListEntity.findByIdOrThrow(listId)
             listEntity.belongsToUserOrThrow(userId)
             listEntity
@@ -61,7 +62,7 @@ class TodoRepositoryImpl : TodoRepository {
 
         val parentTask = task.parentTaskId?.let { TaskEntity.findByIdOrThrow(it) }
 
-        val taskEntity = dbCall {
+        val taskEntity = database.dbCall {
             TaskEntity.new {
                 description = task.description
                 isToDo = true
@@ -69,7 +70,7 @@ class TodoRepositoryImpl : TodoRepository {
                 user = UserEntity.findByIdOrThrow(userId)
             }
         }
-        return dbCall {
+        return database.dbCall {
             taskEntity.parents = parentTask?.toList().orEmpty().toSized()
 
             listEntity.tasks = listEntity.tasks.toMutableList().apply { add(taskEntity) }.toSized()
@@ -77,7 +78,7 @@ class TodoRepositoryImpl : TodoRepository {
         }
     }
 
-    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = dbCall {
+    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = database.dbCall {
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         taskEntity.belongsToUserOrThrow(userId)
         taskEntity.description = task.description
@@ -88,7 +89,7 @@ class TodoRepositoryImpl : TodoRepository {
         taskEntity.toDomain()
     }
 
-    override fun removeTask(userId: Int, taskId: Int): Task = dbCall {
+    override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         val task = taskEntity.toDomain()
         taskEntity.deleteIfBelongsToUserOrThrow(userId)

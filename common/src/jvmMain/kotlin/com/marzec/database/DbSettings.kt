@@ -13,8 +13,17 @@ object DbSettings {
                 password = BuildKonfig.DB_PASSWORD
         )
     }
+
+    val testDatabase by lazy {
+        Database.connect(
+                url = BuildKonfig.DB_TEST_ENDPOINT,
+                driver = "com.mysql.cj.jdbc.Driver",
+                user = BuildKonfig.DB_TEST_USER,
+                password = BuildKonfig.DB_TEST_PASSWORD
+        )
+    }
 }
 
-fun<T> dbCall(statement: Transaction.() -> T) = transaction(DbSettings.database) {
+fun<T> Database.dbCall(statement: Transaction.() -> T) = transaction(this) {
     statement()
 }

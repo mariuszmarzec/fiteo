@@ -13,6 +13,8 @@ object ApiPath {
 
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
+    const val TEST_API_PREFIX = "/test"
+
     const val USER = "$API_ROOT/user"
     const val EXERCISES_PAGE = "$API_ROOT/exercises/page"
     const val EXERCISES = "$API_ROOT/exercises"
@@ -35,4 +37,5 @@ object Headers {
 
 object Auth {
     const val NAME = "fiteo_auth"
+    const val TEST = "fiteo_test_auth"
 }

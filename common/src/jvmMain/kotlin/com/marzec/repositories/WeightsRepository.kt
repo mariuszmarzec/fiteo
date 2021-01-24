@@ -9,13 +9,14 @@ import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
-class WeightsRepositoryImpl: WeightsRepository {
+class WeightsRepositoryImpl(private val database: Database) : WeightsRepository {
 
     override fun getWeights(userId: Int): List<Weight> {
-        return dbCall {
+        return database.dbCall {
             WeightsTable.selectAll().andWhere { WeightsTable.userId.eq(userId) }.map {
                 WeightEntity.wrapRow(it).toDomain()
             }
@@ -23,7 +24,7 @@ class WeightsRepositoryImpl: WeightsRepository {
     }
 
     override fun addWeight(userId: Int, weight: Float, date: LocalDateTime): Weight {
-        return dbCall {
+        return database.dbCall {
             WeightEntity.new {
                 this.value = weight
                 this.date = date.toJavaLocalDateTime()
@@ -33,7 +34,7 @@ class WeightsRepositoryImpl: WeightsRepository {
     }
 
     override fun removeWeight(userId: Int, weightId: Int): Weight {
-        return dbCall {
+        return database.dbCall {
             val weightEntity = WeightEntity.findByIdOrThrow(weightId)
             weightEntity.belongsToUserOrThrow(userId)
             weightEntity.delete()
@@ -42,7 +43,7 @@ class WeightsRepositoryImpl: WeightsRepository {
     }
 
     override fun updateWeight(userId: Int, weight: Weight): Weight {
-        return dbCall {
+        return database.dbCall {
             val weightEntity = WeightEntity.findByIdOrThrow(weight.id)
             weightEntity.belongsToUserOrThrow(userId)
             weightEntity.date = weight.date.toJavaLocalDateTime()

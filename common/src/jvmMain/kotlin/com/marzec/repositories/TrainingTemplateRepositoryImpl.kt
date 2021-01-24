@@ -14,12 +14,13 @@ import com.marzec.model.domain.CreateTrainingTemplate
 import com.marzec.model.domain.CreateTrainingTemplatePart
 import com.marzec.model.domain.TrainingTemplate
 import org.jetbrains.exposed.dao.load
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
-class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
+class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingTemplateRepository {
 
-    override fun getTemplates(userId: Int): List<TrainingTemplate> = dbCall {
+    override fun getTemplates(userId: Int): List<TrainingTemplate> = database.dbCall {
         TrainingTemplateTable.selectAll().andWhere {
             TrainingTemplateTable.userId.eq(userId)
         }.map { TrainingTemplateEntity.wrapRow(it).toDomain() }
@@ -31,20 +32,20 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
             addTemplatePart(templatePart)
         }
 
-        val availableEquipment = dbCall {
+        val availableEquipment = database.dbCall {
             trainingTemplate.availableEquipmentIds.map {
                 EquipmentEntity.findByIdOrThrow(it)
             }
         }
 
-        val templateEntity = dbCall {
+        val templateEntity = database.dbCall {
             TrainingTemplateEntity.new {
                 name = trainingTemplate.name
                 user = UserEntity[userId]
             }
         }
 
-        return dbCall {
+        return database.dbCall {
             templateEntity.parts = trainingParts.toSized()
             templateEntity.availableEquipment = availableEquipment.toSized()
             templateEntity.toDomain()
@@ -54,7 +55,7 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
 
     override fun updateTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate {
         val parts = trainingTemplate.exercises.map { addTemplatePart(it) }
-        return dbCall {
+        return database.dbCall {
             val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplate.id).load(
                     TrainingTemplateEntity::parts,
                     TrainingTemplateEntity::availableEquipment,
@@ -74,19 +75,19 @@ class TrainingTemplateRepositoryImpl : TrainingTemplateRepository {
         }
     }
 
-    override fun removeTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate = dbCall {
+    override fun removeTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate = database.dbCall {
         val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplateId)
         templateEntity.deleteIfBelongsToUserOrThrow(userId)
         templateEntity.toDomain()
     }
 
     private fun addTemplatePart(templatePart: CreateTrainingTemplatePart): TrainingTemplatePartEntity {
-        val partEntity = dbCall {
+        val partEntity = database.dbCall {
             TrainingTemplatePartEntity.new {
                 this.name = templatePart.name
             }
         }
-        return dbCall {
+        return database.dbCall {
             partEntity.apply {
                 val categories = templatePart.categoryIds.map { CategoryEntity.findByIdOrThrow(it) }
                 val excludedEquipment = templatePart.excludedEquipmentIds.map { EquipmentEntity.findByIdOrThrow(it) }

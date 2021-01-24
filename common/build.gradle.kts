@@ -32,10 +32,17 @@ application {
 
 val properties: Properties = Properties()
 properties.load(project.rootProject.file("local.properties").inputStream())
+val dbMigration = properties.getProperty("database.migration")
 val dbEndpoint = properties.getProperty("database.endpoint")
 val dbUser = properties.getProperty("database.user")
 val dbPassword = properties.getProperty("database.password")
 val dbDatabase = properties.getProperty("database.database")
+
+val dbTestEndpoint = properties.getProperty("database.testEndpoint")
+val dbTestUser = properties.getProperty("database.testUser")
+val dbTestPassword = properties.getProperty("database.testPassword")
+val dbTestDatabase = properties.getProperty("database.testDatabase")
+
 
 val projectPackageName = "com.marzec.fiteo"
 
@@ -153,11 +160,19 @@ distributions {
 }
 
 flyway {
-    url = dbEndpoint
-    user = dbUser
-    password = dbPassword
-    createSchemas = true
-    placeholders = mapOf("database_name" to dbDatabase)
+    if (dbMigration == "test") {
+        url = dbTestEndpoint
+        user = dbTestUser
+        password = dbTestPassword
+        createSchemas = true
+        placeholders = mapOf("database_name" to dbTestDatabase)
+    } else {
+        url = dbEndpoint
+        user = dbUser
+        password = dbPassword
+        createSchemas = true
+        placeholders = mapOf("database_name" to dbDatabase)
+    }
     locations = arrayOf("filesystem:/$projectDir/src/commonMain/resources/db/migration")
 }
 
@@ -168,6 +183,11 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_USER", dbUser)
         buildConfigField(FieldSpec.Type.STRING, "DB_PASSWORD", dbPassword)
         buildConfigField(FieldSpec.Type.STRING, "DB_DATABASE", dbDatabase)
+
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_ENDPOINT", dbTestEndpoint)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_USER", dbTestUser)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_PASSWORD", dbTestPassword)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
     }
 }
 

@@ -7,18 +7,19 @@ import com.marzec.database.EquipmentTable
 import com.marzec.database.ExerciseEntity
 import com.marzec.database.dbCall
 import com.marzec.model.domain.Exercise
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.insertAndGetId
 
-class ExercisesRepositoryImpl : ExercisesRepository {
+class ExercisesRepositoryImpl(private val database: Database) : ExercisesRepository {
 
-    override fun getAll(): List<Exercise> = dbCall {
+    override fun getAll(): List<Exercise> = database.dbCall {
         ExerciseEntity.all().map { it.toDomain() }
     }
 
     override fun addAll(exercises: List<Exercise>) =
             exercises.forEach { exercise ->
-                val equipment = dbCall {
+                val equipment = database.dbCall {
                     SizedCollection(
                             exercise.neededEquipment.map { equipment ->
                                 EquipmentEntity.findById(equipment.id) ?: EquipmentEntity.findById(
@@ -30,7 +31,7 @@ class ExercisesRepositoryImpl : ExercisesRepository {
                             }
                     )
                 }
-                val categories = dbCall {
+                val categories = database.dbCall {
                     SizedCollection(
                             exercise.category.map { category ->
                                 CategoryEntity.findById(category.id) ?: CategoryEntity.findById(
@@ -43,7 +44,7 @@ class ExercisesRepositoryImpl : ExercisesRepository {
                     )
                 }
 
-                val exercise = dbCall {
+                val exercise = database.dbCall {
                     ExerciseEntity.new {
                         name = exercise.name
                         animationImageName = exercise.animationImageName
@@ -61,7 +62,7 @@ class ExercisesRepositoryImpl : ExercisesRepository {
                         thumbnailUrl = exercise.thumbnailUrl
                     }
                 }
-                dbCall {
+                database.dbCall {
                     exercise.category = categories
                     exercise.neededEquipment = equipment
                 }
