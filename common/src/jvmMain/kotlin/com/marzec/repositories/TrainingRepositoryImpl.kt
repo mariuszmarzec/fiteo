@@ -14,6 +14,7 @@ import com.marzec.model.domain.CreateTraining
 import com.marzec.model.domain.CreateTrainingExerciseWithProgress
 import com.marzec.model.domain.Series
 import com.marzec.model.domain.Training
+import java.time.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
@@ -72,6 +73,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
 
         return database.dbCall {
             trainingEntity.exercises = exercises.toSized()
+            trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
             trainingEntity.toDomain()
         }
     }
