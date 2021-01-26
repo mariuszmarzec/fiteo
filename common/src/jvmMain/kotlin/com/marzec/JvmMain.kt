@@ -95,14 +95,6 @@ fun main() {
 
         val users = UserEntity.all()
         println(users.toList())
-
-        SchemaUtils.create(
-                TrainingsTable,
-                SeriesTable,
-                TrainingExerciseWithProgressTable,
-                TrainingToExercisesTable,
-                ExerciseToSeries
-        )
     }
 
     embeddedServer(Netty, 5000) {
