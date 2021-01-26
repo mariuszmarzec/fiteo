@@ -1,22 +1,19 @@
 package com.marzec.api
 
 import com.marzec.ApiPath
-import com.marzec.exceptions.HttpException
 import com.marzec.exercises.AuthenticationService
-import com.marzec.model.domain.toDto
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.TrainingService
 import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
-import com.marzec.model.domain.CreateTrainingTemplate
+import com.marzec.model.domain.CreateTrainingDto
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.Request
-import com.marzec.model.domain.Training
 import com.marzec.model.domain.TrainingDto
-import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.domain.toDomain
+import com.marzec.model.domain.toDto
 import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
 import com.marzec.model.dto.ErrorDto
@@ -40,9 +37,6 @@ class ControllerImpl(
 
     override fun getExercises(): HttpResponse.Success<List<ExerciseDto>> =
             HttpResponse.Success(exercisesService.getExercises().map { it.toDto() })
-
-    override fun getTrainings(): HttpResponse<List<TrainingDto>> =
-            HttpResponse.Success(emptyList<Training>().map { it.toDto() })
 
     override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> {
         val email = httpRequest.data?.email.orEmpty()
@@ -96,7 +90,42 @@ class ControllerImpl(
             serviceCall {
                 trainingService.removeTrainingTemplate(
                         request.userIdOrThrow(),
-                        request.getIntOrThrow(com.marzec.cheatday.ApiPath.ARG_ID)
+                        request.getIntOrThrow(ApiPath.ARG_ID)
                 ).toDto()
             }
+
+    override fun createTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
+        trainingService.createTraining(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(ApiPath.ARG_ID)
+        ).toDto()
+    }
+
+    override fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
+        trainingService.getTraining(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(ApiPath.ARG_ID)
+        ).toDto()
+    }
+
+    override fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>> = serviceCall {
+        trainingService.getTrainings(
+                request.userIdOrThrow()
+        ).map { it.toDto() }
+    }
+
+    override fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
+        trainingService.removeTraining(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(ApiPath.ARG_ID)
+        ).toDto()
+    }
+
+    override fun updateTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto> = serviceCall {
+        trainingService.updateTraining(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(ApiPath.ARG_ID),
+                request.data.toDomain()
+        ).toDto()
+    }
 }

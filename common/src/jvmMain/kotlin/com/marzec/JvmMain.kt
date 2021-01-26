@@ -7,6 +7,11 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
+import com.marzec.database.ExerciseToSeries
+import com.marzec.database.SeriesTable
+import com.marzec.database.TrainingExerciseWithProgressTable
+import com.marzec.database.TrainingToExercisesTable
+import com.marzec.database.TrainingsTable
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
@@ -24,7 +29,6 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
-import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationStarted
@@ -70,6 +74,8 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
+import kotlin.reflect.KFunction1
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 
@@ -89,6 +95,14 @@ fun main() {
 
         val users = UserEntity.all()
         println(users.toList())
+
+        SchemaUtils.create(
+                TrainingsTable,
+                SeriesTable,
+                TrainingExerciseWithProgressTable,
+                TrainingToExercisesTable,
+                ExerciseToSeries
+        )
     }
 
     embeddedServer(Netty, 5000) {
@@ -173,17 +187,44 @@ fun main() {
                     putTemplate(api)
                     removeTemplate(api)
                     updateTemplate(api)
+
+                    createTraining(api)
+                    getTraining(api)
+                    getTrainings(api)
+                    removeTraining(api)
+                    updateTraining(api)
+
                     users(api)
                     logout()
                 }
                 equipment(api)
                 exercises(api)
                 categories(api)
-                trainings(api)
             }
         }
     }.start(wait = true)
 }
+
+fun Route.createTraining(api: Controller) {
+    get(ApiPath.CREATE_TRAINING) {
+        val httpRequest = HttpRequest(
+                data = Unit,
+                parameters = mapOf(
+                        ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
+                        ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
+                )
+        )
+        dispatch(api.createTraining(httpRequest))
+    }
+}
+
+fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
+
+fun Route.getTrainings(api: Controller) = getAllEndpoint(ApiPath.TRAININGS, api::getTrainings)
+
+fun Route.removeTraining(api: Controller) = deleteByIdEndpoint(ApiPath.TRAINING, api::removeTraining)
+
+fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING, api::updateTraining)
 
 fun Route.templates(api: Controller) {
     get(ApiPath.TRAINING_TEMPLATES) {
@@ -204,19 +245,8 @@ fun Route.putTemplate(api: Controller) {
     }
 }
 
-fun Route.removeTemplate(api: Controller) {
-    delete(ApiPath.DELETE_TRAINING_TEMPLATES) {
-        val weightId = call.parameters[TodoApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-                Unit,
-                mapOf(
-                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                        ApiPath.ARG_ID to weightId,
-                )
-        )
-        dispatch(api.removeTrainingTemplate(httpRequest))
-    }
-}
+fun Route.removeTemplate(api: Controller) =
+        deleteByIdEndpoint(ApiPath.DELETE_TRAINING_TEMPLATES, api::removeTrainingTemplate)
 
 fun Route.updateTemplate(api: Controller) {
     patch(ApiPath.UPDATE_TRAINING_TEMPLATES) {
@@ -324,24 +354,11 @@ fun Route.addTask(api: ToDoApiController) {
     }
 }
 
-fun Route.updateTask(api: ToDoApiController) {
-    patch(TodoApiPath.UPDATE_TASK) {
-        val createDto = call.receive<UpdateTaskDto>()
-        val taskId = call.parameters[TodoApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-                createDto,
-                mapOf(
-                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                        ApiPath.ARG_ID to taskId,
-                )
-        )
-        dispatch(api.updateTask(httpRequest))
-    }
-}
+fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(TodoApiPath.UPDATE_TASK, api::updateTask)
 
 fun Route.removeTask(api: ToDoApiController) {
     delete(TodoApiPath.DELETE_TASK) {
-        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val taskId = call.parameters[ApiPath.ARG_ID]
         val httpRequest = HttpRequest(
                 data = Unit,
                 parameters = mapOf(
@@ -412,12 +429,6 @@ fun Route.equipment(api: Controller) {
     }
 }
 
-fun Route.trainings(api: Controller) {
-    get(ApiPath.TRAININGS) {
-        dispatch(api.getTrainings())
-    }
-}
-
 fun Route.apiSetup(testDi: Di, prodDi: Di, setup: Route.(di: Di) -> Unit) {
 
     route(ApiPath.TEST_API_PREFIX) {
@@ -443,3 +454,65 @@ private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(re
 fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = wrapAsRequest(Unit, key, arg)
 
 fun <T> wrapAsRequest(body: T, key: String, arg: Any): HttpRequest<T> = HttpRequest(body, mapOf(key to arg.toString()))
+
+private fun <T: Any> Route.getByIdEndpoint(path: String, apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>) {
+    get(path) {
+        val httpRequest = HttpRequest(
+                data = Unit,
+                parameters = mapOf(
+                        ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
+                        ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
+                )
+        )
+        dispatch(apiFunRef(httpRequest))
+    }
+}
+
+private fun <T: Any> Route.getAllEndpoint(
+        path: String,
+        apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<List<T>>>
+) {
+    get(path) {
+        val httpRequest = HttpRequest(
+                data = Unit,
+                parameters = mapOf(
+                        ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
+                )
+        )
+        dispatch(apiFunRef(httpRequest))
+    }
+}
+
+private fun <T : Any> Route.deleteByIdEndpoint(
+        path: String,
+        apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
+) {
+    delete(path) {
+        val httpRequest = HttpRequest(
+                Unit,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
+                )
+        )
+        dispatch(apiFunRef(httpRequest))
+    }
+}
+
+private inline fun <reified REQUEST : Any, RESPONSE : Any> Route.updateByIdEndpoint(
+        path: String,
+        apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
+) {
+    patch(path) {
+        val dto = call.receive<REQUEST>()
+        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+                dto,
+                mapOf(
+                        ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                        ApiPath.ARG_ID to taskId,
+                )
+        )
+        dispatch(apiFunRef(httpRequest))
+    }
+}

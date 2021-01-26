@@ -1,5 +1,6 @@
 package com.marzec.api
 
+import com.marzec.model.domain.CreateTrainingDto
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplateDto
@@ -17,7 +18,6 @@ interface Controller {
     fun getExercises(): HttpResponse<List<ExerciseDto>>
     fun getCategories(): HttpResponse<List<CategoryDto>>
     fun getEquipment(): HttpResponse<List<EquipmentDto>>
-    fun getTrainings(): HttpResponse<List<TrainingDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
     fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto>
     fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>
@@ -25,4 +25,9 @@ interface Controller {
     fun addTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>
     fun updateTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>
     fun removeTrainingTemplate(request: HttpRequest<Unit>): HttpResponse<TrainingTemplateDto>
+    fun createTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
+    fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
+    fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>>
+    fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
+    fun updateTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto>
 }

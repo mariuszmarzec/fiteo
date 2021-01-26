@@ -23,6 +23,7 @@ import com.marzec.repositories.EquipmentRepository
 import com.marzec.repositories.EquipmentRepositoryImpl
 import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.ExercisesRepositoryImpl
+import com.marzec.repositories.TrainingRepositoryImpl
 import com.marzec.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.repositories.UserRepositoryImpl
 import com.marzec.repositories.WeightsRepositoryImpl
@@ -68,7 +69,10 @@ class Di(
     fun provideApi(): Controller = ControllerImpl(
             provideExercisesModel(),
             provideAuthenticationService(),
-            TrainingServiceImpl(TrainingTemplateRepositoryImpl(database))
+            TrainingServiceImpl(
+                    TrainingTemplateRepositoryImpl(database),
+                    TrainingRepositoryImpl(database)
+            )
     )
 
     private fun provideAuthenticationService() = AuthenticationServiceImpl(provideUserRepository())
