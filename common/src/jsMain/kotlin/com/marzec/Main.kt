@@ -1,24 +1,25 @@
 package com.marzec
 
 import com.marzec.extensions.emptyString
-import com.marzec.extensions.replace
 import com.marzec.extensions.replaceIf
-import com.marzec.model.domain.Exercise
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment
+import com.marzec.model.domain.Exercise
+import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.EquipmentDto
+import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.toDomain
 import io.ktor.client.request.get
 import kotlin.reflect.KClass
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.html.InputType
 import kotlinx.html.id
@@ -33,7 +34,9 @@ import react.dom.input
 import react.dom.label
 import react.dom.render
 import react.functionalComponent
+import react.key
 import react.useEffect
+import react.useEffectWithCleanup
 import react.useState
 
 
@@ -143,16 +146,12 @@ fun List<Exercise>.groupByCategories() = groupBy { it.category }.map { (categori
 
 @ExperimentalCoroutinesApi
 val App = functionalComponent<RProps> { _ ->
-    val (state, setState) = useState<State<ExercisesListViewState>>(defaultState)
+    val state = useStateFlow(exerciseListStore.state, defaultState)
 
     useEffect(emptyList()) {
-        scope.launch {
-            exerciseListStore.sendAction(ExercisesListActions.Initialization)
-            exerciseListStore.state.collect {
-                setState(it)
-            }
-        }
+        exerciseListStore.sendAction(ExercisesListActions.Initialization)
     }
+
 
     when (state) {
         is State.Data -> {
@@ -167,6 +166,7 @@ val App = functionalComponent<RProps> { _ ->
                                 label = categoryCheckbox.category.name,
                                 isChecked = categoryCheckbox.isChecked
                             )
+                            this.attrs.key = categoryCheckbox.category.id
                             this.attrs.onCheckedChange = {
                                 exerciseListStore.sendAction(
                                     ExercisesListActions.OnCategoryCheckedChange(
@@ -184,6 +184,7 @@ val App = functionalComponent<RProps> { _ ->
                         h1 { +categories }
                         exercises.forEach { exercise ->
                             child(ExercisesView) {
+                                this.attrs.key = exercise.id.toString()
                                 this.attrs.exercise = exercise
                             }
                         }
@@ -198,6 +199,20 @@ val App = functionalComponent<RProps> { _ ->
             h3 { +"Error: ${state.message}" }
         }
     }
+}
+
+@ExperimentalCoroutinesApi
+fun <T> useStateFlow(flow: Flow<T>, default: T): T {
+    val (state, setState) = useState(default)
+
+    useEffectWithCleanup(listOf()) {
+        val job = flow.onEach {
+            setState(it)
+        }.launchIn(GlobalScope)
+        return@useEffectWithCleanup { job.cancel() }
+    }
+
+    return state
 }
 
 data class GroupedExercisesViewModel(
@@ -272,6 +287,7 @@ data class ExercisesData(
 )
 
 fun Exercise.toView() = ExerciseViewModel(
+    id = id,
     name = name,
     animationUrl = animationUrl,
     imageUrl = imagesUrls?.firstOrNull(),
@@ -291,6 +307,7 @@ data class CategoryCheckboxViewModel(
 )
 
 data class ExerciseViewModel(
+    val id: Int,
     val name: String,
     val animationUrl: String?,
     val imageUrl: String?,
