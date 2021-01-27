@@ -1,7 +1,11 @@
 package com.marzec
 
 import com.marzec.model.domain.Exercise
+import com.marzec.model.dto.CategoryDto
 import com.marzec.model.dto.ExerciseDto
+import com.marzec.model.domain.Category
+import com.marzec.model.domain.Equipment
+import com.marzec.model.dto.EquipmentDto
 import com.marzec.model.dto.toDomain
 import io.ktor.client.request.get
 import kotlinx.browser.document
@@ -12,12 +16,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.html.InputType
+import kotlinx.html.id
+import kotlinx.html.label
 import react.RProps
 import react.child
 import react.dom.div
 import react.dom.h1
 import react.dom.h3
 import react.dom.img
+import react.dom.input
+import react.dom.label
 import react.dom.render
 import react.dom.ul
 import react.functionalComponent
@@ -31,6 +40,14 @@ suspend fun getExercises(): List<Exercise> =
         jsonClient.get<List<ExerciseDto>>(endpoint + ApiPath.EXERCISES)
                 .map { it.toDomain() }
 
+suspend fun getCategories(): List<Category> =
+        jsonClient.get<List<CategoryDto>>(endpoint + ApiPath.CATEGORIES)
+                .map { it.toDomain() }
+
+suspend fun getEquipment(): List<Equipment> =
+        jsonClient.get<List<EquipmentDto>>(endpoint + ApiPath.EQUIPMENT)
+                .map { it.toDomain() }
+
 @ExperimentalCoroutinesApi
 fun main() {
     render(document.getElementById("root")) {
@@ -40,19 +57,31 @@ fun main() {
 
 private val scope = MainScope()
 
-val defaultState = State.Loading<List<Exercise>>(emptyList())
+val defaultState = State.Loading<ExercisesListViewState>()
 
 @ExperimentalCoroutinesApi
-val exerciseListViewModel = Store<List<Exercise>, ExercisesListActions>(defaultState).apply {
+val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defaultState).apply {
     intents = mapOf(
             ExercisesListActions.Initialization to Intent(
                     onTrigger = {
-                        getExercises()
+                        ExercisesData(
+                                getExercises(),
+                                getCategories(),
+                                getEquipment()
+                        )
                     },
-                    reducer = { actionResult: Any?, state: State<List<Exercise>> ->
-                        (actionResult as? List<Exercise>)?.let { State.Data(actionResult) } ?: State.Error("Data loading error")
+                    reducer = { actionResult: Any?, _: State<ExercisesListViewState> ->
+                        (actionResult as? ExercisesData)?.let { exercisesData ->
+                            State.Data(
+                                    ExercisesListViewState(
+                                            exercises = exercisesData.exercises,
+                                            categories = exercisesData.categories,
+                                            equipment = exercisesData.equipment
+                                    )
+                            )
+                        } ?: State.Error("Data loading error")
                     },
-                    sideEffect = { actionResult: Any?, state: State<List<Exercise>> ->
+                    sideEffect = { _: Any?, _: State<ExercisesListViewState> ->
                         console.log("Data loaded!")
                     }
             )
@@ -61,12 +90,12 @@ val exerciseListViewModel = Store<List<Exercise>, ExercisesListActions>(defaultS
 
 @ExperimentalCoroutinesApi
 val App = functionalComponent<RProps> { _ ->
-    val (state, setState) = useState<State<List<Exercise>>>(defaultState)
+    val (state, setState) = useState<State<ExercisesListViewState>>(defaultState)
 
     useEffect(emptyList()) {
         scope.launch {
-            exerciseListViewModel.sendAction(ExercisesListActions.Initialization)
-            exerciseListViewModel.state.collect {
+            exerciseListStore.sendAction(ExercisesListActions.Initialization)
+            exerciseListStore.state.collect {
                 setState(it)
             }
         }
@@ -74,12 +103,33 @@ val App = functionalComponent<RProps> { _ ->
 
     when (state) {
         is State.Data -> {
-            ul {
-                state.data.groupBy { it.category }.forEach { (categories, exercises) ->
-                    h1 { +categories.fold("") { acc, value -> "$acc${value.name} " } }
-                    exercises.forEach { exercise ->
-                        child(ExercisesView) {
-                            this.attrs.exercise = exercise
+            div {
+                div {
+                    h1 { +"Filtry" }
+                    h3 { +"Kategorie" }
+                    state.data.categories.forEach { category ->
+                        div {
+                            input(type = InputType.checkBox) {
+                                attrs {
+                                    id = "category_${category.id}"
+                                    value = category.name
+                                }
+                            }
+                            label {
+                                +category.name
+                                attrs["for"] = "category_${category.id}"
+                            }
+                        }
+                    }
+                }
+                div {
+                    h1 { +"Lista ćwiczeń" }
+                    state.data.exercises.groupBy { it.category }.forEach { (categories, exercises) ->
+                        h1 { +categories.fold("") { acc, value -> "$acc${value.name} " } }
+                        exercises.forEach { exercise ->
+                            child(ExercisesView) {
+                                this.attrs.exercise = exercise
+                            }
                         }
                     }
                 }
@@ -110,7 +160,7 @@ external interface ExercisesViewProps : RProps {
 sealed class State<T> {
 
     data class Data<T>(val data: T) : State<T>()
-    data class Loading<T>(val data: T?) : State<T>()
+    data class Loading<T>(val data: T? = null) : State<T>()
     data class Error<T>(val message: String) : State<T>()
 }
 
@@ -119,6 +169,18 @@ sealed class Resource<T> {
     data class Content<T>(val data: T) : Resource<T>()
     data class Error<T>(val message: String) : Resource<T>()
 }
+
+data class ExercisesData(
+        val exercises: List<Exercise>,
+        val categories: List<Category>,
+        val equipment: List<Equipment>,
+)
+
+data class ExercisesListViewState(
+        val exercises: List<Exercise>,
+        val categories: List<Category>,
+        val equipment: List<Equipment>
+)
 
 @ExperimentalCoroutinesApi
 class Store<Type, Action>(defaultState: State<Type>) {
