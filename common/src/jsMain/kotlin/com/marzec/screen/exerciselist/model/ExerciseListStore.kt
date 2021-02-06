@@ -30,14 +30,8 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                     State.Data(
                         ExercisesListViewState(
                             exercises = exercisesData.exercises,
-                            categories = exercisesData.categories.map {
-                                CategoryCheckboxViewModel(
-                                    category = it,
-                                    isChecked = false
-                                )
-                            },
-                            equipment = exercisesData.equipment,
-                            groupedExercises = exercisesData.exercises.groupByCategories()
+                            categories = exercisesData.categories,
+                            equipment = exercisesData.equipment
                         )
                     )
                 } ?: State.Error("Data loading error")
@@ -46,28 +40,21 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                 console.log("Data loaded!")
             }
         ),
-        ExercisesListActions.OnCategoryCheckedChange::class to intent(
-            reducer = { action: ExercisesListActions.OnCategoryCheckedChange, _: Any?, currentState: State<ExercisesListViewState> ->
-                when (currentState) {
-                    is State.Data -> {
-                        val categories = currentState.data.categories
-                            .replaceIf({ it.category.id == action.categoryId }) { category ->
-                                category.copy(isChecked = !category.isChecked)
-                            }
-                        val exercises = currentState.data.exercises
-                            .filterByCategories(categories)
-                            .groupByCategories()
-                        State.Data(
-                            currentState.data.copy(
-                                categories = categories,
-                                groupedExercises = exercises
-                            )
-                        )
-                    }
-                    is State.Loading -> currentState.copy()
-                    is State.Error -> currentState.copy()
-                }
-            }
-        )
+//        ExercisesListActions.OnCategoryCheckedChange::class to intent(
+//            reducer = { action: ExercisesListActions.OnCategoryCheckedChange, _: Any?, currentState: State<ExercisesListViewState> ->
+//                when (currentState) {
+//                    is State.Data -> {
+//                        val checkedCategories = if (action.categoryId in currentState.data.checkedCategories) {
+//                            currentState.data.checkedCategories.toMutableSet().apply { remove(action.categoryId) }
+//                        } else {
+//                            currentState.data.checkedCategories.toMutableSet().apply { add(action.categoryId) }
+//                        }
+//                        State.Data(currentState.data.copy(checkedCategories = checkedCategories))
+//                    }
+//                    is State.Loading -> currentState.copy()
+//                    is State.Error -> currentState.copy()
+//                }
+//            }
+//        )
     )
 }

@@ -3,21 +3,15 @@ package com.marzec.screen.exerciselist.model
 import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
-import com.marzec.widget.exerciseview.ExerciseViewModel
 
 data class ExercisesListViewState(
     val exercises: List<Exercise>,
-    val groupedExercises: List<GroupedExercisesViewModel>,
-    val categories: List<CategoryCheckboxViewModel>,
-    val equipment: List<Equipment>
+    val categories: List<Category>,
+    val equipment: List<Equipment>,
+    val checkedCategories: Set<String> = emptySet()
 )
 
 data class GroupedExercisesViewModel(
     val header: String,
-    val exercises: List<ExerciseViewModel>
-)
-
-data class CategoryCheckboxViewModel(
-    val category: Category,
-    val isChecked: Boolean
+    val exercises: List<Exercise>
 )
