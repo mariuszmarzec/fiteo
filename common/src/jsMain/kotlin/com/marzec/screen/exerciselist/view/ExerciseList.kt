@@ -29,6 +29,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
     val views: List<ViewItem> = ExerciseListUiMapper.map(state)
 
     ReactRenderer()
+        .apply { builder = this@functionalComponent }
         .add(
             CheckboxDelegate { id: String ->
                 exerciseListStore.sendAction(ExercisesListActions.OnCategoryCheckedChange(categoryId = id))

@@ -20,9 +20,6 @@ val Checkbox = functionalComponent<CheckboxProps> { props ->
     val (state, _) = useState(props.state)
 
     div {
-        attrs {
-            key = id
-        }
         input(type = InputType.checkBox) {
             attrs {
                 checked = state.isChecked

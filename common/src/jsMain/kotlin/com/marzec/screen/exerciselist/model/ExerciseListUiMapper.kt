@@ -22,7 +22,7 @@ object ExerciseListUiMapper {
                     state.data.categories.forEach { checkbox ->
                         add(
                             CheckboxViewItem(
-                                id = "category_${checkbox.id}",
+                                id = checkbox.id,
                                 label = checkbox.name,
                                 isChecked = checkbox.id in state.data.checkedCategories
                             )

@@ -23,10 +23,12 @@ class CheckboxDelegate(
     override fun RBuilder.render(item: ViewItem) {
         item as CheckboxViewItem
         child(Checkbox) {
-            this.attrs.state = item
-            this.attrs.key = item.id
-            this.attrs.onCheckedChange = {
-                onCheckedChange(item.id)
+            attrs {
+                state = item
+                key = item.id
+                onCheckedChange = {
+                    onCheckedChange(item.id)
+                }
             }
         }
     }
