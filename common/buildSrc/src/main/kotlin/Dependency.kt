@@ -10,4 +10,5 @@ object Dependency {
     val serialization_version = "1.0.1"
     val datetime_version = "0.1.1"
     val h2_version = "1.4.200"
+    val mockk_version = "1.10.6"
 }
