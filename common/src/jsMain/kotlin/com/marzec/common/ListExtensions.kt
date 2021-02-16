@@ -4,13 +4,14 @@ import com.marzec.extensions.emptyString
 import com.marzec.model.domain.Exercise
 import com.marzec.screen.exerciselist.model.GroupedExercisesViewModel
 
-fun List<Exercise>.filterByCategories(selectedCategoriesIds: Set<String>): List<Exercise> {
+fun List<Exercise>.filterByCategoriesAndEquipment(selectedCategoriesIds: Set<String>): List<Exercise> {
     return if (selectedCategoriesIds.isEmpty()) {
         this
     } else {
         filter { exercise ->
             val exercisesCategoryIds = exercise.category.map { it.id }
-            exercisesCategoryIds.containsAll(selectedCategoriesIds.toList())
+            val exercisesEquipmentIds = exercise.neededEquipment.map { it.id }
+            (exercisesCategoryIds + exercisesEquipmentIds).containsAll(selectedCategoriesIds.toList())
         }
     }
 }

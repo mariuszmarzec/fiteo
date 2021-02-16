@@ -1,6 +1,6 @@
 package com.marzec.screen.exerciselist.model
 
-import com.marzec.common.filterByCategories
+import com.marzec.common.filterByCategoriesAndEquipment
 import com.marzec.common.groupByCategories
 import com.marzec.mvi.State
 import com.marzec.views.BigHeaderViewItem
@@ -19,19 +19,29 @@ object ExerciseListUiMapper {
                 mutableListOf<ViewItem>().apply {
                     add(BigHeaderViewItem(message = "Filtry"))
                     add(MediumHeaderViewItem(message = "Kategorie"))
-                    state.data.categories.forEach { checkbox ->
+                    state.data.categories.forEach { category ->
                         add(
                             CheckboxViewItem(
-                                id = checkbox.id,
-                                label = checkbox.name,
-                                isChecked = checkbox.id in state.data.checkedCategories
+                                id = category.id,
+                                label = category.name,
+                                isChecked = category.id in state.data.checkedFilters
+                            )
+                        )
+                    }
+                    add(MediumHeaderViewItem(message = "Sprzęt"))
+                    state.data.equipment.forEach { equipment ->
+                        add(
+                            CheckboxViewItem(
+                                id = equipment.id,
+                                label = equipment.name,
+                                isChecked = equipment.id in state.data.checkedFilters
                             )
                         )
                     }
                     add(BigHeaderViewItem(message = "Lista ćwiczeń"))
 
                     state.data.exercises
-                        .filterByCategories(state.data.checkedCategories)
+                        .filterByCategoriesAndEquipment(state.data.checkedFilters)
                         .groupByCategories()
                         .forEach { (categories, exercises) ->
                             add(MediumHeaderViewItem(message = categories))

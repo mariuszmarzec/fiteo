@@ -4,9 +4,7 @@ import com.marzec.api.getCategories
 import com.marzec.api.getEquipment
 import com.marzec.api.getExercises
 import com.marzec.api.model.ExercisesData
-import com.marzec.common.filterByCategories
-import com.marzec.common.groupByCategories
-import com.marzec.extensions.replaceIf
+import com.marzec.extensions.flip
 import com.marzec.mvi.Intent
 import com.marzec.mvi.State
 import com.marzec.mvi.Store
@@ -40,16 +38,12 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                 console.log("Data loaded!")
             }
         ),
-        ExercisesListActions.OnCategoryCheckedChange::class to intent(
-            reducer = { action: ExercisesListActions.OnCategoryCheckedChange, _: Any?, currentState: State<ExercisesListViewState> ->
+        ExercisesListActions.OnFilterCheckedChange::class to intent(
+            reducer = { action: ExercisesListActions.OnFilterCheckedChange, _: Any?, currentState: State<ExercisesListViewState> ->
                 when (currentState) {
                     is State.Data -> {
-                        val checkedCategories = if (action.categoryId in currentState.data.checkedCategories) {
-                            currentState.data.checkedCategories.toMutableSet().apply { remove(action.categoryId) }
-                        } else {
-                            currentState.data.checkedCategories.toMutableSet().apply { add(action.categoryId) }
-                        }
-                        State.Data(currentState.data.copy(checkedCategories = checkedCategories))
+                        val checkedFilters = currentState.data.checkedFilters.flip(action.filterId)
+                        State.Data(currentState.data.copy(checkedFilters = checkedFilters))
                     }
                     is State.Loading -> currentState.copy()
                     is State.Error -> currentState.copy()

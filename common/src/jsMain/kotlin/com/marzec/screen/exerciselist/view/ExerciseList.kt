@@ -32,7 +32,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
         .apply { builder = this@functionalComponent }
         .add(
             CheckboxDelegate { id: String ->
-                exerciseListStore.sendAction(ExercisesListActions.OnCategoryCheckedChange(categoryId = id))
+                exerciseListStore.sendAction(ExercisesListActions.OnFilterCheckedChange(filterId = id))
             }
         )
         .add(ErrorDelegate())
