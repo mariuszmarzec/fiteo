@@ -28,8 +28,8 @@ object ExerciseListUiMapper {
                             )
                         )
                     }
-                    add(MediumHeaderViewItem(message = "Sprzęt"))
-                    state.data.equipment.forEach { equipment ->
+                    add(MediumHeaderViewItem(message = "Sprzęt (jaki posiadasz)"))
+                    state.data.equipment.sortedBy { it.name }.forEach { equipment ->
                         add(
                             CheckboxViewItem(
                                 id = equipment.id,
@@ -41,7 +41,11 @@ object ExerciseListUiMapper {
                     add(BigHeaderViewItem(message = "Lista ćwiczeń"))
 
                     state.data.exercises
-                        .filterByCategoriesAndEquipment(state.data.checkedFilters)
+                        .filterByCategoriesAndEquipment(
+                            state.data.checkedFilters,
+                            state.data.categories,
+                            state.data.equipment
+                        )
                         .groupByCategories()
                         .forEach { (categories, exercises) ->
                             add(MediumHeaderViewItem(message = categories))

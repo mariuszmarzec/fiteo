@@ -82,8 +82,9 @@ fun main() {
         di.provideDataSource().loadData()
     }
 
+    println("Database version: ${DbSettings.database.version}")
+
     DbSettings.database.dbCall {
-        println("Database version: ${DbSettings.database.version}")
         addLogger(StdOutSqlLogger)
 
         val users = UserEntity.all()
