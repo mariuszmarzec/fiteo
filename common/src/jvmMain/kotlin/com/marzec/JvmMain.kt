@@ -7,11 +7,6 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
-import com.marzec.database.ExerciseToSeries
-import com.marzec.database.SeriesTable
-import com.marzec.database.TrainingExerciseWithProgressTable
-import com.marzec.database.TrainingToExercisesTable
-import com.marzec.database.TrainingsTable
 import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
@@ -75,7 +70,6 @@ import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 
@@ -88,9 +82,8 @@ fun main() {
         di.provideDataSource().loadData()
     }
 
-    println("Database version: ${DbSettings.database.version}")
-
     DbSettings.database.dbCall {
+        println("Database version: ${DbSettings.database.version}")
         addLogger(StdOutSqlLogger)
 
         val users = UserEntity.all()
@@ -139,7 +132,7 @@ fun main() {
                 validate { session: UserSession ->
                     when (val httpResponse = di.provideApi().getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
                         is HttpResponse.Success -> httpResponse.data.toPrincipal()
-                        is HttpResponse.Error -> null
+                        else -> null
                     }
                 }
             }
