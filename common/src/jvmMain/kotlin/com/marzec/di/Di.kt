@@ -71,7 +71,10 @@ class Di(
             provideAuthenticationService(),
             TrainingServiceImpl(
                     TrainingTemplateRepositoryImpl(database),
-                    TrainingRepositoryImpl(database)
+                    TrainingRepositoryImpl(database),
+                    provideExercisesRepository(),
+                    provideCategoriesRepository(),
+                    provideEquipmentRepository()
             )
     )
 

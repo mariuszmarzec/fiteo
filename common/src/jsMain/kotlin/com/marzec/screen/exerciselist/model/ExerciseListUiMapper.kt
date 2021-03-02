@@ -1,6 +1,6 @@
 package com.marzec.screen.exerciselist.model
 
-import com.marzec.common.filterByCategoriesAndEquipment
+import com.marzec.common.filter
 import com.marzec.common.groupByCategories
 import com.marzec.mvi.State
 import com.marzec.views.BigHeaderViewItem
@@ -8,8 +8,9 @@ import com.marzec.views.MediumHeaderViewItem
 import com.marzec.views.base.ViewItem
 import com.marzec.views.checkbox.CheckboxViewItem
 import com.marzec.views.error.ErrorItemView
-import com.marzec.views.exerciserowview.toView
 import com.marzec.views.loading.LoadingItemView
+import com.marzec.views.textinput.TextInputViewItem
+import com.marzec.views.exerciserowview.toView
 
 object ExerciseListUiMapper {
 
@@ -17,6 +18,11 @@ object ExerciseListUiMapper {
         when (state) {
             is State.Data -> {
                 mutableListOf<ViewItem>().apply {
+                    add(TextInputViewItem(
+                            id = "SEARCH",
+                            text = state.data.searchText,
+                            hint = "Szukaj"
+                    ))
                     add(BigHeaderViewItem(message = "Filtry"))
                     add(MediumHeaderViewItem(message = "Kategorie"))
                     state.data.categories.forEach { category ->
@@ -41,10 +47,11 @@ object ExerciseListUiMapper {
                     add(BigHeaderViewItem(message = "Lista ćwiczeń"))
 
                     state.data.exercises
-                        .filterByCategoriesAndEquipment(
+                        .filter(
                             state.data.checkedFilters,
                             state.data.categories,
-                            state.data.equipment
+                            state.data.equipment,
+                            state.data.searchText
                         )
                         .groupByCategories()
                         .forEach { (categories, exercises) ->

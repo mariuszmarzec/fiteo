@@ -49,6 +49,17 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                     is State.Error -> currentState.copy()
                 }
             }
+        ),
+        ExercisesListActions.OnSearchTextChanged::class to intent(
+            reducer = { action: ExercisesListActions.OnSearchTextChanged, _: Any?, currentState: State<ExercisesListViewState> ->
+                when (currentState) {
+                    is State.Data -> {
+                        State.Data(currentState.data.copy(searchText = action.text))
+                    }
+                    is State.Loading -> currentState.copy()
+                    is State.Error -> currentState.copy()
+                }
+            }
         )
     )
 }

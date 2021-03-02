@@ -12,6 +12,7 @@ import com.marzec.views.checkbox.CheckboxDelegate
 import com.marzec.views.error.ErrorDelegate
 import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.loading.LoadingDelegate
+import com.marzec.views.textinput.TextInputDelegate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import react.RProps
 import react.functionalComponent
@@ -35,6 +36,10 @@ val ExerciseList = functionalComponent<RProps> { _ ->
                 exerciseListStore.sendAction(ExercisesListActions.OnFilterCheckedChange(filterId = id))
             }
         )
+        .add(TextInputDelegate { _: String, text: String ->
+            exerciseListStore.sendAction(ExercisesListActions.OnSearchTextChanged(text))
+
+        })
         .add(ErrorDelegate())
         .add(ExerciseDelegate())
         .add(LoadingDelegate())

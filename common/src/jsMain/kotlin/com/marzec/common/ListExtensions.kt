@@ -6,29 +6,33 @@ import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.screen.exerciselist.model.GroupedExercisesViewModel
 
-fun List<Exercise>.filterByCategoriesAndEquipment(
+fun List<Exercise>.filter(
     selectedFiltersIds: Set<String>,
     availableCategories: List<Category>,
-    availableEquipment: List<Equipment>
+    availableEquipment: List<Equipment>,
+    searchText: String
 ): List<Exercise> {
     return if (selectedFiltersIds.isEmpty()) {
         this
     } else {
-        filter { exercise ->
+        this@filter.filter { exercise ->
             val exercisesCategoryIds = exercise.category.map { it.id }
             val exercisesEquipmentIds = exercise.neededEquipment.map { it.id }
 
             val selectedCategoriesIds = availableCategories.filter { it.id in selectedFiltersIds }
-                .ifEmpty { availableCategories }
-                .map { it.id }
+                    .ifEmpty { availableCategories }
+                    .map { it.id }
             val selectedEquipmentIds = availableEquipment.filter { it.id in selectedFiltersIds }
-                .ifEmpty { availableEquipment }
-                .map { it.id }
+                    .ifEmpty { availableEquipment }
+                    .map { it.id }
 
             val hasNeededEquipment = selectedEquipmentIds.containsAll(exercisesEquipmentIds)
             val isInCategories = selectedCategoriesIds.containsAll(exercisesCategoryIds)
             hasNeededEquipment && isInCategories
         }
+    }.filter { exercise ->
+        searchText.split(" ").all { it in exercise.name }
+
     }
 }
 

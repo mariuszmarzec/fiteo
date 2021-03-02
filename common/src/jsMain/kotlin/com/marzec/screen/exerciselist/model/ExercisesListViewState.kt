@@ -8,7 +8,8 @@ data class ExercisesListViewState(
     val exercises: List<Exercise>,
     val categories: List<Category>,
     val equipment: List<Equipment>,
-    val checkedFilters: Set<String> = emptySet()
+    val checkedFilters: Set<String> = emptySet(),
+    val searchText: String = ""
 )
 
 data class GroupedExercisesViewModel(
