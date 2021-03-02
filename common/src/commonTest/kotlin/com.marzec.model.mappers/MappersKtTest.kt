@@ -141,7 +141,7 @@ class MappersKtTest {
                 ExercisesData(
                         categories = listOf(
                                 Category("1", "Rozciagajace"),
-                                Category("0", "Unknown")
+                                Category("0", "Brak")
                                 ),
                         exercises = listOf(
                                 Exercise(

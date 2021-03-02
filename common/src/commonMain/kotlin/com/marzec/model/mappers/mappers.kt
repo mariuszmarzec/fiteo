@@ -11,11 +11,11 @@ import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.dto.NeededEquipmentDto
 
 fun ExercisesFileDto.toDomain(uuid: Uuid): ExercisesData {
-    val unknownCategory = Category(uuid.create(), "Unknown")
+    val unknownCategory = Category(uuid.create(), "Brak")
     val hashToCategories = category?.map {
         val categoryFileDto = it.value
         categoryFileDto.category.hashCode().toString() to categoryFileDto.toDomain(uuid)
-    }.orEmpty().toMap() + mapOf("Unknown".hashCode().toString() to unknownCategory)
+    }.orEmpty().toMap() + mapOf("Brak".hashCode().toString() to unknownCategory)
     val equipment = neededEquipment?.map { it.value.toDomain(uuid) }?.flatten()?.distinct().orEmpty()
     val hashToEquipment = equipment.map { it.name.hashCode().toString() to it }.toMap()
     return ExercisesData(
