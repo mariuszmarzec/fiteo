@@ -15,6 +15,7 @@ import com.marzec.model.domain.CreateTrainingTemplatePart
 import com.marzec.model.domain.TrainingTemplate
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
@@ -24,6 +25,12 @@ class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingT
         TrainingTemplateTable.selectAll().andWhere {
             TrainingTemplateTable.userId.eq(userId)
         }.map { TrainingTemplateEntity.wrapRow(it).toDomain() }
+    }
+
+    override fun getTemplate(userId: Int, templateId: Int): TrainingTemplate = database.dbCall {
+        TrainingTemplateTable.selectAll().andWhere {
+            TrainingTemplateTable.userId.eq(userId) and TrainingTemplateTable.id.eq(templateId)
+        }.map { TrainingTemplateEntity.wrapRow(it).toDomain() }.first()
     }
 
     override fun addTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate {
