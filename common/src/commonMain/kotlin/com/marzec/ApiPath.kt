@@ -11,7 +11,7 @@ object ApiPath {
 
     const val APPLICATION_NAME = "fiteo"
 
-    const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
+    const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION"
 
     const val TEST_API_PREFIX = "/test"
 

@@ -24,11 +24,7 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.application.ApplicationStarted
-import io.ktor.application.call
-import io.ktor.application.install
+import io.ktor.application.*
 import io.ktor.auth.Authentication
 import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
@@ -50,13 +46,7 @@ import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.patch
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.routing.routing
+import io.ktor.routing.*
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -189,6 +179,10 @@ fun main() {
             }
         }
     }.start(wait = true)
+}
+
+fun allRoutes(root: Route): List<Route> {
+    return listOf(root) + root.children.flatMap { allRoutes(it) }
 }
 
 fun Route.createTraining(api: Controller) {
@@ -423,7 +417,7 @@ fun Route.apiSetup(testDi: Di, prodDi: Di, setup: Route.(di: Di) -> Unit) {
     setup(prodDi)
 }
 
-private suspend fun <T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {
+private suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {
     when (response) {
         is HttpResponse.Success -> {
             response.headers.forEach { (header, value) ->
@@ -441,7 +435,7 @@ fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = wrapAsRequest(Unit
 
 fun <T> wrapAsRequest(body: T, key: String, arg: Any): HttpRequest<T> = HttpRequest(body, mapOf(key to arg.toString()))
 
-private fun <T: Any> Route.getByIdEndpoint(path: String, apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>) {
+private inline fun <reified T: Any> Route.getByIdEndpoint(path: String, apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>) {
     get(path) {
         val httpRequest = HttpRequest(
                 data = Unit,
@@ -469,7 +463,7 @@ private fun <T: Any> Route.getAllEndpoint(
     }
 }
 
-private fun <T : Any> Route.deleteByIdEndpoint(
+private inline fun <reified T : Any> Route.deleteByIdEndpoint(
         path: String,
         apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
@@ -485,7 +479,7 @@ private fun <T : Any> Route.deleteByIdEndpoint(
     }
 }
 
-private inline fun <reified REQUEST : Any, RESPONSE : Any> Route.updateByIdEndpoint(
+private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpoint(
         path: String,
         apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
 ) {
