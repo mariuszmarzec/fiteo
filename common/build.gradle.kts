@@ -54,7 +54,7 @@ repositories {
     maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
 }
 group = projectPackageName
-version = "0.0.1"
+version = "1.0.0"
 
 kotlin {
 
@@ -168,6 +168,7 @@ flyway {
         createSchemas = true
         placeholders = mapOf("database_name" to dbTestDatabase)
     } else {
+        cleanDisabled = true
         url = dbEndpoint
         user = dbUser
         password = dbPassword
