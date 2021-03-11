@@ -49,26 +49,35 @@ object ExerciseListUiMapper {
                                 hint = "Szukaj"
                             ))
                             add(BigHeaderViewItem(message = "Filtry"))
-                            add(MediumHeaderViewItem(message = "Kategorie"))
-                            state.data.categories.forEach { category ->
-                                add(
-                                    CheckboxViewItem(
-                                        id = category.id,
-                                        label = category.name,
-                                        isChecked = category.id in state.data.checkedFilters
-                                    )
+                            add(
+                                HorizontalSplitView(
+                                    id = "FILTERS",
+                                    leftColumnItems = mutableListOf<ViewItem>().apply {
+                                        add(MediumHeaderViewItem(message = "Kategorie"))
+                                        state.data.categories.forEach { category ->
+                                            add(
+                                                CheckboxViewItem(
+                                                    id = category.id,
+                                                    label = category.name,
+                                                    isChecked = category.id in state.data.checkedFilters
+                                                )
+                                            )
+                                        }
+                                    },
+                                    rightColumnItems = mutableListOf<ViewItem>().apply {
+                                        add(MediumHeaderViewItem(message = "Sprzęt (jaki posiadasz)"))
+                                        state.data.equipment.sortedBy { it.name }.forEach { equipment ->
+                                            add(
+                                                CheckboxViewItem(
+                                                    id = equipment.id,
+                                                    label = equipment.name,
+                                                    isChecked = equipment.id in state.data.checkedFilters
+                                                )
+                                            )
+                                        }
+                                    }
                                 )
-                            }
-                            add(MediumHeaderViewItem(message = "Sprzęt (jaki posiadasz)"))
-                            state.data.equipment.sortedBy { it.name }.forEach { equipment ->
-                                add(
-                                    CheckboxViewItem(
-                                        id = equipment.id,
-                                        label = equipment.name,
-                                        isChecked = equipment.id in state.data.checkedFilters
-                                    )
-                                )
-                            }
+                            )
                         }
                     )
                 )
