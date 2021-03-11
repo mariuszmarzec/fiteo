@@ -52,6 +52,7 @@ repositories {
     jcenter()
     maven(url = "https://kotlin.bintray.com/kotlinx/")
     maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") // react, styled, ...
 }
 group = projectPackageName
 version = "1.0.0"
@@ -63,8 +64,11 @@ kotlin {
     }
     js {
         browser {
-            binaries.executable()
+            commonWebpackConfig {
+                cssSupport.enabled = true
+            }
         }
+        binaries.executable()
     }
     sourceSets {
         val commonMain by getting {
@@ -115,10 +119,13 @@ kotlin {
                 implementation("io.ktor:ktor-client-json-js:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-client-serialization-js:${Dependency.ktor_version}")
 
-                implementation("org.jetbrains:kotlin-react:16.13.1-pre.110-kotlin-1.4.0")
-                implementation("org.jetbrains:kotlin-react-dom:16.13.1-pre.110-kotlin-1.4.0")
-                implementation(npm("react", "16.13.1"))
-                implementation(npm("react-dom", "16.13.1"))
+                implementation("org.jetbrains:kotlin-react:17.0.1-pre.148-kotlin-1.4.21")
+                implementation("org.jetbrains:kotlin-react-dom:17.0.1-pre.148-kotlin-1.4.21")
+                implementation(npm("react", "17.0.1"))
+                implementation(npm("react-dom", "17.0.1"))
+
+                implementation("org.jetbrains:kotlin-styled:5.2.1-pre.148-kotlin-1.4.21")
+                implementation(npm("styled-components", "~5.2.1"))
             }
         }
     }

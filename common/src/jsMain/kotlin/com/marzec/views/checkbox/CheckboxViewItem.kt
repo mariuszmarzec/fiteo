@@ -1,6 +1,7 @@
 package com.marzec.views.checkbox
 
 import com.marzec.views.base.ReactRendererDelegate
+import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import com.marzec.widget.checkbox.Checkbox
@@ -20,7 +21,7 @@ class CheckboxDelegate(
     private val onCheckedChange: (String) -> Unit
 ) : ReactRendererDelegate() {
 
-    override fun RBuilder.render(item: ViewItem) {
+    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
         item as CheckboxViewItem
         child(Checkbox) {
             attrs {

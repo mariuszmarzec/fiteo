@@ -1,8 +1,8 @@
 package com.marzec.views.exerciserowview
 
-import com.marzec.model.domain.Category
 import com.marzec.model.domain.Exercise
 import com.marzec.views.base.ReactRendererDelegate
+import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import com.marzec.widget.exerciseview.ExerciseRowView
@@ -14,8 +14,7 @@ class ExerciseRowViewItem(
     override val id: String,
     val name: String,
     val animationUrl: String?,
-    val imageUrl: String?,
-    val category: List<Category>
+    val imageUrl: String?
 ) : ViewItem {
 
     override fun check(render: RendererDelegate): Boolean {
@@ -25,7 +24,7 @@ class ExerciseRowViewItem(
 
 class ExerciseDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(item: ViewItem) {
+    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
         item as ExerciseRowViewItem
         child(ExerciseRowView) {
             this.attrs.key = item.id
@@ -38,6 +37,5 @@ fun Exercise.toView() = ExerciseRowViewItem(
     id = id.toString(),
     name = name,
     animationUrl = animationUrl,
-    imageUrl = imagesUrls?.firstOrNull(),
-    category = category
+    imageUrl = imagesUrls?.firstOrNull()
 )

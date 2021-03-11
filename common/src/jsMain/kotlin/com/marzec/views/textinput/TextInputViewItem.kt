@@ -1,6 +1,7 @@
 package com.marzec.views.textinput
 
 import com.marzec.views.base.ReactRendererDelegate
+import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import kotlinx.html.InputType
@@ -12,18 +13,18 @@ import react.dom.input
 import react.key
 
 data class TextInputViewItem(
-        override val id: String,
-        val text: String,
-        val hint: String
+    override val id: String,
+    val text: String,
+    val hint: String
 ) : ViewItem {
     override fun check(render: RendererDelegate): Boolean = render is TextInputDelegate
 }
 
 class TextInputDelegate(
-        private val onTextChange: (id: String, text: String) -> Unit
+    private val onTextChange: (id: String, text: String) -> Unit
 ) : ReactRendererDelegate() {
 
-    override fun RBuilder.render(item: ViewItem) {
+    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
         item as TextInputViewItem
         div {
             input(type = InputType.text, name = item.text) {

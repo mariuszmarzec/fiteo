@@ -2,6 +2,7 @@ package com.marzec.views
 
 import com.marzec.extensions.emptyString
 import com.marzec.views.base.ReactRendererDelegate
+import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import com.marzec.views.exerciserowview.ExerciseRowViewItem
@@ -41,7 +42,7 @@ data class MediumHeaderViewItem(
 
 class HeaderDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(item: ViewItem) {
+    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
         item as HeaderViewItem
         when (item.size) {
             HeaderSize.BIG -> h1 { +item.message }

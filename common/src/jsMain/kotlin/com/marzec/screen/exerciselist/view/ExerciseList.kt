@@ -11,6 +11,7 @@ import com.marzec.views.base.ViewItem
 import com.marzec.views.checkbox.CheckboxDelegate
 import com.marzec.views.error.ErrorDelegate
 import com.marzec.views.exerciserowview.ExerciseDelegate
+import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,6 +41,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
             exerciseListStore.sendAction(ExercisesListActions.OnSearchTextChanged(text))
 
         })
+        .add(HorizontalSplitDelegate())
         .add(ErrorDelegate())
         .add(ExerciseDelegate())
         .add(LoadingDelegate())
