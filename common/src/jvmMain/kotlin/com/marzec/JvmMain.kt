@@ -15,6 +15,7 @@ import com.marzec.di.Di
 import com.marzec.extensions.emptyString
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.UserSession
+import com.marzec.model.domain.TestUserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
@@ -42,8 +43,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.request.receive
-import io.ktor.request.receiveOrNull
+import io.ktor.request.*
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
@@ -65,8 +65,8 @@ import org.jetbrains.exposed.sql.addLogger
 
 @KtorExperimentalAPI
 fun main() {
-    val di = Di(DbSettings.database)
-    val testDi = Di(DbSettings.testDatabase)
+    val di = Di(DbSettings.database, Auth.NAME)
+    val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
     val onServerStart: (Application) -> Unit = {
         di.provideDataSource().loadData()
@@ -113,6 +113,9 @@ fun main() {
             header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.provideCachedSessionsRepository())) {
                 transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
             }
+            header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.provideCachedSessionsRepository())) {
+                transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
+            }
         }
 
         install(Authentication) {
@@ -127,6 +130,17 @@ fun main() {
                     }
                 }
             }
+            session<TestUserSession>(Auth.TEST) {
+                challenge {
+                    call.respond(UnauthorizedResponse())
+                }
+                validate { session: TestUserSession ->
+                    when (val httpResponse = testDi.provideApi().getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                        is HttpResponse.Success -> httpResponse.data.toPrincipal()
+                        else -> null
+                    }
+                }
+            }
         }
 
         routing {
@@ -135,14 +149,14 @@ fun main() {
                 resources("")
             }
 
-            apiSetup(testDi, di) {
+            apiSetup(testDi, di) { di ->
                 val api: Controller = di.provideApi()
                 val cheatDayApi: CheatDayController = di.provideCheatDayController()
                 val todoController: ToDoApiController = di.provideTodoController()
 
                 login(api)
                 register(api)
-                authenticate(Auth.NAME) {
+                authenticate(di.authToken) {
                     // cheat
                     weights(cheatDayApi)
                     putWeight(cheatDayApi)
@@ -363,7 +377,11 @@ fun Route.login(api: Controller) {
         val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
-            call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
+            if (call.request.uri.contains("test/")) {
+                call.sessions.set(Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis()))
+            } else {
+                call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
+            }
         }
         dispatch(httpResponse)
     }
@@ -371,7 +389,11 @@ fun Route.login(api: Controller) {
 
 fun Route.logout() {
     get(ApiPath.LOGOUT) {
-        call.sessions.clear<UserSession>()
+        if (call.request.uri.contains("test/")) {
+            call.sessions.clear<TestUserSession>()
+        } else {
+            call.sessions.clear<UserSession>()
+        }
         dispatch(HttpResponse.Success(Unit))
     }
 }

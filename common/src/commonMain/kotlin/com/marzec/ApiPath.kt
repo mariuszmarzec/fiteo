@@ -37,6 +37,7 @@ object ApiPath {
 
 object Headers {
     const val AUTHORIZATION = "Authorization"
+    const val AUTHORIZATION_TEST = "Authorization-Test"
 }
 
 object Auth {

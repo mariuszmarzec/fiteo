@@ -34,7 +34,8 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 
 class Di(
-        private val database: Database
+        private val database: Database,
+        val authToken: String
 ) {
 
     private val uuid by lazy { UuidImpl() }
