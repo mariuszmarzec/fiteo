@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
+        maven { setUrl("https://plugins.gradle.org/m2/") }
+    }
+}
+
+rootProject.name = "fiteo"
+//rootProject.buildFileName = "build.gradle.kts"
+
+enableFeaturePreview("GRADLE_METADATA")
+include(":common")
+
+//fun configureGradleScriptKotlinOn(project: ProjectDescriptor) {
+//    project.buildFileName = "build.gradle.kts"
+//    project.children.forEach { configureGradleScriptKotlinOn(it) }
+//}
+
+//configureGradleScriptKotlinOn(rootProject)

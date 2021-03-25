@@ -6,7 +6,9 @@
 # Log file
 *.log
 
-# BlueJ files
+.gradle/**
+
+ BlueJ files
 *.ctxt
 
 # Mobile Tools for Java (J2ME)

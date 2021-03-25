@@ -62,6 +62,7 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.koin.ktor.ext.Koin
 
 @KtorExperimentalAPI
 fun main() {
@@ -86,6 +87,10 @@ fun main() {
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
         install(DefaultHeaders)
+
+        install(Koin) {
+
+        }
 
         install(Compression) {
             gzip()

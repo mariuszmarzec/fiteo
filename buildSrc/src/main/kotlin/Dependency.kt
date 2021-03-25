@@ -11,4 +11,5 @@ object Dependency {
     val datetime_version = "0.1.1"
     val h2_version = "1.4.200"
     val mockk_version = "1.10.6"
+    val koin_version = "3.0.1-beta-2"
 }
