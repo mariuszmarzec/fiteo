@@ -12,10 +12,11 @@ import com.marzec.database.UserPrincipal
 import com.marzec.database.dbCall
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
+import com.marzec.di.MainModule
 import com.marzec.extensions.emptyString
 import com.marzec.model.domain.CreateTrainingTemplateDto
-import com.marzec.model.domain.UserSession
 import com.marzec.model.domain.TestUserSession
+import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
@@ -25,13 +26,18 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
-import io.ktor.application.*
+import io.ktor.application.Application
+import io.ktor.application.ApplicationCall
+import io.ktor.application.ApplicationStarted
+import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.UnauthorizedResponse
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.auth.session
 import io.ktor.features.CORS
+import io.ktor.features.CallLogging
 import io.ktor.features.Compression
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
@@ -43,10 +49,18 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.resources
 import io.ktor.http.content.static
-import io.ktor.request.*
+import io.ktor.request.receive
+import io.ktor.request.receiveOrNull
+import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.response.respondText
-import io.ktor.routing.*
+import io.ktor.routing.Route
+import io.ktor.routing.delete
+import io.ktor.routing.get
+import io.ktor.routing.patch
+import io.ktor.routing.post
+import io.ktor.routing.route
+import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -63,14 +77,20 @@ import kotlin.reflect.KFunction1
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.koin.ktor.ext.Koin
+import org.koin.logger.slf4jLogger
 
 @KtorExperimentalAPI
 fun main() {
+
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
     val onServerStart: (Application) -> Unit = {
-        di.provideDataSource().loadData()
+        try {
+            di.dataSource.loadData()
+        } catch (ex: Throwable) {
+            print(ex)
+        }
     }
 
     println("Database version: ${DbSettings.database.version}")
@@ -83,14 +103,16 @@ fun main() {
     }
 
     embeddedServer(Netty, 5000) {
-
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
-        install(DefaultHeaders)
+        install(CallLogging)
 
         install(Koin) {
-
+            slf4jLogger()
+            modules(MainModule)
         }
+
+        install(DefaultHeaders)
 
         install(Compression) {
             gzip()
@@ -110,15 +132,15 @@ fun main() {
         install(ContentNegotiation) {
             json(
                     contentType = ContentType.Application.Json,
-                    json = di.provideJson()
+                    json = di.json
             )
         }
 
         install(Sessions) {
-            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.provideCachedSessionsRepository())) {
+            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.cachedSessionsRepository)) {
                 transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
             }
-            header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.provideCachedSessionsRepository())) {
+            header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.cachedSessionsRepository)) {
                 transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
             }
         }
@@ -129,7 +151,7 @@ fun main() {
                     call.respond(UnauthorizedResponse())
                 }
                 validate { session: UserSession ->
-                    when (val httpResponse = di.provideApi().getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                    when (val httpResponse = di.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
                         is HttpResponse.Success -> httpResponse.data.toPrincipal()
                         else -> null
                     }
@@ -140,7 +162,7 @@ fun main() {
                     call.respond(UnauthorizedResponse())
                 }
                 validate { session: TestUserSession ->
-                    when (val httpResponse = testDi.provideApi().getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                    when (val httpResponse = testDi.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
                         is HttpResponse.Success -> httpResponse.data.toPrincipal()
                         else -> null
                     }
@@ -155,9 +177,9 @@ fun main() {
             }
 
             apiSetup(testDi, di) { di ->
-                val api: Controller = di.provideApi()
-                val cheatDayApi: CheatDayController = di.provideCheatDayController()
-                val todoController: ToDoApiController = di.provideTodoController()
+                val api: Controller = di.api
+                val cheatDayApi: CheatDayController = di.cheatDayController
+                val todoController: ToDoApiController = di.todoController
 
                 login(api)
                 register(api)

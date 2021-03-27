@@ -8,14 +8,6 @@ pluginManagement {
 }
 
 rootProject.name = "fiteo"
-//rootProject.buildFileName = "build.gradle.kts"
 
 enableFeaturePreview("GRADLE_METADATA")
 include(":common")
-
-//fun configureGradleScriptKotlinOn(project: ProjectDescriptor) {
-//    project.buildFileName = "build.gradle.kts"
-//    project.children.forEach { configureGradleScriptKotlinOn(it) }
-//}
-
-//configureGradleScriptKotlinOn(rootProject)

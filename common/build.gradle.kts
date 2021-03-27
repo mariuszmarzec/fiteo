@@ -91,6 +91,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation("io.insert-koin:koin-ktor:${Dependency.koin_version}")
+                implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-html-builder:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sessions:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-serialization:${Dependency.ktor_version}")
