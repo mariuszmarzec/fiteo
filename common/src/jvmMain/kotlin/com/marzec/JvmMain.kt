@@ -78,6 +78,7 @@ import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
 import org.koin.ktor.ext.Koin
 import org.koin.logger.slf4jLogger
+import org.slf4j.event.Level
 
 @KtorExperimentalAPI
 fun main() {
@@ -105,7 +106,9 @@ fun main() {
     embeddedServer(Netty, 5000) {
         environment.monitor.subscribe(ApplicationStarted, onServerStart)
 
-        install(CallLogging)
+        install(CallLogging) {
+            level = Level.INFO
+        }
 
         install(Koin) {
             slf4jLogger()
