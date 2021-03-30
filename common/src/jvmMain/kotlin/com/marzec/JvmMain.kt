@@ -220,6 +220,10 @@ fun main() {
                 equipment(api)
                 exercises(api)
                 categories(api)
+
+                for (it in allRoutes(this)) {
+                    println(it)
+                }
             }
         }
     }.start(wait = true)
