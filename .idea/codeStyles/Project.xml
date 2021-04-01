@@ -23,8 +23,8 @@
       <option name="PACKAGES_IMPORT_LAYOUT">
         <value>
           <package name="" alias="false" withSubpackages="true" />
-          <package name="" alias="false" withSubpackages="false" />
-          <package name="" alias="false" withSubpackages="false" />
+          <package name="" alias="false" withSubpackages="true" />
+          <package name="" alias="false" withSubpackages="true" />
           <package name="n" alias="false" withSubpackages="false" />
         </value>
       </option>
