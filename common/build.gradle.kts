@@ -114,6 +114,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-junit"))
                 implementation(npm("text-encoding", "0.7.0"))
+                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
             }
         }
         val jsMain by getting {

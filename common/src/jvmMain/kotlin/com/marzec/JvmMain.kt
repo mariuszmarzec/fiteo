@@ -2,14 +2,13 @@ package com.marzec
 
 import com.marzec.cheatday.ApiPath as CheatDayApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
+import io.ktor.server.netty.EngineMain as NettyEngineMain
 import com.marzec.api.Controller
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
-import com.marzec.database.UserEntity
 import com.marzec.database.UserPrincipal
-import com.marzec.database.dbCall
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.MainModule
@@ -28,7 +27,6 @@ import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.model.CreateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
-import io.ktor.application.ApplicationStarted
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
@@ -47,10 +45,7 @@ import io.ktor.features.minimumSize
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.file
 import io.ktor.http.content.resource
-import io.ktor.http.content.resources
-import io.ktor.http.content.files
 import io.ktor.http.content.static
 import io.ktor.request.receive
 import io.ktor.request.receiveOrNull
@@ -65,8 +60,6 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.serialization.json
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
@@ -77,157 +70,145 @@ import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 
-@KtorExperimentalAPI
-fun main() {
+fun main(args: Array<String>): Unit = NettyEngineMain.main(args)
 
+@Suppress("unused")
+fun Application.module(testing: Boolean = false) {
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
-    val onServerStart: (Application) -> Unit = {
+    environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
+        testDi.dataSource.loadData()
     }
 
-    println("Database version: ${DbSettings.database.version}")
-
-    DbSettings.database.dbCall {
-        addLogger(StdOutSqlLogger)
-
-        val users = UserEntity.all()
-        println(users.toList())
+    install(CallLogging) {
+        level = Level.INFO
     }
 
-    embeddedServer(Netty, 5000) {
-        environment.monitor.subscribe(ApplicationStarted, onServerStart)
+    install(Koin) {
+        slf4jLogger()
+        modules(MainModule)
+    }
 
-        install(CallLogging) {
-            level = Level.INFO
+    install(DefaultHeaders)
+
+    install(Compression) {
+        gzip()
+        deflate {
+            priority = 10.0
+            minimumSize(1024)
         }
+    }
 
-        install(Koin) {
-            slf4jLogger()
-            modules(MainModule)
+    install(CORS) {
+        method(HttpMethod.Get)
+        method(HttpMethod.Post)
+        method(HttpMethod.Delete)
+        anyHost()
+    }
+
+    install(ContentNegotiation) {
+        json(
+            contentType = ContentType.Application.Json,
+            json = di.json
+        )
+    }
+
+    install(Sessions) {
+        header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.cachedSessionsRepository)) {
+            transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
         }
+        header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.cachedSessionsRepository)) {
+            transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
+        }
+    }
 
-        install(DefaultHeaders)
-
-        install(Compression) {
-            gzip()
-            deflate {
-                priority = 10.0
-                minimumSize(1024)
+    install(Authentication) {
+        session<UserSession>(Auth.NAME) {
+            challenge {
+                call.respond(UnauthorizedResponse())
             }
-        }
-
-        install(CORS) {
-            method(HttpMethod.Get)
-            method(HttpMethod.Post)
-            method(HttpMethod.Delete)
-            anyHost()
-        }
-
-        install(ContentNegotiation) {
-            json(
-                contentType = ContentType.Application.Json,
-                json = di.json
-            )
-        }
-
-        install(Sessions) {
-            header<UserSession>(Headers.AUTHORIZATION, DatabaseSessionStorage(di.cachedSessionsRepository)) {
-                transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
-            }
-            header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.cachedSessionsRepository)) {
-                transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
-            }
-        }
-
-        install(Authentication) {
-            session<UserSession>(Auth.NAME) {
-                challenge {
-                    call.respond(UnauthorizedResponse())
-                }
-                validate { session: UserSession ->
-                    when (val httpResponse = di.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
-                        is HttpResponse.Success -> httpResponse.data.toPrincipal()
-                        else -> null
-                    }
-                }
-            }
-            session<TestUserSession>(Auth.TEST) {
-                challenge {
-                    call.respond(UnauthorizedResponse())
-                }
-                validate { session: TestUserSession ->
-                    when (val httpResponse = testDi.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
-                        is HttpResponse.Success -> httpResponse.data.toPrincipal()
-                        else -> null
-                    }
+            validate { session: UserSession ->
+                when (val httpResponse = di.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                    is HttpResponse.Success -> httpResponse.data.toPrincipal()
+                    else -> null
                 }
             }
         }
-
-        routing {
-
-            static {
-                resource("/", "index.html")
-                resource("/common.js", "common.js")
+        session<TestUserSession>(Auth.TEST) {
+            challenge {
+                call.respond(UnauthorizedResponse())
             }
-
-
-            apiSetup(testDi, di) { di ->
-                val api: Controller = di.api
-                val cheatDayApi: CheatDayController = di.cheatDayController
-                val todoController: ToDoApiController = di.todoController
-
-                login(api)
-                register(api)
-                authenticate(di.authToken) {
-                    // cheat
-                    weights(cheatDayApi)
-                    putWeight(cheatDayApi)
-                    removeWeight(cheatDayApi)
-                    updateWeight(cheatDayApi)
-
-                    // todo
-                    todoLists(todoController)
-                    addTodoList(todoController)
-                    deleteTodoList(todoController)
-
-                    addTask(todoController)
-                    updateTask(todoController)
-                    removeTask(todoController)
-
-                    // fiteo
-                    templates(api)
-                    putTemplate(api)
-                    removeTemplate(api)
-                    updateTemplate(api)
-
-                    createTraining(api)
-                    getTraining(api)
-                    getTrainings(api)
-                    removeTraining(api)
-                    updateTraining(api)
-
-                    users(api)
-                    logout()
-                }
-                equipment(api)
-                exercises(api)
-                categories(api)
-
-                for (it in allRoutes(this)) {
-                    println(it)
+            validate { session: TestUserSession ->
+                when (val httpResponse = testDi.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                    is HttpResponse.Success -> httpResponse.data.toPrincipal()
+                    else -> null
                 }
             }
         }
-    }.start(wait = true)
+    }
+
+    routing {
+
+        static {
+            resource("/", "index.html")
+            resource("/common.js", "common.js")
+        }
+
+
+        apiSetup(testDi, di) { di ->
+            val api: Controller = di.api
+            val cheatDayApi: CheatDayController = di.cheatDayController
+            val todoController: ToDoApiController = di.todoController
+
+            login(api)
+            register(api)
+            authenticate(di.authToken) {
+                // cheat
+                weights(cheatDayApi)
+                putWeight(cheatDayApi)
+                removeWeight(cheatDayApi)
+                updateWeight(cheatDayApi)
+
+                // todo
+                todoLists(todoController)
+                addTodoList(todoController)
+                deleteTodoList(todoController)
+
+                addTask(todoController)
+                updateTask(todoController)
+                removeTask(todoController)
+
+                // fiteo
+                templates(api)
+                putTemplate(api)
+                removeTemplate(api)
+                updateTemplate(api)
+
+                createTraining(api)
+                getTraining(api)
+                getTrainings(api)
+                removeTraining(api)
+                updateTraining(api)
+
+                users(api)
+                logout()
+            }
+            equipment(api)
+            exercises(api)
+            categories(api)
+
+            for (it in allRoutes(this)) {
+                println(it)
+            }
+        }
+    }
 }
 
 fun allRoutes(root: Route): List<Route> {
