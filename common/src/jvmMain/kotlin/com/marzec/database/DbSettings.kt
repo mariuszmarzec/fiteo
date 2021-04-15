@@ -5,21 +5,30 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DbSettings {
+
+    var dbEndpoint = BuildKonfig.DB_ENDPOINT
+    var dbUser = BuildKonfig.DB_USER
+    var dbPassword = BuildKonfig.DB_PASSWORD
+
+    var dbTestEndpoint = BuildKonfig.DB_TEST_ENDPOINT
+    var dbTestUser = BuildKonfig.DB_TEST_USER
+    var dbTestPassword = BuildKonfig.DB_TEST_PASSWORD
+
     val database by lazy {
         Database.connect(
-                url = BuildKonfig.DB_ENDPOINT,
+                url = dbEndpoint,
                 driver = "com.mysql.cj.jdbc.Driver",
-                user = BuildKonfig.DB_USER,
-                password = BuildKonfig.DB_PASSWORD
+                user = dbUser,
+                password = dbPassword
         )
     }
 
     val testDatabase by lazy {
         Database.connect(
-                url = BuildKonfig.DB_TEST_ENDPOINT,
+                url = dbTestEndpoint,
                 driver = "com.mysql.cj.jdbc.Driver",
-                user = BuildKonfig.DB_TEST_USER,
-                password = BuildKonfig.DB_TEST_PASSWORD
+                user = dbTestUser,
+                password = dbTestPassword
         )
     }
 }

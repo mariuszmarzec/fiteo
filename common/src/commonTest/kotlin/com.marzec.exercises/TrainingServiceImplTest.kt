@@ -5,6 +5,9 @@ import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplatePart
+import com.marzec.repositories.CategoriesRepository
+import com.marzec.repositories.EquipmentRepository
+import com.marzec.repositories.ExercisesRepository
 import com.marzec.repositories.TrainingRepository
 import com.marzec.repositories.TrainingTemplateRepository
 import io.mockk.every
@@ -17,7 +20,7 @@ class TrainingServiceImplTest {
     val categoryOne = stubCategory("1", "category_one")
     val categoryTwo = stubCategory("2", "category_two")
     val categoryThree = stubCategory("3", "category_three")
-    
+
     val equipmentOne = stubEquipment("1", "equipment_one")
     val equipmentTwo = stubEquipment("2", "equipment_two")
     val equipmentThree = stubEquipment("3", "equipment_three")
@@ -97,19 +100,22 @@ class TrainingServiceImplTest {
 
     val templateRepository: TrainingTemplateRepository = mockk()
     val trainingRepository: TrainingRepository = mockk()
+    val exercisesRepository: ExercisesRepository = mockk()
+    val categoriesRepository: CategoriesRepository = mockk()
+    val equipmentRepository: EquipmentRepository = mockk()
 
-    val trainingService = TrainingServiceImpl(templateRepository, trainingRepository)
+    val trainingService = TrainingServiceImpl(
+        templateRepository,
+        trainingRepository,
+        exercisesRepository,
+        categoriesRepository,
+        equipmentRepository
+    )
 
     @BeforeTest
     fun setUp() {
         every { templateRepository.getTemplate(any(), any()) } returns stubTrainingTemplate()
     }
-
-    @Test
-    fun `creates test from template`() {
-        trainingService.createTraining(0, 0)
-    }
-
 }
 
 fun stubTrainingTemplate(

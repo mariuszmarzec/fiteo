@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
         classpath("mysql:mysql-connector-java:8.0.12")
-        classpath("com.h2database:h2:${Dependency.h2_version}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Dependency.kotlin_version}")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:${Dependency.buildkonfig_version}")
@@ -46,7 +45,6 @@ val dbTestDatabase = properties.getProperty("database.testDatabase")
 
 val projectPackageName = "com.marzec.fiteo"
 
-
 repositories {
     mavenCentral()
     jcenter()
@@ -62,6 +60,12 @@ kotlin {
 
     jvm {
         withJava()
+        tasks.test {
+            useJUnitPlatform()
+            testLogging {
+                events("passed", "skipped", "failed")
+            }
+        }
     }
     js {
         browser {
@@ -106,15 +110,29 @@ kotlin {
                 implementation("org.jetbrains.exposed:exposed-java-time:${Dependency.exposed_version}")
                 implementation("org.jetbrains.exposed:exposed-jdbc:${Dependency.exposed_version}")
                 implementation("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
-                implementation("com.h2database:h2:${Dependency.h2_version}")
+
+                implementation("io.mockk:mockk:${Dependency.mockk_version}")
 
             }
         }
         val jvmTest by getting {
             dependencies {
+                kotlin.srcDirs("src/jvmMain/kotlin")
+                implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
-                implementation(npm("text-encoding", "0.7.0"))
+                implementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
+
+//                implementation("org.junit.jupiter:junit-jupiter-api:${Dependency.junit_version}")
+//                implementation("org.junit.jupiter:junit-jupiter-params:${Dependency.junit_version}")
+//                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependency.junit_version}")
+
+                implementation("org.testcontainers:testcontainers:${Dependency.test_containers_version}")
+//                implementation("org.testcontainers:junit-jupiter:${Dependency.test_containers_version}")
+                implementation("org.testcontainers:mysql:${Dependency.test_containers_version}")
+
+                implementation("com.google.truth:truth:${Dependency.truth_version}")
+                implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
             }
         }
         val jsMain by getting {

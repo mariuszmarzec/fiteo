@@ -196,7 +196,7 @@ class MappersKtTest {
                                         name = "Skręty tułowia z drążkiem ",
                                         thumbnailName = "thumbnail_14.jpg",
                                         thumbnailUrl = "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/14.jpg",
-                                        id = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14".hashCode().toString(),
+                                        id = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14".hashCode(),
                                         neededEquipment = listOf(
                                                 Equipment("2", "Drążek")
                                         ),
