@@ -8,27 +8,18 @@ import org.junit.Test
 
 class ApplicationTest {
 
-    @Rule
-    @JvmField
-    var mysql = KMySQLContainer("mysql:8.0.22")
-        .withDatabaseName("previous")
-        .withUsername("test")
-        .withPassword("test");
-
     @Before
     fun setUp() {
-        mysql.start()
+        setupDb()
     }
 
     @Test
     fun testContainer() {
-        mysql.jdbcUrl
-        assertThat(mysql.jdbcUrl).isEmpty()
+        assertThat(true).isTrue()
     }
 
     @After
     fun cleanUp() {
-        mysql.stop()
     }
 }
 

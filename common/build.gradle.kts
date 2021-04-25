@@ -127,9 +127,7 @@ kotlin {
 //                implementation("org.junit.jupiter:junit-jupiter-params:${Dependency.junit_version}")
 //                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependency.junit_version}")
 
-                implementation("org.testcontainers:testcontainers:${Dependency.test_containers_version}")
-//                implementation("org.testcontainers:junit-jupiter:${Dependency.test_containers_version}")
-                implementation("org.testcontainers:mysql:${Dependency.test_containers_version}")
+                implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
