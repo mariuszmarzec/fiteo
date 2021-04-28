@@ -121,11 +121,9 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
                 implementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
+                implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
+                implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
-
-//                implementation("org.junit.jupiter:junit-jupiter-api:${Dependency.junit_version}")
-//                implementation("org.junit.jupiter:junit-jupiter-params:${Dependency.junit_version}")
-//                runtimeOnly("org.junit.jupiter:junit-jupiter-engine:${Dependency.junit_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
 

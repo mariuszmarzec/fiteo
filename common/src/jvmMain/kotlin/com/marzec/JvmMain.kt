@@ -60,6 +60,9 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.serialization.json
+import io.ktor.server.engine.commandLineEnvironment
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
@@ -70,15 +73,18 @@ import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
+import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 
-fun main(args: Array<String>): Unit = NettyEngineMain.main(args)
+fun main(args: Array<String>) {
+    embeddedServer(Netty, commandLineEnvironment(args)).start()
+}
 
 @Suppress("unused")
-fun Application.module(testing: Boolean = false) {
+fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
@@ -93,7 +99,7 @@ fun Application.module(testing: Boolean = false) {
 
     install(Koin) {
         slf4jLogger()
-        modules(MainModule)
+        modules(diModules)
     }
 
     install(DefaultHeaders)
@@ -161,7 +167,6 @@ fun Application.module(testing: Boolean = false) {
             resource("/common.js", "common.js")
         }
 
-
         apiSetup(testDi, di) { di ->
             val api: Controller = di.api
             val cheatDayApi: CheatDayController = di.cheatDayController
@@ -203,14 +208,13 @@ fun Application.module(testing: Boolean = false) {
             equipment(api)
             exercises(api)
             categories(api)
-
-            for (it in allRoutes(this)) {
-                println(it)
-            }
         }
     }
 }
 
+//            for (it in allRoutes(this)) {
+//                println(it)
+//            }
 fun allRoutes(root: Route): List<Route> {
     return listOf(root) + root.children.flatMap { allRoutes(it) }
 }
