@@ -73,9 +73,11 @@ import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
+import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.KoinApplicationStarted
+import org.koin.ktor.ext.KoinApplicationStopped
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 

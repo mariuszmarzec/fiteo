@@ -1,45 +1,54 @@
 package com.marzec
 
-import com.marzec.io.ExercisesReader
-import com.marzec.io.ResourceFileReader
-import com.marzec.model.dto.ExercisesFileDto
+import com.google.common.truth.Truth.assertThat
+import com.marzec.exercises.categories
+import com.marzec.exercises.equipment
+import com.marzec.exercises.exercises
+import com.marzec.model.domain.toDto
+import com.marzec.model.dto.CategoryDto
+import com.marzec.model.dto.EquipmentDto
+import com.marzec.model.dto.ExerciseDto
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
-import io.mockk.every
-import junit.framework.Assert.assertEquals
 import org.junit.After
-import org.junit.Before
 import org.junit.Test
+import org.koin.core.context.GlobalContext
 
-class ApplicationTest {
+class FiteoCoreTest {
 
-    @Before
-    fun setUp() {
-        setupDb()
+    @Test
+    fun exercises() {
+        withDefaultMockTestApplication {
+            handleRequest(HttpMethod.Get, ApiPath.EXERCISES).apply {
+                assertThat(response.status()).isEqualTo(HttpStatusCode.OK)
+                assertThatJson<List<ExerciseDto>>(response.content).isEqualTo(exercises.map { it.toDto() })
+            }
+        }
     }
 
     @Test
-    fun testContainer() {
-        withMockTestApplication(
-            mockConfiguration = {
-                factoryMock<ResourceFileReader> { mockk ->
-                    every { mockk.read(any()) } returns ""
-                }
-                factoryMock<ExercisesReader> { mockk ->
-                    every { mockk.parse(any()) } returns ExercisesFileDto(
-                        null, null, null
-                    )
-                }
-            }) {
+    fun equipment() {
+        withDefaultMockTestApplication {
             handleRequest(HttpMethod.Get, ApiPath.EQUIPMENT).apply {
-                assertEquals("DZIALA1", response.content)
-                assertEquals(HttpStatusCode.OK, response.status())
+                assertThatJson<List<EquipmentDto>>(response.content).isEqualTo(equipment.map { it.toDto() })
+                assertThat(response.status()).isEqualTo(HttpStatusCode.OK)
+            }
+        }
+    }
+
+    @Test
+    fun categories() {
+        withDefaultMockTestApplication {
+            handleRequest(HttpMethod.Get, ApiPath.CATEGORIES).apply {
+                assertThatJson<List<CategoryDto>>(response.content).isEqualTo(categories.map { it.toDto() })
+                assertThat(response.status()).isEqualTo(HttpStatusCode.OK)
             }
         }
     }
 
     @After
-    fun cleanUp() {
+    fun tearDown() {
+        GlobalContext.stopKoin()
     }
 }

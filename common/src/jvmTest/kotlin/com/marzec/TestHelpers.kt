@@ -1,11 +1,26 @@
 package com.marzec
 
+import com.google.common.truth.Subject
+import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.marzec.data.ExerciseFileMapper
 import com.marzec.database.DbSettings
 import com.marzec.di.MainModule
+import com.marzec.exercises.categories
+import com.marzec.exercises.equipment
+import com.marzec.exercises.exercises
+import com.marzec.exercises.json
+import com.marzec.exercises.uuidCounter
+import com.marzec.io.ExercisesReader
+import com.marzec.io.ResourceFileReader
+import com.marzec.model.domain.ExercisesData
+import com.marzec.model.dto.ExercisesFileDto
 import io.ktor.application.Application
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.withTestApplication
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.decodeFromString
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -21,11 +36,43 @@ fun setupDb() {
     flyway.migrate()
 }
 
+fun <T> withDefaultMockTestApplication(
+    mockConfiguration: Module.() -> Unit = { },
+    applicationModule: Application.(List<Module>) -> Unit = Application::module,
+    test: TestApplicationEngine.() -> T
+) {
+    val withMockConfiguration: Module.() -> Unit = {
+        defaultMockConfiguration()
+        mockConfiguration()
+    }
+    withMockTestApplication(withMockConfiguration, applicationModule, test)
+}
+
+private fun Module.defaultMockConfiguration() {
+    factory(override = true) { uuidCounter }
+
+    factoryMock<ResourceFileReader> { mockk ->
+        every { mockk.read(any()) } returns ""
+    }
+    factoryMock<ExercisesReader> { mockk ->
+        every { mockk.parse(any()) } returns ExercisesFileDto(
+            null, null, null
+        )
+    }
+    factoryMock<ExerciseFileMapper> {
+        every { it.toDomain(any()) } returns ExercisesData(
+            categories, exercises, equipment
+        )
+    }
+}
+
 fun <T> withMockTestApplication(
     mockConfiguration: Module.() -> Unit,
     applicationModule: Application.(List<Module>) -> Unit = Application::module,
     test: TestApplicationEngine.() -> T
 ) {
+    setupDb()
+
     val modules = MainModule.plus(module { mockConfiguration() })
     withTestApplication({ applicationModule(modules) }, test)
 }
@@ -34,4 +81,8 @@ inline fun <reified T: Any> Module.factoryMock(crossinline mockConfiguration: (T
     factory(override = true) {
         mockk<T>().apply { mockConfiguration(this) }
     }
+}
+
+inline fun <reified T: Any> assertThatJson(actual: String?): Subject {
+    return actual?.let { assertThat(json.decodeFromString<T>(it)) } ?: assertThat(null as Any?)
 }

@@ -1,6 +1,6 @@
 package com.marzec.model.mappers
 
-import com.marzec.core.Uuid
+import com.marzec.exercises.uuidCounter
 import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
@@ -13,16 +13,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class MappersKtTest {
-
-    val uuid: Uuid = object : Uuid {
-
-        private var i = 0
-
-        override fun create(): String {
-            return "${i++}"
-        }
-
-    }
 
     val exerciseFileDto = ExercisesFileDto(
             category = mapOf(
@@ -118,7 +108,7 @@ class MappersKtTest {
                 category = "Rozciagajace",
                 url = "https://vitalia.pl/index.php/mid/109/fid/1355/diety/dieta/group/14"
         )
-        assertEquals(Category("0", "Rozciagajace"), categoryFileDto.toDomain(uuid))
+        assertEquals(Category("0", "Rozciagajace"), categoryFileDto.toDomain(uuidCounter))
     }
 
     @Test
@@ -132,7 +122,7 @@ class MappersKtTest {
         assertEquals(listOf(
                 Equipment("0", "Drążek"),
                 Equipment("1", "Sztanga")
-        ), equipmentDto.toDomain(uuid))
+        ), equipmentDto.toDomain(uuidCounter))
     }
 
     @Test
@@ -207,7 +197,7 @@ class MappersKtTest {
                                 Equipment("2", "Drążek")
                         )
                 ),
-                exerciseFileDto.toDomain(uuid)
+                exerciseFileDto.toDomain(uuidCounter)
         )
     }
 }
