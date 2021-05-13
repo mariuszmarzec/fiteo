@@ -6,6 +6,7 @@ import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplatePart
+import com.marzec.model.dto.RegisterRequestDto
 import kotlinx.serialization.json.Json
 
 val categoryOne = stubCategory("1", "category_one")
@@ -184,3 +185,13 @@ val json = Json {
     isLenient = true
     useArrayPolymorphism = true
 }
+
+fun stubRegisterRequestDto(
+    email: String = "",
+    password: String = "",
+    repeatedPassword: String = ""
+) = RegisterRequestDto(
+    email = email,
+    password = password,
+    repeatedPassword = repeatedPassword
+)

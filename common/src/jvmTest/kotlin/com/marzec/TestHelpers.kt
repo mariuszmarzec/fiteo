@@ -15,12 +15,19 @@ import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
 import com.marzec.model.domain.ExercisesData
 import com.marzec.model.dto.ExercisesFileDto
+import com.marzec.model.dto.UserDto
 import io.ktor.application.Application
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.TestApplicationRequest
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -77,12 +84,50 @@ fun <T> withMockTestApplication(
     withTestApplication({ applicationModule(modules) }, test)
 }
 
-inline fun <reified T: Any> Module.factoryMock(crossinline mockConfiguration: (T) -> Unit) {
+inline fun <reified T : Any> Module.factoryMock(crossinline mockConfiguration: (T) -> Unit) {
     factory(override = true) {
         mockk<T>().apply { mockConfiguration(this) }
     }
 }
 
-inline fun <reified T: Any> assertThatJson(actual: String?): Subject {
+inline fun <reified T : Any> assertThatJson(actual: String?): Subject {
     return actual?.let { assertThat(json.decodeFromString<T>(it)) } ?: assertThat(null as Any?)
+}
+
+inline fun <reified T> TestApplicationRequest.setBodyJson(dto: T) {
+    addHeader("Content-Type", "application/json")
+    setBody(json.encodeToString(dto))
+}
+
+inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
+    uri: String,
+    dto: REQUEST,
+    status: HttpStatusCode,
+    responseDto: RESPONSE
+) {
+    withDefaultMockTestApplication {
+        handleRequest(HttpMethod.Post, uri) {
+            setBodyJson(dto)
+        }.apply {
+            assertThat(response.status()).isEqualTo(status)
+            assertThatJson<RESPONSE>(response.content).isEqualTo(
+                responseDto
+            )
+        }
+    }
+}
+
+inline fun <reified RESPONSE : Any> testGetEndpoint(
+    uri: String,
+    status: HttpStatusCode,
+    responseDto: RESPONSE
+) {
+    withDefaultMockTestApplication {
+        handleRequest(HttpMethod.Get, uri).apply {
+            assertThat(response.status()).isEqualTo(status)
+            assertThatJson<RESPONSE>(response.content).isEqualTo(
+                responseDto
+            )
+        }
+    }
 }

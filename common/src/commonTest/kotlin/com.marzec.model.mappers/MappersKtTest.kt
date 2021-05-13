@@ -108,7 +108,7 @@ class MappersKtTest {
                 category = "Rozciagajace",
                 url = "https://vitalia.pl/index.php/mid/109/fid/1355/diety/dieta/group/14"
         )
-        assertEquals(Category("0", "Rozciagajace"), categoryFileDto.toDomain(uuidCounter))
+        assertEquals(Category("1", "Rozciagajace"), categoryFileDto.toDomain(uuidCounter))
     }
 
     @Test
@@ -120,8 +120,8 @@ class MappersKtTest {
                 url = null
         )
         assertEquals(listOf(
-                Equipment("0", "Drążek"),
-                Equipment("1", "Sztanga")
+                Equipment("1", "Drążek"),
+                Equipment("2", "Sztanga")
         ), equipmentDto.toDomain(uuidCounter))
     }
 
@@ -130,14 +130,14 @@ class MappersKtTest {
         assertEquals(
                 ExercisesData(
                         categories = listOf(
-                                Category("1", "Rozciagajace"),
-                                Category("0", "Brak")
+                                Category("2", "Rozciagajace"),
+                                Category("1", "Brak")
                                 ),
                         exercises = listOf(
                                 Exercise(
                                         animationImageName = "anim_14.gif",
                                         animationUrl = "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
-                                        category = listOf(Category("1", "Rozciagajace")),
+                                        category = listOf(Category("2", "Rozciagajace")),
                                         descriptionsToImages = listOf(
                                                 "Stań prosto w lekkim rozkroku. Chwyć drążek za głową na wysokości barków. ",
                                                 "Wykonaj skręt tułowia w lewą stronę. Stopy całą powierzchnią dotykają podłoża. Nogi i miednica mają być zablokowane. Wykonaj wydech w końcowej fazie skrętu.",
@@ -188,13 +188,13 @@ class MappersKtTest {
                                         thumbnailUrl = "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/14.jpg",
                                         id = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14".hashCode(),
                                         neededEquipment = listOf(
-                                                Equipment("2", "Drążek")
+                                                Equipment("3", "Drążek")
                                         ),
                                         videoUrl = null
                                 )
                         ),
                         equipment = listOf(
-                                Equipment("2", "Drążek")
+                                Equipment("3", "Drążek")
                         )
                 ),
                 exerciseFileDto.toDomain(uuidCounter)
