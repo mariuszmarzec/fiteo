@@ -6,6 +6,7 @@ import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplatePart
+import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import kotlinx.serialization.json.Json
 
@@ -195,3 +196,11 @@ fun stubRegisterRequestDto(
     password = password,
     repeatedPassword = repeatedPassword
 )
+
+val registerRequestDto = stubRegisterRequestDto(
+    email = "test@mail.com",
+    password = "1234567890",
+    repeatedPassword = "1234567890"
+)
+
+val loginDto = LoginRequestDto(email = "test@mail.com", password = "1234567890")
