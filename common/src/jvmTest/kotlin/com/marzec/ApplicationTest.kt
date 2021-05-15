@@ -211,7 +211,7 @@ class CheatDay {
             uri = CheatApiPath.UPDATE_WEIGHT,
             dto = weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
             status = HttpStatusCode.OK,
-            responseDto = weightDto2,
+            responseDto = weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 addWeight(weightDto)
