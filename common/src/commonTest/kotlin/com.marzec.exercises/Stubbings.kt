@@ -1,5 +1,7 @@
 package com.marzec.exercises
 
+import com.marzec.cheatday.dto.PutWeightDto
+import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
 import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment
@@ -204,3 +206,15 @@ val registerRequestDto = stubRegisterRequestDto(
 )
 
 val loginDto = LoginRequestDto(email = "test@mail.com", password = "1234567890")
+
+val createWeightDto = PutWeightDto(60f, "2021-05-15T07:20:30")
+
+val weightDto = WeightDto(1, 60f, "2021-05-15T07:20:30")
+
+val createWeightDto2 = PutWeightDto(61f, "2021-05-16T07:20:30")
+
+val weightDto2 = WeightDto(2, 61f, "2021-05-16T07:20:30")
+
+val createWeightDto3 = PutWeightDto(60.5f, "2021-05-17T07:20:30")
+
+val weightDto3 = WeightDto(3, 60.5f, "2021-05-17T07:20:30")

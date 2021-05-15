@@ -1,10 +1,16 @@
 package com.marzec
 
+import com.marzec.cheatday.ApiPath as CheatApiPath
+import com.google.common.truth.Truth.assertThat
 import com.marzec.exercises.categories
+import com.marzec.exercises.createWeightDto
 import com.marzec.exercises.equipment
 import com.marzec.exercises.exercises
 import com.marzec.exercises.loginDto
 import com.marzec.exercises.registerRequestDto
+import com.marzec.exercises.weightDto
+import com.marzec.exercises.weightDto2
+import com.marzec.exercises.weightDto3
 import com.marzec.model.domain.toDto
 import com.marzec.model.dto.ErrorDto
 import com.marzec.model.dto.UserDto
@@ -105,34 +111,36 @@ class AuthorizationTest {
     @Test
     fun login() {
         testPostEndpoint(
-            ApiPath.LOGIN,
-            loginDto,
-            HttpStatusCode.OK,
-            UserDto(2, "test@mail.com")
-        ) {
-            register()
-        }
+            uri = ApiPath.LOGIN,
+            dto = loginDto,
+            status = HttpStatusCode.OK,
+            responseDto = UserDto(2, "test@mail.com"),
+            runRequestsBefore = {
+                register()
+            }
+        )
     }
 
     @Test
     fun login_incorrectPassword() {
         testPostEndpoint(
-            ApiPath.LOGIN,
-            loginDto.copy(password = "1234567"),
-            HttpStatusCode.BadRequest,
-            ErrorDto("Wrong password")
-        ) {
-            register()
-        }
+            uri = ApiPath.LOGIN,
+            dto = loginDto.copy(password = "1234567"),
+            status = HttpStatusCode.BadRequest,
+            responseDto = ErrorDto("Wrong password"),
+            runRequestsBefore = {
+                register()
+            }
+        )
     }
 
     @Test
     fun logout() {
         testGetEndpoint(
-            ApiPath.LOGOUT,
-            HttpStatusCode.OK,
-            Unit,
-            TestApplicationEngine::registerAndLogin
+            uri = ApiPath.LOGOUT,
+            status = HttpStatusCode.OK,
+            responseDto = Unit,
+            authorize = TestApplicationEngine::registerAndLogin
         )
     }
 
@@ -142,3 +150,88 @@ class AuthorizationTest {
     }
 }
 
+class CheatDay {
+
+    @Test
+    fun putWeight() {
+        testPostEndpoint(
+            uri = CheatApiPath.WEIGHT,
+            dto = createWeightDto,
+            status = HttpStatusCode.OK,
+            responseDto = weightDto,
+            authorize = TestApplicationEngine::registerAndLogin
+        )
+    }
+
+    @Test
+    fun weights() {
+        testGetEndpoint(
+            uri = CheatApiPath.WEIGHTS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                weightDto,
+                weightDto2,
+                weightDto3
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addWeight(weightDto)
+                addWeight(weightDto2)
+                addWeight(weightDto3)
+            }
+        )
+    }
+
+    @Test
+    fun removeWeight() {
+        testDeleteEndpoint(
+            uri = CheatApiPath.REMOVE_WEIGHT.replace("{id}", "2"),
+            status = HttpStatusCode.OK,
+            responseDto = weightDto2,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addWeight(weightDto)
+                addWeight(weightDto2)
+                addWeight(weightDto3)
+            },
+            runRequestsAfter = {
+                assertThat(getWeights()).isEqualTo(
+                    listOf(
+                        weightDto,
+                        weightDto3
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
+    fun updateWeight() {
+        testPatchEndpoint(
+            uri = CheatApiPath.UPDATE_WEIGHT,
+            dto = weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
+            status = HttpStatusCode.OK,
+            responseDto = weightDto2,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addWeight(weightDto)
+                addWeight(weightDto2)
+                addWeight(weightDto3)
+            },
+            runRequestsAfter = {
+                assertThat(getWeights()).isEqualTo(
+                    listOf(
+                        weightDto,
+                        weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
+                        weightDto3
+                    )
+                )
+            }
+        )
+    }
+
+    @After
+    fun tearDown() {
+        GlobalContext.stopKoin()
+    }
+}

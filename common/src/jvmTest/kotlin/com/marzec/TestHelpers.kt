@@ -1,8 +1,10 @@
 package com.marzec
 
+import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import com.marzec.cheatday.dto.WeightDto
 import com.marzec.data.ExerciseFileMapper
 import com.marzec.database.DbSettings
 import com.marzec.di.MainModule
@@ -31,6 +33,8 @@ import io.ktor.server.testing.setBody
 import io.ktor.server.testing.withTestApplication
 import io.mockk.every
 import io.mockk.mockk
+import java.util.*
+import kotlin.reflect.KProperty
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
@@ -110,19 +114,41 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
     status: HttpStatusCode,
     responseDto: RESPONSE,
     crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.(authToken: String?) -> Unit = { }
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint(
+    HttpMethod.Post,
+    uri,
+    dto,
+    status,
+    responseDto,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
+inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
+    method: HttpMethod,
+    uri: String,
+    dto: REQUEST?,
+    status: HttpStatusCode,
+    responseDto: RESPONSE,
+    crossinline authorize: TestApplicationEngine.() -> String? = { null },
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
 ) {
     withDefaultMockTestApplication {
-        val authToken = authorize()
-        runRequestsBefore(authToken)
-        handleRequest(HttpMethod.Post, uri) {
-            setBodyJson(dto)
+        authToken = authorize()
+        runRequestsBefore()
+        handleRequest(method, uri) {
+            dto?.let { setBodyJson(it) }
             authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
         }.apply {
             assertThatJson<RESPONSE>(response.content).isEqualTo(
                 responseDto
             )
             assertThat(response.status()).isEqualTo(status)
+            runRequestsAfter()
         }
     }
 }
@@ -132,21 +158,57 @@ inline fun <reified RESPONSE : Any> testGetEndpoint(
     status: HttpStatusCode,
     responseDto: RESPONSE,
     crossinline authorize: TestApplicationEngine.() -> String? = { null },
-) {
-    withDefaultMockTestApplication {
-        val authToken = authorize()
-        handleRequest(HttpMethod.Get, uri) {
-            authToken?.let {
-                addHeader(Headers.AUTHORIZATION, it)
-            }
-        }.apply {
-            assertThat(response.status()).isEqualTo(status)
-            assertThatJson<RESPONSE>(response.content).isEqualTo(
-                responseDto
-            )
-        }
-    }
-}
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint(
+    HttpMethod.Get,
+    uri,
+    null,
+    status,
+    responseDto,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
+inline fun <reified RESPONSE : Any> testDeleteEndpoint(
+    uri: String,
+    status: HttpStatusCode,
+    responseDto: RESPONSE,
+    crossinline authorize: TestApplicationEngine.() -> String? = { null },
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint(
+    HttpMethod.Delete,
+    uri,
+    null,
+    status,
+    responseDto,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
+inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
+    uri: String,
+    dto: REQUEST,
+    status: HttpStatusCode,
+    responseDto: RESPONSE,
+    crossinline authorize: TestApplicationEngine.() -> String? = { null },
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint(
+    HttpMethod.Patch,
+    uri,
+    dto,
+    status,
+    responseDto,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
+var TestApplicationEngine.authToken: String? by FieldProperty<TestApplicationEngine, String?> { null }
 
 fun TestApplicationEngine.register(dto: RegisterRequestDto = registerRequestDto) {
     handleRequest(HttpMethod.Post, ApiPath.REGISTRATION) {
@@ -161,3 +223,30 @@ fun TestApplicationEngine.registerAndLogin(dto: LoginRequestDto = loginDto): Str
     }.response.headers[Headers.AUTHORIZATION]!!
 }
 
+fun TestApplicationEngine.addWeight(dto: WeightDto) {
+    handleRequest(HttpMethod.Post, CheatApiPath.WEIGHT) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun TestApplicationEngine.getWeights(): List<WeightDto> =
+    handleRequest(HttpMethod.Get, CheatApiPath.WEIGHTS) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString<List<WeightDto>>(it) }.orEmpty()
+
+class FieldProperty<R, T>(
+    val initializer: (R) -> T = { throw IllegalStateException("Not initialized.") }
+) {
+    private val map = WeakHashMap<R, T>()
+
+    operator fun getValue(thisRef: R, property: KProperty<*>): T =
+        map[thisRef] ?: setValue(thisRef, property, initializer(thisRef))
+
+    operator fun setValue(thisRef: R, property: KProperty<*>, value: T): T {
+        map[thisRef] = value
+        return value
+    }
+}
