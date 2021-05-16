@@ -10,6 +10,12 @@ import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplatePart
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
+import com.marzec.todo.dto.CreateTodoListDto
+import com.marzec.todo.dto.TaskDto
+import com.marzec.todo.dto.ToDoListDto
+import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.UpdateTaskDto
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 val categoryOne = stubCategory("1", "category_one")
@@ -218,3 +224,66 @@ val weightDto2 = WeightDto(2, 61f, "2021-05-16T07:20:30")
 val createWeightDto3 = PutWeightDto(60.5f, "2021-05-17T07:20:30")
 
 val weightDto3 = WeightDto(3, 60.5f, "2021-05-17T07:20:30")
+
+val createTodoListDto = CreateTodoListDto("todo list 1")
+
+val createTodoListDto2 = CreateTodoListDto("todo list 2")
+
+val todoListDto = ToDoListDto(1, "todo list 1", emptyList())
+
+val todoListDto2 = ToDoListDto(2, "todo list 2", emptyList())
+
+val createTaskDto = stubCreateTaskDto("task", null, 0)
+
+fun stubCreateTaskDto(
+    description: String = "",
+    parentTaskId: Int? = null,
+    priority: Int = 0
+) = CreateTaskDto(
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+)
+
+val taskDto = TaskDto(
+    id = 1,
+    description = "task",
+    addedTime = "",
+    modifiedTime = "",
+    parentTaskId = null,
+    subTasks = emptyList(),
+    isToDo = true,
+    priority = 0
+)
+
+fun stubTaskDto(
+    id: Int = 1,
+    description: String = "",
+    addedTime: String = "",
+    modifiedTime: String = "",
+    parentTaskId: Int? = null,
+    subTasks: List<TaskDto> = emptyList(),
+    isToDo: Boolean = true,
+    priority: Int = 0
+) = TaskDto(
+    id = id,
+    description = description,
+    addedTime = addedTime,
+    modifiedTime = modifiedTime,
+    parentTaskId = parentTaskId,
+    subTasks = subTasks,
+    isToDo = isToDo,
+    priority = priority
+)
+
+fun stubUpdateTaskDto(
+    description: String = "",
+    parentTaskId: Int? = null,
+    priority: Int = 0,
+    isToDo: Boolean = true
+) = UpdateTaskDto(
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+    isToDo = isToDo
+)

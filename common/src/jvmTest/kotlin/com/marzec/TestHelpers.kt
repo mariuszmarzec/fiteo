@@ -1,6 +1,7 @@
 package com.marzec
 
 import com.marzec.cheatday.ApiPath as CheatApiPath
+import com.marzec.todo.ApiPath as TodoApiPath
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
@@ -22,6 +23,9 @@ import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
+import com.marzec.todo.dto.CreateTodoListDto
+import com.marzec.todo.dto.ToDoListDto
+import com.marzec.todo.model.CreateTaskDto
 import io.ktor.application.Application
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -249,4 +253,26 @@ class FieldProperty<R, T>(
         map[thisRef] = value
         return value
     }
+}
+
+fun TestApplicationEngine.addTodoList(dto: CreateTodoListDto) {
+    handleRequest(HttpMethod.Post, TodoApiPath.TODO_LIST) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
+    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${TodoApiPath.ARG_ID}}", "$listId")) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun TestApplicationEngine.getTodoLists(): List<ToDoListDto> {
+    return handleRequest(HttpMethod.Get, TodoApiPath.TODO_LISTS) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString<List<ToDoListDto>>(it) }.orEmpty()
 }
