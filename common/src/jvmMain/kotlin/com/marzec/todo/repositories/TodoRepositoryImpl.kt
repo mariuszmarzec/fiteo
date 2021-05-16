@@ -1,5 +1,6 @@
 package com.marzec.todo.repositories
 
+import com.marzec.core.currentTime
 import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
@@ -60,7 +61,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             listEntity
         }
 
-        val parentTask = task.parentTaskId?.let { TaskEntity.findByIdOrThrow(it) }
+        val parentTask = task.parentTaskId?.let { database.dbCall { TaskEntity.findByIdOrThrow(it) } }
 
         val taskEntity = database.dbCall {
             TaskEntity.new {
@@ -85,7 +86,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         taskEntity.parents = task.parentTaskId?.let { listOf(TaskEntity.findByIdOrThrow(it)) }.orEmpty().toSized()
         taskEntity.priority = task.priority
         taskEntity.isToDo = task.isToDo
-        taskEntity.modifiedTime = LocalDateTime.now()
+        taskEntity.modifiedTime = currentTime()
         taskEntity.toDomain()
     }
 

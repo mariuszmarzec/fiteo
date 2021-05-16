@@ -245,22 +245,16 @@ fun stubCreateTaskDto(
     priority = priority,
 )
 
-val taskDto = TaskDto(
+val taskDto = stubTaskDto(
     id = 1,
-    description = "task",
-    addedTime = "",
-    modifiedTime = "",
-    parentTaskId = null,
-    subTasks = emptyList(),
-    isToDo = true,
-    priority = 0
+    description = "task"
 )
 
 fun stubTaskDto(
     id: Int = 1,
     description: String = "",
-    addedTime: String = "",
-    modifiedTime: String = "",
+    addedTime: String = "2021-05-16T00:00",
+    modifiedTime: String = "2021-05-16T00:00",
     parentTaskId: Int? = null,
     subTasks: List<TaskDto> = emptyList(),
     isToDo: Boolean = true,

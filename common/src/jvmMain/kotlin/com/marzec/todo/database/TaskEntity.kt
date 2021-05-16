@@ -1,12 +1,11 @@
 package com.marzec.todo.database
 
+import com.marzec.core.currentTime
 import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.todo.model.Task
-import java.time.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
@@ -15,8 +14,9 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 
 object TasksTable : IntIdTable("todo_tasks") {
     val description = text("description")
-    val addedTime = datetime("added_time").apply { defaultValueFun = { LocalDateTime.now()} }
-    val modifiedTime = datetime("modified_time").apply { defaultValueFun = { LocalDateTime.now()} }
+    val addedTime = datetime("added_time").apply { defaultValueFun = { currentTime() } }
+    val modifiedTime = datetime("modified_time").apply { defaultValueFun = { currentTime() } }
+
     val isToDo = bool("is_to_do")
     val priority = integer("priority")
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)

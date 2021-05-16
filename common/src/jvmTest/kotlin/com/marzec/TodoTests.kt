@@ -1,6 +1,7 @@
 package com.marzec
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.marzec.core.CurrentTimeUtil
 import com.marzec.exercises.createTaskDto
 import com.marzec.exercises.createTodoListDto
 import com.marzec.exercises.createTodoListDto2
@@ -51,7 +52,7 @@ class TodoTests {
     @Test
     fun deleteTodoList() {
         testDeleteEndpoint(
-            uri = ApiPath.TODO_LISTS.replace("{id}", "1"),
+            uri = ApiPath.DELETE_TODO_LIST.replace("{${ApiPath.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = todoListDto,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -60,9 +61,9 @@ class TodoTests {
                 addTodoList(createTodoListDto2)
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
-                        createTodoListDto2
+                        todoListDto2
                     )
                 )
             }
@@ -78,10 +79,11 @@ class TodoTests {
             responseDto = taskDto,
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(tasks = listOf(taskDto))
                     )
@@ -99,11 +101,12 @@ class TodoTests {
             responseDto = stubTaskDto(id = 2, description = "subtask", parentTaskId = 1),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
                 addTask(1, createTaskDto)
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -129,11 +132,12 @@ class TodoTests {
             responseDto = stubTaskDto(description = "updated task", priority = 10, isToDo = false),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
                 addTask(1, createTaskDto)
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -154,16 +158,17 @@ class TodoTests {
     @Test
     fun updateTask_pinToParentTask() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "2"),
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = 1),
             status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(description = "task2", parentTaskId = 1),
+            responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = 1),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
                 addTask(1, stubCreateTaskDto("task", null, 0))
                 addTask(1, stubCreateTaskDto("task2", null, 0))
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -175,7 +180,7 @@ class TodoTests {
                 )
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -197,16 +202,17 @@ class TodoTests {
     @Test
     fun updateTask_unpinFromParentTask() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "2"),
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = null),
             status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(description = "task2", parentTaskId = null),
+            responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = null),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
                 addTask(1, stubCreateTaskDto("task", null, 0))
                 addTask(1, stubCreateTaskDto("task2", 1, 0))
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -223,7 +229,7 @@ class TodoTests {
                 )
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(
                             tasks = listOf(
@@ -245,16 +251,17 @@ class TodoTests {
             responseDto = taskDto,
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTodoList(createTodoListDto)
                 addTask(1, createTaskDto)
-                Truth.assertThat(getTodoLists()).isEqualTo(
+                assertThat(getTodoLists()).isEqualTo(
                     listOf(
                         todoListDto.copy(tasks = listOf(taskDto))
                     )
                 )
             },
             runRequestsAfter = {
-                Truth.assertThat(getTodoLists()).isEqualTo(listOf(todoListDto))
+                assertThat(getTodoLists()).isEqualTo(listOf(todoListDto))
             }
         )
     }
