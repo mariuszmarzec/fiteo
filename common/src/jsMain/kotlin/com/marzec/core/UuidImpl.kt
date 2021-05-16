@@ -1,7 +1,7 @@
 package com.marzec.core
 
-actual class UuidImpl : Uuid {
-    actual override fun create(): String {
+class UuidImpl : Uuid {
+    override fun create(): String {
         return ""
     }
 }
