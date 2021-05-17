@@ -26,7 +26,7 @@ plugins {
 }
 
 application {
-    mainClassName = "com.marzec.JvmMainKt"
+    mainClass.set("com.marzec.JvmMainKt")
 }
 
 val properties: Properties = Properties()

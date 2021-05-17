@@ -7,6 +7,7 @@ import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
+import com.marzec.data.ExerciseFileMapper
 import com.marzec.data.InitialDataLoader
 import com.marzec.data.InitialDataLoaderImpl
 import com.marzec.exercises.AuthenticationService
@@ -69,6 +70,8 @@ val MainModule = module {
             useArrayPolymorphism = true
         }
     }
+
+    single<ExerciseFileMapper> { params -> ExerciseFileMapper(get { params }) }
 
     single<InitialDataLoader> { params -> InitialDataLoaderImpl(get { params }, get { params }, get { params }, get { params }, get { params }, get { params }) }
 
