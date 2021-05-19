@@ -4,10 +4,18 @@ import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
 import com.marzec.model.domain.Category
+import com.marzec.model.domain.CreateTrainingTemplateDto
+import com.marzec.model.domain.CreateTrainingTemplatePartDto
 import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
 import com.marzec.model.domain.TrainingTemplate
+import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.domain.TrainingTemplatePart
+import com.marzec.model.domain.TrainingTemplatePartDto
+import com.marzec.model.domain.toDto
+import com.marzec.model.dto.CategoryDto
+import com.marzec.model.dto.EquipmentDto
+import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.todo.dto.CreateTodoListDto
@@ -25,6 +33,14 @@ val categoryThree = stubCategory("3", "category_three")
 val equipmentOne = stubEquipment("4", "equipment_one")
 val equipmentTwo = stubEquipment("5", "equipment_two")
 val equipmentThree = stubEquipment("6", "equipment_three")
+
+val categoryOneDto = categoryOne.toDto()
+val categoryTwoDto = categoryTwo.toDto()
+val categoryThreeDto = categoryThree.toDto()
+
+val equipmentOneDto = equipmentOne.toDto()
+val equipmentTwoDto = equipmentTwo.toDto()
+val equipmentThreeDto = equipmentThree.toDto()
 
 val exerciseCategoryOneEquipment0ne = stubExercise(
     id = 1,
@@ -280,4 +296,58 @@ fun stubUpdateTaskDto(
     parentTaskId = parentTaskId,
     priority = priority,
     isToDo = isToDo
+)
+
+fun stubCreateTrainingTemplateDto(
+    id: Int = 0,
+    name: String = "",
+    exercises: List<CreateTrainingTemplatePartDto> = emptyList(),
+    availableEquipmentIds: List<String> = emptyList()
+) = CreateTrainingTemplateDto(
+    id,
+    name,
+    exercises,
+    availableEquipmentIds,
+)
+
+fun stubCreateTrainingTemplatePartDto(
+    name: String,
+    pinnedExerciseId: Int? = null,
+    categoryIds: List<String> = emptyList(),
+    excludedExercisesIds: List<Int> = emptyList(),
+    excludedEquipmentIds: List<String> = emptyList()
+) = CreateTrainingTemplatePartDto(
+    name = name,
+    pinnedExerciseId = pinnedExerciseId,
+    categoryIds = categoryIds,
+    excludedExercisesIds = excludedExercisesIds,
+    excludedEquipmentIds = excludedEquipmentIds,
+)
+
+fun stubTrainingTemplateDto(
+    id: Int = 0,
+    name: String = "",
+    exercises: List<TrainingTemplatePartDto> = emptyList(),
+    availableEquipment: List<EquipmentDto> = emptyList()
+) = TrainingTemplateDto(
+    id = id,
+    name = name,
+    exercises = exercises,
+    availableEquipment = availableEquipment,
+)
+
+fun stubTrainingTemplatePartDto(
+    id: Int = 0,
+    name: String = "",
+    pinnedExercise: ExerciseDto? = null,
+    categories: List<CategoryDto> = emptyList(),
+    excludedExercises: List<Int> = emptyList(),
+    excludedEquipment: List<EquipmentDto> = emptyList()
+) = TrainingTemplatePartDto(
+    id = id,
+    name = name,
+    pinnedExercise = pinnedExercise,
+    categories = categories,
+    excludedExercises = excludedExercises,
+    excludedEquipment = excludedEquipment
 )
