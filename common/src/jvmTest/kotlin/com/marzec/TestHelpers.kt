@@ -18,7 +18,9 @@ import com.marzec.exercises.registerRequestDto
 import com.marzec.exercises.uuidCounter
 import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
+import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.ExercisesData
+import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
@@ -275,4 +277,19 @@ fun TestApplicationEngine.getTodoLists(): List<ToDoListDto> {
     }.response
         .content
         ?.let { json.decodeFromString<List<ToDoListDto>>(it) }.orEmpty()
+}
+
+fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
+    handleRequest(HttpMethod.Post, ApiPath.TRAINING_TEMPLATE) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun TestApplicationEngine.getTemplates() : List<TrainingTemplateDto> {
+    return handleRequest(HttpMethod.Get, ApiPath.TRAINING_TEMPLATES) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString<List<TrainingTemplateDto>>(it) }.orEmpty()
 }

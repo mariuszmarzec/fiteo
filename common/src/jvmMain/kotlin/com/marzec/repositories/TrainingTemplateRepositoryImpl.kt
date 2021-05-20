@@ -84,8 +84,9 @@ class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingT
 
     override fun removeTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate = database.dbCall {
         val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplateId)
+        val trainingTemplate = templateEntity.toDomain()
         templateEntity.deleteIfBelongsToUserOrThrow(userId)
-        templateEntity.toDomain()
+        trainingTemplate
     }
 
     private fun addTemplatePart(templatePart: CreateTrainingTemplatePart): TrainingTemplatePartEntity {

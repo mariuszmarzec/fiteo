@@ -1,13 +1,18 @@
 package com.marzec
 
+import com.google.common.truth.Truth.assertThat
 import com.marzec.exercises.categoryOneDto
 import com.marzec.exercises.categoryTwoDto
 import com.marzec.exercises.equipmentOneDto
+import com.marzec.exercises.equipmentThreeDto
 import com.marzec.exercises.equipmentTwoDto
+import com.marzec.exercises.exerciseCategoryOneEquipmentThree
 import com.marzec.exercises.stubCreateTrainingTemplateDto
 import com.marzec.exercises.stubCreateTrainingTemplatePartDto
 import com.marzec.exercises.stubTrainingTemplateDto
 import com.marzec.exercises.stubTrainingTemplatePartDto
+import com.marzec.model.domain.TrainingTemplateDto
+import com.marzec.model.domain.toDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After
@@ -61,6 +66,52 @@ class TrainingTemplateTests {
         availableEquipment = listOf(equipmentOneDto, equipmentTwoDto),
     )
 
+    private val updateTrainingTemplateDto = stubCreateTrainingTemplateDto(
+        id = 1,
+        name = "trainingTemplateUpdated",
+        exercises = listOf(
+            stubCreateTrainingTemplatePartDto(
+                name = "part_two",
+                pinnedExerciseId = null,
+                categoryIds = listOf("2"),
+                excludedExercisesIds = listOf(),
+                excludedEquipmentIds = listOf("5")
+            ),
+            stubCreateTrainingTemplatePartDto(
+                name = "part_three",
+                pinnedExerciseId = 3,
+                categoryIds = listOf("1"),
+                excludedExercisesIds = listOf(2),
+                excludedEquipmentIds = listOf("6"),
+            ),
+        ),
+        availableEquipmentIds = listOf("4", "5")
+    )
+
+    private val updatedTrainingTemplateDto = stubTrainingTemplateDto(
+        id = 1,
+        name = "trainingTemplateUpdated",
+        exercises = listOf(
+            stubTrainingTemplatePartDto(
+                id = 3,
+                name = "part_two",
+                pinnedExercise = null,
+                categories = listOf(categoryTwoDto),
+                excludedExercises = listOf(),
+                excludedEquipment = listOf(equipmentTwoDto)
+            ),
+            stubTrainingTemplatePartDto(
+                id = 4,
+                name = "part_three",
+                pinnedExercise = exerciseCategoryOneEquipmentThree.toDto(),
+                categories = listOf(categoryOneDto),
+                excludedExercises = listOf(2),
+                excludedEquipment = listOf(equipmentThreeDto)
+            )
+        ),
+        availableEquipment = listOf(equipmentOneDto, equipmentTwoDto),
+    )
+
     @Test
     fun putTemplate() {
         testPostEndpoint(
@@ -69,6 +120,56 @@ class TrainingTemplateTests {
             status = HttpStatusCode.OK,
             responseDto = trainingTemplateDto,
             authorize = TestApplicationEngine::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTemplates() {
+        testGetEndpoint(
+            uri = ApiPath.TRAINING_TEMPLATES,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(trainingTemplateDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            }
+        )
+    }
+
+    @Test
+    fun removeTemplate() {
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_TRAINING_TEMPLATES.replace("{id}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingTemplateDto,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTemplates()).isEqualTo(
+                    emptyList<TrainingTemplateDto>()
+                )
+            }
+        )
+    }
+
+    @Test
+    fun updateTemplate() {
+        testPatchEndpoint(
+            uri = ApiPath.UPDATE_TRAINING_TEMPLATES,
+            dto = updateTrainingTemplateDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTrainingTemplateDto,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTemplates()).isEqualTo(
+                    listOf(updatedTrainingTemplateDto)
+                )
+            }
         )
     }
 
