@@ -8,6 +8,9 @@ import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.CreateTrainingTemplatePartDto
 import com.marzec.model.domain.Equipment
 import com.marzec.model.domain.Exercise
+import com.marzec.model.domain.SeriesDto
+import com.marzec.model.domain.TrainingDto
+import com.marzec.model.domain.TrainingExerciseWithProgressDto
 import com.marzec.model.domain.TrainingTemplate
 import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.domain.TrainingTemplatePart
@@ -350,4 +353,84 @@ fun stubTrainingTemplatePartDto(
     categories = categories,
     excludedExercises = excludedExercises,
     excludedEquipment = excludedEquipment
+)
+
+fun stubTraining(
+    id: Int = 0,
+    templateId: Int = 0,
+    createDateInMillis: String = "2021-05-16T00:00",
+    finishDateInMillis: String = "2021-05-16T00:00",
+    exercisesWithProgress: List<TrainingExerciseWithProgressDto> = emptyList()
+) = TrainingDto(
+    id = id,
+    templateId = templateId,
+    createDateInMillis = createDateInMillis,
+    finishDateInMillis = finishDateInMillis,
+    exercisesWithProgress = exercisesWithProgress
+)
+
+fun stubTrainingExerciseWithProgressDto(
+    exercise: ExerciseDto = stubExerciseDto(),
+    series: List<SeriesDto> = emptyList()
+) = TrainingExerciseWithProgressDto(
+    exercise = exercise,
+    series = series,
+)
+
+fun stubSeriesDto(
+    seriesId: Int = 0,
+    exerciseId: Int = 0,
+    trainingId: Int = 0,
+    date: String = "2021-05-16T00:00",
+    burden: Int? = null,
+    timeInMillis: Long? = null,
+    repsNumber: Int? = null,
+    note: String = ""
+) = SeriesDto(
+    seriesId = seriesId,
+    exerciseId = exerciseId,
+    trainingId = trainingId,
+    date = date,
+    burden = burden,
+    timeInMillis = timeInMillis,
+    repsNumber = repsNumber,
+    note = note,
+)
+
+fun stubExerciseDto(
+    id: Int = 0,
+    name: String = "",
+    animationImageName: String? = null,
+    animationUrl: String? = null,
+    videoUrl: String? = null,
+    category: List<CategoryDto> = emptyList(),
+    imagesNames: List<String>? = null,
+    imagesUrls: List<String>? = null,
+    descriptionsToImages: List<String>? = null,
+    imagesMistakesUrls: List<String>? = null,
+    imagesMistakesNames: List<String>? = null,
+    descriptionsToMistakes: List<String>? = null,
+    muscles: List<String>? = null,
+    musclesName: List<String>? = null,
+    neededEquipment: List<EquipmentDto> = emptyList(),
+    thumbnailName: String? = null,
+    thumbnailUrl: String? = null
+) = ExerciseDto(
+    id = id,
+    name = name,
+    animationImageName = animationImageName,
+    animationUrl = animationUrl,
+    videoUrl = videoUrl,
+    category = category,
+    imagesNames = imagesNames,
+    imagesUrls = imagesUrls,
+    descriptionsToImages = descriptionsToImages,
+    imagesMistakesUrls = imagesMistakesUrls,
+    imagesMistakesNames = imagesMistakesNames,
+    descriptionsToMistakes = descriptionsToMistakes,
+    muscles = muscles,
+    musclesName = musclesName,
+    neededEquipment = neededEquipment,
+    thumbnailName = thumbnailName,
+    thumbnailUrl = thumbnailUrl
 )
