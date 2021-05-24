@@ -46,7 +46,8 @@ class TrainingServiceImplTest {
         trainingRepository,
         exercisesRepository,
         categoriesRepository,
-        equipmentRepository
+        equipmentRepository,
+        mockk()
     )
 
     @BeforeTest

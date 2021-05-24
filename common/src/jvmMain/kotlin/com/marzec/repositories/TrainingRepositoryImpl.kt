@@ -45,7 +45,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
     override fun getTrainings(userId: Int): List<Training> {
         return database.dbCall {
             TrainingsTable.selectAll().andWhere { TrainingsTable.userId eq userId }
-                    .map { TrainingEntity.wrapRow(it).toDomain() }
+                .map { TrainingEntity.wrapRow(it).toDomain() }
         }
     }
 
@@ -78,15 +78,21 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         }
     }
 
-    private fun createTrainingWithExercises(userEntity: UserEntity, training: CreateTrainingExerciseWithProgress): TrainingExerciseWithProgressEntity {
+    private fun createTrainingWithExercises(
+        userEntity: UserEntity,
+        training: CreateTrainingExerciseWithProgress
+    ): TrainingExerciseWithProgressEntity {
         val series = training.series.map {
             createSeries(userEntity, it)
         }
 
         return database.dbCall {
             TrainingExerciseWithProgressEntity.new {
+                this.user = userEntity
                 this.exercise = ExerciseEntity.findByIdOrThrow(training.exerciseId)
-                this.series = series.toSized()
+                if (series.isNotEmpty()) {
+                    this.series = series.toSized()
+                }
             }
         }
     }

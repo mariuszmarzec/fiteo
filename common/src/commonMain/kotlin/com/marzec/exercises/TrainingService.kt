@@ -1,5 +1,6 @@
 package com.marzec.exercises
 
+import com.marzec.core.TimeProvider
 import com.marzec.model.domain.*
 import com.marzec.repositories.*
 import kotlinx.datetime.*
@@ -29,7 +30,8 @@ class TrainingServiceImpl(
         private val trainingRepository: TrainingRepository,
         private val exercisesRepository: ExercisesRepository,
         private val categoriesRepository: CategoriesRepository,
-        private val equipmentRepository: EquipmentRepository
+        private val equipmentRepository: EquipmentRepository,
+        private val timeProvider: TimeProvider
 ) : TrainingService {
     override fun getTrainingTemplates(userId: Int): List<TrainingTemplate> = templateRepository.getTemplates(userId)
 
@@ -48,7 +50,7 @@ class TrainingServiceImpl(
         val allExercises = exercisesRepository.getAll().filter { exercise -> exercise.neededEquipment.all { equipment -> equipment in template.availableEquipment } }
 
         val trainingUpdate = CreateTraining(
-                Clock.System.now().toLocalDateTime(TimeZone.UTC),
+                timeProvider.currentTime(),
                 exercisesWithProgress = template.exercises.map { trainingPart ->
                     val exercise = allExercises.filter { exercise ->
                         exercise.category.all { it in trainingPart.categories } &&

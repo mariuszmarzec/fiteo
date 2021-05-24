@@ -1,5 +1,6 @@
 package com.marzec.database
 
+import com.marzec.core.currentTime
 import com.marzec.model.domain.Series
 import com.marzec.model.domain.Training
 import com.marzec.model.domain.TrainingExerciseWithProgress
@@ -13,8 +14,8 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 
 object TrainingsTable : IntIdTable("trainings") {
     val templateId = reference("template_id", TrainingTemplateTable, onDelete = ReferenceOption.NO_ACTION)
-    val createDateInMillis = datetime("create_date_in_millis").apply { defaultValueFun = { LocalDateTime.now() } }
-    val finishDateInMillis = datetime("finish_date_in_millis").apply { defaultValueFun = { LocalDateTime.now() } }
+    val createDateInMillis = datetime("create_date_in_millis").apply { defaultValueFun = { currentTime() } }
+    val finishDateInMillis = datetime("finish_date_in_millis").apply { defaultValueFun = { currentTime() } }
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -68,7 +69,7 @@ object ExerciseToSeries : IntIdTable("exercise_to_series") {
 }
 
 object SeriesTable : IntIdTable("series") {
-    val date = datetime("date").apply { defaultValueFun = { LocalDateTime.now() } }
+    val date = datetime("date").apply { defaultValueFun = { currentTime() } }
     val burden = integer("burden").nullable()
     val timeInMillis = long("time_in_millis").nullable()
     val repsNumber = integer("reps_number").nullable()

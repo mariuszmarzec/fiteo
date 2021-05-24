@@ -15,4 +15,4 @@ object CurrentTimeUtil {
     }
 }
 
-fun currentTime() = LocalDateTime.now(CurrentTimeUtil.clock)
+fun currentTime(): LocalDateTime = LocalDateTime.now(CurrentTimeUtil.clock)
