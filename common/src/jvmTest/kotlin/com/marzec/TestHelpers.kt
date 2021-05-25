@@ -3,7 +3,6 @@ package com.marzec
 import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
 import com.google.common.truth.Subject
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.data.ExerciseFileMapper
@@ -20,18 +19,17 @@ import com.marzec.io.ExercisesReader
 import com.marzec.io.ResourceFileReader
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.ExercisesData
+import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
-import com.marzec.model.dto.UserDto
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.dto.ToDoListDto
 import com.marzec.todo.model.CreateTaskDto
 import io.ktor.application.Application
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationCall
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.TestApplicationRequest
 import io.ktor.server.testing.handleRequest
@@ -286,10 +284,29 @@ fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
     }
 }
 
+fun TestApplicationEngine.createTraining(trainingTemplateId: String): TrainingDto {
+    return handleRequest(
+        HttpMethod.Get,
+        ApiPath.CREATE_TRAINING.replace("{${ApiPath.ARG_ID}}", trainingTemplateId)
+    ) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        .let { json.decodeFromString(it!!) }
+}
+
 fun TestApplicationEngine.getTemplates() : List<TrainingTemplateDto> {
     return handleRequest(HttpMethod.Get, ApiPath.TRAINING_TEMPLATES) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
         .content
         ?.let { json.decodeFromString<List<TrainingTemplateDto>>(it) }.orEmpty()
+}
+
+fun TestApplicationEngine.getTrainings() : List<TrainingDto> {
+    return handleRequest(HttpMethod.Get, ApiPath.TRAININGS) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString<List<TrainingDto>>(it) }.orEmpty()
 }

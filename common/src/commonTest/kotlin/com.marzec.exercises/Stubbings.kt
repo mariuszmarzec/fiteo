@@ -4,6 +4,8 @@ import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
 import com.marzec.model.domain.Category
+import com.marzec.model.domain.CreateTrainingDto
+import com.marzec.model.domain.CreateTrainingExerciseWithProgressDto
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.CreateTrainingTemplatePartDto
 import com.marzec.model.domain.Equipment
@@ -433,4 +435,19 @@ fun stubExerciseDto(
     neededEquipment = neededEquipment,
     thumbnailName = thumbnailName,
     thumbnailUrl = thumbnailUrl
+)
+
+fun stubCreateTrainingDto(
+    finishDateInMillis: String = "2021-05-16T00:00",
+    exercisesWithProgress: List<CreateTrainingExerciseWithProgressDto> = emptyList()
+) = CreateTrainingDto(
+    finishDateInMillis,
+    exercisesWithProgress
+)
+
+fun stubCreateTrainingExerciseWithProgressDto(
+    exerciseId: Int = 0,
+    series: List<SeriesDto> = emptyList()
+) = CreateTrainingExerciseWithProgressDto(
+   exerciseId, series
 )

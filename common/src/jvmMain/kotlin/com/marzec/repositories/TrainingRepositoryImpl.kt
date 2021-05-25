@@ -14,7 +14,6 @@ import com.marzec.model.domain.CreateTraining
 import com.marzec.model.domain.CreateTrainingExerciseWithProgress
 import com.marzec.model.domain.Series
 import com.marzec.model.domain.Training
-import java.time.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
@@ -52,8 +51,9 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
     override fun removeTrainings(userId: Int, trainingId: Int): Training {
         return database.dbCall {
             val trainingEntity = TrainingEntity.findByIdOrThrow(trainingId)
+            val domain = trainingEntity.toDomain()
             trainingEntity.deleteIfBelongsToUserOrThrow(userId)
-            trainingEntity.toDomain()
+            domain
         }
     }
 
@@ -66,14 +66,18 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             }
         }
 
-        val exercises = training.exercisesWithProgress.map {
+        val exercises: List<TrainingExerciseWithProgressEntity> = training.exercisesWithProgress.map {
             createTrainingWithExercises(userEntity, it)
         }
 
+        database.dbCall {
+            if (exercises.isNotEmpty()) {
+                trainingEntity.exercises = exercises.toSized()
+            }
+            trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
+        }
 
         return database.dbCall {
-            trainingEntity.exercises = exercises.toSized()
-            trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
             trainingEntity.toDomain()
         }
     }
@@ -86,15 +90,18 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             createSeries(userEntity, it)
         }
 
-        return database.dbCall {
+        val progressEntity = database.dbCall {
             TrainingExerciseWithProgressEntity.new {
                 this.user = userEntity
                 this.exercise = ExerciseEntity.findByIdOrThrow(training.exerciseId)
-                if (series.isNotEmpty()) {
-                    this.series = series.toSized()
-                }
             }
         }
+        database.dbCall {
+            if (series.isNotEmpty()) {
+                progressEntity.series = series.toSized()
+            }
+        }
+        return progressEntity
     }
 
     private fun createSeries(userEntity: UserEntity, series: Series): SeriesEntity {

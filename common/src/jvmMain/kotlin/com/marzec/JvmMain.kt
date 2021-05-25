@@ -492,7 +492,7 @@ private inline fun <reified T : Any> Route.getByIdEndpoint(path: String, apiFunR
     }
 }
 
-private fun <T : Any> Route.getAllEndpoint(
+private inline fun <reified T : Any> Route.getAllEndpoint(
     path: String,
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<List<T>>>
 ) {

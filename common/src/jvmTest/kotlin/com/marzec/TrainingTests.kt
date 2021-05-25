@@ -1,12 +1,17 @@
 package com.marzec
 
+import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.exercises.exerciseCategoryOneEquipment0ne
 import com.marzec.exercises.exerciseCategoryTwoEquipmentOne
+import com.marzec.exercises.stubCreateTrainingDto
+import com.marzec.exercises.stubCreateTrainingExerciseWithProgressDto
 import com.marzec.exercises.stubCreateTrainingTemplateDto
 import com.marzec.exercises.stubCreateTrainingTemplatePartDto
+import com.marzec.exercises.stubSeriesDto
 import com.marzec.exercises.stubTraining
 import com.marzec.exercises.stubTrainingExerciseWithProgressDto
+import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.toDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
@@ -37,7 +42,7 @@ class TrainingTests {
         availableEquipmentIds = listOf("4", "5")
     )
 
-    val responseDto = stubTraining(
+    private val trainingDto = stubTraining(
         id = 1,
         templateId = 1,
         exercisesWithProgress = listOf(
@@ -50,12 +55,70 @@ class TrainingTests {
         )
     )
 
+    private val updateDto = stubCreateTrainingDto(
+        exercisesWithProgress = listOf(
+            stubCreateTrainingExerciseWithProgressDto(
+                exerciseId = 1,
+                series = listOf(
+                    stubSeriesDto(
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10
+                    )
+                )
+            ),
+            stubCreateTrainingExerciseWithProgressDto(
+                exerciseId = 4,
+                series = listOf(
+                    stubSeriesDto(
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3,
+                        repsNumber = 10,
+                        note = "note"
+                    )
+                )
+            )
+        )
+    )
+
+    private val updatedTraining = stubTraining(
+        id = 1,
+        templateId = 1,
+        exercisesWithProgress = listOf(
+            stubTrainingExerciseWithProgressDto(
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10
+                    )
+                )
+            ),
+            stubTrainingExerciseWithProgressDto(
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 2,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3,
+                        repsNumber = 10,
+                        note = "note"
+                    )
+                )
+            )
+        )
+    )
+
     @Test
     fun createTraining() {
         testGetEndpoint(
             uri = ApiPath.CREATE_TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
-            responseDto = responseDto,
+            responseDto = trainingDto,
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
@@ -63,6 +126,74 @@ class TrainingTests {
             }
         )
     }
+
+    @Test
+    fun getTraining() {
+        testGetEndpoint(
+            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining("1")
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings() {
+        testGetEndpoint(
+            uri = ApiPath.TRAININGS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(trainingDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining("1")
+            }
+        )
+    }
+
+    @Test
+    fun deleteTraining() {
+        testDeleteEndpoint(
+            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining("1")
+            },
+            runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
+            }
+        )
+    }
+
+    @Test
+    fun updateTraining() {
+        testPatchEndpoint(
+            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            dto = updateDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTraining,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining("1")
+            },
+            runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))
+            }
+        )
+    }
+
 
     @After
     fun tearDown() {
