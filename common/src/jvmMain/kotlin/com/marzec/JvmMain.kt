@@ -2,29 +2,22 @@ package com.marzec
 
 import com.marzec.cheatday.ApiPath as CheatDayApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
-import io.ktor.server.netty.EngineMain as NettyEngineMain
 import com.marzec.api.Controller
 import com.marzec.cheatday.CheatDayController
-import com.marzec.cheatday.dto.PutWeightDto
-import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
 import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.MainModule
 import com.marzec.extensions.emptyString
-import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.TestUserSession
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
-import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
 import com.marzec.model.http.HttpRequest
 import com.marzec.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
-import com.marzec.todo.dto.CreateTodoListDto
-import com.marzec.todo.model.CreateTaskDto
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCall
 import io.ktor.application.call
@@ -68,16 +61,13 @@ import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
-import io.ktor.util.KtorExperimentalAPI
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
-import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.KoinApplicationStarted
-import org.koin.ktor.ext.KoinApplicationStopped
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 
@@ -209,6 +199,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
             }
             equipment(api)
             exercises(api)
+            exercisesPage()
             categories(api)
         }
     }
@@ -221,18 +212,7 @@ fun allRoutes(root: Route): List<Route> {
     return listOf(root) + root.children.flatMap { allRoutes(it) }
 }
 
-fun Route.createTraining(api: Controller) {
-    get(ApiPath.CREATE_TRAINING) {
-        val httpRequest = HttpRequest(
-            data = Unit,
-            parameters = mapOf(
-                ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
-                ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
-            )
-        )
-        dispatch(api.createTraining(httpRequest))
-    }
-}
+fun Route.createTraining(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING, api::createTraining)
 
 fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
 
@@ -242,157 +222,37 @@ fun Route.removeTraining(api: Controller) = deleteByIdEndpoint(ApiPath.TRAINING,
 
 fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING, api::updateTraining)
 
-fun Route.templates(api: Controller) {
-    get(ApiPath.TRAINING_TEMPLATES) {
-        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
-        dispatch(api.getTrainingTemplates(httpRequest))
-    }
-}
+fun Route.templates(api: Controller) = getAllEndpoint(ApiPath.TRAINING_TEMPLATES, api::getTrainingTemplates)
 
-fun Route.putTemplate(api: Controller) {
-    post(ApiPath.TRAINING_TEMPLATE) {
-        val dto = call.receive<CreateTrainingTemplateDto>()
-        val httpRequest = wrapAsRequest(
-            dto,
-            ApiPath.ARG_ID,
-            call.principal<UserPrincipal>()?.id ?: emptyString()
-        )
-        dispatch(api.addTrainingTemplate(httpRequest))
-    }
-}
+fun Route.putTemplate(api: Controller) = postEndpoint(ApiPath.TRAINING_TEMPLATE, api::addTrainingTemplate)
 
 fun Route.removeTemplate(api: Controller) =
     deleteByIdEndpoint(ApiPath.DELETE_TRAINING_TEMPLATES, api::removeTrainingTemplate)
 
-fun Route.updateTemplate(api: Controller) {
-    patch(ApiPath.UPDATE_TRAINING_TEMPLATES) {
-        val dto = call.receive<CreateTrainingTemplateDto>()
-        val httpRequest = wrapAsRequest(
-            dto,
-            ApiPath.ARG_USER_ID,
-            call.principal<UserPrincipal>()?.id ?: emptyString()
-        )
-        dispatch(api.updateTrainingTemplate(httpRequest))
-    }
-}
+fun Route.updateTemplate(api: Controller) =
+    updateByIdEndpoint(ApiPath.UPDATE_TRAINING_TEMPLATES, api::updateTrainingTemplate)
 
-fun Route.weights(api: CheatDayController) {
-    get(CheatDayApiPath.WEIGHTS) {
-        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
-        dispatch(api.getWeights(httpRequest))
-    }
-}
+fun Route.weights(api: CheatDayController) = getAllEndpoint(CheatDayApiPath.WEIGHTS, api::getWeights)
 
-fun Route.putWeight(api: CheatDayController) {
-    post(CheatDayApiPath.WEIGHT) {
-        val putWeightDto = call.receive<PutWeightDto>()
-        val httpRequest = wrapAsRequest(
-            putWeightDto,
-            ApiPath.ARG_ID,
-            call.principal<UserPrincipal>()?.id ?: emptyString()
-        )
-        dispatch(api.putWeight(httpRequest))
-    }
-}
+fun Route.putWeight(api: CheatDayController) = postEndpoint(CheatDayApiPath.WEIGHT, api::putWeight)
 
-fun Route.removeWeight(api: CheatDayController) {
-    delete(CheatDayApiPath.REMOVE_WEIGHT) {
-        val weightId = call.parameters[TodoApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-            Unit,
-            mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to weightId,
-            )
-        )
-        dispatch(api.removeWeight(httpRequest))
-    }
-}
+fun Route.removeWeight(api: CheatDayController) = deleteByIdEndpoint(CheatDayApiPath.REMOVE_WEIGHT, api::removeWeight)
 
-fun Route.updateWeight(api: CheatDayController) {
-    patch(CheatDayApiPath.UPDATE_WEIGHT) {
-        val weightDto = call.receive<WeightDto>()
-        val httpRequest = wrapAsRequest(
-            weightDto,
-            ApiPath.ARG_USER_ID,
-            call.principal<UserPrincipal>()?.id ?: emptyString()
-        )
-        dispatch(api.updateWeight(httpRequest))
-    }
-}
+fun Route.updateWeight(api: CheatDayController) = updateByIdEndpoint(CheatDayApiPath.UPDATE_WEIGHT, api::updateWeight)
 
-fun Route.todoLists(api: ToDoApiController) {
-    get(TodoApiPath.TODO_LISTS) {
-        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
-        dispatch(api.getLists(httpRequest))
-    }
-}
+fun Route.todoLists(api: ToDoApiController) = getByIdEndpoint(TodoApiPath.TODO_LISTS, api::getLists)
 
-fun Route.addTodoList(api: ToDoApiController) {
-    post(TodoApiPath.TODO_LIST) {
-        val createDto = call.receive<CreateTodoListDto>()
-        val httpRequest = wrapAsRequest(
-            createDto,
-            ApiPath.ARG_ID,
-            call.principal<UserPrincipal>()?.id ?: emptyString()
-        )
-        dispatch(api.addList(httpRequest))
-    }
-}
+fun Route.addTodoList(api: ToDoApiController) = postEndpoint(TodoApiPath.TODO_LIST, api::addList)
 
-fun Route.deleteTodoList(api: ToDoApiController) {
-    delete(TodoApiPath.DELETE_TODO_LIST) {
-        val todoList = call.parameters[TodoApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-            Unit,
-            mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to todoList,
-            )
-        )
-        dispatch(api.removeList(httpRequest))
-    }
+fun Route.deleteTodoList(api: ToDoApiController) = deleteByIdEndpoint(TodoApiPath.DELETE_TODO_LIST, api::removeList)
 
-}
-
-fun Route.addTask(api: ToDoApiController) {
-    post(TodoApiPath.ADD_TASK) {
-        val createDto = call.receive<CreateTaskDto>()
-        val todoList = call.parameters[TodoApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-            createDto,
-            mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to todoList,
-            )
-        )
-        dispatch(api.addTask(httpRequest))
-    }
-}
+fun Route.addTask(api: ToDoApiController) = postEndpoint(TodoApiPath.ADD_TASK, api::addTask)
 
 fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(TodoApiPath.UPDATE_TASK, api::updateTask)
 
-fun Route.removeTask(api: ToDoApiController) {
-    delete(TodoApiPath.DELETE_TASK) {
-        val taskId = call.parameters[ApiPath.ARG_ID]
-        val httpRequest = HttpRequest(
-            data = Unit,
-            parameters = mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to taskId,
-            )
-        )
-        dispatch(api.removeTask(httpRequest))
-    }
-}
+fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(TodoApiPath.DELETE_TASK, api::removeTask)
 
-fun Route.register(api: Controller) {
-    post(ApiPath.REGISTRATION) {
-        val registerRequestDto = call.receive<RegisterRequestDto>()
-        val httpResponse = api.postRegister(HttpRequest(registerRequestDto))
-        dispatch(httpResponse)
-    }
-}
+fun Route.register(api: Controller) = postEndpoint(ApiPath.REGISTRATION, api::postRegister)
 
 fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
@@ -400,7 +260,10 @@ fun Route.login(api: Controller) {
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
-                call.sessions.set(Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis()))
+                call.sessions.set(
+                    Headers.AUTHORIZATION_TEST,
+                    TestUserSession(httpResponse.data.id, currentTimeMillis())
+                )
             } else {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
             }
@@ -420,19 +283,11 @@ fun Route.logout() {
     }
 }
 
-@KtorExperimentalAPI
-fun Route.users(api: Controller) {
-    get(ApiPath.USER) {
-        val httpRequest = wrapAsRequest(ApiPath.ARG_ID, call.principal<UserPrincipal>()?.id ?: emptyString())
-        dispatch(api.getUser(httpRequest))
-    }
-}
+fun Route.users(api: Controller) = getByIdEndpoint(ApiPath.USER, api::getUser)
 
-fun Route.exercises(api: Controller) {
-    get(ApiPath.EXERCISES) {
-        dispatch(api.getExercises())
-    }
+fun Route.exercises(api: Controller) = getAllEndpoint(ApiPath.EXERCISES, api::getExercises)
 
+fun Route.exercisesPage() {
     get(ApiPath.EXERCISES_PAGE) {
         call.respondText(
             this::class.java.classLoader.getResource("index.html")!!.readText(),
@@ -441,17 +296,9 @@ fun Route.exercises(api: Controller) {
     }
 }
 
-fun Route.categories(api: Controller) {
-    get(ApiPath.CATEGORIES) {
-        dispatch(api.getCategories())
-    }
-}
+fun Route.categories(api: Controller) = getAllEndpoint(ApiPath.CATEGORIES, api::getCategories)
 
-fun Route.equipment(api: Controller) {
-    get(ApiPath.EQUIPMENT) {
-        dispatch(api.getEquipment())
-    }
-}
+fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::getEquipment)
 
 fun Route.apiSetup(testDi: Di, prodDi: Di, setup: Route.(di: Di) -> Unit) {
 
@@ -479,7 +326,10 @@ fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = wrapAsRequest(Unit
 
 fun <T> wrapAsRequest(body: T, key: String, arg: Any): HttpRequest<T> = HttpRequest(body, mapOf(key to arg.toString()))
 
-private inline fun <reified T : Any> Route.getByIdEndpoint(path: String, apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>) {
+private inline fun <reified T : Any> Route.getByIdEndpoint(
+    path: String,
+    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
+) {
     get(path) {
         val httpRequest = HttpRequest(
             data = Unit,
@@ -528,6 +378,24 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateB
     apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
 ) {
     patch(path) {
+        val dto = call.receive<REQUEST>()
+        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val httpRequest = HttpRequest(
+            dto,
+            mapOf(
+                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                ApiPath.ARG_ID to taskId,
+            )
+        )
+        dispatch(apiFunRef(httpRequest))
+    }
+}
+
+private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
+    path: String,
+    apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
+) {
+    post(path) {
         val dto = call.receive<REQUEST>()
         val taskId = call.parameters[TodoApiPath.ARG_ID]
         val httpRequest = HttpRequest(

@@ -15,9 +15,9 @@ import com.marzec.model.http.HttpResponse
 
 interface Controller {
 
-    fun getExercises(): HttpResponse<List<ExerciseDto>>
-    fun getCategories(): HttpResponse<List<CategoryDto>>
-    fun getEquipment(): HttpResponse<List<EquipmentDto>>
+    fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
+    fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
+    fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
     fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto>
     fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>

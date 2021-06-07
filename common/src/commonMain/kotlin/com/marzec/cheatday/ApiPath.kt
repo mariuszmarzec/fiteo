@@ -15,7 +15,7 @@ object ApiPath {
 
     const val WEIGHTS = "$API_ROOT/weights"
     const val WEIGHT = "$API_ROOT/weight"
-    const val UPDATE_WEIGHT = "$API_ROOT/weight"
+    const val UPDATE_WEIGHT = "$API_ROOT/weight/{$ARG_ID}"
     const val REMOVE_WEIGHT = "$API_ROOT/weight/{$ARG_ID}"
 
 }

@@ -29,13 +29,13 @@ class ControllerImpl(
         private val authenticationService: AuthenticationService,
         private val trainingService: TrainingService
 ) : Controller {
-    override fun getCategories(): HttpResponse<List<CategoryDto>> =
+    override fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
             HttpResponse.Success(exercisesService.getCategories().map { it.toDto() })
 
-    override fun getEquipment(): HttpResponse<List<EquipmentDto>> =
+    override fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>> =
             HttpResponse.Success(exercisesService.getEquipment().map { it.toDto() })
 
-    override fun getExercises(): HttpResponse.Success<List<ExerciseDto>> =
+    override fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse.Success<List<ExerciseDto>> =
             HttpResponse.Success(exercisesService.getExercises().map { it.toDto() })
 
     override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> {
