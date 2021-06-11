@@ -205,13 +205,6 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     }
 }
 
-//            for (it in allRoutes(this)) {
-//                println(it)
-//            }
-fun allRoutes(root: Route): List<Route> {
-    return listOf(root) + root.children.flatMap { allRoutes(it) }
-}
-
 fun Route.createTraining(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING, api::createTraining)
 
 fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
