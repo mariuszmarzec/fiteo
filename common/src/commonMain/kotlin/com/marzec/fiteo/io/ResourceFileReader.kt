@@ -1,4 +1,4 @@
-package com.marzec.io
+package com.marzec.fiteo.io
 
 interface ResourceFileReader {
 

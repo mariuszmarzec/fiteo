@@ -2,8 +2,7 @@ package com.marzec.exercises
 
 import com.marzec.core.TimeProvider
 import com.marzec.model.domain.*
-import com.marzec.repositories.*
-import kotlinx.datetime.*
+import com.marzec.fiteo.repositories.*
 
 interface TrainingService {
     fun getTrainingTemplates(userId: Int): List<TrainingTemplate>

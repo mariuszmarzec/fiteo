@@ -15,8 +15,8 @@ import com.marzec.exercises.json
 import com.marzec.exercises.loginDto
 import com.marzec.exercises.registerRequestDto
 import com.marzec.exercises.uuidCounter
-import com.marzec.io.ExercisesReader
-import com.marzec.io.ResourceFileReader
+import com.marzec.fiteo.io.ExercisesReader
+import com.marzec.fiteo.io.ResourceFileReader
 import com.marzec.model.domain.CreateTrainingTemplateDto
 import com.marzec.model.domain.ExercisesData
 import com.marzec.model.domain.TrainingDto
@@ -39,8 +39,6 @@ import io.mockk.every
 import io.mockk.mockk
 import java.util.*
 import kotlin.reflect.KProperty
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module

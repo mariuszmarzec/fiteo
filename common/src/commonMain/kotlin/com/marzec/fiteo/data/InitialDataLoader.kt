@@ -1,14 +1,14 @@
 package com.marzec.data
 
 import com.marzec.core.Uuid
-import com.marzec.io.ExercisesReader
-import com.marzec.io.ResourceFileReader
+import com.marzec.fiteo.io.ExercisesReader
+import com.marzec.fiteo.io.ResourceFileReader
 import com.marzec.model.domain.*
 import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.mappers.toDomain
-import com.marzec.repositories.CategoriesRepository
-import com.marzec.repositories.EquipmentRepository
-import com.marzec.repositories.ExercisesRepository
+import com.marzec.fiteo.repositories.CategoriesRepository
+import com.marzec.fiteo.repositories.EquipmentRepository
+import com.marzec.fiteo.repositories.ExercisesRepository
 
 interface InitialDataLoader {
 

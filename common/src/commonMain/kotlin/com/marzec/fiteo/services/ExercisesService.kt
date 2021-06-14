@@ -1,9 +1,9 @@
 package com.marzec.exercises
 
 import com.marzec.model.domain.*
-import com.marzec.repositories.CategoriesRepository
-import com.marzec.repositories.EquipmentRepository
-import com.marzec.repositories.ExercisesRepository
+import com.marzec.fiteo.repositories.CategoriesRepository
+import com.marzec.fiteo.repositories.EquipmentRepository
+import com.marzec.fiteo.repositories.ExercisesRepository
 
 interface ExercisesService {
     fun getExercises(): List<Exercise>

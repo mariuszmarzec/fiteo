@@ -1,7 +1,7 @@
 package com.marzec.sessions
 
 import com.marzec.model.domain.CachedSession
-import com.marzec.repositories.CachedSessionsRepository
+import com.marzec.fiteo.repositories.CachedSessionsRepository
 import io.ktor.sessions.SessionStorage
 import io.ktor.util.cio.toByteArray
 import io.ktor.utils.io.ByteReadChannel

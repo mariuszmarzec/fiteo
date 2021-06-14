@@ -1,8 +1,6 @@
-package com.marzec.repositories
+package com.marzec.fiteo.repositories
 
 import com.marzec.model.domain.Exercise
-import com.marzec.model.domain.Training
-import com.marzec.model.domain.TrainingTemplate
 
 interface ExercisesRepository {
     fun getAll(): List<Exercise>

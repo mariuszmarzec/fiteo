@@ -1,4 +1,4 @@
-package com.marzec.repositories
+package com.marzec.fiteo.repositories
 
 import com.marzec.model.domain.CreateTrainingTemplate
 import com.marzec.model.domain.TrainingTemplate

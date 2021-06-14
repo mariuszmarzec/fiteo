@@ -3,9 +3,7 @@ package com.marzec.exercises
 import com.marzec.exceptions.HttpException
 import com.marzec.model.domain.Request
 import com.marzec.model.domain.User
-import com.marzec.model.dto.UserDto
-import com.marzec.model.http.HttpResponse
-import com.marzec.repositories.UserRepository
+import com.marzec.fiteo.repositories.UserRepository
 
 interface AuthenticationService {
 
