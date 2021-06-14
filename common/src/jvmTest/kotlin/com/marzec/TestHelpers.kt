@@ -39,6 +39,8 @@ import io.mockk.every
 import io.mockk.mockk
 import java.util.*
 import kotlin.reflect.KProperty
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module

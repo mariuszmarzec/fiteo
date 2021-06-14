@@ -1,10 +1,10 @@
 package com.marzec.exercises
 
-import com.marzec.repositories.CategoriesRepository
-import com.marzec.repositories.EquipmentRepository
-import com.marzec.repositories.ExercisesRepository
-import com.marzec.repositories.TrainingRepository
-import com.marzec.repositories.TrainingTemplateRepository
+import com.marzec.fiteo.repositories.CategoriesRepository
+import com.marzec.fiteo.repositories.EquipmentRepository
+import com.marzec.fiteo.repositories.ExercisesRepository
+import com.marzec.fiteo.repositories.TrainingRepository
+import com.marzec.fiteo.repositories.TrainingTemplateRepository
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.BeforeTest

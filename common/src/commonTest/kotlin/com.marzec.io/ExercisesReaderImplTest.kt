@@ -1,11 +1,11 @@
 package com.marzec.io
 
 import com.marzec.exercises.json
+import com.marzec.fiteo.io.ExercisesReaderImpl
 import com.marzec.model.dto.CategoryFileDto
 import com.marzec.model.dto.ExerciseFileDto
 import com.marzec.model.dto.ExercisesFileDto
 import com.marzec.model.dto.NeededEquipmentDto
-import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
