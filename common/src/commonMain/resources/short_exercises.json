@@ -1,32 +1,32 @@
 {
   "py/object": "crawler.Result",
   "category": {
-    "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4": {
+    "htttp://chest/4": {
       "py/object": "crawler.Category",
-      "category": "Klatka piersiowa",
-      "url": "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4"
+      "category": "Chest",
+      "url": "htttp://chest/4"
     },
-    "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14": {
+    "http://stretching": {
       "py/object": "crawler.Category",
-      "category": "Rozciagajace",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14"
+      "category": "Stretching",
+      "url": "http://stretching"
     }
   },
   "exercises": [
     {
       "py/object": "crawler.Exercise",
-      "animationImageName": "anim_120.gif",
-      "animationUrl": "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/120.gif",
+      "animationImageName": "nameAnimation.gif",
+      "animationUrl": "https://2.bp.blogspot.com/-3hVakxD3vQo/V0WOc73BIvI/AAAAAAAAVZ0/KnXV6voD95scDa8Bn74NjO8MlOpgTsU9wCLcB/s1600/z_dizecka_do_kl_ku_10x_6_.gif",
       "category": {
         "py/tuple": [
-          "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4",
-          "Klatka piersiowa"
+          "htttp://chest/4",
+          "Chest"
         ]
       },
       "descriptionsToImages": [
-        "Klęknij i połóż dłonie z przodu na podłożu - metr od kolan.\r\nKąt pomiędzy udami a tułowiem ma wynosić 90 stopni.\r\nUłóż dłonie na podłożu plecami skierowanymi do kolan.\r\nWzrok skieruj do przodu.",
-        "Bez zmiany odrywania dłoni od podłoża usiądź na piętach. \r\nWykonaj wydech w końcowej fazie ruchu.",
-        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
+        "description1",
+        "description2",
+        "description3"
       ],
       "descriptionsToMistakes": [],
       "imagesMistakesNames": [],
@@ -37,127 +37,127 @@
         "image_120-3.jpg"
       ],
       "imagesUrls": [
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-1.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-2.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-3.jpg"
+        "exercises_stage/120-1.jpg",
+        "exercises_stage/120-2.jpg",
+        "exercises_stage/120-3.jpg"
       ],
       "muscles": [
-        "https://vitalia.pl/gfx/muscle2D/500x311/100.png",
-        "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
+        "500x311/100.png",
+        "500x311/base.png"
       ],
       "musclesName": [
-        "muscles_100.png",
-        "muscles_base.png"
+        "muscles_1.png",
+        "muscles_2.png"
       ],
-      "name": "Rozciąganie przedramiona w klęku podpartym",
+      "name": "Forearm stretching while kneeling",
       "neededEquipment": {
         "py/object": "crawler.NeededEquipment",
         "needed": [
           "Brak"
         ],
-        "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-        "thumbnail": "/gfx/fitness2/exercises/thumbnails/120.jpg",
-        "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
+        "pageUrl": "http://stretching",
+        "thumbnail": "thumbnail",
+        "url": "http://stretching/exer/1"
       },
       "thumbnailName": "thumbnail_120.jpg",
-      "thumbnailUrl": "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/120.jpg",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
+      "thumbnailUrl": "thumbnails_url/120.jpg",
+      "url": "http://stretching/exer/1"
     },
     {
       "py/object": "crawler.Exercise",
       "animationImageName": "anim_14.gif",
-      "animationUrl": "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
+      "animationUrl": "https://thumbs.gfycat.com/TautElementaryCrab-size_restricted.gif",
       "category": {
         "py/tuple": [
-          "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-          "Rozciagajace"
+          "http://stretching",
+          "Stretching"
         ]
       },
       "descriptionsToImages": [
-        "Stań prosto w lekkim rozkroku. Chwyć drążek za głową na wysokości barków. ",
-        "Wykonaj skręt tułowia w lewą stronę. Stopy całą powierzchnią dotykają podłoża. Nogi i miednica mają być zablokowane. Wykonaj wydech w końcowej fazie skrętu.",
-        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu.",
-        "Wykonaj analogicznie skręt na drugą stronę.",
-        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
+        "description_1",
+        "description_2",
+        "description_3",
+        "description_4",
+        "description_5"
       ],
       "descriptionsToMistakes": [
-        "Odrywanie lub przesuwanie stóp podczas skrętu",
-        "Pochylanie się w przód podczas skrętu"
+        "mistakes_1_description",
+        "mistakes_2_description"
       ],
       "imagesMistakesNames": [
-        "image_mistakes_14-1.jpg",
-        "image_mistakes_14-2.jpg"
+        "mistakes_1.jpg",
+        "mistakes_2.jpg"
       ],
       "imagesMistakesUrls": [
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-1.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-2.jpg"
+        "exercises_errors/14-1.jpg",
+        "exercises_errors/14-2.jpg"
       ],
       "imagesNames": [
-        "image_14-1.jpg",
-        "image_14-2.jpg",
-        "image_14-3.jpg",
-        "image_14-4.jpg",
-        "image_14-5.jpg"
+        "image_1.jpg",
+        "image_1.jpg",
+        "image_1.jpg",
+        "image_1.jpg",
+        "image_1.jpg"
       ],
       "imagesUrls": [
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-1.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-2.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-3.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-4.jpg",
-        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-5.jpg"
+        "exercises_stage/14-1.jpg",
+        "exercises_stage/14-2.jpg",
+        "exercises_stage/14-3.jpg",
+        "exercises_stage/14-4.jpg",
+        "exercises_stage/14-5.jpg"
       ],
       "muscles": [
-        "https://vitalia.pl/gfx/muscle2D/500x311/44.png",
-        "https://vitalia.pl/gfx/muscle2D/500x311/46.png",
-        "https://vitalia.pl/gfx/muscle2D/500x311/47.png",
-        "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
+        "url_muscles_1.png",
+        "url_muscles_2.png",
+        "url_muscles_3.png",
+        "url_muscles_4.png"
       ],
       "musclesName": [
-        "muscles_44.png",
-        "muscles_46.png",
-        "muscles_47.png",
-        "muscles_base.png"
+        "muscles_1.png",
+        "muscles_2.png",
+        "muscles_3.png",
+        "muscles_4.png"
       ],
-      "name": "Skręty tułowia z drążkiem ",
+      "name": "Torso twists with a bar",
       "neededEquipment": {
         "py/object": "crawler.NeededEquipment",
         "needed": [
-          "Drążek"
+          "Bar"
         ],
-        "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-        "thumbnail": "/gfx/fitness2/exercises/thumbnails/14.jpg",
-        "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
+        "pageUrl": "http://chest/equip/1",
+        "thumbnail": "thumbnail_url.png",
+        "url": "http://chest/exer/2"
       },
-      "thumbnailName": "thumbnail_14.jpg",
-      "thumbnailUrl": "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/14.jpg",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
+      "thumbnailName": "thumbnail_name",
+      "thumbnailUrl": "thumbnail_url.png",
+      "url": "http://chest/exer/2"
     }
   ],
   "neededEquipment": {
     "null": {
       "py/object": "crawler.NeededEquipment",
       "needed": [],
-      "pageUrl": "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/11/offsetmzd/14",
+      "pageUrl": "htttp://chest/11/offsetmzd/14",
       "thumbnail": null,
       "url": null
     },
-    "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120": {
+    "http://stretching/exer/1": {
       "py/object": "crawler.NeededEquipment",
       "needed": [
-        "Brak"
+        "No"
       ],
-      "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
+      "pageUrl": "http://stretching",
       "thumbnail": "/gfx/fitness2/exercises/thumbnails/120.jpg",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
+      "url": "http://stretching/exer/1"
     },
-    "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14": {
+    "http://chest/exer/2": {
       "py/object": "crawler.NeededEquipment",
       "needed": [
-        "Drążek"
+        "Bar"
       ],
-      "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-      "thumbnail": "/gfx/fitness2/exercises/thumbnails/14.jpg",
-      "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
+      "pageUrl": "http://chest/equip/1",
+      "thumbnail": "thumbnail_url.png",
+      "url": "http://chest/exer/2"
     }
   }
 }
