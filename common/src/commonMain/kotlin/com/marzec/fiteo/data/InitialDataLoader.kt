@@ -41,7 +41,7 @@ class InitialDataLoaderImpl(
 
     override fun loadData() {
         val json = resourceFileReader.read("/exercises.json")
-            ?: resourceFileReader.read("/short_exercises.json")!!
+            ?: resourceFileReader.read("/example_exercises.json")!!
         val fileDto = reader.parse(json)
         exercisesData = exerciseFileMapper.toDomain(fileDto)
         if (categoriesRepository.getAll().isEmpty() ||

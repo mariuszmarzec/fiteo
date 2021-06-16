@@ -15,323 +15,326 @@ class ExercisesReaderImplTest {
 
     @Test
     fun parse() {
-        val obj = exercisesReader.parse("""
-            {
-              "py/object": "crawler.Result",
-              "category": {
-                "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4": {
-                  "py/object": "crawler.Category",
-                  "category": "Klatka piersiowa",
-                  "url": "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4"
-                },
-                "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14": {
-                    "py/object": "crawler.Category",
-                    "category": "Rozciagajace",
-                    "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14"
-                }
-              },
-              "exercises": [
+        val obj = exercisesReader.parse(
+            """
                 {
-                  "py/object": "crawler.Exercise",
-                  "animationImageName": "anim_120.gif",
-                  "animationUrl": "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/120.gif",
+                  "py/object": "crawler.Result",
                   "category": {
-                    "py/tuple": [
-                      "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4",
-                      "Klatka piersiowa"
-                    ]
+                    "htttp://chest/4": {
+                      "py/object": "crawler.Category",
+                      "category": "Chest",
+                      "url": "htttp://chest/4"
+                    },
+                    "http://stretching": {
+                      "py/object": "crawler.Category",
+                      "category": "Stretching",
+                      "url": "http://stretching"
+                    }
                   },
-                  "descriptionsToImages": [
-                    "Klęknij i połóż dłonie z przodu na podłożu - metr od kolan.\r\nKąt pomiędzy udami a tułowiem ma wynosić 90 stopni.\r\nUłóż dłonie na podłożu plecami skierowanymi do kolan.\r\nWzrok skieruj do przodu.",
-                    "Bez zmiany odrywania dłoni od podłoża usiądź na piętach. \r\nWykonaj wydech w końcowej fazie ruchu.",
-                    "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
+                  "exercises": [
+                    {
+                      "py/object": "crawler.Exercise",
+                      "animationImageName": "nameAnimation.gif",
+                      "animationUrl": "https://2.bp.blogspot.com/-3hVakxD3vQo/V0WOc73BIvI/AAAAAAAAVZ0/KnXV6voD95scDa8Bn74NjO8MlOpgTsU9wCLcB/s1600/z_dizecka_do_kl_ku_10x_6_.gif",
+                      "category": {
+                        "py/tuple": [
+                          "htttp://chest/4",
+                          "Chest"
+                        ]
+                      },
+                      "descriptionsToImages": [
+                        "description1",
+                        "description2",
+                        "description3"
+                      ],
+                      "descriptionsToMistakes": [],
+                      "imagesMistakesNames": [],
+                      "imagesMistakesUrls": [],
+                      "imagesNames": [
+                        "image_120-1.jpg",
+                        "image_120-2.jpg",
+                        "image_120-3.jpg"
+                      ],
+                      "imagesUrls": [
+                        "exercises_stage/120-1.jpg",
+                        "exercises_stage/120-2.jpg",
+                        "exercises_stage/120-3.jpg"
+                      ],
+                      "muscles": [
+                        "500x311/100.png",
+                        "500x311/base.png"
+                      ],
+                      "musclesName": [
+                        "muscles_1.png",
+                        "muscles_2.png"
+                      ],
+                      "name": "Forearm stretching while kneeling",
+                      "neededEquipment": {
+                        "py/object": "crawler.NeededEquipment",
+                        "needed": [
+                          "No"
+                        ],
+                        "pageUrl": "http://stretching",
+                        "thumbnail": "thumbnail",
+                        "url": "http://stretching/exer/1"
+                      },
+                      "thumbnailName": "thumbnail_120.jpg",
+                      "thumbnailUrl": "thumbnails_url/120.jpg",
+                      "url": "http://stretching/exer/1"
+                    },
+                    {
+                      "py/object": "crawler.Exercise",
+                      "animationImageName": "anim_14.gif",
+                      "animationUrl": "https://thumbs.gfycat.com/TautElementaryCrab-size_restricted.gif",
+                      "category": {
+                        "py/tuple": [
+                          "http://stretching",
+                          "Stretching"
+                        ]
+                      },
+                      "descriptionsToImages": [
+                        "description_1",
+                        "description_2",
+                        "description_3",
+                        "description_4",
+                        "description_5"
+                      ],
+                      "descriptionsToMistakes": [
+                        "mistakes_1_description",
+                        "mistakes_2_description"
+                      ],
+                      "imagesMistakesNames": [
+                        "mistakes_1.jpg",
+                        "mistakes_2.jpg"
+                      ],
+                      "imagesMistakesUrls": [
+                        "exercises_errors/14-1.jpg",
+                        "exercises_errors/14-2.jpg"
+                      ],
+                      "imagesNames": [
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg"
+                      ],
+                      "imagesUrls": [
+                        "exercises_stage/14-1.jpg",
+                        "exercises_stage/14-2.jpg",
+                        "exercises_stage/14-3.jpg",
+                        "exercises_stage/14-4.jpg",
+                        "exercises_stage/14-5.jpg"
+                      ],
+                      "muscles": [
+                        "url_muscles_1.png",
+                        "url_muscles_2.png",
+                        "url_muscles_3.png",
+                        "url_muscles_4.png"
+                      ],
+                      "musclesName": [
+                        "muscles_1.png",
+                        "muscles_2.png",
+                        "muscles_3.png",
+                        "muscles_4.png"
+                      ],
+                      "name": "Torso twists with a bar",
+                      "neededEquipment": {
+                        "py/object": "crawler.NeededEquipment",
+                        "needed": [
+                          "Bar"
+                        ],
+                        "pageUrl": "http://chest/equip/1",
+                        "thumbnail": "thumbnail_url.png",
+                        "url": "http://chest/exer/2"
+                      },
+                      "thumbnailName": "thumbnail_name",
+                      "thumbnailUrl": "thumbnail_url.png",
+                      "url": "http://chest/exer/2"
+                    }
                   ],
-                  "descriptionsToMistakes": [],
-                  "imagesMistakesNames": [],
-                  "imagesMistakesUrls": [],
-                  "imagesNames": [
-                    "image_120-1.jpg",
-                    "image_120-2.jpg",
-                    "image_120-3.jpg"
-                  ],
-                  "imagesUrls": [
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-1.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-2.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-3.jpg"
-                  ],
-                  "muscles": [
-                    "https://vitalia.pl/gfx/muscle2D/500x311/100.png",
-                    "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
-                  ],
-                  "musclesName": [
-                    "muscles_100.png",
-                    "muscles_base.png"
-                  ],
-                  "name": "Rozciąganie przedramiona w klęku podpartym",
                   "neededEquipment": {
-                    "py/object": "crawler.NeededEquipment",
-                    "needed": [
-                      "Brak"
-                    ],
-                    "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                    "thumbnail": "/gfx/fitness2/exercises/thumbnails/120.jpg",
-                    "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
-                  },
-                  "thumbnailName": "thumbnail_120.jpg",
-                  "thumbnailUrl": "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/120.jpg",
-                  "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
-                },
-                {
-                  "py/object": "crawler.Exercise",
-                  "animationImageName": "anim_14.gif",
-                  "animationUrl": "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
-                  "category": {
-                    "py/tuple": [
-                      "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                      "Rozciagajace"
-                    ]
-                  },
-                  "descriptionsToImages": [
-                    "Stań prosto w lekkim rozkroku. Chwyć drążek za głową na wysokości barków. ",
-                    "Wykonaj skręt tułowia w lewą stronę. Stopy całą powierzchnią dotykają podłoża. Nogi i miednica mają być zablokowane. Wykonaj wydech w końcowej fazie skrętu.",
-                    "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu.",
-                    "Wykonaj analogicznie skręt na drugą stronę.",
-                    "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
-                  ],
-                  "descriptionsToMistakes": [
-                    "Odrywanie lub przesuwanie stóp podczas skrętu",
-                    "Pochylanie się w przód podczas skrętu"
-                  ],
-                  "imagesMistakesNames": [
-                    "image_mistakes_14-1.jpg",
-                    "image_mistakes_14-2.jpg"
-                  ],
-                  "imagesMistakesUrls": [
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-1.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-2.jpg"
-                  ],
-                  "imagesNames": [
-                    "image_14-1.jpg",
-                    "image_14-2.jpg",
-                    "image_14-3.jpg",
-                    "image_14-4.jpg",
-                    "image_14-5.jpg"
-                  ],
-                  "imagesUrls": [
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-1.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-2.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-3.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-4.jpg",
-                    "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-5.jpg"
-                  ],
-                  "muscles": [
-                    "https://vitalia.pl/gfx/muscle2D/500x311/44.png",
-                    "https://vitalia.pl/gfx/muscle2D/500x311/46.png",
-                    "https://vitalia.pl/gfx/muscle2D/500x311/47.png",
-                    "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
-                  ],
-                  "musclesName": [
-                    "muscles_44.png",
-                    "muscles_46.png",
-                    "muscles_47.png",
-                    "muscles_base.png"
-                  ],
-                  "name": "Skręty tułowia z drążkiem ",
-                  "neededEquipment": {
-                    "py/object": "crawler.NeededEquipment",
-                    "needed": [
-                      "Drążek"
-                    ],
-                    "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-                    "thumbnail": "/gfx/fitness2/exercises/thumbnails/14.jpg",
-                    "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
-                  },
-                  "thumbnailName": "thumbnail_14.jpg",
-                  "thumbnailUrl": "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/14.jpg",
-                  "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
+                    "null": {
+                      "py/object": "crawler.NeededEquipment",
+                      "needed": [],
+                      "pageUrl": "http://no/equip/no",
+                      "thumbnail": null,
+                      "url": null
+                    },
+                    "http://stretching/exer/1": {
+                      "py/object": "crawler.NeededEquipment",
+                      "needed": [
+                        "No"
+                      ],
+                      "pageUrl": "http://stretching",
+                      "thumbnail": "thumbnail",
+                      "url": "http://stretching/exer/1"
+                    },
+                    "http://chest/exer/2": {
+                      "py/object": "crawler.NeededEquipment",
+                      "needed": [
+                        "Bar"
+                      ],
+                      "pageUrl": "http://chest/equip/1",
+                      "thumbnail": "thumbnail_url.png",
+                      "url": "http://chest/exer/2"
+                    }
+                  }
                 }
-              ],
-              "neededEquipment": {
-                "null": {
-                  "py/object": "crawler.NeededEquipment",
-                  "needed": [],
-                  "pageUrl": "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/11/offsetmzd/14",
-                  "thumbnail": null,
-                  "url": null
-                },
-                "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120": {
-                  "py/object": "crawler.NeededEquipment",
-                  "needed": [
-                    "Brak"
-                  ],
-                  "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                  "thumbnail": "/gfx/fitness2/exercises/thumbnails/120.jpg",
-                  "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
-                },
-                "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14": {
-                  "py/object": "crawler.NeededEquipment",
-                  "needed": [
-                    "Drążek"
-                  ],
-                  "pageUrl": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-                  "thumbnail": "/gfx/fitness2/exercises/thumbnails/14.jpg",
-                  "url": "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
-                }
-              }
-            }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val expected = ExercisesFileDto(
-                category = mapOf(
-                        "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4" to CategoryFileDto(
-                                category = "Klatka piersiowa",
-                                url = "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4"
-                        ),
-                        "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14" to CategoryFileDto(
-                                category = "Rozciagajace",
-                                url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14"
-                        )),
-                exercises = listOf(
-                        ExerciseFileDto(
-                                animationImageName = "anim_120.gif",
-                                animationUrl = "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/120.gif",
-                                category = mapOf(
-                                        "py/tuple" to listOf(
-                                                "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/4",
-                                                "Klatka piersiowa"
-                                        )
-                                ),
-                                descriptionsToImages = listOf(
-                                        "Klęknij i połóż dłonie z przodu na podłożu - metr od kolan.\r\nKąt pomiędzy udami a tułowiem ma wynosić 90 stopni.\r\nUłóż dłonie na podłożu plecami skierowanymi do kolan.\r\nWzrok skieruj do przodu.",
-                                        "Bez zmiany odrywania dłoni od podłoża usiądź na piętach. \r\nWykonaj wydech w końcowej fazie ruchu.",
-                                        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
-                                ),
-                                descriptionsToMistakes = listOf(),
-                                imagesMistakesNames = listOf(),
-                                imagesMistakesUrls = listOf(),
-                                imagesNames = listOf(
-                                        "image_120-1.jpg",
-                                        "image_120-2.jpg",
-                                        "image_120-3.jpg"
-                                ),
-                                imagesUrls = listOf(
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-1.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-2.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/120-3.jpg"
-                                ),
-                                muscles = listOf(
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/100.png",
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
-                                ),
-                                musclesName = listOf(
-                                        "muscles_100.png",
-                                        "muscles_base.png"
-                                ),
-                                name = "Rozciąganie przedramiona w klęku podpartym",
-                                thumbnailName = "thumbnail_120.jpg",
-                                thumbnailUrl = "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/120.jpg",
-                                url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120",
-                                neededEquipment = NeededEquipmentDto(
-                                        needed = listOf(
-                                                "Brak"
-                                        ),
-                                        pageUrl = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                                        thumbnail = "/gfx/fitness2/exercises/thumbnails/120.jpg",
-                                        url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
-                                )
-                        ),
-                        ExerciseFileDto(
-                                animationImageName = "anim_14.gif",
-                                animationUrl = "https://vitalia.pl/gfx/fitness2/exercises/gif/sd/14.gif",
-                                category = mapOf(
-                                        "py/tuple" to listOf(
-                                                "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                                                "Rozciagajace",
-                                        )
-                                ),
-                                descriptionsToImages = listOf(
-                                        "Stań prosto w lekkim rozkroku. Chwyć drążek za głową na wysokości barków. ",
-                                        "Wykonaj skręt tułowia w lewą stronę. Stopy całą powierzchnią dotykają podłoża. Nogi i miednica mają być zablokowane. Wykonaj wydech w końcowej fazie skrętu.",
-                                        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu.",
-                                        "Wykonaj analogicznie skręt na drugą stronę.",
-                                        "Wróć do pozycji wyjściowej. Wykonaj wdech w końcowej fazie powrotu."
-                                ),
-                                descriptionsToMistakes = listOf(
-                                        "Odrywanie lub przesuwanie stóp podczas skrętu",
-                                        "Pochylanie się w przód podczas skrętu"
-                                ),
-                                imagesMistakesNames = listOf(
-                                        "image_mistakes_14-1.jpg",
-                                        "image_mistakes_14-2.jpg"
-                                ),
-                                imagesMistakesUrls = listOf(
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-1.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_errors/14-2.jpg"
-                                ),
-                                imagesNames = listOf(
-                                        "image_14-1.jpg",
-                                        "image_14-2.jpg",
-                                        "image_14-3.jpg",
-                                        "image_14-4.jpg",
-                                        "image_14-5.jpg"
-                                ),
-                                imagesUrls = listOf(
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-1.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-2.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-3.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-4.jpg",
-                                        "https://filesrr.vitalia.pl/gfx/fitness2/exercises_stage/14-5.jpg"
-                                ),
-                                muscles = listOf(
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/44.png",
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/46.png",
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/47.png",
-                                        "https://vitalia.pl/gfx/muscle2D/500x311/base.png"
-                                ),
-                                musclesName = listOf(
-                                        "muscles_44.png",
-                                        "muscles_46.png",
-                                        "muscles_47.png",
-                                        "muscles_base.png"
-                                ),
-                                name = "Skręty tułowia z drążkiem ",
-                                thumbnailName = "thumbnail_14.jpg",
-                                thumbnailUrl = "https://vitalia.pl/gfx/fitness2/exercises/thumbnails/14.jpg",
-                                url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14",
-                                neededEquipment = NeededEquipmentDto(
-                                        needed = listOf(
-                                                "Drążek"
-                                        ),
-                                        pageUrl = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-                                        thumbnail = "/gfx/fitness2/exercises/thumbnails/14.jpg",
-                                        url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
-                                )
-                        )
+            category = mapOf(
+                "htttp://chest/4" to CategoryFileDto(
+                    category = "Chest",
+                    url = "htttp://chest/4"
                 ),
-                neededEquipment = mapOf(
-                        "null" to NeededEquipmentDto(
-                                needed = emptyList(),
-                                pageUrl = "https://vitalia.pl/index.php/mid/109/fid/1355/kalorie/diety/group/11/offsetmzd/14",
-                                thumbnail = null,
-                                url = null
-                        ),
-                        "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120" to NeededEquipmentDto(
-                                needed = listOf(
-                                        "Brak"
-                                ),
-                                pageUrl = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14",
-                                thumbnail = "/gfx/fitness2/exercises/thumbnails/120.jpg",
-                                url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/120"
-                        ),
-                        "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14" to NeededEquipmentDto(
-                                needed = listOf(
-                                        "Drążek"
-                                ),
-                                pageUrl = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/11",
-                                thumbnail = "/gfx/fitness2/exercises/thumbnails/14.jpg",
-                                url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/fcid/14"
-                        )
+                "http://stretching" to CategoryFileDto(
+                    category = "Stretching",
+                    url = "http://stretching"
                 )
+            ),
+            exercises = listOf(
+                ExerciseFileDto(
+                    animationImageName = "nameAnimation.gif",
+                    animationUrl = "https://2.bp.blogspot.com/-3hVakxD3vQo/V0WOc73BIvI/AAAAAAAAVZ0/KnXV6voD95scDa8Bn74NjO8MlOpgTsU9wCLcB/s1600/z_dizecka_do_kl_ku_10x_6_.gif",
+                    category = mapOf(
+                        "py/tuple" to listOf(
+                            "htttp://chest/4",
+                            "Chest"
+                        )
+                    ),
+                    descriptionsToImages = listOf(
+                        "description1",
+                        "description2",
+                        "description3"
+                    ),
+                    descriptionsToMistakes = listOf(),
+                    imagesMistakesNames = listOf(),
+                    imagesMistakesUrls = listOf(),
+                    imagesNames = listOf(
+                        "image_120-1.jpg",
+                        "image_120-2.jpg",
+                        "image_120-3.jpg"
+                    ),
+                    imagesUrls = listOf(
+                        "exercises_stage/120-1.jpg",
+                        "exercises_stage/120-2.jpg",
+                        "exercises_stage/120-3.jpg"
+                    ),
+                    muscles = listOf(
+                        "500x311/100.png",
+                        "500x311/base.png"
+                    ),
+                    musclesName = listOf(
+                        "muscles_1.png",
+                        "muscles_2.png"
+                    ),
+                    name = "Forearm stretching while kneeling",
+                    thumbnailName = "thumbnail_120.jpg",
+                    thumbnailUrl = "thumbnails_url/120.jpg",
+                    url = "http://stretching/exer/1",
+                    neededEquipment = NeededEquipmentDto(
+                        needed = listOf(
+                            "No"
+                        ),
+                        pageUrl = "http://stretching",
+                        thumbnail = "thumbnail",
+                        url = "http://stretching/exer/1"
+                    )
+                ),
+                ExerciseFileDto(
+                    animationImageName = "anim_14.gif",
+                    animationUrl = "https://thumbs.gfycat.com/TautElementaryCrab-size_restricted.gif",
+                    category = mapOf(
+                        "py/tuple" to listOf(
+                            "http://stretching",
+                            "Stretching",
+                        )
+                    ),
+                    descriptionsToImages = listOf(
+                        "description_1",
+                        "description_2",
+                        "description_3",
+                        "description_4",
+                        "description_5"
+                    ),
+                    descriptionsToMistakes = listOf(
+                        "mistakes_1_description",
+                        "mistakes_2_description"
+                    ),
+                    imagesMistakesNames = listOf(
+                        "mistakes_1.jpg",
+                        "mistakes_2.jpg"
+                    ),
+                    imagesMistakesUrls = listOf(
+                        "exercises_errors/14-1.jpg",
+                        "exercises_errors/14-2.jpg"
+                    ),
+                    imagesNames = listOf(
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg",
+                        "image_1.jpg"
+                    ),
+                    imagesUrls = listOf(
+                        "exercises_stage/14-1.jpg",
+                        "exercises_stage/14-2.jpg",
+                        "exercises_stage/14-3.jpg",
+                        "exercises_stage/14-4.jpg",
+                        "exercises_stage/14-5.jpg"
+                    ),
+                    muscles = listOf(
+                        "url_muscles_1.png",
+                        "url_muscles_2.png",
+                        "url_muscles_3.png",
+                        "url_muscles_4.png"
+                    ),
+                    musclesName = listOf(
+                        "muscles_1.png",
+                        "muscles_2.png",
+                        "muscles_3.png",
+                        "muscles_4.png"
+                    ),
+                    name = "Torso twists with a bar",
+                    thumbnailName = "thumbnail_name",
+                    thumbnailUrl = "thumbnail_url.png",
+                    url = "http://chest/exer/2",
+                    neededEquipment = NeededEquipmentDto(
+                        needed = listOf(
+                            "Bar"
+                        ),
+                        pageUrl = "http://chest/equip/1",
+                        thumbnail = "thumbnail_url.png",
+                        url = "http://chest/exer/2"
+                    )
+                )
+            ),
+            neededEquipment = mapOf(
+                "null" to NeededEquipmentDto(
+                    needed = emptyList(),
+                    pageUrl = "http://no/equip/no",
+                    thumbnail = null,
+                    url = null
+                ),
+                "http://stretching/exer/1" to NeededEquipmentDto(
+                    needed = listOf(
+                        "No"
+                    ),
+                    pageUrl = "http://stretching",
+                    thumbnail = "thumbnail",
+                    url = "http://stretching/exer/1"
+                ),
+                "http://chest/exer/2" to NeededEquipmentDto(
+                    needed = listOf(
+                        "Bar"
+                    ),
+                    pageUrl = "http://chest/equip/1",
+                    thumbnail = "thumbnail_url.png",
+                    url = "http://chest/exer/2"
+                )
+            )
 
         )
         assertEquals(expected, obj)

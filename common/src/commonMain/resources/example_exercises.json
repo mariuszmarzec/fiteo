@@ -53,7 +53,7 @@
       "neededEquipment": {
         "py/object": "crawler.NeededEquipment",
         "needed": [
-          "Brak"
+          "No"
         ],
         "pageUrl": "http://stretching",
         "thumbnail": "thumbnail",
@@ -137,7 +137,7 @@
     "null": {
       "py/object": "crawler.NeededEquipment",
       "needed": [],
-      "pageUrl": "htttp://chest/11/offsetmzd/14",
+      "pageUrl": "http://no/equip/no",
       "thumbnail": null,
       "url": null
     },
@@ -147,7 +147,7 @@
         "No"
       ],
       "pageUrl": "http://stretching",
-      "thumbnail": "/gfx/fitness2/exercises/thumbnails/120.jpg",
+      "thumbnail": "thumbnail",
       "url": "http://stretching/exer/1"
     },
     "http://chest/exer/2": {
