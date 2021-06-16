@@ -1,4 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
+
+common/src/commonMain/resources/exercises.json
+
 ### Kotlin template
 # Compiled class file
 *.class
