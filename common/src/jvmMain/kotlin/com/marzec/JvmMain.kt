@@ -10,6 +10,9 @@ import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.MainModule
 import com.marzec.extensions.emptyString
+import com.marzec.fiteo.ApiPath
+import com.marzec.Api.Auth
+import com.marzec.Api.Headers
 import com.marzec.model.domain.TestUserSession
 import com.marzec.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
@@ -77,8 +80,8 @@ fun main(args: Array<String>) {
 
 @Suppress("unused")
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
-    val di = Di(DbSettings.database, Auth.NAME)
-    val testDi = Di(DbSettings.testDatabase, Auth.TEST)
+    val di = Di(DbSettings.database, Api.Auth.NAME)
+    val testDi = Di(DbSettings.testDatabase, Api.Auth.TEST)
 
     environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
@@ -133,7 +136,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
                 call.respond(UnauthorizedResponse())
             }
             validate { session: UserSession ->
-                when (val httpResponse = di.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                when (val httpResponse = di.api.getUser(wrapAsRequest(Api.Args.ARG_ID, session.userId))) {
                     is HttpResponse.Success -> httpResponse.data.toPrincipal()
                     else -> null
                 }
@@ -144,7 +147,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
                 call.respond(UnauthorizedResponse())
             }
             validate { session: TestUserSession ->
-                when (val httpResponse = testDi.api.getUser(wrapAsRequest(ApiPath.ARG_ID, session.userId))) {
+                when (val httpResponse = testDi.api.getUser(wrapAsRequest(Api.Args.ARG_ID, session.userId))) {
                     is HttpResponse.Success -> httpResponse.data.toPrincipal()
                     else -> null
                 }
@@ -327,8 +330,8 @@ private inline fun <reified T : Any> Route.getByIdEndpoint(
         val httpRequest = HttpRequest(
             data = Unit,
             parameters = mapOf(
-                ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
-                ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
+                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
+                Api.Args.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
             )
         )
         dispatch(apiFunRef(httpRequest))
@@ -343,7 +346,7 @@ private inline fun <reified T : Any> Route.getAllEndpoint(
         val httpRequest = HttpRequest(
             data = Unit,
             parameters = mapOf(
-                ApiPath.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
+                Api.Args.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
             )
         )
         dispatch(apiFunRef(httpRequest))
@@ -358,8 +361,8 @@ private inline fun <reified T : Any> Route.deleteByIdEndpoint(
         val httpRequest = HttpRequest(
             Unit,
             mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to call.parameters[ApiPath.ARG_ID],
+                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
             )
         )
         dispatch(apiFunRef(httpRequest))
@@ -372,12 +375,12 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateB
 ) {
     patch(path) {
         val dto = call.receive<REQUEST>()
-        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             dto,
             mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to taskId,
+                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                Api.Args.ARG_ID to taskId,
             )
         )
         dispatch(apiFunRef(httpRequest))
@@ -390,12 +393,12 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEnd
 ) {
     post(path) {
         val dto = call.receive<REQUEST>()
-        val taskId = call.parameters[TodoApiPath.ARG_ID]
+        val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             dto,
             mapOf(
-                ApiPath.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                ApiPath.ARG_ID to taskId,
+                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
+                Api.Args.ARG_ID to taskId,
             )
         )
         dispatch(apiFunRef(httpRequest))

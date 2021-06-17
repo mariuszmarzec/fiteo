@@ -1,6 +1,6 @@
 package com.marzec.api
 
-import com.marzec.ApiPath
+import com.marzec.fiteo.ApiPath
 import com.marzec.jsonClient
 import com.marzec.model.domain.Category
 import com.marzec.model.domain.Equipment

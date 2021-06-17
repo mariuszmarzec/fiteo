@@ -11,6 +11,7 @@ import com.marzec.exercises.stubCreateTrainingTemplateDto
 import com.marzec.exercises.stubCreateTrainingTemplatePartDto
 import com.marzec.exercises.stubTrainingTemplateDto
 import com.marzec.exercises.stubTrainingTemplatePartDto
+import com.marzec.fiteo.ApiPath
 import com.marzec.model.domain.TrainingTemplateDto
 import com.marzec.model.domain.toDto
 import io.ktor.http.HttpStatusCode

@@ -1,6 +1,7 @@
 package com.marzec.todo.api
 
-import com.marzec.ApiPath
+import com.marzec.Api
+import com.marzec.fiteo.ApiPath
 import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.extensions.constraint
@@ -13,7 +14,6 @@ import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.dto.ToDoListDto
 import com.marzec.todo.model.CreateTaskDto
-import com.marzec.todo.model.UpdateTask
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.todo.model.toDomain
 import com.marzec.todo.model.toDto
@@ -35,14 +35,14 @@ class ToDoApiController(
     fun removeList(request: HttpRequest<Unit>): HttpResponse<ToDoListDto> = serviceCall {
         service.removeList(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_ID)
+                request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 
     fun addTask(request: HttpRequest<CreateTaskDto>): HttpResponse<TaskDto> = serviceCall {
         service.addTask(
                 userId = request.userIdOrThrow(),
-                listId = request.getIntOrThrow(ApiPath.ARG_ID),
+                listId = request.getIntOrThrow(Api.Args.ARG_ID),
                 task = request.data.toDomain()
         ).toDto()
     }
@@ -53,7 +53,7 @@ class ToDoApiController(
         ) {
             service.updateTask(
                     userId = request.userIdOrThrow(),
-                    taskId = request.getIntOrThrow(ApiPath.ARG_ID),
+                    taskId = request.getIntOrThrow(Api.Args.ARG_ID),
                     task = request.data.toDomain()
             ).toDto()
         }
@@ -62,7 +62,7 @@ class ToDoApiController(
     fun removeTask(request: HttpRequest<Unit>): HttpResponse<TaskDto> = serviceCall {
         service.removeTask(
                 userId = request.userIdOrThrow(),
-                taskId = request.getIntOrThrow(ApiPath.ARG_ID)
+                taskId = request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 }
@@ -70,7 +70,7 @@ class ToDoApiController(
 private object TaskConstraints {
     val taskCantBeOwnParent = constraint<UpdateTaskDto>(
             check = {
-                val taskId = getIntOrThrow(ApiPath.ARG_ID)
+                val taskId = getIntOrThrow(Api.Args.ARG_ID)
                 val newParentTaskId = data.parentTaskId
                 taskId != newParentTaskId
             },

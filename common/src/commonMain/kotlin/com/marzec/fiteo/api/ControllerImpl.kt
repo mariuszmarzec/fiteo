@@ -1,6 +1,7 @@
 package com.marzec.api
 
-import com.marzec.ApiPath
+import com.marzec.Api
+import com.marzec.fiteo.ApiPath
 import com.marzec.exercises.AuthenticationService
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.TrainingService
@@ -48,8 +49,8 @@ class ControllerImpl(
     }
 
     override fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto> {
-        val userId = httpRequest.parameters[ApiPath.ARG_ID]?.toIntOrNull()
-                ?: return HttpResponse.Error(ErrorDto("Argument ${ApiPath.ARG_ID} is not integer"))
+        val userId = httpRequest.parameters[Api.Args.ARG_ID]?.toIntOrNull()
+                ?: return HttpResponse.Error(ErrorDto("Argument ${Api.Args.ARG_ID} is not integer"))
         return when (val result = authenticationService.getUser(userId)) {
             is Request.Success -> HttpResponse.Success(result.data.toDto())
             is Request.Error -> HttpResponse.Error(ErrorDto(result.reason))
@@ -90,21 +91,21 @@ class ControllerImpl(
             serviceCall {
                 trainingService.removeTrainingTemplate(
                         request.userIdOrThrow(),
-                        request.getIntOrThrow(ApiPath.ARG_ID)
+                        request.getIntOrThrow(Api.Args.ARG_ID)
                 ).toDto()
             }
 
     override fun createTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.createTraining(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_ID)
+                request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 
     override fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.getTraining(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_ID)
+                request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 
@@ -117,14 +118,14 @@ class ControllerImpl(
     override fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.removeTraining(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_ID)
+                request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 
     override fun updateTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.updateTraining(
                 request.userIdOrThrow(),
-                request.getIntOrThrow(ApiPath.ARG_ID),
+                request.getIntOrThrow(Api.Args.ARG_ID),
                 request.data.toDomain()
         ).toDto()
     }

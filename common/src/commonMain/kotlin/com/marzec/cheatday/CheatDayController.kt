@@ -1,5 +1,6 @@
 package com.marzec.cheatday
 
+import com.marzec.Api
 import com.marzec.cheatday.domain.toDto
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
@@ -34,7 +35,7 @@ class CheatDayController(
         return serviceCall {
             cheatDayService.removeWeight(
                     request.getIntOrThrow(ApiPath.ARG_USER_ID),
-                    request.getIntOrThrow(ApiPath.ARG_ID)
+                    request.getIntOrThrow(Api.Args.ARG_ID)
             ).toDto()
         }
     }

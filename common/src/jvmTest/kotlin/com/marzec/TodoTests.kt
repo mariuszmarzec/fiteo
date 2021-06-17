@@ -52,7 +52,7 @@ class TodoTests {
     @Test
     fun deleteTodoList() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_TODO_LIST.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.DELETE_TODO_LIST.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = todoListDto,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -73,7 +73,7 @@ class TodoTests {
     @Test
     fun addTask() {
         testPostEndpoint(
-            uri = ApiPath.ADD_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
             dto = createTaskDto,
             status = HttpStatusCode.OK,
             responseDto = taskDto,
@@ -95,7 +95,7 @@ class TodoTests {
     @Test
     fun addTask_asChildTask() {
         testPostEndpoint(
-            uri = ApiPath.ADD_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
             dto = stubCreateTaskDto(description = "subtask", parentTaskId = 1),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "subtask", parentTaskId = 1),
@@ -126,7 +126,7 @@ class TodoTests {
     @Test
     fun updateTask() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
             dto = UpdateTaskDto(description = "updated task", parentTaskId = null, priority = 10, isToDo = false),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(description = "updated task", priority = 10, isToDo = false),
@@ -158,7 +158,7 @@ class TodoTests {
     @Test
     fun updateTask_pinToParentTask() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "2"),
+            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = 1),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = 1),
@@ -202,7 +202,7 @@ class TodoTests {
     @Test
     fun updateTask_unpinFromParentTask() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${ApiPath.ARG_ID}}", "2"),
+            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = null),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = null),
@@ -246,7 +246,7 @@ class TodoTests {
     @Test
     fun removeTask() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_TASK.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.DELETE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = taskDto,
             authorize = TestApplicationEngine::registerAndLogin,

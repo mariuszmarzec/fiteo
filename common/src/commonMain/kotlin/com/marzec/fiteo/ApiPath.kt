@@ -1,13 +1,12 @@
-package com.marzec
+package com.marzec.fiteo
+
+import com.marzec.Api
 
 object ApiPath {
 
     const val CURRENT_API_VERSION = "1"
 
     const val API = "api"
-
-    const val ARG_ID = "id"
-    const val ARG_USER_ID = "userId"
 
     const val APPLICATION_NAME = "fiteo"
 
@@ -23,24 +22,14 @@ object ApiPath {
 
     const val TRAINING_TEMPLATES = "$API_ROOT/trainings/templates"
     const val TRAINING_TEMPLATE = "$API_ROOT/trainings/template"
-    const val DELETE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template/{$ARG_ID}"
+    const val DELETE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}"
     const val UPDATE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template"
 
-    const val CREATE_TRAINING = "$API_ROOT/trainings/template/{$ARG_ID}/create-training"
-    const val TRAINING = "$API_ROOT/trainings/{$ARG_ID}"
+    const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
+    const val TRAINING = "$API_ROOT/trainings/{${Api.Args.ARG_ID}}"
     const val TRAININGS = "$API_ROOT/trainings"
 
     const val REGISTRATION = "$API_ROOT/registration"
     const val LOGIN = "$API_ROOT/login"
     const val LOGOUT = "$API_ROOT/logout"
-}
-
-object Headers {
-    const val AUTHORIZATION = "Authorization"
-    const val AUTHORIZATION_TEST = "Authorization-Test"
-}
-
-object Auth {
-    const val NAME = "fiteo_auth"
-    const val TEST = "fiteo_test_auth"
 }

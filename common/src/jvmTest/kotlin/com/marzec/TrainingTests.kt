@@ -11,6 +11,7 @@ import com.marzec.exercises.stubCreateTrainingTemplatePartDto
 import com.marzec.exercises.stubSeriesDto
 import com.marzec.exercises.stubTraining
 import com.marzec.exercises.stubTrainingExerciseWithProgressDto
+import com.marzec.fiteo.ApiPath
 import com.marzec.model.domain.TrainingDto
 import com.marzec.model.domain.toDto
 import io.ktor.http.HttpStatusCode
@@ -116,7 +117,7 @@ class TrainingTests {
     @Test
     fun createTraining() {
         testGetEndpoint(
-            uri = ApiPath.CREATE_TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -130,7 +131,7 @@ class TrainingTests {
     @Test
     fun getTraining() {
         testGetEndpoint(
-            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -160,7 +161,7 @@ class TrainingTests {
     @Test
     fun deleteTraining() {
         testDeleteEndpoint(
-            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -178,7 +179,7 @@ class TrainingTests {
     @Test
     fun updateTraining() {
         testPatchEndpoint(
-            uri = ApiPath.TRAINING.replace("{${ApiPath.ARG_ID}}", "1"),
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             dto = updateDto,
             status = HttpStatusCode.OK,
             responseDto = updatedTraining,

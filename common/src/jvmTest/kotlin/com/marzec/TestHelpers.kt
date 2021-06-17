@@ -15,6 +15,8 @@ import com.marzec.exercises.json
 import com.marzec.exercises.loginDto
 import com.marzec.exercises.registerRequestDto
 import com.marzec.exercises.uuidCounter
+import com.marzec.fiteo.ApiPath
+import com.marzec.Api.Headers
 import com.marzec.fiteo.io.ExercisesReader
 import com.marzec.fiteo.io.ResourceFileReader
 import com.marzec.model.domain.CreateTrainingTemplateDto
@@ -263,7 +265,7 @@ fun TestApplicationEngine.addTodoList(dto: CreateTodoListDto) {
 }
 
 fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
-    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${TodoApiPath.ARG_ID}}", "$listId")) {
+    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "$listId")) {
         setBodyJson(dto)
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }
@@ -287,7 +289,7 @@ fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
 fun TestApplicationEngine.createTraining(trainingTemplateId: String): TrainingDto {
     return handleRequest(
         HttpMethod.Get,
-        ApiPath.CREATE_TRAINING.replace("{${ApiPath.ARG_ID}}", trainingTemplateId)
+        ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", trainingTemplateId)
     ) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
