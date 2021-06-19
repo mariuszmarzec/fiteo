@@ -13,12 +13,12 @@ import com.marzec.extensions.emptyString
 import com.marzec.fiteo.ApiPath
 import com.marzec.Api.Auth
 import com.marzec.Api.Headers
-import com.marzec.model.domain.TestUserSession
-import com.marzec.model.domain.UserSession
+import com.marzec.fiteo.model.domain.TestUserSession
+import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.UserDto
-import com.marzec.model.http.HttpRequest
-import com.marzec.model.http.HttpResponse
+import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.api.ToDoApiController
 import io.ktor.application.Application
@@ -256,9 +256,7 @@ fun Route.login(api: Controller) {
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
-                call.sessions.set(
-                    Headers.AUTHORIZATION_TEST,
-                    TestUserSession(httpResponse.data.id, currentTimeMillis())
+                call.sessions.set(Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis())
                 )
             } else {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
@@ -330,9 +328,9 @@ private inline fun <reified T : Any> Route.getByIdEndpoint(
         val httpRequest = HttpRequest(
             data = Unit,
             parameters = mapOf(
-                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
-                Api.Args.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
-            )
+                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
+            ),
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -343,11 +341,11 @@ private inline fun <reified T : Any> Route.getAllEndpoint(
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<List<T>>>
 ) {
     get(path) {
+        (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
         val httpRequest = HttpRequest(
             data = Unit,
-            parameters = mapOf(
-                Api.Args.ARG_USER_ID to (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
-            )
+            parameters = emptyMap(),
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -359,11 +357,11 @@ private inline fun <reified T : Any> Route.deleteByIdEndpoint(
 ) {
     delete(path) {
         val httpRequest = HttpRequest(
-            Unit,
-            mapOf(
-                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
-            )
+            data = Unit,
+            parameters = mapOf(
+                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
+            ),
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -377,11 +375,9 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateB
         val dto = call.receive<REQUEST>()
         val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
-            dto,
-            mapOf(
-                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                Api.Args.ARG_ID to taskId,
-            )
+            data = dto,
+            parameters = mapOf(pair = Api.Args.ARG_ID to taskId),
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -395,11 +391,11 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEnd
         val dto = call.receive<REQUEST>()
         val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
-            dto,
-            mapOf(
-                Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id?.toString(),
-                Api.Args.ARG_ID to taskId,
-            )
+            data = dto,
+            parameters = mapOf(
+                pair = Api.Args.ARG_ID to taskId,
+            ),
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
     }

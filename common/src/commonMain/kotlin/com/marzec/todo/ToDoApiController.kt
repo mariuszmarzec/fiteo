@@ -1,15 +1,14 @@
 package com.marzec.todo.api
 
 import com.marzec.Api
-import com.marzec.fiteo.ApiPath
 import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.extensions.constraint
 import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
-import com.marzec.model.http.HttpRequest
-import com.marzec.model.http.HttpResponse
+import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.dto.ToDoListDto

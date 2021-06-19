@@ -1,13 +1,13 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
 sealed class Session
 
 data class UserSession(
     val userId: Int,
-    var timestamp: Long
+    val timestamp: Long
 ) : Session()
 
 data class TestUserSession(
     val userId: Int,
-    var timestamp: Long
+    val timestamp: Long
 ) : Session()

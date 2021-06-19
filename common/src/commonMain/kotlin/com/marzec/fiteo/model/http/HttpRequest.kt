@@ -1,9 +1,7 @@
-package com.marzec.model.http
-
-import com.marzec.model.domain.Session
+package com.marzec.fiteo.model.http
 
 data class HttpRequest<T>(
         val data: T,
-        val parameters: Map<String, String?> = mapOf(),
-        val sessions: Map<String, Session> = mapOf()
+        val parameters: Map<String, String?> = emptyMap(),
+        val sessions: Map<String, String> = emptyMap()
 )

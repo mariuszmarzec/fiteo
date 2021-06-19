@@ -7,7 +7,6 @@ object ApiPath {
     const val API = "api"
 
     const val ARG_ID = "id"
-    const val ARG_USER_ID = "userId"
 
     const val APPLICATION_NAME = "cheat"
 

@@ -1,7 +1,6 @@
 package com.marzec.api
 
 import com.marzec.Api
-import com.marzec.fiteo.ApiPath
 import com.marzec.exercises.AuthenticationService
 import com.marzec.exercises.ExercisesService
 import com.marzec.exercises.TrainingService
@@ -22,8 +21,8 @@ import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
-import com.marzec.model.http.HttpRequest
-import com.marzec.model.http.HttpResponse
+import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.http.HttpResponse
 
 class ControllerImpl(
         private val exercisesService: ExercisesService,

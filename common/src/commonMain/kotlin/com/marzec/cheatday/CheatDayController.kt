@@ -8,8 +8,8 @@ import com.marzec.cheatday.dto.toDomain
 import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
-import com.marzec.model.http.HttpRequest
-import com.marzec.model.http.HttpResponse
+import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.http.HttpResponse
 
 class CheatDayController(
         private val cheatDayService: CheatDayService
@@ -34,7 +34,7 @@ class CheatDayController(
     fun removeWeight(request: HttpRequest<Unit>): HttpResponse<WeightDto> {
         return serviceCall {
             cheatDayService.removeWeight(
-                    request.getIntOrThrow(ApiPath.ARG_USER_ID),
+                    request.userIdOrThrow(),
                     request.getIntOrThrow(Api.Args.ARG_ID)
             ).toDto()
         }
@@ -43,7 +43,7 @@ class CheatDayController(
     fun updateWeight(request: HttpRequest<WeightDto>): HttpResponse<WeightDto> {
         return serviceCall {
             cheatDayService.updateWeight(
-                    request.getIntOrThrow(ApiPath.ARG_USER_ID),
+                    request.userIdOrThrow(),
                     request.data.toDomain()
             ).toDto()
         }

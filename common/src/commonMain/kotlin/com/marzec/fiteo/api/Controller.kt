@@ -10,8 +10,8 @@ import com.marzec.model.dto.ExerciseDto
 import com.marzec.model.dto.LoginRequestDto
 import com.marzec.model.dto.RegisterRequestDto
 import com.marzec.model.dto.UserDto
-import com.marzec.model.http.HttpRequest
-import com.marzec.model.http.HttpResponse
+import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.http.HttpResponse
 
 interface Controller {
 
