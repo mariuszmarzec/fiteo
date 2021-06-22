@@ -1,10 +1,7 @@
 package com.marzec
 
-import com.marzec.exercises.categories
-import com.marzec.exercises.equipment
-import com.marzec.exercises.exercises
 import com.marzec.fiteo.ApiPath
-import com.marzec.model.domain.toDto
+import com.marzec.fiteo.model.domain.toDto
 import io.ktor.http.HttpStatusCode
 import org.junit.After
 import org.junit.Test

@@ -1,10 +1,10 @@
-package com.marzec.todo.api
+package com.marzec.todo
 
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.ToDoList
 import com.marzec.todo.model.UpdateTask
-import com.marzec.todo.repositories.TodoRepository
+import com.marzec.todo.TodoRepository
 
 class TodoService(
         private val repository: TodoRepository

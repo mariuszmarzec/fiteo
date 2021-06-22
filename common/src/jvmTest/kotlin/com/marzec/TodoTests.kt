@@ -2,15 +2,6 @@ package com.marzec
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
-import com.marzec.exercises.createTaskDto
-import com.marzec.exercises.createTodoListDto
-import com.marzec.exercises.createTodoListDto2
-import com.marzec.exercises.stubCreateTaskDto
-import com.marzec.exercises.stubTaskDto
-import com.marzec.exercises.stubUpdateTaskDto
-import com.marzec.exercises.taskDto
-import com.marzec.exercises.todoListDto
-import com.marzec.exercises.todoListDto2
 import com.marzec.todo.ApiPath
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.http.HttpStatusCode

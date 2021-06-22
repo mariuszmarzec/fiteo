@@ -6,7 +6,7 @@ import com.marzec.database.EquipmentEntity
 import com.marzec.database.EquipmentTable
 import com.marzec.database.ExerciseEntity
 import com.marzec.database.dbCall
-import com.marzec.model.domain.Exercise
+import com.marzec.fiteo.model.domain.Exercise
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.insertAndGetId

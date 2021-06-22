@@ -1,7 +1,7 @@
 package com.marzec.database
 
 import com.marzec.database.ExerciseEntity.Companion.transform
-import com.marzec.model.domain.Exercise
+import com.marzec.fiteo.model.domain.Exercise
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

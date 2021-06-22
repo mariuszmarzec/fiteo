@@ -1,4 +1,4 @@
-package com.marzec.todo.repositories
+package com.marzec.todo
 
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task

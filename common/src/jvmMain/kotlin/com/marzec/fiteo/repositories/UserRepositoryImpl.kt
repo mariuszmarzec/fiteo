@@ -3,7 +3,7 @@ package com.marzec.fiteo.repositories
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.database.dbCall
-import com.marzec.model.domain.User
+import com.marzec.fiteo.model.domain.User
 import org.jetbrains.exposed.sql.Database
 
 class UserRepositoryImpl(private val database: Database) : UserRepository {

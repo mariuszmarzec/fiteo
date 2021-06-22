@@ -1,11 +1,13 @@
-package com.marzec.data
+package com.marzec.fiteo.data
 
 import com.marzec.core.Uuid
 import com.marzec.fiteo.io.ExercisesReader
 import com.marzec.fiteo.io.ResourceFileReader
-import com.marzec.model.domain.*
-import com.marzec.model.dto.ExercisesFileDto
-import com.marzec.model.mappers.toDomain
+import com.marzec.fiteo.model.domain.ExercisesData
+import com.marzec.fiteo.model.domain.Training
+import com.marzec.fiteo.model.domain.TrainingTemplate
+import com.marzec.fiteo.model.dto.ExercisesFileDto
+import com.marzec.fiteo.model.mappers.toDomain
 import com.marzec.fiteo.repositories.CategoriesRepository
 import com.marzec.fiteo.repositories.EquipmentRepository
 import com.marzec.fiteo.repositories.ExercisesRepository

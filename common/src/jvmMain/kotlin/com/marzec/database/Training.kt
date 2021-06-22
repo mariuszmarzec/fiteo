@@ -1,10 +1,9 @@
 package com.marzec.database
 
 import com.marzec.core.currentTime
-import com.marzec.model.domain.Series
-import com.marzec.model.domain.Training
-import com.marzec.model.domain.TrainingExerciseWithProgress
-import java.time.LocalDateTime
+import com.marzec.fiteo.model.domain.Series
+import com.marzec.fiteo.model.domain.Training
+import com.marzec.fiteo.model.domain.TrainingExerciseWithProgress
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID

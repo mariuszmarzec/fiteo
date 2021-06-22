@@ -2,7 +2,7 @@ package com.marzec.fiteo.repositories
 
 import com.marzec.database.CategoryEntity
 import com.marzec.database.dbCall
-import com.marzec.model.domain.Category
+import com.marzec.fiteo.model.domain.Category
 import org.jetbrains.exposed.sql.Database
 
 class CategoriesRepositoryImpl(private val database: Database) : CategoriesRepository {

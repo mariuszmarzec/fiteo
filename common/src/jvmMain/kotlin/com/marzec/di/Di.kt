@@ -1,22 +1,22 @@
 package com.marzec.di
 
-import com.marzec.api.Controller
-import com.marzec.api.ControllerImpl
+import com.marzec.fiteo.api.Controller
+import com.marzec.fiteo.api.ControllerImpl
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
 import com.marzec.core.TimeProvider
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
-import com.marzec.data.ExerciseFileMapper
-import com.marzec.data.InitialDataLoader
-import com.marzec.data.InitialDataLoaderImpl
-import com.marzec.exercises.AuthenticationService
-import com.marzec.exercises.AuthenticationServiceImpl
-import com.marzec.exercises.ExercisesService
-import com.marzec.exercises.ExercisesServiceImpl
-import com.marzec.exercises.TrainingService
-import com.marzec.exercises.TrainingServiceImpl
+import com.marzec.fiteo.data.ExerciseFileMapper
+import com.marzec.fiteo.data.InitialDataLoader
+import com.marzec.fiteo.data.InitialDataLoaderImpl
+import com.marzec.fiteo.services.AuthenticationService
+import com.marzec.fiteo.services.AuthenticationServiceImpl
+import com.marzec.fiteo.services.ExercisesService
+import com.marzec.fiteo.services.ExercisesServiceImpl
+import com.marzec.fiteo.services.TrainingService
+import com.marzec.fiteo.services.TrainingServiceImpl
 import com.marzec.fiteo.io.ExercisesReader
 import com.marzec.fiteo.io.ExercisesReaderImpl
 import com.marzec.fiteo.io.ResourceFileReader
@@ -36,9 +36,9 @@ import com.marzec.fiteo.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.fiteo.repositories.UserRepository
 import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.repositories.WeightsRepositoryImpl
-import com.marzec.todo.api.ToDoApiController
-import com.marzec.todo.api.TodoService
-import com.marzec.todo.repositories.TodoRepository
+import com.marzec.todo.ToDoApiController
+import com.marzec.todo.TodoService
+import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
@@ -88,7 +88,11 @@ val MainModule = module {
         ExercisesReaderImpl(get { params })
     }
 
-    factory<TrainingService> { params -> TrainingServiceImpl(get { params }, get { params }, get { params }, get { params }, get { params }, get { params }) }
+    factory<TrainingService> { params -> TrainingServiceImpl(
+        get { params },
+        get { params },
+        get { params },
+        get { params }) }
 
     factory<TrainingTemplateRepository> { params ->
         TrainingTemplateRepositoryImpl(get { params })

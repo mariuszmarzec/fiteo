@@ -1,6 +1,6 @@
 package com.marzec.database
 
-import com.marzec.model.domain.User
+import com.marzec.fiteo.model.domain.User
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable

@@ -4,7 +4,7 @@ import com.marzec.database.CachedSessionEntity
 import com.marzec.database.CachedSessionTable
 import com.marzec.database.dbCall
 import com.marzec.database.toDomain
-import com.marzec.model.domain.CachedSession
+import com.marzec.fiteo.model.domain.CachedSession
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob

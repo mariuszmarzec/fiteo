@@ -1,14 +1,14 @@
-package com.marzec.model.mappers
+package com.marzec.fiteo.model.mappers
 
 import com.marzec.core.Uuid
-import com.marzec.model.domain.Category
-import com.marzec.model.domain.Equipment
-import com.marzec.model.domain.Exercise
-import com.marzec.model.domain.ExercisesData
-import com.marzec.model.dto.CategoryFileDto
-import com.marzec.model.dto.ExerciseFileDto
-import com.marzec.model.dto.ExercisesFileDto
-import com.marzec.model.dto.NeededEquipmentDto
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.ExercisesData
+import com.marzec.fiteo.model.dto.CategoryFileDto
+import com.marzec.fiteo.model.dto.ExerciseFileDto
+import com.marzec.fiteo.model.dto.ExercisesFileDto
+import com.marzec.fiteo.model.dto.NeededEquipmentDto
 
 fun ExercisesFileDto.toDomain(uuid: Uuid): ExercisesData {
     val unknownCategory = Category(uuid.create(), "Brak")
@@ -17,7 +17,7 @@ fun ExercisesFileDto.toDomain(uuid: Uuid): ExercisesData {
         categoryFileDto.category.hashCode().toString() to categoryFileDto.toDomain(uuid)
     }.orEmpty().toMap() + mapOf("Brak".hashCode().toString() to unknownCategory)
     val equipment = neededEquipment?.map { it.value.toDomain(uuid) }?.flatten()?.distinct().orEmpty()
-    val hashToEquipment = equipment.map { it.name.hashCode().toString() to it }.toMap()
+    val hashToEquipment = equipment.associateBy { it.name.hashCode().toString() }
     return ExercisesData(
             hashToCategories.values.toList(),
             exercises?.map { it.toDomain(hashToCategories, hashToEquipment, unknownCategory) }.orEmpty(),
@@ -32,9 +32,9 @@ fun NeededEquipmentDto.toDomain(uuid: Uuid): List<Equipment> = needed?.map { equ
 }.orEmpty()
 
 fun ExerciseFileDto.toDomain(
-        hashToCategories: Map<String, Category>,
-        hashToEquipment: Map<String, Equipment>,
-        unknownCategory: Category
+    hashToCategories: Map<String, Category>,
+    hashToEquipment: Map<String, Equipment>,
+    unknownCategory: Category
 ): Exercise {
     val defaultEquipment = hashToEquipment.values.firstOrNull { it.name.contains("brak", true) }?.let { listOf(it) }
     return Exercise(

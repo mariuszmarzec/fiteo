@@ -1,6 +1,6 @@
 package com.marzec.views.exerciserowview
 
-import com.marzec.model.domain.Exercise
+import com.marzec.fiteo.model.domain.Exercise
 import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate

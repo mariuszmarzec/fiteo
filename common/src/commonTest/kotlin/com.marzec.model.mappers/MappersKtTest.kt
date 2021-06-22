@@ -1,14 +1,15 @@
 package com.marzec.model.mappers
 
-import com.marzec.exercises.uuidCounter
-import com.marzec.model.domain.Category
-import com.marzec.model.domain.Equipment
-import com.marzec.model.domain.Exercise
-import com.marzec.model.domain.ExercisesData
-import com.marzec.model.dto.CategoryFileDto
-import com.marzec.model.dto.ExerciseFileDto
-import com.marzec.model.dto.ExercisesFileDto
-import com.marzec.model.dto.NeededEquipmentDto
+import com.marzec.uuidCounter
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.ExercisesData
+import com.marzec.fiteo.model.dto.CategoryFileDto
+import com.marzec.fiteo.model.dto.ExerciseFileDto
+import com.marzec.fiteo.model.dto.ExercisesFileDto
+import com.marzec.fiteo.model.dto.NeededEquipmentDto
+import com.marzec.fiteo.model.mappers.toDomain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,7 +20,8 @@ class MappersKtTest {
                     "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14" to CategoryFileDto(
                             category = "Rozciagajace",
                             url = "https://vitalia.pl/mid/109/fid/1355/diety/odchudzanie/group/14"
-                    )),
+                    )
+            ),
             exercises = listOf(
                     ExerciseFileDto(
                             animationImageName = "anim_14.gif",

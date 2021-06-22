@@ -1,7 +1,11 @@
-package com.marzec.exercises
+package com.marzec.fiteo.services
 
 import com.marzec.core.TimeProvider
-import com.marzec.model.domain.*
+import com.marzec.fiteo.model.domain.CreateTraining
+import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgress
+import com.marzec.fiteo.model.domain.CreateTrainingTemplate
+import com.marzec.fiteo.model.domain.Training
+import com.marzec.fiteo.model.domain.TrainingTemplate
 import com.marzec.fiteo.repositories.*
 
 interface TrainingService {
@@ -25,12 +29,10 @@ interface TrainingService {
 }
 
 class TrainingServiceImpl(
-        private val templateRepository: TrainingTemplateRepository,
-        private val trainingRepository: TrainingRepository,
-        private val exercisesRepository: ExercisesRepository,
-        private val categoriesRepository: CategoriesRepository,
-        private val equipmentRepository: EquipmentRepository,
-        private val timeProvider: TimeProvider
+    private val templateRepository: TrainingTemplateRepository,
+    private val trainingRepository: TrainingRepository,
+    private val exercisesRepository: ExercisesRepository,
+    private val timeProvider: TimeProvider
 ) : TrainingService {
     override fun getTrainingTemplates(userId: Int): List<TrainingTemplate> = templateRepository.getTemplates(userId)
 

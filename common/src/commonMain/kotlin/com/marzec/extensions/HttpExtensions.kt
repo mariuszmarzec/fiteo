@@ -3,7 +3,7 @@ package com.marzec.extensions
 import com.marzec.Api
 import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
-import com.marzec.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 

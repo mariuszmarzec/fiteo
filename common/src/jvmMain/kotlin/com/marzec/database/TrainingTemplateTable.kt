@@ -1,7 +1,7 @@
 package com.marzec.database
 
-import com.marzec.model.domain.TrainingTemplate
-import com.marzec.model.domain.TrainingTemplatePart
+import com.marzec.fiteo.model.domain.TrainingTemplate
+import com.marzec.fiteo.model.domain.TrainingTemplatePart
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID

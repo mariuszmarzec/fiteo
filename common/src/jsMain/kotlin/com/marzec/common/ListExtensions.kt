@@ -1,9 +1,9 @@
 package com.marzec.common
 
 import com.marzec.extensions.emptyString
-import com.marzec.model.domain.Category
-import com.marzec.model.domain.Equipment
-import com.marzec.model.domain.Exercise
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
 import com.marzec.screen.exerciselist.model.GroupedExercisesViewModel
 
 fun List<Exercise>.filter(

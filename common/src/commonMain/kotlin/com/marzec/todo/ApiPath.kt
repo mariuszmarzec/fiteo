@@ -4,13 +4,13 @@ import com.marzec.Api
 
 object ApiPath {
 
-    const val CURRENT_API_VERSION = "1"
+    private const val CURRENT_API_VERSION = "1"
 
-    const val API = "api"
+    private const val API = "api"
     
-    const val APPLICATION_NAME = "todo"
+    private const val APPLICATION_NAME = "todo"
 
-    const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
+    private const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
     const val TODO_LISTS = "$API_ROOT/lists"
     const val TODO_LIST = "$API_ROOT/list"

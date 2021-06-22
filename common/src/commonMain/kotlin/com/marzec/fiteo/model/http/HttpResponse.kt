@@ -1,6 +1,6 @@
 package com.marzec.fiteo.model.http
 
-import com.marzec.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.ErrorDto
 
 sealed class HttpResponse<T> {
 

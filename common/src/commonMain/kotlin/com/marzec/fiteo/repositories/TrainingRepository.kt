@@ -1,7 +1,7 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.model.domain.CreateTraining
-import com.marzec.model.domain.Training
+import com.marzec.fiteo.model.domain.CreateTraining
+import com.marzec.fiteo.model.domain.Training
 
 interface TrainingRepository {
 

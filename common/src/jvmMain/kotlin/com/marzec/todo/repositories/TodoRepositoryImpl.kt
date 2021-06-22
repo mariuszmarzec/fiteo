@@ -6,6 +6,7 @@ import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
 import com.marzec.extensions.toList
+import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
 import com.marzec.todo.database.ToDoListEntity
 import com.marzec.todo.database.ToDoListTable
@@ -14,7 +15,6 @@ import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.ToDoList
 import com.marzec.todo.model.UpdateTask
-import java.time.LocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll

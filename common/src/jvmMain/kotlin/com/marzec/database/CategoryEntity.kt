@@ -1,6 +1,6 @@
 package com.marzec.database
 
-import com.marzec.model.domain.Category
+import com.marzec.fiteo.model.domain.Category
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID

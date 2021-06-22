@@ -1,6 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Equipment
 
 interface EquipmentRepository {
 

@@ -1,4 +1,4 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
 @Deprecated("Don't use, throw HttpError instead")
 sealed class Request<T> {

@@ -1,4 +1,4 @@
-package com.marzec.todo.api
+package com.marzec.todo
 
 import com.marzec.Api
 import com.marzec.exceptions.HttpException

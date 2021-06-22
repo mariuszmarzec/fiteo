@@ -2,13 +2,13 @@ package com.marzec.api
 
 import com.marzec.fiteo.ApiPath
 import com.marzec.jsonClient
-import com.marzec.model.domain.Category
-import com.marzec.model.domain.Equipment
-import com.marzec.model.domain.Exercise
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.EquipmentDto
-import com.marzec.model.dto.ExerciseDto
-import com.marzec.model.dto.toDomain
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.toDomain
 import io.ktor.client.request.get
 import kotlinx.browser.window
 

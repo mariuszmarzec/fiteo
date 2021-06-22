@@ -1,4 +1,4 @@
-package com.marzec.model.dto
+package com.marzec.fiteo.model.dto
 
 import kotlinx.serialization.*
 

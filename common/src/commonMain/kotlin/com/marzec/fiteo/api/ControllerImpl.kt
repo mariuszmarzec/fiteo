@@ -1,33 +1,33 @@
-package com.marzec.api
+package com.marzec.fiteo.api
 
 import com.marzec.Api
-import com.marzec.exercises.AuthenticationService
-import com.marzec.exercises.ExercisesService
-import com.marzec.exercises.TrainingService
+import com.marzec.fiteo.services.AuthenticationService
+import com.marzec.fiteo.services.ExercisesService
+import com.marzec.fiteo.services.TrainingService
 import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
-import com.marzec.model.domain.CreateTrainingDto
-import com.marzec.model.domain.CreateTrainingTemplateDto
-import com.marzec.model.domain.Request
-import com.marzec.model.domain.TrainingDto
-import com.marzec.model.domain.TrainingTemplateDto
-import com.marzec.model.domain.toDomain
-import com.marzec.model.domain.toDto
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.EquipmentDto
-import com.marzec.model.dto.ErrorDto
-import com.marzec.model.dto.ExerciseDto
-import com.marzec.model.dto.LoginRequestDto
-import com.marzec.model.dto.RegisterRequestDto
-import com.marzec.model.dto.UserDto
+import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
+import com.marzec.fiteo.model.domain.Request
+import com.marzec.fiteo.model.domain.TrainingDto
+import com.marzec.fiteo.model.domain.TrainingTemplateDto
+import com.marzec.fiteo.model.domain.toDomain
+import com.marzec.fiteo.model.domain.toDto
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
+import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 
 class ControllerImpl(
-        private val exercisesService: ExercisesService,
-        private val authenticationService: AuthenticationService,
-        private val trainingService: TrainingService
+    private val exercisesService: ExercisesService,
+    private val authenticationService: AuthenticationService,
+    private val trainingService: TrainingService
 ) : Controller {
     override fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
             HttpResponse.Success(exercisesService.getCategories().map { it.toDto() })

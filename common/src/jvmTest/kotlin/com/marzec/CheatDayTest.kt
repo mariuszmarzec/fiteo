@@ -2,10 +2,6 @@ package com.marzec
 
 import com.google.common.truth.Truth
 import com.marzec.cheatday.ApiPath
-import com.marzec.exercises.createWeightDto
-import com.marzec.exercises.weightDto
-import com.marzec.exercises.weightDto2
-import com.marzec.exercises.weightDto3
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After

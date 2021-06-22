@@ -3,7 +3,7 @@ package com.marzec.fiteo.repositories
 import com.marzec.database.EquipmentEntity
 import com.marzec.database.EquipmentTable
 import com.marzec.database.dbCall
-import com.marzec.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Equipment
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 

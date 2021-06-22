@@ -1,6 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.model.domain.Category
+import com.marzec.fiteo.model.domain.Category
 
 interface CategoriesRepository {
 

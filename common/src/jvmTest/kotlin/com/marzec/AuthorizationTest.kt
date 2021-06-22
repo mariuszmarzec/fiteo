@@ -1,10 +1,8 @@
 package com.marzec
 
-import com.marzec.exercises.loginDto
-import com.marzec.exercises.registerRequestDto
 import com.marzec.fiteo.ApiPath
-import com.marzec.model.dto.ErrorDto
-import com.marzec.model.dto.UserDto
+import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.UserDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After

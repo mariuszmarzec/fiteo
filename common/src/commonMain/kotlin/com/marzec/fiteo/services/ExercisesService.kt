@@ -1,6 +1,8 @@
-package com.marzec.exercises
+package com.marzec.fiteo.services
 
-import com.marzec.model.domain.*
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
 import com.marzec.fiteo.repositories.CategoriesRepository
 import com.marzec.fiteo.repositories.EquipmentRepository
 import com.marzec.fiteo.repositories.ExercisesRepository

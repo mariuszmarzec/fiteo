@@ -10,10 +10,10 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
-import com.marzec.model.domain.CreateTraining
-import com.marzec.model.domain.CreateTrainingExerciseWithProgress
-import com.marzec.model.domain.Series
-import com.marzec.model.domain.Training
+import com.marzec.fiteo.model.domain.CreateTraining
+import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgress
+import com.marzec.fiteo.model.domain.Series
+import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere

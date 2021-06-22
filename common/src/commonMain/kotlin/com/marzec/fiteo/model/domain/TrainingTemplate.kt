@@ -1,9 +1,9 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.EquipmentDto
-import com.marzec.model.dto.ExerciseDto
-import com.marzec.model.dto.toDomain
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.toDomain
 import kotlinx.serialization.Serializable
 
 data class TrainingTemplate(
@@ -14,12 +14,12 @@ data class TrainingTemplate(
 )
 
 data class TrainingTemplatePart(
-        val id: Int,
-        val name: String,
-        val pinnedExercise: Exercise?,
-        val categories: List<Category>,
-        val excludedExercises: List<Int>,
-        val excludedEquipment: List<Equipment>
+    val id: Int,
+    val name: String,
+    val pinnedExercise: Exercise?,
+    val categories: List<Category>,
+    val excludedExercises: List<Int>,
+    val excludedEquipment: List<Equipment>
 )
 
 @Serializable

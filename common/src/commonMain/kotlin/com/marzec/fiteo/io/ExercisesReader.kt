@@ -1,6 +1,6 @@
 package com.marzec.fiteo.io
 
-import com.marzec.model.dto.ExercisesFileDto
+import com.marzec.fiteo.model.dto.ExercisesFileDto
 import kotlinx.serialization.json.Json
 
 interface ExercisesReader {

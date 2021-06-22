@@ -1,15 +1,15 @@
-package com.marzec.api
+package com.marzec.fiteo.api
 
-import com.marzec.model.domain.CreateTrainingDto
-import com.marzec.model.domain.CreateTrainingTemplateDto
-import com.marzec.model.domain.TrainingDto
-import com.marzec.model.domain.TrainingTemplateDto
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.EquipmentDto
-import com.marzec.model.dto.ExerciseDto
-import com.marzec.model.dto.LoginRequestDto
-import com.marzec.model.dto.RegisterRequestDto
-import com.marzec.model.dto.UserDto
+import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
+import com.marzec.fiteo.model.domain.TrainingDto
+import com.marzec.fiteo.model.domain.TrainingTemplateDto
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
+import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 

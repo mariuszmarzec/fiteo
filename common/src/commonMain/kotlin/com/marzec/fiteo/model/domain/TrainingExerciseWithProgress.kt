@@ -1,12 +1,12 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
-import com.marzec.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.ExerciseDto
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 data class TrainingExerciseWithProgress(
-        val exercise: Exercise,
-        val series: List<Series>
+    val exercise: Exercise,
+    val series: List<Series>
 )
 
 data class Series(
@@ -22,8 +22,8 @@ data class Series(
 
 @Serializable
 data class TrainingExerciseWithProgressDto(
-        val exercise: ExerciseDto,
-        val series: List<SeriesDto>
+    val exercise: ExerciseDto,
+    val series: List<SeriesDto>
 )
 
 @Serializable

@@ -1,8 +1,8 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
-import com.marzec.model.dto.CategoryDto
-import com.marzec.model.dto.EquipmentDto
-import com.marzec.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ExerciseDto
 
 data class ExercisesData(
         val categories: List<Category>,

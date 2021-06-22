@@ -1,6 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.model.domain.User
+import com.marzec.fiteo.model.domain.User
 
 interface UserRepository {
 

@@ -1,4 +1,4 @@
-package com.marzec.model.domain
+package com.marzec.fiteo.model.domain
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable

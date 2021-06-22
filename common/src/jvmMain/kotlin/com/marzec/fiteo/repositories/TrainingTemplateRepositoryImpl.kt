@@ -10,9 +10,9 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
-import com.marzec.model.domain.CreateTrainingTemplate
-import com.marzec.model.domain.CreateTrainingTemplatePart
-import com.marzec.model.domain.TrainingTemplate
+import com.marzec.fiteo.model.domain.CreateTrainingTemplate
+import com.marzec.fiteo.model.domain.CreateTrainingTemplatePart
+import com.marzec.fiteo.model.domain.TrainingTemplate
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and

@@ -1,6 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.model.domain.CachedSession
+import com.marzec.fiteo.model.domain.CachedSession
 
 interface CachedSessionsRepository {
 

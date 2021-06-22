@@ -2,18 +2,9 @@ package com.marzec
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
-import com.marzec.exercises.exerciseCategoryOneEquipment0ne
-import com.marzec.exercises.exerciseCategoryTwoEquipmentOne
-import com.marzec.exercises.stubCreateTrainingDto
-import com.marzec.exercises.stubCreateTrainingExerciseWithProgressDto
-import com.marzec.exercises.stubCreateTrainingTemplateDto
-import com.marzec.exercises.stubCreateTrainingTemplatePartDto
-import com.marzec.exercises.stubSeriesDto
-import com.marzec.exercises.stubTraining
-import com.marzec.exercises.stubTrainingExerciseWithProgressDto
 import com.marzec.fiteo.ApiPath
-import com.marzec.model.domain.TrainingDto
-import com.marzec.model.domain.toDto
+import com.marzec.fiteo.model.domain.TrainingDto
+import com.marzec.fiteo.model.domain.toDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After

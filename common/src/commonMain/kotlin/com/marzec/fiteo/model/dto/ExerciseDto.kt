@@ -1,8 +1,8 @@
-package com.marzec.model.dto
+package com.marzec.fiteo.model.dto
 
-import com.marzec.model.domain.Category
-import com.marzec.model.domain.Equipment
-import com.marzec.model.domain.Exercise
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
 import kotlinx.serialization.Serializable
 
 @Serializable
