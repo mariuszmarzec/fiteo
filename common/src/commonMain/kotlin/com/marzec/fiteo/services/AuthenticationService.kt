@@ -8,7 +8,7 @@ import com.marzec.fiteo.repositories.UserRepository
 interface AuthenticationService {
 
     fun checkPassword(email: String, password: String): Request<User>
-    fun getUser(id: Int): Request<User>
+    fun getUser(id: Int): User
     fun register(email: String, password: String, repeatedPassword: String): User
 }
 
@@ -31,16 +31,7 @@ class AuthenticationServiceImpl(
         }
     }
 
-    override fun getUser(id: Int): Request<User> {
-        return try {
-            Request.Success(userRepository.getUser(id))
-        } catch (e: NoSuchElementException) {
-            Request.Error("User with id: $id not found", 404)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Request.Error(e.message.toString())
-        }
-    }
+    override fun getUser(id: Int): User = userRepository.getUser(id)
 
     override fun register(email: String, password: String, repeatedPassword: String): User {
 

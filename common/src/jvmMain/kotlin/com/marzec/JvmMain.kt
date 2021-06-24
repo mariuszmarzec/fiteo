@@ -136,7 +136,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
                 call.respond(UnauthorizedResponse())
             }
             validate { session: UserSession ->
-                when (val httpResponse = di.api.getUser(wrapAsRequest(Api.Args.ARG_ID, session.userId))) {
+                when (val httpResponse = di.api.getUser(createHttpRequest(session.userId))) {
                     is HttpResponse.Success -> httpResponse.data.toPrincipal()
                     else -> null
                 }
@@ -147,7 +147,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
                 call.respond(UnauthorizedResponse())
             }
             validate { session: TestUserSession ->
-                when (val httpResponse = testDi.api.getUser(wrapAsRequest(Api.Args.ARG_ID, session.userId))) {
+                when (val httpResponse = testDi.api.getUser(createHttpRequest(session.userId))) {
                     is HttpResponse.Success -> httpResponse.data.toPrincipal()
                     else -> null
                 }
@@ -277,7 +277,7 @@ fun Route.logout() {
     }
 }
 
-fun Route.users(api: Controller) = getByIdEndpoint(ApiPath.USER, api::getUser)
+fun Route.users(api: Controller) = getBySessionEndpoint(ApiPath.USER, api::getUser)
 
 fun Route.exercises(api: Controller) = getAllEndpoint(ApiPath.EXERCISES, api::getExercises)
 
@@ -316,10 +316,6 @@ private suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCa
     }
 }
 
-fun wrapAsRequest(key: String, arg: Any): HttpRequest<Unit> = wrapAsRequest(Unit, key, arg)
-
-fun <T> wrapAsRequest(body: T, key: String, arg: Any): HttpRequest<T> = HttpRequest(body, mapOf(key to arg.toString()))
-
 private inline fun <reified T : Any> Route.getByIdEndpoint(
     path: String,
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
@@ -342,11 +338,7 @@ private inline fun <reified T : Any> Route.getAllEndpoint(
 ) {
     get(path) {
         (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
-        val httpRequest = HttpRequest(
-            data = Unit,
-            parameters = emptyMap(),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
-        )
+        val httpRequest = createHttpRequest(call.principal<UserPrincipal>()?.id)
         dispatch(apiFunRef(httpRequest))
     }
 }
@@ -400,3 +392,20 @@ private inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEnd
         dispatch(apiFunRef(httpRequest))
     }
 }
+
+private inline fun <reified T : Any> Route.getBySessionEndpoint(
+    path: String,
+    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
+) {
+    get(path) {
+        val id = call.principal<UserPrincipal>()?.id
+        val httpRequest = createHttpRequest(id)
+        dispatch(apiFunRef(httpRequest))
+    }
+}
+
+private fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
+    data = Unit,
+    parameters = emptyMap(),
+    sessions = mapOf(Api.Args.ARG_USER_ID to userId.toString())
+)

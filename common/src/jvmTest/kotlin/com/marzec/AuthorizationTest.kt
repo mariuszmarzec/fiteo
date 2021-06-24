@@ -89,6 +89,16 @@ class AuthorizationTest {
     }
 
     @Test
+    fun getUser() {
+        testGetEndpoint(
+            uri = ApiPath.USER,
+            status = HttpStatusCode.OK,
+            responseDto = UserDto(2, "test@mail.com"),
+            authorize = TestApplicationEngine::registerAndLogin
+        )
+    }
+
+    @Test
     fun logout() {
         testGetEndpoint(
             uri = ApiPath.LOGOUT,

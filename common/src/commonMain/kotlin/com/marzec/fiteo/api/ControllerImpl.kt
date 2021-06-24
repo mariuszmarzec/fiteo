@@ -47,13 +47,8 @@ class ControllerImpl(
         }
     }
 
-    override fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto> {
-        val userId = httpRequest.parameters[Api.Args.ARG_ID]?.toIntOrNull()
-                ?: return HttpResponse.Error(ErrorDto("Argument ${Api.Args.ARG_ID} is not integer"))
-        return when (val result = authenticationService.getUser(userId)) {
-            is Request.Success -> HttpResponse.Success(result.data.toDto())
-            is Request.Error -> HttpResponse.Error(ErrorDto(result.reason))
-        }
+    override fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto> = serviceCall {
+        authenticationService.getUser(httpRequest.userIdOrThrow()).toDto()
     }
 
     override fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto> =
