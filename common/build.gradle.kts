@@ -48,8 +48,6 @@ val projectPackageName = "com.marzec.fiteo"
 repositories {
     mavenCentral()
     jcenter()
-    maven(url = "https://kotlin.bintray.com/kotlinx/")
-    maven("https://kotlin.bintray.com/kotlin-js-wrappers/") // react, styled, ...
     maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") // react, styled, ...
     maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") // react, styled, ...
 }
@@ -144,6 +142,9 @@ kotlin {
                 implementation("org.jetbrains:kotlin-react-dom:${Dependency.pre_react_version}")
                 implementation(npm("react", Dependency.react_version))
                 implementation(npm("react-dom", Dependency.react_version))
+
+                implementation("org.jetbrains:kotlin-react-router-dom:5.2.0-pre.150-kotlin-1.4.31")
+                implementation(npm("react-router-dom", "5.2.0"))
 
                 implementation("org.jetbrains:kotlin-styled:5.2.1-pre.148-kotlin-1.4.21")
                 implementation(npm("styled-components", "~5.2.1"))

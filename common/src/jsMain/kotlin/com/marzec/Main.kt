@@ -5,11 +5,19 @@ import kotlinx.browser.document
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import react.child
 import react.dom.render
-
+import react.router.dom.hashRouter
+import react.router.dom.switch
+import react.router.dom.route
 
 @ExperimentalCoroutinesApi
 fun main() {
     render(document.getElementById("root")) {
-        child(ExerciseList)
+        hashRouter {
+            switch {
+                route("/") {
+                    child(ExerciseList)
+                }
+            }
+        }
     }
 }

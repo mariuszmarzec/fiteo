@@ -11,7 +11,7 @@ object Dependency {
     val serialization_version = "1.1.0"
     val datetime_version = "0.1.1"
     val mockk_version = "1.10.6"
-    val koin_version = "3.0.1-beta-2"
+    val koin_version = "3.1.1"
     val pre_react_version = "17.0.2-pre.150-kotlin-1.4.31"
     val react_version = "17.0.2"
     val truth_version = "1.1.2"

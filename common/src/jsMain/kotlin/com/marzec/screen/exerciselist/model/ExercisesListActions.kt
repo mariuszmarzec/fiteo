@@ -1,7 +1,7 @@
 package com.marzec.screen.exerciselist.model
 
 sealed class ExercisesListActions {
-    object Initialization : ExercisesListActions()
+    class Initialization(val query: String) : ExercisesListActions()
     class OnFilterCheckedChange(val filterId: String) : ExercisesListActions()
     class OnSearchTextChanged(val text: String) : ExercisesListActions()
 }

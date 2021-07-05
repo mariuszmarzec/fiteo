@@ -23,10 +23,11 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                     getEquipment()
                 )
             },
-            reducer = { _: ExercisesListActions, actionResult: ExercisesData?, _: State<ExercisesListViewState> ->
+            reducer = { action: ExercisesListActions.Initialization, actionResult: ExercisesData?, _: State<ExercisesListViewState> ->
                 actionResult?.let { exercisesData ->
                     State.Data(
                         ExercisesListViewState(
+                            searchText = action.query,
                             exercises = exercisesData.exercises,
                             categories = exercisesData.categories,
                             equipment = exercisesData.equipment

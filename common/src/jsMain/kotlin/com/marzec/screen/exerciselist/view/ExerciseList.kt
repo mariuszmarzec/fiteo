@@ -14,9 +14,13 @@ import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
+import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.w3c.dom.url.URLSearchParams
 import react.RProps
 import react.functionalComponent
+import react.router.dom.useHistory
+import react.router.dom.useLocation
 import react.useEffect
 
 
@@ -24,8 +28,18 @@ import react.useEffect
 val ExerciseList = functionalComponent<RProps> { _ ->
     val state = useStateFlow(exerciseListStore.state, defaultState)
 
+    val queries = useLocation().search
+    val params = URLSearchParams(queries)
+    params.set("query", "test")
+    params.set("query1", "test1")
+    console.log(params.toString())
+
+//    useHistory().push("")
+
     useEffect(emptyList()) {
-        exerciseListStore.sendAction(ExercisesListActions.Initialization)
+        val urlSearchParams = URLSearchParams(queries)
+        val query = urlSearchParams.get("query").orEmpty()
+        exerciseListStore.sendAction(ExercisesListActions.Initialization(query))
     }
 
     val views: List<ViewItem> = ExerciseListUiMapper.map(state)
