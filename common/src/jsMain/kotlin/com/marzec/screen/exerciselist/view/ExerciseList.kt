@@ -1,6 +1,7 @@
 package com.marzec.screen.exerciselist.view
 
 import com.marzec.common.useStateFlow
+import com.marzec.mvi.State
 import com.marzec.screen.exerciselist.model.ExerciseListUiMapper
 import com.marzec.screen.exerciselist.model.ExercisesListActions
 import com.marzec.screen.exerciselist.model.defaultState
@@ -14,7 +15,6 @@ import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
-import kotlinx.browser.window
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.w3c.dom.url.URLSearchParams
 import react.RProps
@@ -28,19 +28,36 @@ import react.useEffect
 val ExerciseList = functionalComponent<RProps> { _ ->
     val state = useStateFlow(exerciseListStore.state, defaultState)
 
-    val queries = useLocation().search
-    val params = URLSearchParams(queries)
-    params.set("query", "test")
-    params.set("query1", "test1")
-    console.log(params.toString())
-
-//    useHistory().push("")
+    val location = useLocation()
+    val history = useHistory()
+    val queries = location.search
 
     useEffect(emptyList()) {
         val urlSearchParams = URLSearchParams(queries)
         val query = urlSearchParams.get("query").orEmpty()
-        exerciseListStore.sendAction(ExercisesListActions.Initialization(query))
+        val filters = urlSearchParams.get("filters")?.split(",")?.toSet().orEmpty()
+        exerciseListStore.sendAction(ExercisesListActions.Initialization(query, filters))
     }
+
+    if (state is State.Data) {
+        val params = URLSearchParams(queries)
+        if (state.data.searchText.isNotEmpty()) {
+            params.set("query", state.data.searchText)
+        }
+        val filters = state.data.checkedFilters.joinToString(",")
+        if (filters.isNotEmpty()) {
+            params.set("filters", filters)
+        }
+        val newPath = "/?$params"
+        val currentPath = location.pathname + location.search
+        console.log(currentPath)
+        console.log(newPath)
+
+        if (currentPath != newPath) {
+            history.push(newPath)
+        }
+    }
+
 
     val views: List<ViewItem> = ExerciseListUiMapper.map(state)
 

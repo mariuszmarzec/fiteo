@@ -28,6 +28,7 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                     State.Data(
                         ExercisesListViewState(
                             searchText = action.query,
+                            checkedFilters = action.filters,
                             exercises = exercisesData.exercises,
                             categories = exercisesData.categories,
                             equipment = exercisesData.equipment
