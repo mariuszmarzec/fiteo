@@ -64,7 +64,7 @@ fun <T> withDefaultMockTestApplication(
 }
 
 private fun Module.defaultMockConfiguration() {
-    factory(override = true) { uuidCounter }
+    factory { uuidCounter }
 
     factoryMock<ResourceFileReader> { mockk ->
         every { mockk.read(any()) } returns ""
@@ -93,7 +93,7 @@ fun <T> withMockTestApplication(
 }
 
 inline fun <reified T : Any> Module.factoryMock(crossinline mockConfiguration: (T) -> Unit) {
-    factory(override = true) {
+    factory {
         mockk<T>().apply { mockConfiguration(this) }
     }
 }

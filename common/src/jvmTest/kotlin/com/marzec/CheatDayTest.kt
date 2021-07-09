@@ -41,6 +41,28 @@ class CheatDayTest {
     }
 
     @Test
+    fun weightsBrokenDateFormat() {
+        testGetEndpoint(
+            uri = ApiPath.WEIGHTS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                weightDto.copy(
+                    date = "2020-01-02T00:00:00"
+                )
+
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addWeight(
+                    weightDto.copy(
+                        date = "2020-01-02T00:00"
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
     fun removeWeight() {
         testDeleteEndpoint(
             uri = ApiPath.REMOVE_WEIGHT.replace("{id}", "2"),
