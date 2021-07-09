@@ -1,5 +1,6 @@
 package com.marzec.todo.model
 
+import com.marzec.extensions.formatDate
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.dto.ToDoListDto
 import kotlinx.datetime.LocalDateTime
@@ -31,8 +32,8 @@ fun ToDoList.toDto() = ToDoListDto(
 fun Task.toDto(): TaskDto = TaskDto(
         id = id,
         description = description,
-        addedTime = addedTime.toString(),
-        modifiedTime = modifiedTime.toString(),
+        addedTime = addedTime.formatDate(),
+        modifiedTime = modifiedTime.formatDate(),
         parentTaskId = parentTaskId,
         subTasks = subTasks.map { it.toDto() },
         isToDo = isToDo,

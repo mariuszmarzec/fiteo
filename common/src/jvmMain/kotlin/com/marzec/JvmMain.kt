@@ -13,6 +13,7 @@ import com.marzec.extensions.emptyString
 import com.marzec.fiteo.ApiPath
 import com.marzec.Api.Auth
 import com.marzec.Api.Headers
+import com.marzec.extensions.LocalDateTimeExtensions
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
@@ -66,8 +67,10 @@ import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.pipeline.PipelineContext
 import java.lang.System.currentTimeMillis
+import java.time.format.DateTimeFormatter
 import javax.crypto.spec.SecretKeySpec
 import kotlin.reflect.KFunction1
+import kotlinx.datetime.toJavaLocalDateTime
 import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.KoinApplicationStarted
@@ -75,13 +78,19 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 
 fun main(args: Array<String>) {
+    LocalDateTimeExtensions.formatter = { date ->
+        date.toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))
+
+    }
+
     embeddedServer(Netty, commandLineEnvironment(args)).start()
 }
 
 @Suppress("unused")
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
-    val di = Di(DbSettings.database, Api.Auth.NAME)
-    val testDi = Di(DbSettings.testDatabase, Api.Auth.TEST)
+    val di = Di(DbSettings.database, Auth.NAME)
+    val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
     environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
@@ -256,7 +265,8 @@ fun Route.login(api: Controller) {
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
-                call.sessions.set(Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis())
+                call.sessions.set(
+                    Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis())
                 )
             } else {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))

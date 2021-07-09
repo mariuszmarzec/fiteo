@@ -1,5 +1,6 @@
 package com.marzec.fiteo.model.domain
 
+import com.marzec.extensions.formatDate
 import com.marzec.fiteo.model.dto.ExerciseDto
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
@@ -47,7 +48,7 @@ fun Series.toDto() = SeriesDto(
         seriesId = seriesId,
         exerciseId = exerciseId,
         trainingId = trainingId,
-        date = date.toString(),
+        date = date.formatDate(),
         burden = burden,
         timeInMillis = timeInMillis,
         repsNumber = repsNumber,

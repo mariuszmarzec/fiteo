@@ -27,9 +27,9 @@ class CheatDayTest {
             uri = ApiPath.WEIGHTS,
             status = HttpStatusCode.OK,
             responseDto = listOf(
-                weightDto,
+                weightDto3,
                 weightDto2,
-                weightDto3
+                weightDto
             ),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
@@ -55,7 +55,7 @@ class CheatDayTest {
             runRequestsBefore = {
                 addWeight(
                     weightDto.copy(
-                        date = "2020-01-02T00:00"
+                        date = "2020-01-02T00:00:00"
                     )
                 )
             }

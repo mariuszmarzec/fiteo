@@ -10,6 +10,7 @@ import com.marzec.database.findByIdOrThrow
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
@@ -17,9 +18,11 @@ class WeightsRepositoryImpl(private val database: Database) : WeightsRepository 
 
     override fun getWeights(userId: Int): List<Weight> {
         return database.dbCall {
-            WeightsTable.selectAll().andWhere { WeightsTable.userId.eq(userId) }.map {
-                WeightEntity.wrapRow(it).toDomain()
-            }
+            WeightsTable.selectAll()
+                .orderBy(WeightsTable.date to SortOrder.DESC)
+                .andWhere { WeightsTable.userId.eq(userId) }.map {
+                    WeightEntity.wrapRow(it).toDomain()
+                }
         }
     }
 

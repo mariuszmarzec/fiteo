@@ -1,6 +1,7 @@
 package com.marzec.cheatday.domain
 
 import com.marzec.cheatday.dto.WeightDto
+import com.marzec.extensions.formatDate
 import kotlinx.datetime.LocalDateTime
 
 data class Weight(
@@ -12,5 +13,5 @@ data class Weight(
 fun Weight.toDto() = WeightDto(
         id,
         value,
-        date.toString()
+        date.formatDate()
 )

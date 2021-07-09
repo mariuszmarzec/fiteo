@@ -1,6 +1,9 @@
 package com.marzec
 
 object Api {
+
+    const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss"
+
     object Args {
         const val ARG_ID = "id"
         const val ARG_USER_ID = "userId"
