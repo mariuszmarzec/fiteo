@@ -55,7 +55,7 @@ class CheatDayTest {
             runRequestsBefore = {
                 addWeight(
                     weightDto.copy(
-                        date = "2020-01-02T00:00:00"
+                        date = "2020-01-02T00:00"
                     )
                 )
             }
@@ -77,8 +77,8 @@ class CheatDayTest {
             runRequestsAfter = {
                 Truth.assertThat(getWeights()).isEqualTo(
                     listOf(
-                        weightDto,
-                        weightDto3
+                        weightDto3,
+                        weightDto
                     )
                 )
             }
@@ -101,9 +101,9 @@ class CheatDayTest {
             runRequestsAfter = {
                 Truth.assertThat(getWeights()).isEqualTo(
                     listOf(
-                        weightDto,
                         weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
-                        weightDto3
+                        weightDto3,
+                        weightDto,
                     )
                 )
             }

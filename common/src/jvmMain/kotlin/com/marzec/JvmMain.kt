@@ -78,12 +78,6 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 
 fun main(args: Array<String>) {
-    LocalDateTimeExtensions.formatter = { date ->
-        date.toJavaLocalDateTime()
-            .format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))
-
-    }
-
     embeddedServer(Netty, commandLineEnvironment(args)).start()
 }
 
@@ -91,6 +85,11 @@ fun main(args: Array<String>) {
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
+
+    LocalDateTimeExtensions.formatter = { date ->
+        date.toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))
+    }
 
     environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
