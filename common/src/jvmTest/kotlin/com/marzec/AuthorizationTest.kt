@@ -8,6 +8,7 @@ import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
+import com.google.common.truth.Truth.assertThat
 
 class AuthorizationTest {
 
@@ -19,7 +20,6 @@ class AuthorizationTest {
             HttpStatusCode.OK,
             UserDto(2, "test@mail.com")
         )
-
     }
 
     @Test
@@ -70,7 +70,7 @@ class AuthorizationTest {
             status = HttpStatusCode.OK,
             responseDto = UserDto(2, "test@mail.com"),
             runRequestsBefore = {
-                register()
+                register(registerRequestDto)
             }
         )
     }
@@ -83,7 +83,7 @@ class AuthorizationTest {
             status = HttpStatusCode.BadRequest,
             responseDto = ErrorDto("Wrong password"),
             runRequestsBefore = {
-                register()
+                register(registerRequestDto)
             }
         )
     }

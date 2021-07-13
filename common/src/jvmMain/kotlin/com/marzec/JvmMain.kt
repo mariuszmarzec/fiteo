@@ -63,6 +63,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
+import io.ktor.sessions.getOrSet
 import io.ktor.sessions.header
 import io.ktor.sessions.sessions
 import io.ktor.util.pipeline.PipelineContext
@@ -264,11 +265,13 @@ fun Route.login(api: Controller) {
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
-                call.sessions.set(
-                    Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis())
-                )
+                call.sessions.getOrSet(Headers.AUTHORIZATION_TEST) {
+                    TestUserSession(httpResponse.data.id, currentTimeMillis())
+                }
             } else {
-                call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
+                call.sessions.getOrSet(Headers.AUTHORIZATION) {
+                    UserSession(httpResponse.data.id, currentTimeMillis())
+                }
             }
         }
         dispatch(httpResponse)

@@ -222,6 +222,12 @@ fun TestApplicationEngine.registerAndLogin(dto: LoginRequestDto = loginDto): Str
     }.response.headers[Headers.AUTHORIZATION]!!
 }
 
+fun TestApplicationEngine.login(dto: LoginRequestDto = loginDto): String {
+    return handleRequest(HttpMethod.Post, ApiPath.LOGIN) {
+        setBodyJson(dto)
+    }.response.headers[Headers.AUTHORIZATION]!!
+}
+
 fun TestApplicationEngine.addWeight(dto: WeightDto) {
     handleRequest(HttpMethod.Post, CheatApiPath.WEIGHT) {
         setBodyJson(dto)

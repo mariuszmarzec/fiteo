@@ -273,8 +273,8 @@ val taskDto = stubTaskDto(
 fun stubTaskDto(
     id: Int = 1,
     description: String = "",
-    addedTime: String = "2021-05-16T00:00",
-    modifiedTime: String = "2021-05-16T00:00",
+    addedTime: String = "2021-05-16T00:00:00",
+    modifiedTime: String = "2021-05-16T00:00:00",
     parentTaskId: Int? = null,
     subTasks: List<TaskDto> = emptyList(),
     isToDo: Boolean = true,
@@ -359,8 +359,8 @@ fun stubTrainingTemplatePartDto(
 fun stubTraining(
     id: Int = 0,
     templateId: Int = 0,
-    createDateInMillis: String = "2021-05-16T00:00",
-    finishDateInMillis: String = "2021-05-16T00:00",
+    createDateInMillis: String = "2021-05-16T00:00:00",
+    finishDateInMillis: String = "2021-05-16T00:00:00",
     exercisesWithProgress: List<TrainingExerciseWithProgressDto> = emptyList()
 ) = TrainingDto(
     id = id,
@@ -382,7 +382,7 @@ fun stubSeriesDto(
     seriesId: Int = 0,
     exerciseId: Int = 0,
     trainingId: Int = 0,
-    date: String = "2021-05-16T00:00",
+    date: String = "2021-05-16T00:00:00",
     burden: Int? = null,
     timeInMillis: Long? = null,
     repsNumber: Int? = null,
@@ -437,7 +437,7 @@ fun stubExerciseDto(
 )
 
 fun stubCreateTrainingDto(
-    finishDateInMillis: String = "2021-05-16T00:00",
+    finishDateInMillis: String = "2021-05-16T00:00:00",
     exercisesWithProgress: List<CreateTrainingExerciseWithProgressDto> = emptyList()
 ) = CreateTrainingDto(
     finishDateInMillis,
