@@ -257,6 +257,58 @@ class TodoTests {
         )
     }
 
+    @Test
+    fun todoLists_getSortedList() {
+        testGetEndpoint(
+            uri = ApiPath.TODO_LISTS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                todoListDto.copy(
+                    tasks = listOf(
+                        taskDto.copy(id = 2, priority = 2),
+                        taskDto.copy(
+                            id = 3,
+                            priority = 2,
+                            addedTime = "2021-05-17T00:00:00",
+                            modifiedTime = "2021-05-17T00:00:00",
+                        ),
+                        taskDto.copy(
+                            id = 1, priority = 1,
+                            subTasks = listOf(
+                                taskDto.copy(id = 5, priority = 2, parentTaskId = 1),
+                                taskDto.copy(
+                                    id = 6,
+                                    priority = 2,
+                                    parentTaskId = 1,
+                                    addedTime = "2021-05-18T00:00:00",
+                                    modifiedTime = "2021-05-18T00:00:00",
+                                ),
+                                taskDto.copy(id = 4, priority = 1, parentTaskId = 1)
+                            )
+                        )
+                    )
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTodoList(createTodoListDto)
+                addTask(1, createTaskDto.copy(priority = 1))
+                addTask(1, createTaskDto.copy(priority = 2))
+
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 2))
+
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 1, parentTaskId = 1))
+                addTask(1, createTaskDto.copy(priority = 2, parentTaskId = 1))
+
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 2, parentTaskId = 1))
+            }
+        )
+    }
+
     @After
     fun tearDown() {
         GlobalContext.stopKoin()
