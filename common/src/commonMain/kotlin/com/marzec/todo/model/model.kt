@@ -54,19 +54,19 @@ fun TaskDto.toDomain(): Task = Task(
 data class CreateTask(
         val description: String,
         val parentTaskId: Int?,
-        val priority: Int
+        val priority: Int?
 )
 
 @Serializable
 data class CreateTaskDto(
         val description: String,
         val parentTaskId: Int? = null,
-        val priority: Int
+        val priority: Int? = null
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
     description = description,
-        parentTaskId = parentTaskId,
+    parentTaskId = parentTaskId,
     priority = priority,
 )
 

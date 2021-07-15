@@ -5,7 +5,7 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
-import com.marzec.extensions.toList
+import com.marzec.extensions.listOf
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
 import com.marzec.todo.database.ToDoListEntity
@@ -24,15 +24,15 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
     override fun getLists(userId: Int): List<ToDoList> {
         return database.dbCall {
             ToDoListTable.selectAll()
-                    .andWhere { ToDoListTable.userId.eq(userId) }
-                    .map { ToDoListEntity.wrapRow(it).toDomain() }
-                    .map { list ->
-                        list.copy(
-                                tasks = list.tasks.sortTasks().map { task ->
-                                    task.copy(subTasks = task.subTasks.sortTasks())
-                                }
-                        )
-                    }
+                .andWhere { ToDoListTable.userId.eq(userId) }
+                .map { ToDoListEntity.wrapRow(it).toDomain() }
+                .map { list ->
+                    list.copy(
+                        tasks = list.tasks.sortTasks().map { task ->
+                            task.copy(subTasks = task.subTasks.sortTasks())
+                        }
+                    )
+                }
         }
     }
 
@@ -63,16 +63,21 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
         val parentTask = task.parentTaskId?.let { database.dbCall { TaskEntity.findByIdOrThrow(it) } }
 
+        val taskPriority =
+            task.priority ?: database.dbCall {
+                (parentTask?.subtasks ?: listEntity.tasks).toList().minOfOrNull { it.priority }?.dec()
+            } ?: 0
+
         val taskEntity = database.dbCall {
             TaskEntity.new {
                 description = task.description
                 isToDo = true
-                priority = task.priority
+                priority = taskPriority
                 user = UserEntity.findByIdOrThrow(userId)
             }
         }
         return database.dbCall {
-            taskEntity.parents = parentTask?.toList().orEmpty().toSized()
+            taskEntity.parents = parentTask?.listOf().orEmpty().toSized()
 
             listEntity.tasks = listEntity.tasks.toMutableList().apply { add(taskEntity) }.toSized()
             taskEntity.toDomain()

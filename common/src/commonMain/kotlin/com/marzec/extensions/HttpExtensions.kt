@@ -38,7 +38,7 @@ fun <REQUEST> constraint(
 fun <REQUEST, RESPONSE> HttpRequest<REQUEST>.serviceCall(
     constraint: HttpRequest<REQUEST>.() -> Unit,
     call: HttpRequest<REQUEST>.() -> RESPONSE
-): HttpResponse<RESPONSE> = serviceCall(constraint.toList(), call)
+): HttpResponse<RESPONSE> = serviceCall(constraint.listOf(), call)
 
 fun <T> HttpRequest<T>.userIdOrThrow() = (sessions[Api.Args.ARG_USER_ID])?.toIntOrNull()
         ?: throw HttpException("Session id: ${Api.Args.ARG_USER_ID} is not integer", HttpStatus.BAD_REQUEST)
