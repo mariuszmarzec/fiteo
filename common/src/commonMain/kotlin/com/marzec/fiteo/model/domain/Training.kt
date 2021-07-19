@@ -1,5 +1,6 @@
 package com.marzec.fiteo.model.domain
 
+import com.marzec.extensions.formatDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
@@ -23,8 +24,8 @@ data class TrainingDto(
 fun Training.toDto() = TrainingDto(
 id = id,
 templateId = templateId,
-createDateInMillis = createDateInMillis.toString(),
-finishDateInMillis = finishDateInMillis.toString(),
+createDateInMillis = createDateInMillis.formatDate(),
+finishDateInMillis = finishDateInMillis.formatDate(),
 exercisesWithProgress = exercisesWithProgress.map { it.toDto() }
 )
 

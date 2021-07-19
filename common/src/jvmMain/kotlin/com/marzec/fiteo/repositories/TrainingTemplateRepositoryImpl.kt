@@ -60,9 +60,10 @@ class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingT
     }
 
 
-    override fun updateTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate {
-        val parts = trainingTemplate.exercises.map { addTemplatePart(it) }
-        return database.dbCall {
+    override fun updateTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate =
+        database.dbCall {
+            val parts = trainingTemplate.exercises.map { addTemplatePart(it) }
+
             val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplate.id).load(
                     TrainingTemplateEntity::parts,
                     TrainingTemplateEntity::availableEquipment,
@@ -80,7 +81,6 @@ class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingT
 
             templateEntity.toDomain()
         }
-    }
 
     override fun removeTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate = database.dbCall {
         val templateEntity = TrainingTemplateEntity.findByIdOrThrow(trainingTemplateId)

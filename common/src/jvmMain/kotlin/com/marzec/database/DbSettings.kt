@@ -15,21 +15,24 @@ object DbSettings {
     var dbTestPassword = BuildKonfig.DB_TEST_PASSWORD
 
     val database by lazy {
-        Database.connect(
-                url = dbEndpoint,
-                driver = "com.mysql.cj.jdbc.Driver",
-                user = dbUser,
-                password = dbPassword
-        )
+        createDatabase(dbEndpoint, dbUser, dbPassword)
     }
 
     val testDatabase by lazy {
-        Database.connect(
-                url = dbTestEndpoint,
-                driver = "com.mysql.cj.jdbc.Driver",
-                user = dbTestUser,
-                password = dbTestPassword
-        )
+        createDatabase(dbTestEndpoint, dbTestUser, dbTestPassword)
+    }
+
+    private fun createDatabase(
+        endpoint: String,
+        user: String,
+        password: String
+    ) = Database.connect(
+        url = endpoint,
+        driver = "com.mysql.cj.jdbc.Driver",
+        user = user,
+        password = password
+    ).also {
+        it.useNestedTransactions = true
     }
 }
 
