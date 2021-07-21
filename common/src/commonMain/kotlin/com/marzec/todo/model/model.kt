@@ -1,5 +1,6 @@
 package com.marzec.todo.model
 
+import com.marzec.Api.Default.HIGHEST_PRIORITY_AS_DEFAULT
 import com.marzec.extensions.formatDate
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.dto.ToDoListDto
@@ -54,20 +55,23 @@ fun TaskDto.toDomain(): Task = Task(
 data class CreateTask(
         val description: String,
         val parentTaskId: Int?,
-        val priority: Int?
+        val priority: Int?,
+        val highestPriorityAsDefault: Boolean
 )
 
 @Serializable
 data class CreateTaskDto(
         val description: String,
         val parentTaskId: Int? = null,
-        val priority: Int? = null
+        val priority: Int? = null,
+        val highestPriorityAsDefault: Boolean? = null
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
+    highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT
 )
 
 fun CreateTask.toDto() = CreateTaskDto(

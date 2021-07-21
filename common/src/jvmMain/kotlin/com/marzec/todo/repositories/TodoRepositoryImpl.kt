@@ -63,10 +63,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
         val parentTask = task.parentTaskId?.let { database.dbCall { TaskEntity.findByIdOrThrow(it) } }
 
-        val taskPriority =
-            task.priority ?: database.dbCall {
-                (parentTask?.subtasks ?: listEntity.tasks).toList().minOfOrNull { it.priority }?.dec()
-            } ?: 0
+        val taskPriority = calcPriority(task, parentTask, listEntity)
 
         val taskEntity = database.dbCall {
             TaskEntity.new {
@@ -100,5 +97,19 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         val task = taskEntity.toDomain()
         taskEntity.deleteIfBelongsToUserOrThrow(userId)
         task
+    }
+
+    private fun calcPriority(
+        task: CreateTask,
+        parentTask: TaskEntity?,
+        listEntity: ToDoListEntity
+    ) = task.priority ?: database.dbCall {
+        (parentTask?.subtasks ?: listEntity.tasks).toList().let { tasks ->
+            if (task.highestPriorityAsDefault) {
+                tasks.maxOfOrNull { it.priority }?.inc()
+            } else {
+                tasks.minOfOrNull { it.priority }?.dec()
+            }
+        } ?: 0
     }
 }

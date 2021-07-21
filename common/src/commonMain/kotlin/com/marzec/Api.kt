@@ -18,4 +18,8 @@ object Api {
         const val NAME = "fiteo_auth"
         const val TEST = "fiteo_test_auth"
     }
+
+    object Default {
+        val HIGHEST_PRIORITY_AS_DEFAULT = false
+    }
 }
