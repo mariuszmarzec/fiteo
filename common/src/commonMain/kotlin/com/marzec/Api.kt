@@ -20,6 +20,6 @@ object Api {
     }
 
     object Default {
-        val HIGHEST_PRIORITY_AS_DEFAULT = false
+        const val HIGHEST_PRIORITY_AS_DEFAULT = false
     }
 }

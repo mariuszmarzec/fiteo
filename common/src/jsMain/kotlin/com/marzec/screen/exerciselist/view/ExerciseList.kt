@@ -53,7 +53,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
         console.log(currentPath)
         console.log(newPath)
 
-        if (currentPath != newPath) {
+        if (currentPath != newPath && params.toString().isNotEmpty()) {
             history.push(newPath)
         }
     }

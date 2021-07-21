@@ -71,6 +71,7 @@ val MainModule = module {
             ignoreUnknownKeys = true
             isLenient = true
             useArrayPolymorphism = true
+
         }
     }
 
