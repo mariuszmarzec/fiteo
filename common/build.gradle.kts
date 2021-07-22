@@ -115,7 +115,6 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                kotlin.srcDirs("src/jvmMain/kotlin")
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
                 implementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")

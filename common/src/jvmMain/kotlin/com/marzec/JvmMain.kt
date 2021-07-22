@@ -13,7 +13,6 @@ import com.marzec.extensions.emptyString
 import com.marzec.fiteo.ApiPath
 import com.marzec.Api.Auth
 import com.marzec.Api.Headers
-import com.marzec.extensions.LocalDateTimeExtensions
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
@@ -85,11 +84,6 @@ fun main(args: Array<String>) {
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
-
-    LocalDateTimeExtensions.formatter = { date ->
-        date.toJavaLocalDateTime()
-            .format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))
-    }
 
     environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
