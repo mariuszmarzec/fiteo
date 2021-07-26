@@ -13,8 +13,10 @@ class CachedSessionsRepositoryImpl(private val database: Database) : CachedSessi
 
     override fun createSession(session: CachedSession) {
         database.dbCall {
-            CachedSessionEntity.new(session.id) {
-                this.session = ExposedBlob(session.session)
+            if (CachedSessionEntity.findById(session.id) == null) {
+                CachedSessionEntity.new(session.id) {
+                    this.session = ExposedBlob(session.session)
+                }
             }
         }
     }
