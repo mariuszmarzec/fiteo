@@ -244,6 +244,7 @@ tasks.jacocoTestReport {
             "**/*.class"
         )
         exclude(
+            "**/org/jacoco/**",
             "**/test/com/**"
         )
     }
