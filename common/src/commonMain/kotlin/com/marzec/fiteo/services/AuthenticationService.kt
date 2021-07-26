@@ -1,13 +1,12 @@
 package com.marzec.fiteo.services
 
 import com.marzec.exceptions.HttpException
-import com.marzec.fiteo.model.domain.Request
 import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.repositories.UserRepository
 
 interface AuthenticationService {
 
-    fun checkPassword(email: String, password: String): Request<User>
+    fun checkPassword(email: String, password: String): User
     fun getUser(id: Int): User
     fun register(email: String, password: String, repeatedPassword: String): User
 }
@@ -16,18 +15,18 @@ class AuthenticationServiceImpl(
         private val userRepository: UserRepository
 ) : AuthenticationService {
 
-    override fun checkPassword(email: String, password: String): Request<User> {
+    override fun checkPassword(email: String, password: String): User {
         return try {
             if (userRepository.checkPassword(email, password)) {
-               Request.Success(userRepository.getUser(email))
+                userRepository.getUser(email)
             } else {
-                Request.Error("Wrong password")
+                throw HttpException("Wrong password", 400)
             }
         } catch (e: NoSuchElementException) {
-            Request.Error("User with email: $email not found", 404)
+            throw HttpException("User with email: $email not found", 404)
         } catch (e: Exception) {
             e.printStackTrace()
-            Request.Error(e.message.toString())
+            throw e
         }
     }
 
