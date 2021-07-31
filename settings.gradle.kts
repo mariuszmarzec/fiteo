@@ -9,4 +9,3 @@ pluginManagement {
 rootProject.name = "fiteo"
 
 enableFeaturePreview("GRADLE_METADATA")
-include(":common")
