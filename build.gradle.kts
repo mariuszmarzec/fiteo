@@ -58,7 +58,6 @@ version = "1.0.0"
 kotlin {
 
     jvm {
-        withJava()
         tasks.test {
             useJUnitPlatform()
             testLogging {
