@@ -1,6 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+import java.util.Properties
 
 buildscript {
     repositories {
@@ -58,6 +58,7 @@ version = "1.0.0"
 kotlin {
 
     jvm {
+        withJava()
         tasks.test {
             useJUnitPlatform()
             testLogging {
@@ -93,7 +94,6 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
-                runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:${Dependency.kotlin_version}")
                 implementation("io.insert-koin:koin-ktor:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-html-builder:${Dependency.ktor_version}")
@@ -118,7 +118,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
-                implementation("io.kotlintest:kotlintest-runner-junit5:3.3.2")
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
@@ -152,8 +151,9 @@ kotlin {
         }
     }
 }
-
+tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
 tasks.getByName<Jar>("jvmJar") {
+    duplicatesStrategy = DuplicatesStrategy.INHERIT
     doFirst {
         manifest {
             attributes["Main-Class"] = "com.marzec.JvmMainKt"
