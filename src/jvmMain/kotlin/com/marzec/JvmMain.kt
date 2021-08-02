@@ -1,8 +1,7 @@
 package com.marzec
 
-import com.marzec.cheatday.ApiPath as CheatDayApiPath
-import com.marzec.todo.ApiPath as TodoApiPath
-import com.marzec.fiteo.api.Controller
+import com.marzec.Api.Auth
+import com.marzec.Api.Headers
 import com.marzec.cheatday.CheatDayController
 import com.marzec.database.DbSettings
 import com.marzec.database.UserPrincipal
@@ -11,8 +10,7 @@ import com.marzec.di.Di
 import com.marzec.di.MainModule
 import com.marzec.extensions.emptyString
 import com.marzec.fiteo.ApiPath
-import com.marzec.Api.Auth
-import com.marzec.Api.Headers
+import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
@@ -21,60 +19,33 @@ import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
-import io.ktor.application.Application
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.UnauthorizedResponse
-import io.ktor.auth.authenticate
-import io.ktor.auth.principal
-import io.ktor.auth.session
-import io.ktor.features.CORS
-import io.ktor.features.CallLogging
-import io.ktor.features.Compression
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.DefaultHeaders
-import io.ktor.features.deflate
-import io.ktor.features.gzip
-import io.ktor.features.minimumSize
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.resource
-import io.ktor.http.content.static
-import io.ktor.request.receive
-import io.ktor.request.receiveOrNull
-import io.ktor.request.uri
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.patch
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.routing.routing
-import io.ktor.serialization.json
-import io.ktor.server.engine.commandLineEnvironment
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
-import io.ktor.sessions.Sessions
-import io.ktor.sessions.clear
-import io.ktor.sessions.header
-import io.ktor.sessions.sessions
-import io.ktor.util.pipeline.PipelineContext
-import java.lang.System.currentTimeMillis
-import java.time.format.DateTimeFormatter
-import javax.crypto.spec.SecretKeySpec
-import kotlin.reflect.KFunction1
-import kotlinx.datetime.toJavaLocalDateTime
+import io.ktor.application.*
+import io.ktor.auth.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
+import io.ktor.serialization.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.sessions.*
+import io.ktor.util.pipeline.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.core.module.Module
 import org.koin.ktor.ext.Koin
 import org.koin.ktor.ext.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
+import java.lang.System.currentTimeMillis
+import javax.crypto.spec.SecretKeySpec
+import kotlin.reflect.KFunction1
+import com.marzec.cheatday.ApiPath as CheatDayApiPath
+import com.marzec.todo.ApiPath as TodoApiPath
+import com.marzec.core.currentMillis
 
 fun main(args: Array<String>) {
     embeddedServer(Netty, commandLineEnvironment(args)).start()
@@ -88,6 +59,8 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     environment.monitor.subscribe(KoinApplicationStarted) {
         di.dataSource.loadData()
         testDi.dataSource.loadData()
+
+        clearSessionsInPeriod(di, testDi)
     }
 
     install(CallLogging) {
@@ -210,6 +183,19 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
     }
 }
 
+private fun clearSessionsInPeriod(di: Di, testDi: Di) {
+    val repository = di.cachedSessionsRepository
+    val testRepository = testDi.cachedSessionsRepository
+    val period = 31 * 24 * 3600L
+    GlobalScope.launch {
+        while (true) {
+            repository.clearOldSessions()
+            testRepository.clearOldSessions()
+            delay(period)
+        }
+    }
+}
+
 fun Route.createTraining(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING, api::createTraining)
 
 fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
@@ -259,10 +245,10 @@ fun Route.login(api: Controller) {
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
                 call.sessions.set(
-                    Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentTimeMillis())
+                    Headers.AUTHORIZATION_TEST, TestUserSession(httpResponse.data.id, currentMillis())
                 )
             } else {
-                call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentTimeMillis()))
+                call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentMillis()))
             }
         }
         dispatch(httpResponse)

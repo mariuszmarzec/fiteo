@@ -47,7 +47,10 @@ import org.jetbrains.exposed.sql.Database
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+
+const val SessionExpirationTime = "SessionExpirationTime"
 
 class Di(
     private val database: Database,
@@ -81,19 +84,31 @@ val MainModule = module {
         }
     }
 
-    single<ExerciseFileMapper> { params -> ExerciseFileMapper(get { params }) }
+    single(qualifier = named(SessionExpirationTime)) { 3 * 31 * 24 * 3600L * 1000 }
 
-    single<InitialDataLoader> { params -> InitialDataLoaderImpl(get { params }, get { params }, get { params }, get { params }, get { params }, get { params }) }
+    single { params -> ExerciseFileMapper(get { params }) }
+
+    single<InitialDataLoader> { params ->
+        InitialDataLoaderImpl(
+            get { params },
+            get { params },
+            get { params },
+            get { params },
+            get { params },
+            get { params })
+    }
 
     factory<ExercisesReader> { params ->
         ExercisesReaderImpl(get { params })
     }
 
-    factory<TrainingService> { params -> TrainingServiceImpl(
-        get { params },
-        get { params },
-        get { params },
-        get { params }) }
+    factory<TrainingService> { params ->
+        TrainingServiceImpl(
+            get { params },
+            get { params },
+            get { params },
+            get { params })
+    }
 
     factory<TrainingTemplateRepository> { params ->
         TrainingTemplateRepositoryImpl(get { params })
@@ -113,7 +128,11 @@ val MainModule = module {
 
     factory<ExercisesRepository> { params -> ExercisesRepositoryImpl(get { params }) }
 
-    factory<CachedSessionsRepository> { params -> CachedSessionsRepositoryImpl(get { params }) }
+    factory<CachedSessionsRepository> { params ->
+        CachedSessionsRepositoryImpl(
+            database = get { params }, sessionExpirationTime = get(named(SessionExpirationTime))
+        )
+    }
 
     factory<CategoriesRepository> { params -> CategoriesRepositoryImpl(get { params }) }
 

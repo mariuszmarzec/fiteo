@@ -19,6 +19,7 @@ import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
+import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.dto.ToDoListDto
 import com.marzec.todo.model.CreateTaskDto
@@ -60,10 +61,10 @@ fun <T> withDefaultMockTestApplication(
         defaultMockConfiguration()
         mockConfiguration()
     }
-    withMockTestApplication(withMockConfiguration, applicationModule, test)
+    withMockTestApplication(withDbClear = true, withMockConfiguration, applicationModule, test)
 }
 
-private fun Module.defaultMockConfiguration() {
+fun Module.defaultMockConfiguration() {
     factory { uuidCounter }
 
     factoryMock<ResourceFileReader> { mockk ->
@@ -82,11 +83,14 @@ private fun Module.defaultMockConfiguration() {
 }
 
 fun <T> withMockTestApplication(
+    withDbClear: Boolean,
     mockConfiguration: Module.() -> Unit,
     applicationModule: Application.(List<Module>) -> Unit = Application::module,
     test: TestApplicationEngine.() -> T
 ) {
-    setupDb()
+    if (withDbClear) {
+        setupDb()
+    }
 
     val modules = MainModule.plus(module { mockConfiguration() })
     withTestApplication({ applicationModule(modules) }, test)
@@ -310,4 +314,12 @@ fun TestApplicationEngine.getTrainings() : List<TrainingDto> {
     }.response
         .content
         ?.let { json.decodeFromString<List<TrainingDto>>(it) }.orEmpty()
+}
+
+fun TestApplicationEngine.getUserCall() : UserDto? {
+    return handleRequest(HttpMethod.Get, ApiPath.USER) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString(it) }
 }

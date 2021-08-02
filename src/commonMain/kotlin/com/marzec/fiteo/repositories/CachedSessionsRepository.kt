@@ -9,4 +9,6 @@ interface CachedSessionsRepository {
     fun getSession(id: String): CachedSession?
 
     fun removeSession(id: String)
+
+    suspend fun clearOldSessions()
 }

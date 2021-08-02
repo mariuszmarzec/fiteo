@@ -9,6 +9,10 @@ import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
+import com.marzec.core.CurrentTimeUtil
+import com.marzec.di.SessionExpirationTime
+import io.ktor.application.Application
+import org.koin.core.qualifier.named
 
 class AuthorizationTest {
 
@@ -105,6 +109,48 @@ class AuthorizationTest {
             status = HttpStatusCode.OK,
             responseDto = Unit,
             authorize = TestApplicationEngine::registerAndLogin
+        )
+    }
+
+    @Test
+    fun clearSessions() {
+        val mockSession = 1000L
+        var token: String? = null
+        CurrentTimeUtil.setOtherTime(16, 5, 2021)
+
+        testGetEndpoint(
+            uri = ApiPath.USER,
+            status = HttpStatusCode.OK,
+            responseDto = UserDto(2, "test@mail.com"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsAfter = {
+                token = authToken
+            }
+        )
+
+        CurrentTimeUtil.setOtherTime(17, 5, 2021)
+
+        withMockTestApplication(
+            withDbClear = false,
+            mockConfiguration = {
+                defaultMockConfiguration()
+                single(qualifier = named(SessionExpirationTime)) { mockSession }
+            },
+            applicationModule = Application::module,
+            test = { }
+        )
+
+        withMockTestApplication(
+            withDbClear = false,
+            mockConfiguration = {
+                defaultMockConfiguration()
+                single(qualifier = named(SessionExpirationTime)) { mockSession }
+            },
+            applicationModule = Application::module,
+            test = {
+                authToken = token
+                assertThat(getUserCall()).isNull()
+            }
         )
     }
 
