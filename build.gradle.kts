@@ -93,6 +93,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
+                runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:${Dependency.kotlin_version}")
                 implementation("io.insert-koin:koin-ktor:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-html-builder:${Dependency.ktor_version}")

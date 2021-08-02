@@ -186,7 +186,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
 private fun clearSessionsInPeriod(di: Di, testDi: Di) {
     val repository = di.cachedSessionsRepository
     val testRepository = testDi.cachedSessionsRepository
-    val period = 31 * 24 * 3600L
+    val period = 3 * 31 * 24 * 3600 * 1000L
     GlobalScope.launch {
         while (true) {
             repository.clearOldSessions()
