@@ -53,7 +53,7 @@ class CachedSessionsRepositoryImpl(
     }
 
     override suspend fun clearOldSessions() = database.dbCall {
-        CachedSessionEntity.all().forEach { entity ->
+        CachedSessionEntity.all().toList().distinctBy { it.id }.forEach { entity ->
             CoroutineScope(Dispatchers.Unconfined).launch {
                 val session = readSession(entity).orEmpty()
                 val userSession = session.deserializeSession<UserSession>()

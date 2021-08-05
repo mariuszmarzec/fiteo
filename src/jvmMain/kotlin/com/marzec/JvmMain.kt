@@ -134,7 +134,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
 
         static {
             resource("/", "index.html")
-            resource("/common.js", "common.js")
+            resource("/fiteo.js", "fiteo.js")
         }
 
         apiSetup(testDi, di) { di ->
@@ -186,7 +186,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
 private fun clearSessionsInPeriod(di: Di, testDi: Di) {
     val repository = di.cachedSessionsRepository
     val testRepository = testDi.cachedSessionsRepository
-    val period = 3 * 31 * 24 * 3600 * 1000L
+    val period = di.sessionExpirationTime
     GlobalScope.launch {
         while (true) {
             repository.clearOldSessions()

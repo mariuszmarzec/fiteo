@@ -63,6 +63,7 @@ class Di(
     val api by inject<Controller> { parametersOf(database, authToken) }
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
+    val sessionExpirationTime by inject<Long>(qualifier = named(SessionExpirationTime)) { parametersOf(database, authToken) }
 
 }
 
