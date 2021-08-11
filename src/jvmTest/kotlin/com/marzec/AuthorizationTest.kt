@@ -12,6 +12,8 @@ import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.SessionExpirationTime
 import io.ktor.application.Application
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.koin.core.qualifier.named
 
 class AuthorizationTest {
@@ -137,7 +139,11 @@ class AuthorizationTest {
                 single(qualifier = named(SessionExpirationTime)) { mockSession }
             },
             applicationModule = Application::module,
-            test = { }
+            test = {
+                // Without this delay, db transaction removing entity from cached session table doesn't always finish
+                // closing application. TODO find better solution in future
+                runBlocking { delay(1000) }
+            }
         )
 
         withMockTestApplication(
