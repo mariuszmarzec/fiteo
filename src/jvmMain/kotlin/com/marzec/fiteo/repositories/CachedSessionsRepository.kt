@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import org.jetbrains.exposed.sql.transactions.transactionScope
 import java.io.ByteArrayInputStream
 import java.io.ObjectInput
 import java.io.ObjectInputStream
