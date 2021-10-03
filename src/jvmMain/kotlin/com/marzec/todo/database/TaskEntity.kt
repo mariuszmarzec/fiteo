@@ -11,6 +11,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
+import com.marzec.todo.extensions.sortTasks
 
 object TasksTable : IntIdTable("todo_tasks") {
     val description = text("description")
@@ -40,7 +41,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
                 addedTime = addedTime.toKotlinLocalDateTime(),
                 modifiedTime = modifiedTime.toKotlinLocalDateTime(),
                 parentTaskId = parents.firstOrNull()?.id?.value,
-                subTasks = subtasks.toList().map { it.toDomain() },
+                subTasks = subtasks.toList().map { it.toDomain() }.sortTasks(),
                 isToDo = isToDo,
                 priority = priority
         )
