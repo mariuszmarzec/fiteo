@@ -6,11 +6,13 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
+        gradlePluginPortal()
     }
 
     dependencies {
         classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
         classpath("mysql:mysql-connector-java:8.0.12")
+        classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Dependency.kotlin_version}")
         classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:${Dependency.buildkonfig_version}")
@@ -23,6 +25,7 @@ plugins {
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
+    id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
     jacoco
 }
 
@@ -260,4 +263,17 @@ tasks.jacocoTestReport {
         xml.isEnabled = true
         html.isEnabled = true
     }
+}
+
+detekt {
+    source = files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin",
+        "src/jsMain/kotlin",
+        "src/commonTest/kotlin",
+        "src/jvmTest/kotlin",
+        "src/jsTest/kotlin"
+    )
+
+    config = files("config/detekt/detekt.yml")
 }

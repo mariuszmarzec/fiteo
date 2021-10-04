@@ -9,9 +9,12 @@ import org.jetbrains.exposed.sql.Column
 
 object EquipmentTable : IdTable<String>("equipment") {
 
-    override val id: Column<EntityID<String>> = varchar("id", 36).entityId()
+    private const val ID_LENGTH = 36
+    private const val NAME_LENGTH = 300
 
-    val name = varchar("name", 300)
+    override val id: Column<EntityID<String>> = varchar("id", ID_LENGTH).entityId()
+
+    val name = varchar("name", NAME_LENGTH)
 
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }
 }

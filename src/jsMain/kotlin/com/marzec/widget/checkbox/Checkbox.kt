@@ -11,11 +11,6 @@ import react.dom.label
 import react.functionalComponent
 import react.useState
 
-external interface CheckboxProps : RProps {
-    var state: CheckboxViewItem
-    var onCheckedChange: () -> Unit
-}
-
 val Checkbox = functionalComponent<CheckboxProps> { props ->
     val (state, _) = useState(props.state)
 
@@ -35,4 +30,9 @@ val Checkbox = functionalComponent<CheckboxProps> { props ->
             attrs["htmlFor"] = state.id
         }
     }
+}
+
+external interface CheckboxProps : RProps {
+    var state: CheckboxViewItem
+    var onCheckedChange: () -> Unit
 }

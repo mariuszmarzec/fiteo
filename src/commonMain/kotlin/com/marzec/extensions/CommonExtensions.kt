@@ -8,6 +8,7 @@ inline fun <Class, Return> Class.replaceOrNull(replaceFunction: (Class?) -> Retu
     null
 }
 
+@Suppress("FunctionOnlyReturningConstant")
 fun emptyString() = ""
 
 fun <T: Any> T.listOf() = listOf(this)

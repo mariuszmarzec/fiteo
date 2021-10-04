@@ -9,11 +9,13 @@ import com.marzec.fiteo.model.dto.NeededEquipmentDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("MaxLineLength")
 class ExercisesReaderImplTest {
 
     val exercisesReader: ExercisesReaderImpl = ExercisesReaderImpl(json)
 
     @Test
+    @Suppress("LongMethod")
     fun parse() {
         val obj = exercisesReader.parse(
             """

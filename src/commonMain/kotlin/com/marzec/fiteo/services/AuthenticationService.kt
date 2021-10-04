@@ -1,6 +1,7 @@
 package com.marzec.fiteo.services
 
 import com.marzec.exceptions.HttpException
+import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.repositories.UserRepository
 
@@ -20,13 +21,10 @@ class AuthenticationServiceImpl(
             if (userRepository.checkPassword(email, password)) {
                 userRepository.getUser(email)
             } else {
-                throw HttpException("Wrong password", 400)
+                throw HttpException("Wrong password", HttpStatus.BAD_REQUEST)
             }
-        } catch (e: NoSuchElementException) {
-            throw HttpException("User with email: $email not found", 404)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
+        } catch (_: NoSuchElementException) {
+            throw HttpException("User with email: $email not found", HttpStatus.NOT_FOUND)
         }
     }
 
@@ -35,13 +33,13 @@ class AuthenticationServiceImpl(
     override fun register(email: String, password: String, repeatedPassword: String): User {
 
         if (email.isBlank() || email.isEmpty()) {
-            throw HttpException("Empty email", 400)
+            throw HttpException("Empty email", HttpStatus.BAD_REQUEST)
         }
         if (password.length < MIN_PASSWORD_LENGTH) {
-            throw HttpException("Password too short, min is $MIN_PASSWORD_LENGTH", 400)
+            throw HttpException("Password too short, min is $MIN_PASSWORD_LENGTH", HttpStatus.BAD_REQUEST)
         }
         if (password != repeatedPassword) {
-            throw HttpException("Passwords are different", 400)
+            throw HttpException("Passwords are different", HttpStatus.BAD_REQUEST)
         }
         return userRepository.createUser(email, password)
      }

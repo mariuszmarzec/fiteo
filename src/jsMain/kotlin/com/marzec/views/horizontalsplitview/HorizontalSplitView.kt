@@ -1,13 +1,18 @@
 package com.marzec.views.horizontalsplitview
 
-import com.marzec.views.base.*
+import com.marzec.views.base.ReactRenderer
+import com.marzec.views.base.ReactRendererDelegate
+import com.marzec.views.base.Renderer
+import com.marzec.views.base.RendererDelegate
+import com.marzec.views.base.ViewItem
 import kotlinx.css.Display
 import kotlinx.css.LinearDimension
 import kotlinx.css.display
+import kotlinx.css.height
+import kotlinx.css.width
 import react.RBuilder
-import styled.StyleSheet
-import styled.*
-import kotlinx.css.*
+import styled.css
+import styled.styledDiv
 
 data class HorizontalSplitView(
     override val id: String,

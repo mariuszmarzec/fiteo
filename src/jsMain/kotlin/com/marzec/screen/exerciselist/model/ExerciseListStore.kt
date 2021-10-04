@@ -23,7 +23,8 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
                     getEquipment()
                 )
             },
-            reducer = { action: ExercisesListActions.Initialization, actionResult: ExercisesData?, _: State<ExercisesListViewState> ->
+            reducer = { action: ExercisesListActions.Initialization,
+                        actionResult: ExercisesData?, _: State<ExercisesListViewState> ->
                 actionResult?.let { exercisesData ->
                     State.Data(
                         ExercisesListViewState(
@@ -41,7 +42,8 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
             }
         ),
         ExercisesListActions.OnFilterCheckedChange::class to intent(
-            reducer = { action: ExercisesListActions.OnFilterCheckedChange, _: Any?, currentState: State<ExercisesListViewState> ->
+            reducer = { action: ExercisesListActions.OnFilterCheckedChange, _: Any?,
+                        currentState: State<ExercisesListViewState> ->
                 when (currentState) {
                     is State.Data -> {
                         val checkedFilters = currentState.data.checkedFilters.flip(action.filterId)
@@ -53,7 +55,8 @@ val exerciseListStore = Store<ExercisesListViewState, ExercisesListActions>(defa
             }
         ),
         ExercisesListActions.OnSearchTextChanged::class to intent(
-            reducer = { action: ExercisesListActions.OnSearchTextChanged, _: Any?, currentState: State<ExercisesListViewState> ->
+            reducer = { action: ExercisesListActions.OnSearchTextChanged, _: Any?,
+                        currentState: State<ExercisesListViewState> ->
                 when (currentState) {
                     is State.Data -> {
                         State.Data(currentState.data.copy(searchText = action.text))

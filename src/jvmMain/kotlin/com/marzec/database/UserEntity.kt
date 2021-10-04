@@ -1,13 +1,16 @@
 package com.marzec.database
 
 import com.marzec.fiteo.model.domain.User
-import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 object UserTable : IntIdTable("users") {
-    val email = varchar("email", 100)
-    val password = varchar("password", 32)
+    private const val ID_LENGTH = 100
+    private const val PASSWORD_LENGTH = 32
+    val email = varchar("email", ID_LENGTH)
+    val password = varchar("password", PASSWORD_LENGTH)
 
     init {
         index(true, email)

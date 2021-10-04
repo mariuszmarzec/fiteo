@@ -10,10 +10,10 @@ import com.marzec.fiteo.model.http.HttpResponse
 fun <T> serviceCall(call: () -> T): HttpResponse<T> {
         return try {
             HttpResponse.Success(call())
-        } catch (e: Exception) {
-            when (e) {
-                is HttpException -> HttpResponse.Error(ErrorDto(e.message.orEmpty()), e.httpStatus)
-                else -> HttpResponse.Error(ErrorDto(e.message.orEmpty()), HttpStatus.INTERNAL_SERVER_ERROR)
+        } catch (expected: Exception) {
+            when (expected) {
+                is HttpException -> HttpResponse.Error(ErrorDto(expected.message.orEmpty()), expected.httpStatus)
+                else -> HttpResponse.Error(ErrorDto(expected.message.orEmpty()), HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }
     }

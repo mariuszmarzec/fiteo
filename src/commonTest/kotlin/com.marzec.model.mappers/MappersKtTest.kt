@@ -13,6 +13,7 @@ import com.marzec.fiteo.model.mappers.toDomain
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("MaxLineLength")
 class MappersKtTest {
 
     val exerciseFileDto = ExercisesFileDto(
@@ -128,6 +129,7 @@ class MappersKtTest {
     }
 
     @Test
+    @Suppress("LongMethod")
     fun exerciseFileDtoToDomain() {
         assertEquals(
                 ExercisesData(

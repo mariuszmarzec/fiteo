@@ -4,14 +4,14 @@ import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.todo.model.ToDoList
-import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 
 object ToDoListTable : IntIdTable("todo_lists") {
-    val title = varchar("title", 100)
+    private const val TITLE_LENGTH = 100
+    val title = varchar("title", TITLE_LENGTH)
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 

@@ -19,9 +19,9 @@ fun ExercisesFileDto.toDomain(uuid: Uuid): ExercisesData {
     val equipment = neededEquipment?.map { it.value.toDomain(uuid) }?.flatten()?.distinct().orEmpty()
     val hashToEquipment = equipment.associateBy { it.name.hashCode().toString() }
     return ExercisesData(
-            hashToCategories.values.toList(),
-            exercises?.map { it.toDomain(hashToCategories, hashToEquipment, unknownCategory) }.orEmpty(),
-            hashToEquipment.values.toList()
+        hashToCategories.values.toList(),
+        exercises?.map { it.toDomain(hashToCategories, hashToEquipment, unknownCategory) }.orEmpty(),
+        hashToEquipment.values.toList()
     )
 }
 
@@ -36,27 +36,32 @@ fun ExerciseFileDto.toDomain(
     hashToEquipment: Map<String, Equipment>,
     unknownCategory: Category
 ): Exercise {
-    val defaultEquipment = hashToEquipment.values.firstOrNull { it.name.contains("brak", true) }?.let { listOf(it) }
+    val defaultEquipment = hashToEquipment.values.firstOrNull {
+        it.name.contains("brak", true)
+    }?.let {
+        listOf(it)
+    }
     return Exercise(
-            id = url.hashCode(),
-            name = name.orEmpty(),
-            animationImageName = animationImageName.orEmpty(),
-            animationUrl = animationUrl.orEmpty(),
-            category = listOf(category?.values?.firstOrNull()?.getOrNull(1)?.let { categoryName ->
-                hashToCategories[categoryName.hashCode().toString()]
-            } ?: unknownCategory),
-            imagesNames = imagesNames.orEmpty(),
-            imagesUrls = imagesUrls.orEmpty(),
-            descriptionsToImages = this.descriptionsToImages.orEmpty(),
-            imagesMistakesUrls = this.imagesMistakesUrls.orEmpty(),
-            imagesMistakesNames = this.imagesMistakesNames.orEmpty(),
-            descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
-            muscles = this.muscles.orEmpty(),
-            musclesName = this.musclesName.orEmpty(),
-            neededEquipment = neededEquipment?.needed?.mapNotNull { hashToEquipment[it.hashCode().toString()] } ?: defaultEquipment
+        id = url.hashCode(),
+        name = name.orEmpty(),
+        animationImageName = animationImageName.orEmpty(),
+        animationUrl = animationUrl.orEmpty(),
+        category = listOf(category?.values?.firstOrNull()?.getOrNull(1)?.let { categoryName ->
+            hashToCategories[categoryName.hashCode().toString()]
+        } ?: unknownCategory),
+        imagesNames = imagesNames.orEmpty(),
+        imagesUrls = imagesUrls.orEmpty(),
+        descriptionsToImages = this.descriptionsToImages.orEmpty(),
+        imagesMistakesUrls = this.imagesMistakesUrls.orEmpty(),
+        imagesMistakesNames = this.imagesMistakesNames.orEmpty(),
+        descriptionsToMistakes = this.descriptionsToMistakes.orEmpty(),
+        muscles = this.muscles.orEmpty(),
+        musclesName = this.musclesName.orEmpty(),
+        neededEquipment = neededEquipment?.needed?.mapNotNull { hashToEquipment[it.hashCode().toString()] }
+            ?: defaultEquipment
             ?: emptyList(),
-            thumbnailName = thumbnailName.orEmpty(),
-            thumbnailUrl = thumbnailUrl.orEmpty(),
-            videoUrl = null
+        thumbnailName = thumbnailName.orEmpty(),
+        thumbnailUrl = thumbnailUrl.orEmpty(),
+        videoUrl = null
     )
 }

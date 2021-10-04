@@ -71,6 +71,9 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import javax.crypto.spec.SecretKeySpec
 
+private const val PRIORITY = 10.0
+private const val MINIMUM_SIZE: Long = 1024
+
 fun main(args: Array<String>) {
     embeddedServer(Netty, commandLineEnvironment(args)).start()
 }
@@ -141,8 +144,8 @@ private fun Application.configuration(
     install(Compression) {
         gzip()
         deflate {
-            priority = 10.0
-            minimumSize(1024)
+            priority = PRIORITY
+            minimumSize(MINIMUM_SIZE)
         }
     }
 

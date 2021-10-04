@@ -8,10 +8,6 @@ import react.dom.img
 import react.functionalComponent
 import react.useState
 
-external interface ExerciseRowViewProps : RProps {
-    var exercise: ExerciseRowViewItem
-}
-
 val ExerciseRowView = functionalComponent<ExerciseRowViewProps> { props ->
     val (exercise, _) = useState(props.exercise)
 
@@ -21,4 +17,8 @@ val ExerciseRowView = functionalComponent<ExerciseRowViewProps> { props ->
         h3 { +exercise.name }
         imageUrl?.let { animationUrl -> img { attrs.src = animationUrl } }
     }
+}
+
+external interface ExerciseRowViewProps : RProps {
+    var exercise: ExerciseRowViewItem
 }

@@ -25,21 +25,7 @@ object ExerciseListUiMapper {
 
                             add(BigHeaderViewItem(message = "Lista ćwiczeń"))
 
-                            state.data.exercises
-                                .filter(
-                                    state.data.checkedFilters,
-                                    state.data.categories,
-                                    state.data.equipment,
-                                    state.data.searchText
-                                )
-                                .groupByCategories()
-                                .forEach { (categories, exercises) ->
-                                    add(MediumHeaderViewItem(message = categories))
-
-                                    exercises.forEach { exercise ->
-                                        add(exercise.toView())
-                                    }
-                                }
+                            mapExercises(state)
 
                         },
                         rightColumnItems = mutableListOf<ViewItem>().apply {
@@ -52,30 +38,8 @@ object ExerciseListUiMapper {
                             add(
                                 HorizontalSplitView(
                                     id = "FILTERS",
-                                    leftColumnItems = mutableListOf<ViewItem>().apply {
-                                        add(MediumHeaderViewItem(message = "Kategorie"))
-                                        state.data.categories.forEach { category ->
-                                            add(
-                                                CheckboxViewItem(
-                                                    id = category.id,
-                                                    label = category.name,
-                                                    isChecked = category.id in state.data.checkedFilters
-                                                )
-                                            )
-                                        }
-                                    },
-                                    rightColumnItems = mutableListOf<ViewItem>().apply {
-                                        add(MediumHeaderViewItem(message = "Sprzęt (jaki posiadasz)"))
-                                        state.data.equipment.sortedBy { it.name }.forEach { equipment ->
-                                            add(
-                                                CheckboxViewItem(
-                                                    id = equipment.id,
-                                                    label = equipment.name,
-                                                    isChecked = equipment.id in state.data.checkedFilters
-                                                )
-                                            )
-                                        }
-                                    }
+                                    leftColumnItems = lefColumnItems(state),
+                                    rightColumnItems = rightColumnItems(state)
                                 )
                             )
                         }
@@ -89,4 +53,52 @@ object ExerciseListUiMapper {
                 listOf(ErrorItemView(message = state.message))
             }
         }
+
+    private fun rightColumnItems(state: State.Data<ExercisesListViewState>): MutableList<ViewItem> {
+        return mutableListOf<ViewItem>().apply {
+            add(MediumHeaderViewItem(message = "Sprzęt (jaki posiadasz)"))
+            state.data.equipment.sortedBy { it.name }.forEach { equipment ->
+                add(
+                    CheckboxViewItem(
+                        id = equipment.id,
+                        label = equipment.name,
+                        isChecked = equipment.id in state.data.checkedFilters
+                    )
+                )
+            }
+        }
+    }
+
+    private fun lefColumnItems(state: State.Data<ExercisesListViewState>): MutableList<ViewItem> {
+        return mutableListOf<ViewItem>().apply {
+            add(MediumHeaderViewItem(message = "Kategorie"))
+            state.data.categories.forEach { category ->
+                add(
+                    CheckboxViewItem(
+                        id = category.id,
+                        label = category.name,
+                        isChecked = category.id in state.data.checkedFilters
+                    )
+                )
+            }
+        }
+    }
+
+    private fun MutableList<ViewItem>.mapExercises(state: State.Data<ExercisesListViewState>) {
+        state.data.exercises
+            .filter(
+                state.data.checkedFilters,
+                state.data.categories,
+                state.data.equipment,
+                state.data.searchText
+            )
+            .groupByCategories()
+            .forEach { (categories, exercises) ->
+                add(MediumHeaderViewItem(message = categories))
+
+                exercises.forEach { exercise ->
+                    add(exercise.toView())
+                }
+            }
+    }
 }

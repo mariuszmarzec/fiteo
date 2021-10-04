@@ -5,4 +5,5 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.format.DateTimeFormatter
 
-actual fun LocalDateTime.formatDate(): String = toJavaLocalDateTime().format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))
+actual fun LocalDateTime.formatDate(): String = toJavaLocalDateTime()
+    .format(DateTimeFormatter.ofPattern(Api.DATE_FORMAT))

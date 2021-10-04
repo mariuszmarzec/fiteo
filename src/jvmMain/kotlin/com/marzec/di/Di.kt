@@ -50,7 +50,13 @@ import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-const val SessionExpirationTime = "SessionExpirationTime"
+const val SESSION_EXPIRATION_TIME = "SessionExpirationTime"
+
+private const val MILLISECONDS_IN_SECOND = 1000
+private const val SECONDS_IN_HOUR = 3600L
+private const val HOURS_IN_DAY = 24
+private const val DAYS_IN_MONTH = 31
+private const val EXPIRATION_MONTHS_COUNT = 3
 
 class Di(
     private val database: Database,
@@ -63,8 +69,9 @@ class Di(
     val api by inject<Controller> { parametersOf(database, authToken) }
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
-    val sessionExpirationTime by inject<Long>(qualifier = named(SessionExpirationTime)) { parametersOf(database, authToken) }
-
+    val sessionExpirationTime by inject<Long>(qualifier = named(SESSION_EXPIRATION_TIME)) {
+        parametersOf(database, authToken)
+    }
 }
 
 val MainModule = module {
@@ -85,7 +92,9 @@ val MainModule = module {
         }
     }
 
-    single(qualifier = named(SessionExpirationTime)) { 3 * 31 * 24 * 3600L * 1000 }
+    single(qualifier = named(SESSION_EXPIRATION_TIME)) {
+        EXPIRATION_MONTHS_COUNT * DAYS_IN_MONTH * HOURS_IN_DAY * SECONDS_IN_HOUR * MILLISECONDS_IN_SECOND
+    }
 
     single { params -> ExerciseFileMapper(get { params }) }
 
@@ -131,7 +140,7 @@ val MainModule = module {
 
     factory<CachedSessionsRepository> { params ->
         CachedSessionsRepositoryImpl(
-            database = get { params }, sessionExpirationTime = get(named(SessionExpirationTime))
+            database = get { params }, sessionExpirationTime = get(named(SESSION_EXPIRATION_TIME))
         )
     }
 

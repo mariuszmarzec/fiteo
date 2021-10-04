@@ -6,25 +6,17 @@ import com.marzec.database.CachedSessionTable
 import com.marzec.database.dbCall
 import com.marzec.database.toDomain
 import com.marzec.fiteo.model.domain.CachedSession
-import com.marzec.fiteo.model.domain.Session
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import io.ktor.sessions.defaultSessionSerializer
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.jvm.javaio.toInputStream
 import io.ktor.utils.io.readUTF8Line
-import io.ktor.utils.io.reader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
-import org.jetbrains.exposed.sql.transactions.transactionScope
-import java.io.ByteArrayInputStream
-import java.io.ObjectInput
-import java.io.ObjectInputStream
 
 class CachedSessionsRepositoryImpl(
     private val database: Database,
@@ -83,7 +75,7 @@ class CachedSessionsRepositoryImpl(
 private inline fun <reified T : Any> String.deserializeSession(): T? {
     return try {
         defaultSessionSerializer<T>().deserialize(this)
-    } catch (e: Exception) {
+    } catch (ignore: Exception) {
         null
     }
 }

@@ -1,7 +1,8 @@
 package com.marzec.database
 
 import com.marzec.fiteo.BuildKonfig
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DbSettings {

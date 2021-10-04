@@ -6,7 +6,9 @@ import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.CreateTrainingTemplate
 import com.marzec.fiteo.model.domain.Training
 import com.marzec.fiteo.model.domain.TrainingTemplate
-import com.marzec.fiteo.repositories.*
+import com.marzec.fiteo.repositories.ExercisesRepository
+import com.marzec.fiteo.repositories.TrainingRepository
+import com.marzec.fiteo.repositories.TrainingTemplateRepository
 
 interface TrainingService {
     fun getTrainingTemplates(userId: Int): List<TrainingTemplate>
@@ -37,46 +39,49 @@ class TrainingServiceImpl(
     override fun getTrainingTemplates(userId: Int): List<TrainingTemplate> = templateRepository.getTemplates(userId)
 
     override fun addTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate =
-            templateRepository.addTemplate(userId, trainingTemplate)
+        templateRepository.addTemplate(userId, trainingTemplate)
 
     override fun updateTrainingTemplate(userId: Int, trainingTemplate: CreateTrainingTemplate): TrainingTemplate =
-            templateRepository.updateTemplate(userId, trainingTemplate)
+        templateRepository.updateTemplate(userId, trainingTemplate)
 
     override fun removeTrainingTemplate(userId: Int, trainingTemplateId: Int): TrainingTemplate =
-            templateRepository.removeTemplate(userId, trainingTemplateId)
+        templateRepository.removeTemplate(userId, trainingTemplateId)
 
     override fun createTraining(userId: Int, templateId: Int): Training {
         val newTraining = trainingRepository.createTraining(userId, templateId)
         val template = templateRepository.getTemplate(userId, templateId)
-        val allExercises = exercisesRepository.getAll().filter { exercise -> exercise.neededEquipment.all { equipment -> equipment in template.availableEquipment } }
+        val allExercises = exercisesRepository.getAll()
+            .filter { exercise ->
+                exercise.neededEquipment.all { equipment -> equipment in template.availableEquipment }
+            }
 
         val trainingUpdate = CreateTraining(
-                timeProvider.currentTime(),
-                exercisesWithProgress = template.exercises.map { trainingPart ->
-                    val exercise = allExercises.filter { exercise ->
-                        exercise.category.all { it in trainingPart.categories } &&
-                                exercise.id !in trainingPart.excludedExercises &&
-                                exercise.neededEquipment.none { it in trainingPart.excludedEquipment }
-                    }.randomOrNull()
-                            ?: trainingPart.pinnedExercise
-                            ?: throw NoSuchElementException("No exercise for training part with: ${trainingPart.id}")
-                    CreateTrainingExerciseWithProgress(exercise.id, emptyList())
-                }
+            timeProvider.currentTime(),
+            exercisesWithProgress = template.exercises.map { trainingPart ->
+                val exercise = allExercises.filter { exercise ->
+                    exercise.category.all { it in trainingPart.categories } &&
+                            exercise.id !in trainingPart.excludedExercises &&
+                            exercise.neededEquipment.none { it in trainingPart.excludedEquipment }
+                }.randomOrNull()
+                    ?: trainingPart.pinnedExercise
+                    ?: throw NoSuchElementException("No exercise for training part with: ${trainingPart.id}")
+                CreateTrainingExerciseWithProgress(exercise.id, emptyList())
+            }
         )
         return trainingRepository.updateTraining(
-                userId = userId,
-                trainingId = newTraining.id,
-                training = trainingUpdate
+            userId = userId,
+            trainingId = newTraining.id,
+            training = trainingUpdate
         )
     }
 
     override fun getTraining(userId: Int, trainingId: Int): Training =
-            trainingRepository.getTraining(userId, trainingId)
+        trainingRepository.getTraining(userId, trainingId)
 
     override fun getTrainings(userId: Int): List<Training> = trainingRepository.getTrainings(userId)
 
     override fun removeTraining(userId: Int, trainingId: Int): Training =
-            trainingRepository.removeTrainings(userId, trainingId)
+        trainingRepository.removeTrainings(userId, trainingId)
 
     override fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training {
         return trainingRepository.updateTraining(userId, trainingId, training)
