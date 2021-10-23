@@ -375,6 +375,52 @@ class TodoTests {
         )
     }
 
+    @Test
+    fun removeTask_pinSubtaskToParentOfParent() {
+        val subtask = taskDto.copy(
+            id = 3,
+            parentTaskId = 2
+        )
+        val removedTask = taskDto.copy(
+            id = 2,
+            parentTaskId = 1,
+            subTasks = listOf(subtask)
+        )
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
+            status = HttpStatusCode.OK,
+            responseDto = removedTask,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTodoList(createTodoListDto)
+                addTask(1, createTaskDto)
+                addTask(1, createTaskDto.copy(parentTaskId = 1))
+                addTask(1, createTaskDto.copy(parentTaskId = 2))
+                assertThat(getTodoLists()).isEqualTo(
+                    listOf(
+                        todoListDto.copy(
+                            tasks = listOf(
+                                taskDto.copy(subTasks = listOf(removedTask))
+                            )
+                        )
+                    )
+                )
+            },
+            runRequestsAfter = {
+                assertThat(getTodoLists()).isEqualTo(
+                    listOf(
+                        todoListDto.copy(
+                            tasks = listOf(
+                                taskDto.copy(subTasks = listOf(subtask.copy(parentTaskId = 1)))
+                            )
+                        )
+                    )
+                )
+            }
+        )
+    }
+
     @After
     fun tearDown() {
         GlobalContext.stopKoin()

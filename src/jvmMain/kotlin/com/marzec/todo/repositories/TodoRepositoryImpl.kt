@@ -95,7 +95,12 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
     override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         val task = taskEntity.toDomain()
+        val subtasks = taskEntity.subtasks
+        val parentTask = taskEntity.parents
         taskEntity.deleteIfBelongsToUserOrThrow(userId)
+        if (!parentTask.empty()) {
+            subtasks.forEach { it.parents = parentTask }
+        }
         task
     }
 
