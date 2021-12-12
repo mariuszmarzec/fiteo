@@ -23,6 +23,8 @@ import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.todo.dto.CreateTodoListDto
 import com.marzec.todo.dto.ToDoListDto
 import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.UpdateTaskDto
+import com.marzec.todo.dto.TaskDto
 import io.ktor.application.Application
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -322,4 +324,27 @@ fun TestApplicationEngine.getUserCall() : UserDto? {
     }.response
         .content
         ?.let { json.decodeFromString(it) }
+}
+
+fun TestApplicationEngine.markAsDone(listId: Int, taskId: Int) {
+    val task = getTodoLists().first { it.id == listId }.tasks.flatMapTaskDto().first { it.id == taskId }
+    val dto = UpdateTaskDto(
+        description = task.description,
+        parentTaskId = task.parentTaskId,
+        priority = task.priority,
+        isToDo = false
+    )
+
+    handleRequest(HttpMethod.Patch, TodoApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "$taskId")) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun List<TaskDto>.flatMapTaskDto(tasks: MutableList<TaskDto> = mutableListOf()): List<TaskDto> {
+    forEach {
+        tasks.add(it)
+        it.subTasks.flatMapTaskDto(tasks)
+    }
+    return tasks
 }

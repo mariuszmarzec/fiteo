@@ -376,6 +376,73 @@ class TodoTests {
     }
 
     @Test
+    fun todoLists_getSortedListWithDoneTasks() {
+        testGetEndpoint(
+            uri = ApiPath.TODO_LISTS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                todoListDto.copy(
+                    tasks = listOf(
+                        taskDto.copy(id = 7, priority = 20),
+                        taskDto.copy(id = 2, priority = 2, isToDo = false),
+                        taskDto.copy(
+                            id = 3,
+                            priority = 2,
+                            addedTime = "2021-05-17T00:00:00",
+                            modifiedTime = "2021-05-17T00:00:00",
+                            isToDo = false
+                        ),
+                        taskDto.copy(
+                            id = 1,
+                            priority = 1,
+                            isToDo = false,
+                            subTasks = listOf(
+                                taskDto.copy(
+                                    id = 6,
+                                    priority = 2,
+                                    parentTaskId = 1,
+                                    addedTime = "2021-05-18T00:00:00",
+                                    modifiedTime = "2021-05-18T00:00:00"
+                                ),
+                                taskDto.copy(id = 5, priority = 2, parentTaskId = 1, isToDo = false),
+                                taskDto.copy(id = 4, priority = 1, parentTaskId = 1, isToDo = false)
+                            )
+                        )
+                    )
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTodoList(createTodoListDto)
+                addTask(1, createTaskDto.copy(priority = 1))
+                addTask(1, createTaskDto.copy(priority = 2))
+
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 2))
+
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 1, parentTaskId = 1))
+                addTask(1, createTaskDto.copy(priority = 2, parentTaskId = 1))
+
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 2, parentTaskId = 1))
+
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(1, createTaskDto.copy(priority = 20))
+
+                markAsDone(1, 1)
+                markAsDone(1, 2)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                markAsDone(1, 3)
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                markAsDone(1, 4)
+                markAsDone(1, 5)
+            }
+        )
+    }
+
+    @Test
     fun removeTask_pinSubtaskToParentOfParent() {
         val subtask = taskDto.copy(
             id = 3,
