@@ -2,6 +2,7 @@ package com.marzec.todo
 
 import com.marzec.common.deleteByIdEndpoint
 import com.marzec.common.getByIdEndpoint
+import com.marzec.common.getAllEndpoint
 import com.marzec.common.postEndpoint
 import com.marzec.common.updateByIdEndpoint
 import com.marzec.di.Di
@@ -18,6 +19,8 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
         updateTask(todoController)
         removeTask(todoController)
 
+        tasksV2(todoController)
+        addTaskV2(todoController)
     }
 }
 
@@ -32,3 +35,7 @@ fun Route.addTask(api: ToDoApiController) = postEndpoint(ApiPath.ADD_TASK, api::
 fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(ApiPath.UPDATE_TASK, api::updateTask)
 
 fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
+
+fun Route.tasksV2(api: ToDoApiController) = getAllEndpoint(ApiPath.V2_TASKS, api::getTasks)
+
+fun Route.addTaskV2(api: ToDoApiController) = postEndpoint(ApiPath.V2_ADD_TASK, api::addTask)

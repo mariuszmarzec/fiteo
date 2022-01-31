@@ -276,12 +276,27 @@ fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
     }
 }
 
+fun TestApplicationEngine.addTaskV2(dto: CreateTaskDto) {
+    handleRequest(HttpMethod.Post, TodoApiPath.V2_ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1")) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
 fun TestApplicationEngine.getTodoLists(): List<ToDoListDto> {
     return handleRequest(HttpMethod.Get, TodoApiPath.TODO_LISTS) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
         .content
         ?.let { json.decodeFromString<List<ToDoListDto>>(it) }.orEmpty()
+}
+
+fun TestApplicationEngine.getTasks(): List<TaskDto> {
+    return handleRequest(HttpMethod.Get, TodoApiPath.V2_TASKS) {
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }.response
+        .content
+        ?.let { json.decodeFromString<List<TaskDto>>(it) }.orEmpty()
 }
 
 fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {

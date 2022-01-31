@@ -9,6 +9,10 @@ import com.marzec.todo.TodoRepository
 class TodoService(
         private val repository: TodoRepository
 ) {
+    fun getTasks(userId: Int): List<Task> {
+        return repository.getLists(userId).first().tasks
+    }
+
     fun getLists(userId: Int): List<ToDoList> {
         return repository.getLists(userId)
     }

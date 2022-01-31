@@ -135,7 +135,7 @@ private fun Application.configuration(
     }
 
     install(Koin) {
-        slf4jLogger()
+        slf4jLogger(level = org.koin.core.logger.Level.ERROR)
         modules(diModules)
     }
 
