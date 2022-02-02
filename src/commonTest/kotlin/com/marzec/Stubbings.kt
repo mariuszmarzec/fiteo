@@ -3,29 +3,9 @@ package com.marzec
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
-import com.marzec.fiteo.model.domain.Category
-import com.marzec.fiteo.model.domain.CreateTrainingDto
-import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgressDto
-import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
-import com.marzec.fiteo.model.domain.CreateTrainingTemplatePartDto
-import com.marzec.fiteo.model.domain.Equipment
-import com.marzec.fiteo.model.domain.Exercise
-import com.marzec.fiteo.model.domain.SeriesDto
-import com.marzec.fiteo.model.domain.TrainingDto
-import com.marzec.fiteo.model.domain.TrainingExerciseWithProgressDto
-import com.marzec.fiteo.model.domain.TrainingTemplate
-import com.marzec.fiteo.model.domain.TrainingTemplateDto
-import com.marzec.fiteo.model.domain.TrainingTemplatePart
-import com.marzec.fiteo.model.domain.TrainingTemplatePartDto
-import com.marzec.fiteo.model.domain.toDto
-import com.marzec.fiteo.model.dto.CategoryDto
-import com.marzec.fiteo.model.dto.EquipmentDto
-import com.marzec.fiteo.model.dto.ExerciseDto
-import com.marzec.fiteo.model.dto.LoginRequestDto
-import com.marzec.fiteo.model.dto.RegisterRequestDto
-import com.marzec.todo.dto.CreateTodoListDto
+import com.marzec.fiteo.model.domain.*
+import com.marzec.fiteo.model.dto.*
 import com.marzec.todo.dto.TaskDto
-import com.marzec.todo.dto.ToDoListDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
 import kotlinx.serialization.json.Json
@@ -244,14 +224,6 @@ val weightDto2 = WeightDto(2, 61f, "2021-05-16T07:20:30")
 val createWeightDto3 = PutWeightDto(60.5f, "2021-05-17T07:20:30")
 
 val weightDto3 = WeightDto(3, 60.5f, "2021-05-17T07:20:30")
-
-val createTodoListDto = CreateTodoListDto("todo list 1")
-
-val createTodoListDto2 = CreateTodoListDto("todo list 2")
-
-val todoListDto = ToDoListDto(1, "todo list 1", emptyList())
-
-val todoListDto2 = ToDoListDto(2, "todo list 2", emptyList())
 
 val createTaskDto = stubCreateTaskDto("task", null, 0)
 

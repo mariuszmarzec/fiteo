@@ -13,15 +13,3 @@ data class TaskDto(
         val isToDo: Boolean,
         val priority: Int
 )
-
-@Serializable
-data class ToDoListDto(
-        val id: Int,
-        val title: String,
-        val tasks: List<TaskDto>
-)
-
-@Serializable
-data class CreateTodoListDto(
-        val title: String
-)

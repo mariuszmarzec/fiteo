@@ -3,7 +3,6 @@ package com.marzec.todo.model
 import com.marzec.Api.Default.HIGHEST_PRIORITY_AS_DEFAULT
 import com.marzec.extensions.formatDate
 import com.marzec.todo.dto.TaskDto
-import com.marzec.todo.dto.ToDoListDto
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
@@ -16,18 +15,6 @@ data class Task(
         val subTasks: List<Task>,
         val isToDo: Boolean,
         val priority: Int
-)
-
-data class ToDoList(
-        val id: Int,
-        val title: String,
-        val tasks: List<Task>
-)
-
-fun ToDoList.toDto() = ToDoListDto(
-        id = id,
-        title = title,
-        tasks = tasks.map { it.toDto() }
 )
 
 fun Task.toDto(): TaskDto = TaskDto(

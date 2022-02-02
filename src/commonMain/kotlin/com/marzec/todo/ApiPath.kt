@@ -12,17 +12,9 @@ object ApiPath {
 
     private const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION"
 
-    @Deprecated("Lists will be removed")
-    const val TODO_LISTS = "$API_ROOT/lists"
-    @Deprecated("Lists will be removed")
-    const val TODO_LIST = "$API_ROOT/list"
-    @Deprecated("Lists will be removed")
-    const val DELETE_TODO_LIST = "$API_ROOT/list/{${Api.Args.ARG_ID}}"
-
-    const val ADD_TASK = "$API_ROOT/list/{${Api.Args.ARG_ID}}/tasks"
     const val UPDATE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
     const val DELETE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
 
-    const val V2_TASKS = "$API_ROOT/tasks"
-    const val V2_ADD_TASK = "$API_ROOT/tasks"
+    const val TASKS = "$API_ROOT/tasks"
+    const val ADD_TASK = "$API_ROOT/tasks"
 }

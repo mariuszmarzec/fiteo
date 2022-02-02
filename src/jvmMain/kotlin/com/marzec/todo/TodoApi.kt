@@ -1,41 +1,26 @@
 package com.marzec.todo
 
 import com.marzec.common.deleteByIdEndpoint
-import com.marzec.common.getByIdEndpoint
 import com.marzec.common.getAllEndpoint
 import com.marzec.common.postEndpoint
 import com.marzec.common.updateByIdEndpoint
 import com.marzec.di.Di
-import io.ktor.auth.authenticate
-import io.ktor.routing.Route
+import io.ktor.auth.*
+import io.ktor.routing.*
 
 fun Route.todoApi(di: Di, todoController: ToDoApiController) {
     authenticate(di.authToken) {
-        todoLists(todoController)
-        addTodoList(todoController)
-        deleteTodoList(todoController)
-
+        tasks(todoController)
         addTask(todoController)
         updateTask(todoController)
         removeTask(todoController)
-
-        tasksV2(todoController)
-        addTaskV2(todoController)
     }
 }
-
-fun Route.todoLists(api: ToDoApiController) = getByIdEndpoint(ApiPath.TODO_LISTS, api::getLists)
-
-fun Route.addTodoList(api: ToDoApiController) = postEndpoint(ApiPath.TODO_LIST, api::addList)
-
-fun Route.deleteTodoList(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TODO_LIST, api::removeList)
-
-fun Route.addTask(api: ToDoApiController) = postEndpoint(ApiPath.ADD_TASK, api::addTask)
 
 fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(ApiPath.UPDATE_TASK, api::updateTask)
 
 fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
 
-fun Route.tasksV2(api: ToDoApiController) = getAllEndpoint(ApiPath.V2_TASKS, api::getTasks)
+fun Route.tasks(api: ToDoApiController) = getAllEndpoint(ApiPath.TASKS, api::getTasks)
 
-fun Route.addTaskV2(api: ToDoApiController) = postEndpoint(ApiPath.V2_ADD_TASK, api::addTask)
+fun Route.addTask(api: ToDoApiController) = postEndpoint(ApiPath.ADD_TASK, api::addTask)

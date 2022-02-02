@@ -1,15 +1,13 @@
 package com.marzec
 
-import com.marzec.cheatday.ApiPath as CheatApiPath
-import com.marzec.todo.ApiPath as TodoApiPath
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertThat
+import com.marzec.Api.Headers
 import com.marzec.cheatday.dto.WeightDto
-import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.database.DbSettings
 import com.marzec.di.MainModule
 import com.marzec.fiteo.ApiPath
-import com.marzec.Api.Headers
+import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.io.ExercisesReader
 import com.marzec.fiteo.io.ResourceFileReader
 import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
@@ -20,28 +18,23 @@ import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
-import com.marzec.todo.dto.CreateTodoListDto
-import com.marzec.todo.dto.ToDoListDto
+import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
-import com.marzec.todo.dto.TaskDto
-import io.ktor.application.Application
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.TestApplicationRequest
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
-import io.ktor.server.testing.withTestApplication
+import io.ktor.application.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
-import java.util.*
-import kotlin.reflect.KProperty
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.util.*
+import kotlin.reflect.KProperty
+import com.marzec.cheatday.ApiPath as CheatApiPath
+import com.marzec.todo.ApiPath as TodoApiPath
 
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
@@ -262,13 +255,6 @@ class FieldProperty<R, T>(
     }
 }
 
-fun TestApplicationEngine.addTodoList(dto: CreateTodoListDto) {
-    handleRequest(HttpMethod.Post, TodoApiPath.TODO_LIST) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
-}
-
 fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
     handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "$listId")) {
         setBodyJson(dto)
@@ -276,23 +262,15 @@ fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
     }
 }
 
-fun TestApplicationEngine.addTaskV2(dto: CreateTaskDto) {
-    handleRequest(HttpMethod.Post, TodoApiPath.V2_ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1")) {
+fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
+    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1")) {
         setBodyJson(dto)
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }
 }
 
-fun TestApplicationEngine.getTodoLists(): List<ToDoListDto> {
-    return handleRequest(HttpMethod.Get, TodoApiPath.TODO_LISTS) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString<List<ToDoListDto>>(it) }.orEmpty()
-}
-
 fun TestApplicationEngine.getTasks(): List<TaskDto> {
-    return handleRequest(HttpMethod.Get, TodoApiPath.V2_TASKS) {
+    return handleRequest(HttpMethod.Get, TodoApiPath.TASKS) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
         .content
@@ -341,8 +319,8 @@ fun TestApplicationEngine.getUserCall() : UserDto? {
         ?.let { json.decodeFromString(it) }
 }
 
-fun TestApplicationEngine.markAsDone(listId: Int, taskId: Int) {
-    val task = getTodoLists().first { it.id == listId }.tasks.flatMapTaskDto().first { it.id == taskId }
+fun TestApplicationEngine.markAsDone(taskId: Int) {
+    val task = getTasks().flatMapTaskDto().first { it.id == taskId }
     val dto = UpdateTaskDto(
         description = task.description,
         parentTaskId = task.parentTaskId,
