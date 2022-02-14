@@ -25,6 +25,8 @@ import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.todoApi
+import com.marzec.trader.TraderApiController
+import com.marzec.trader.traderApi
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -104,11 +106,13 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
             val api: Controller = di.api
             val cheatDayApi: CheatDayController = di.cheatDayController
             val todoController: ToDoApiController = di.todoController
+            val traderApiController: TraderApiController = di.traderApiController
 
             authorizationApi(api, di)
             cheatDayApi(di, cheatDayApi)
             todoApi(di, todoController)
             fiteoApi(di, api)
+            traderApi(di, traderApiController)
         }
     }
 }
