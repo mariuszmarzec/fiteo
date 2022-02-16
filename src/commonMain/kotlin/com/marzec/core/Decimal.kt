@@ -1,6 +1,6 @@
 package com.marzec.core
 
-expect class Decimal {
+expect class Decimal(value: String) {
 
     operator fun plus(other: Decimal): Decimal
 
@@ -11,3 +11,5 @@ expect class Decimal {
     operator fun div(other: Decimal): Decimal
 
 }
+
+fun String.toDecimal(): Decimal = Decimal(this)

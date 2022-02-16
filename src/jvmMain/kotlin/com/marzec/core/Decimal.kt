@@ -2,7 +2,7 @@ package com.marzec.core
 
 import java.math.BigDecimal
 
-actual class Decimal(value: String) {
+actual class Decimal actual constructor(value: String) {
 
     private val value: BigDecimal
 
@@ -19,4 +19,6 @@ actual class Decimal(value: String) {
     actual operator fun div(other: Decimal): Decimal = Decimal((value / other.value).toString())
 
     override fun toString(): String = value.toString()
+
+    override fun equals(other: Any?): Boolean = value == other
 }

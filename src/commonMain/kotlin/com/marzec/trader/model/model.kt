@@ -1,20 +1,18 @@
 package com.marzec.trader.model
 
+import com.marzec.core.Decimal
+import com.marzec.core.toDecimal
+import com.marzec.extensions.formatDate
+import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.TransactionDto
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
 
 data class Paper(
     val id: Long,
     val code: String,
     val name: String,
     val type: PaperType
-)
-
-data class PaperDto(
-    val id: Long,
-    val code: String,
-    val name: String,
-    val type: String
 )
 
 enum class PaperType {
@@ -29,11 +27,11 @@ data class Transaction(
     val date: LocalDateTime,
     val targetPaper: Paper,
     val sourcePaper: Paper,
-    val targetValue: String,
-    val totalPriceInSource: String,
-    val pricePerUnit: String,
-    val rate: String,
-    val fee: String,
+    val targetValue: Decimal,
+    val totalPriceInSource: Decimal,
+    val pricePerUnit: Decimal,
+    val rate: Decimal,
+    val fee: Decimal,
     val feePaper: Paper,
     val type: TransactionType
 )
@@ -59,10 +57,32 @@ fun PaperDto.toDomain(): Paper = Paper(
     type = PaperType.valueOf(type),
 )
 
-//fun Transaction.toDto(): TransactionDto = TransactionDto(
-//    id = id
-//)
-//
-//fun TransactionDto.toDomain(): Transaction = Transaction(
-//    id = id,
-//)
+fun Transaction.toDto(): TransactionDto = TransactionDto(
+    id = id,
+    title = title,
+    date = date.formatDate(),
+    targetPaper = targetPaper.toDto(),
+    sourcePaper = sourcePaper.toDto(),
+    targetValue = targetValue.toString(),
+    totalPriceInSource = totalPriceInSource.toString(),
+    pricePerUnit = pricePerUnit.toString(),
+    rate = rate.toString(),
+    fee = fee.toString(),
+    feePaper = feePaper.toDto(),
+    type = type.toString(),
+)
+
+fun TransactionDto.toDomain(): Transaction = Transaction(
+    id = id,
+    title = title,
+    date = date.toLocalDateTime(),
+    targetPaper = targetPaper.toDomain(),
+    sourcePaper = sourcePaper.toDomain(),
+    targetValue = targetValue.toDecimal(),
+    totalPriceInSource = totalPriceInSource.toDecimal(),
+    pricePerUnit = pricePerUnit.toDecimal(),
+    rate = rate.toDecimal(),
+    fee = fee.toDecimal(),
+    feePaper = feePaper.toDomain(),
+    type = TransactionType.valueOf(type),
+)
