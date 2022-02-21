@@ -1,6 +1,6 @@
 package com.marzec.core
 
-actual class Decimal {
+actual class Decimal actual constructor(value: String) {
     actual operator fun plus(other: Decimal): Decimal {
         TODO("Not yet implemented")
     }
