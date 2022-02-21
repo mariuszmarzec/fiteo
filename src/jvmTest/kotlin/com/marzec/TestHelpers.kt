@@ -21,6 +21,8 @@ import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
+import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.TransactionDto
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
@@ -35,6 +37,7 @@ import java.util.*
 import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
+import com.marzec.trader.ApiPath as TraderApiPath
 
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
@@ -255,13 +258,6 @@ class FieldProperty<R, T>(
     }
 }
 
-fun TestApplicationEngine.addTask(listId: Int, dto: CreateTaskDto) {
-    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "$listId")) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
-}
-
 fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
     handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1")) {
         setBodyJson(dto)
@@ -269,13 +265,30 @@ fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
     }
 }
 
-fun TestApplicationEngine.getTasks(): List<TaskDto> {
-    return handleRequest(HttpMethod.Get, TodoApiPath.TASKS) {
+fun TestApplicationEngine.addTransaction(dto: TransactionDto) = runAddEndpoint(TraderApiPath.ADD_TRANSACTIONS, dto)
+
+fun TestApplicationEngine.addPaper(dto: PaperDto) = runAddEndpoint(TraderApiPath.ADD_PAPER, dto)
+
+inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: String, dto: REQUEST) {
+    handleRequest(HttpMethod.Post, endpointUrl.replace("{${Api.Args.ARG_ID}}", "1")) {
+        setBodyJson(dto)
+        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
+    }
+}
+
+fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
+
+fun TestApplicationEngine.papers(): List<TaskDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
+
+inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
+    handleRequest(HttpMethod.Get, endpointUrl) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
         .content
-        ?.let { json.decodeFromString<List<TaskDto>>(it) }.orEmpty()
-}
+        ?.let { json.decodeFromString<List<RESPONSE>>(it) }.orEmpty()
+
+
+fun TestApplicationEngine.transactions(): List<TransactionDto> = runGetAllEndpoint(TraderApiPath.TRANSACTIONS)
 
 fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
     handleRequest(HttpMethod.Post, ApiPath.TRAINING_TEMPLATE) {
@@ -295,7 +308,7 @@ fun TestApplicationEngine.createTraining(trainingTemplateId: String): TrainingDt
         .let { json.decodeFromString(it!!) }
 }
 
-fun TestApplicationEngine.getTemplates() : List<TrainingTemplateDto> {
+fun TestApplicationEngine.getTemplates(): List<TrainingTemplateDto> {
     return handleRequest(HttpMethod.Get, ApiPath.TRAINING_TEMPLATES) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
@@ -303,7 +316,7 @@ fun TestApplicationEngine.getTemplates() : List<TrainingTemplateDto> {
         ?.let { json.decodeFromString<List<TrainingTemplateDto>>(it) }.orEmpty()
 }
 
-fun TestApplicationEngine.getTrainings() : List<TrainingDto> {
+fun TestApplicationEngine.getTrainings(): List<TrainingDto> {
     return handleRequest(HttpMethod.Get, ApiPath.TRAININGS) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response
@@ -311,7 +324,7 @@ fun TestApplicationEngine.getTrainings() : List<TrainingDto> {
         ?.let { json.decodeFromString<List<TrainingDto>>(it) }.orEmpty()
 }
 
-fun TestApplicationEngine.getUserCall() : UserDto? {
+fun TestApplicationEngine.getUserCall(): UserDto? {
     return handleRequest(HttpMethod.Get, ApiPath.USER) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }.response

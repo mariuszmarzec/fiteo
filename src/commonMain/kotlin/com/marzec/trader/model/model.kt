@@ -16,6 +16,7 @@ data class Paper(
 )
 
 enum class PaperType {
+    SETTLEMENT_CURRENCY,
     CURRENCY,
     SHARE,
     COMMODITY
@@ -30,7 +31,7 @@ data class Transaction(
     val targetValue: Decimal,
     val totalPriceInSource: Decimal,
     val pricePerUnit: Decimal,
-    val rate: Decimal,
+    val settlementRate: Decimal,
     val fee: Decimal,
     val feePaper: Paper,
     val type: TransactionType
@@ -66,7 +67,7 @@ fun Transaction.toDto(): TransactionDto = TransactionDto(
     targetValue = targetValue.toString(),
     totalPriceInSource = totalPriceInSource.toString(),
     pricePerUnit = pricePerUnit.toString(),
-    rate = rate.toString(),
+    settlementRate = settlementRate.toString(),
     fee = fee.toString(),
     feePaper = feePaper.toDto(),
     type = type.toString(),
@@ -81,7 +82,7 @@ fun TransactionDto.toDomain(): Transaction = Transaction(
     targetValue = targetValue.toDecimal(),
     totalPriceInSource = totalPriceInSource.toDecimal(),
     pricePerUnit = pricePerUnit.toDecimal(),
-    rate = rate.toDecimal(),
+    settlementRate = settlementRate.toDecimal(),
     fee = fee.toDecimal(),
     feePaper = feePaper.toDomain(),
     type = TransactionType.valueOf(type),

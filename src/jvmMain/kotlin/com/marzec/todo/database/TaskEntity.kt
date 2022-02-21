@@ -20,6 +20,7 @@ object TasksTable : IntIdTable("todo_tasks") {
 
     val isToDo = bool("is_to_do")
     val priority = integer("priority")
+    val scheduler = text("scheduler")
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -30,6 +31,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var modifiedTime by TasksTable.modifiedTime
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
+    var scheduler by TasksTable.scheduler
     var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
     override var user by UserEntity referencedOn TasksTable.userId

@@ -20,7 +20,7 @@ data class TransactionDto(
     val targetValue: String,
     val totalPriceInSource: String,
     val pricePerUnit: String,
-    val rate: String,
+    val settlementRate: String,
     val fee: String,
     val feePaper: PaperDto,
     val type: String

@@ -8,7 +8,13 @@ import com.marzec.fiteo.model.dto.*
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
+import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.TransactionDto
 import kotlinx.serialization.json.Json
+
+val dateTime = "2021-05-16T00:00:00"
+val dateTime2 = "2021-05-15T07:20:30"
+val dateTime3 = "2021-05-16T07:20:30"
 
 val categoryOne = stubCategory("1", "category_one")
 val categoryTwo = stubCategory("2", "category_two")
@@ -213,13 +219,13 @@ val registerRequestDto = stubRegisterRequestDto(
 
 val loginDto = LoginRequestDto(email = "test@mail.com", password = "1234567890")
 
-val createWeightDto = PutWeightDto(60f, "2021-05-15T07:20:30")
+val createWeightDto = PutWeightDto(60f, dateTime2)
 
-val weightDto = WeightDto(1, 60f, "2021-05-15T07:20:30")
+val weightDto = WeightDto(1, 60f, dateTime2)
 
-val createWeightDto2 = PutWeightDto(61f, "2021-05-16T07:20:30")
+val createWeightDto2 = PutWeightDto(61f, dateTime3)
 
-val weightDto2 = WeightDto(2, 61f, "2021-05-16T07:20:30")
+val weightDto2 = WeightDto(2, 61f, dateTime3)
 
 val createWeightDto3 = PutWeightDto(60.5f, "2021-05-17T07:20:30")
 
@@ -245,8 +251,8 @@ val taskDto = stubTaskDto(
 fun stubTaskDto(
     id: Int = 1,
     description: String = "",
-    addedTime: String = "2021-05-16T00:00:00",
-    modifiedTime: String = "2021-05-16T00:00:00",
+    addedTime: String = dateTime,
+    modifiedTime: String = dateTime,
     parentTaskId: Int? = null,
     subTasks: List<TaskDto> = emptyList(),
     isToDo: Boolean = true,
@@ -331,8 +337,8 @@ fun stubTrainingTemplatePartDto(
 fun stubTraining(
     id: Int = 0,
     templateId: Int = 0,
-    createDateInMillis: String = "2021-05-16T00:00:00",
-    finishDateInMillis: String = "2021-05-16T00:00:00",
+    createDateInMillis: String = dateTime,
+    finishDateInMillis: String = dateTime,
     exercisesWithProgress: List<TrainingExerciseWithProgressDto> = emptyList()
 ) = TrainingDto(
     id = id,
@@ -354,7 +360,7 @@ fun stubSeriesDto(
     seriesId: Int = 0,
     exerciseId: Int = 0,
     trainingId: Int = 0,
-    date: String = "2021-05-16T00:00:00",
+    date: String = dateTime,
     burden: Int? = null,
     timeInMillis: Long? = null,
     repsNumber: Int? = null,
@@ -409,7 +415,7 @@ fun stubExerciseDto(
 )
 
 fun stubCreateTrainingDto(
-    finishDateInMillis: String = "2021-05-16T00:00:00",
+    finishDateInMillis: String = dateTime,
     exercisesWithProgress: List<CreateTrainingExerciseWithProgressDto> = emptyList()
 ) = CreateTrainingDto(
     finishDateInMillis,
@@ -421,4 +427,68 @@ fun stubCreateTrainingExerciseWithProgressDto(
     series: List<SeriesDto> = emptyList()
 ) = CreateTrainingExerciseWithProgressDto(
    exerciseId, series
+)
+
+
+val paperDto = PaperDto(
+    id = 1,
+    code = "PLN",
+    name = "Zloty",
+    type = "SETTLEMENT_CURRENCY"
+)
+val paperDto2 = PaperDto(
+    id = 2,
+    code = "USD",
+    name = "Dollar",
+    type = "CURRENCY"
+)
+
+val paperDto3 = PaperDto(
+    id = 3,
+    code = "BASE",
+    name = "Couchbase",
+    type = "SHARE"
+)
+
+val transactionDto = TransactionDto(
+    id = 1,
+    title = "Dollar buy",
+    date = dateTime,
+    targetPaper = paperDto2,
+    sourcePaper = paperDto,
+    targetValue = "10.0",
+    totalPriceInSource = "41.1",
+    pricePerUnit = "4.01",
+    settlementRate = "3.99",
+    fee = "1.0",
+    feePaper = paperDto2,
+    type = "PURCHASE"
+)
+val transactionDto2 = TransactionDto(
+    id = 2,
+    title = "Stock market fee",
+    date = dateTime3,
+    targetPaper = paperDto2,
+    sourcePaper = paperDto2,
+    targetValue = "3.0",
+    totalPriceInSource = "3.0",
+    pricePerUnit = "3.0",
+    settlementRate = "3.98",
+    fee = "3.0",
+    feePaper = paperDto2,
+    type = "SELL"
+)
+val transactionDto3 = TransactionDto(
+    id = 3,
+    title = "Stock market fee",
+    date = dateTime3,
+    targetPaper = paperDto2,
+    sourcePaper = paperDto,
+    targetValue = "40.0",
+    totalPriceInSource = "10.0",
+    pricePerUnit = "0.25",
+    settlementRate = "3.935",
+    fee = "0.5",
+    feePaper = paperDto2,
+    type = "FEE"
 )
