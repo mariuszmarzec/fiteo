@@ -7,6 +7,8 @@ import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.*
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.Scheduler
+import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.TransactionDto
@@ -236,11 +238,13 @@ val createTaskDto = stubCreateTaskDto("task", null, 0)
 fun stubCreateTaskDto(
     description: String = "",
     parentTaskId: Int? = null,
-    priority: Int = 0
+    priority: Int = 0,
+    scheduler: SchedulerDto? = null
 ) = CreateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
+    scheduler = scheduler
 )
 
 val taskDto = stubTaskDto(
@@ -256,7 +260,8 @@ fun stubTaskDto(
     parentTaskId: Int? = null,
     subTasks: List<TaskDto> = emptyList(),
     isToDo: Boolean = true,
-    priority: Int = 0
+    priority: Int = 0,
+    scheduler: SchedulerDto? = null
 ) = TaskDto(
     id = id,
     description = description,
@@ -265,7 +270,8 @@ fun stubTaskDto(
     parentTaskId = parentTaskId,
     subTasks = subTasks,
     isToDo = isToDo,
-    priority = priority
+    priority = priority,
+    scheduler = scheduler
 )
 
 fun stubUpdateTaskDto(

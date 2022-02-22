@@ -1,6 +1,7 @@
 package com.marzec.todo.database
 
 import com.marzec.core.currentTime
+import com.marzec.database.ExerciseEntity.Companion.transform
 import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
@@ -12,6 +13,11 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.`java-time`.datetime
 import com.marzec.todo.extensions.sortTasks
+import com.marzec.todo.model.Scheduler
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.Column
 
 object TasksTable : IntIdTable("todo_tasks") {
     val description = text("description")
@@ -31,22 +37,23 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var modifiedTime by TasksTable.modifiedTime
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
-    var scheduler by TasksTable.scheduler
+    var scheduler by TasksTable.scheduler.transformStringSchedulerNullable()
     var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
     override var user by UserEntity referencedOn TasksTable.userId
 
     fun toDomain(): Task {
         return Task(
-                id = id.value,
-                description = description,
-                addedTime = addedTime.toKotlinLocalDateTime(),
-                modifiedTime = modifiedTime.toKotlinLocalDateTime(),
-                parentTaskId = parents.firstOrNull()?.id?.value,
-                subTasks = subtasks.toList().map { it.toDomain() }.sortTasks(),
-                isToDo = isToDo,
-                priority = priority
-        )
+            id = id.value,
+            description = description,
+            addedTime = addedTime.toKotlinLocalDateTime(),
+            modifiedTime = modifiedTime.toKotlinLocalDateTime(),
+            parentTaskId = parents.firstOrNull()?.id?.value,
+            subTasks = subtasks.toList().map { it.toDomain() }.sortTasks(),
+            isToDo = isToDo,
+            priority = priority,
+            scheduler = scheduler
+            )
     }
 
     companion object : IntEntityClass<TaskEntity>(TasksTable)
@@ -56,3 +63,8 @@ object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {
     val parent = reference("parent_id", TasksTable, onDelete = ReferenceOption.CASCADE)
     val child = reference("child_id", TasksTable, onDelete = ReferenceOption.CASCADE)
 }
+
+fun Column<String>.transformStringSchedulerNullable() = transform(
+    toColumn = { scheduler -> scheduler?.let { Json.encodeToString(it) }.orEmpty() },
+    toReal = { value -> value.takeIf { it.isNotEmpty() }?.let { Json.decodeFromString<Scheduler>(it) } }
+)
