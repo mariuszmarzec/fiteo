@@ -4,6 +4,7 @@ import com.marzec.Api
 import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
+import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.model.domain.CreateTrainingDto
 import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.TrainingDto
@@ -25,7 +26,8 @@ import com.marzec.fiteo.services.TrainingService
 class ControllerImpl(
     private val exercisesService: ExercisesService,
     private val authenticationService: AuthenticationService,
-    private val trainingService: TrainingService
+    private val trainingService: TrainingService,
+    private val initialDataLoader: InitialDataLoader
 ) : Controller {
     override fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
         serviceCall { exercisesService.getCategories().map { it.toDto() } }
@@ -121,5 +123,9 @@ class ControllerImpl(
             request.getIntOrThrow(Api.Args.ARG_ID),
             request.data.toDomain()
         ).toDto()
+    }
+
+    override fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit> = serviceCall {
+        initialDataLoader.forceLoadData()
     }
 }

@@ -1,12 +1,10 @@
 package com.marzec.fiteo
 
-import com.marzec.common.deleteByIdEndpoint
-import com.marzec.common.getAllEndpoint
-import com.marzec.common.getByIdEndpoint
-import com.marzec.common.postEndpoint
-import com.marzec.common.updateByIdEndpoint
+import com.marzec.Api
+import com.marzec.common.*
 import com.marzec.di.Di
 import com.marzec.fiteo.api.Controller
+import com.marzec.fiteo.model.http.HttpRequest
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.http.ContentType
@@ -31,6 +29,10 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     exercises(api)
     exercisesPage()
     categories(api)
+
+    if (di.authToken == Api.Auth.TEST) {
+        loadForceData(api)
+    }
 }
 
 fun Route.createTraining(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING, api::createTraining)
@@ -67,3 +69,9 @@ fun Route.exercisesPage() {
 fun Route.categories(api: Controller) = getAllEndpoint(ApiPath.CATEGORIES, api::getCategories)
 
 fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::getEquipment)
+
+fun Route.loadForceData(api: Controller) {
+    get(ApiPath.LOAD_DATA) {
+        dispatch(api.forceLoadData(HttpRequest(Unit)))
+    }
+}

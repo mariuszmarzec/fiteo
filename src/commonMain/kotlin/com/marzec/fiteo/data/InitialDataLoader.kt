@@ -17,6 +17,7 @@ interface InitialDataLoader {
     fun loadData()
     fun getTrainings(): List<Training>
     fun getTrainingTemplates(): List<TrainingTemplate>
+    fun forceLoadData()
 }
 
 class InitialDataLoaderImpl(
@@ -46,15 +47,23 @@ class InitialDataLoaderImpl(
             equipmentRepository.getAll().isEmpty() ||
             exercisesRepository.getAll().isEmpty()
         ) {
-            val json = resourceFileReader.read("/exercises.json")
-                ?: resourceFileReader.read("/example_exercises.json")!!
-            val fileDto = reader.parse(json)
-            exercisesData = exerciseFileMapper.toDomain(fileDto)
-
-            categoriesRepository.addAll(exercisesData.categories)
-            equipmentRepository.addAll(exercisesData.equipment)
-            exercisesRepository.addAll(exercisesData.exercises)
+            forceLoadData()
         }
+    }
+
+    override fun forceLoadData() {
+        loadDataInternal()
+    }
+
+    private fun loadDataInternal() {
+        val json = resourceFileReader.read("/exercises.json")
+            ?: resourceFileReader.read("/example_exercises.json")!!
+        val fileDto = reader.parse(json)
+        exercisesData = exerciseFileMapper.toDomain(fileDto)
+
+        categoriesRepository.addAll(exercisesData.categories)
+        equipmentRepository.addAll(exercisesData.equipment)
+        exercisesRepository.addAll(exercisesData.exercises)
     }
 }
 

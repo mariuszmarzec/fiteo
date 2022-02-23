@@ -32,4 +32,6 @@ object ApiPath {
     const val REGISTRATION = "$API_ROOT/registration"
     const val LOGIN = "$API_ROOT/login"
     const val LOGOUT = "$API_ROOT/logout"
+
+    const val LOAD_DATA = "$API_ROOT/force-load"
 }

@@ -135,7 +135,14 @@ val MainModule = module {
         TrainingTemplateRepositoryImpl(get { params })
     }
 
-    factory<Controller> { params -> ControllerImpl(get { params }, get { params }, get { params }) }
+    factory<Controller> { params ->
+        ControllerImpl(
+            get { params },
+            get { params },
+            get { params },
+            get { params }
+        )
+    }
 
     factory<EquipmentRepository> { params -> EquipmentRepositoryImpl(get { params }) }
 
