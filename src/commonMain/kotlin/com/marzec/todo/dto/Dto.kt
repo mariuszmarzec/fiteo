@@ -1,6 +1,5 @@
 package com.marzec.todo.dto
 
-import com.marzec.todo.model.SchedulerDto
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,6 +11,5 @@ data class TaskDto(
     val parentTaskId: Int?,
     val subTasks: List<TaskDto>,
     val isToDo: Boolean,
-    val priority: Int,
-    val scheduler: SchedulerDto?
+    val priority: Int
 )

@@ -13,7 +13,7 @@ fun <T> serviceCall(call: () -> T): HttpResponse<T> {
         } catch (expected: Exception) {
             when (expected) {
                 is HttpException -> HttpResponse.Error(ErrorDto(expected.message.orEmpty()), expected.httpStatus)
-                else -> HttpResponse.Error(ErrorDto(expected.message.orEmpty()), HttpStatus.INTERNAL_SERVER_ERROR)
+                else -> HttpResponse.Error(ErrorDto(expected.stackTraceToString()), HttpStatus.INTERNAL_SERVER_ERROR)
             }
         }
     }

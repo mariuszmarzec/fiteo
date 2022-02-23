@@ -114,7 +114,7 @@ fun Task.toDto(): TaskDto = TaskDto(
     subTasks = subTasks.map { it.toDto() },
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler?.toDto()
+//    scheduler = scheduler?.toDto()
 )
 
 fun TaskDto.toDomain(): Task = Task(
@@ -126,7 +126,7 @@ fun TaskDto.toDomain(): Task = Task(
     subTasks = subTasks.map { it.toDomain() },
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler?.toDomain()
+    scheduler = null// scheduler?.toDomain()
 )
 
 data class CreateTask(
