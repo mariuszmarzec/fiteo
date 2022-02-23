@@ -11,14 +11,14 @@ data class TrainingExerciseWithProgress(
 )
 
 data class Series(
-        val seriesId: Int,
-        val exerciseId: Int,
-        val trainingId: Int,
-        val date: LocalDateTime,
-        val burden: Int?,
-        val timeInMillis: Long?,
-        val repsNumber: Int?,
-        val note: String
+    val seriesId: Int,
+    val exerciseId: Int,
+    val trainingId: Int,
+    val date: LocalDateTime,
+    val burden: Int?,
+    val timeInMillis: Long?,
+    val repsNumber: Int?,
+    val note: String
 )
 
 @Serializable
@@ -29,30 +29,30 @@ data class TrainingExerciseWithProgressDto(
 
 @Serializable
 data class SeriesDto(
-        val seriesId: Int,
-        val exerciseId: Int,
-        val trainingId: Int,
-        val date: String,
-        val burden: Int?,
-        val timeInMillis: Long?,
-        val repsNumber: Int?,
-        val note: String
+    val seriesId: Int,
+    val exerciseId: Int,
+    val trainingId: Int,
+    val date: String,
+    val burden: Int?,
+    val timeInMillis: Long?,
+    val repsNumber: Int?,
+    val note: String
 )
 
 fun TrainingExerciseWithProgress.toDto() = TrainingExerciseWithProgressDto(
-        exercise = exercise.toDto(),
-        series = series.map { it.toDto() }
+    exercise = exercise.toDto(),
+    series = series.map { it.toDto() }
 )
 
 fun Series.toDto() = SeriesDto(
-        seriesId = seriesId,
-        exerciseId = exerciseId,
-        trainingId = trainingId,
-        date = date.formatDate(),
-        burden = burden,
-        timeInMillis = timeInMillis,
-        repsNumber = repsNumber,
-        note = note
+    seriesId = seriesId,
+    exerciseId = exerciseId,
+    trainingId = trainingId,
+    date = date.formatDate(),
+    burden = burden,
+    timeInMillis = timeInMillis,
+    repsNumber = repsNumber,
+    note = note
 )
 
 fun SeriesDto.toDomain() = Series(
