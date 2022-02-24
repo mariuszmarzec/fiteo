@@ -143,7 +143,7 @@ data class CreateTaskDto(
     val parentTaskId: Int? = null,
     val priority: Int? = null,
     val highestPriorityAsDefault: Boolean? = null,
-    val scheduler: SchedulerDto?
+//    val scheduler: SchedulerDto?
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
@@ -151,14 +151,14 @@ fun CreateTaskDto.toDomain() = CreateTask(
     parentTaskId = parentTaskId,
     priority = priority,
     highestPriorityAsDefault = highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT,
-    scheduler = scheduler?.toDomain()
+    scheduler = null//scheduler?.toDomain()
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
-    scheduler = scheduler?.toDto()
+//    scheduler = scheduler?.toDto()
 )
 
 data class UpdateTask(
