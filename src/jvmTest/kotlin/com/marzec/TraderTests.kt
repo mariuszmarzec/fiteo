@@ -70,7 +70,7 @@ class TraderTests {
     @Test
     fun removePaper() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_PAPERS,
+            uri = ApiPath.DELETE_PAPERS.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = paperDto2,
             authorize = TestApplicationEngine::registerAndLogin,
@@ -162,7 +162,7 @@ class TraderTests {
     @Test
     fun removeTransaction() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_TRANSACTIONS,
+            uri = ApiPath.DELETE_TRANSACTIONS.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = transactionDto2,
             authorize = TestApplicationEngine::registerAndLogin,

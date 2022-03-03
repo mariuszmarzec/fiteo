@@ -278,7 +278,7 @@ inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: S
 
 fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
 
-fun TestApplicationEngine.papers(): List<TaskDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
+fun TestApplicationEngine.papers(): List<PaperDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
 
 inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
     handleRequest(HttpMethod.Get, endpointUrl) {
