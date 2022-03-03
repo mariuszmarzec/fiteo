@@ -12,6 +12,8 @@ import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.TransactionDto
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.json.Json
 
 val dateTime = "2021-05-16T00:00:00"
@@ -432,7 +434,7 @@ fun stubCreateTrainingExerciseWithProgressDto(
     exerciseId: Int = 0,
     series: List<SeriesDto> = emptyList()
 ) = CreateTrainingExerciseWithProgressDto(
-   exerciseId, series
+    exerciseId, series
 )
 
 
@@ -497,4 +499,31 @@ val transactionDto3 = TransactionDto(
     fee = "0.5",
     feePaper = paperDto2,
     type = "FEE"
+)
+
+val schedulerOneShotDto = SchedulerDto(
+    hour = 7,
+    minute = 0,
+    startDate = dateTime,
+    daysOfWeek = emptyList(),
+    dayOfMonth = 0,
+    type = Scheduler.OneShot::class.simpleName.toString(),
+)
+
+val schedulerWeeklyDto = SchedulerDto(
+    hour = 12,
+    minute = 0,
+    startDate = dateTime,
+    daysOfWeek = listOf(DayOfWeek.MONDAY.isoDayNumber, DayOfWeek.FRIDAY.isoDayNumber),
+    dayOfMonth = 0,
+    type = Scheduler.Weekly::class.simpleName.toString(),
+)
+
+val schedulerMonthlyDto = SchedulerDto(
+    hour = 14,
+    minute = 30,
+    startDate = dateTime,
+    daysOfWeek = emptyList(),
+    dayOfMonth = 27,
+    type = Scheduler.Monthly::class.simpleName.toString(),
 )

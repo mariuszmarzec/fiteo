@@ -114,7 +114,7 @@ fun Task.toDto(): TaskDto = TaskDto(
     subTasks = subTasks.map { it.toDto() },
     isToDo = isToDo,
     priority = priority,
-//    scheduler = scheduler?.toDto()
+    scheduler = scheduler?.toDto()
 )
 
 fun TaskDto.toDomain(): Task = Task(
@@ -126,7 +126,7 @@ fun TaskDto.toDomain(): Task = Task(
     subTasks = subTasks.map { it.toDomain() },
     isToDo = isToDo,
     priority = priority,
-    scheduler = null// scheduler?.toDomain()
+    scheduler = scheduler?.toDomain()
 )
 
 data class CreateTask(
@@ -143,7 +143,7 @@ data class CreateTaskDto(
     val parentTaskId: Int? = null,
     val priority: Int? = null,
     val highestPriorityAsDefault: Boolean? = null,
-//    val scheduler: SchedulerDto?
+    val scheduler: SchedulerDto?
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
@@ -151,14 +151,14 @@ fun CreateTaskDto.toDomain() = CreateTask(
     parentTaskId = parentTaskId,
     priority = priority,
     highestPriorityAsDefault = highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT,
-    scheduler = null//scheduler?.toDomain()
+    scheduler = scheduler?.toDomain()
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
-//    scheduler = scheduler?.toDto()
+    scheduler = scheduler?.toDto()
 )
 
 data class UpdateTask(

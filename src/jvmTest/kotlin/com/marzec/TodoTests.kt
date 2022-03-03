@@ -51,6 +51,57 @@ class TodoTests {
     }
 
     @Test
+    fun addTask_scheduledOneShot() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = createTaskDto.copy(scheduler = schedulerOneShotDto),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(scheduler = schedulerOneShotDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto.copy(scheduler = schedulerOneShotDto)))
+            }
+        )
+    }
+
+    @Test
+    fun addTask_scheduledWeekly() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = createTaskDto.copy(scheduler = schedulerWeeklyDto),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(scheduler = schedulerWeeklyDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto.copy(scheduler = schedulerWeeklyDto)))
+            }
+        )
+    }
+
+    @Test
+    fun addTask_scheduledMonthly() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = createTaskDto.copy(scheduler = schedulerMonthlyDto),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(scheduler = schedulerMonthlyDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto.copy(scheduler = schedulerMonthlyDto)))
+            }
+        )
+    }
+
+    @Test
     fun addTask_withLowestPriorityByDefault() {
         testPostEndpoint(
             uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
