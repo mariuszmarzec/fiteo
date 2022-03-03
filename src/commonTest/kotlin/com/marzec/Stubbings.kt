@@ -484,7 +484,7 @@ val transactionDto2 = TransactionDto(
     settlementRate = "3.98",
     fee = "3.0",
     feePaper = paperDto2,
-    type = "SELL"
+    type = "SALE"
 )
 val transactionDto3 = TransactionDto(
     id = 3,

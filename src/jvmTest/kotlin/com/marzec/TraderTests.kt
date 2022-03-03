@@ -144,7 +144,7 @@ class TraderTests {
     @Test
     fun updateTransactions() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TRANSACTIONS,
+            uri = ApiPath.UPDATE_TRANSACTIONS.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             dto = transactionDto3.copy(id = 1),
             responseDto = transactionDto3.copy(id = 1),
@@ -162,7 +162,7 @@ class TraderTests {
     @Test
     fun removeTransaction() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_TRANSACTIONS.replace("{${Api.Args.ARG_ID}}", "1"),
+            uri = ApiPath.DELETE_TRANSACTIONS.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = transactionDto2,
             authorize = TestApplicationEngine::registerAndLogin,

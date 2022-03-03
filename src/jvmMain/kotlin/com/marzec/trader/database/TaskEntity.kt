@@ -21,14 +21,14 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 object TransactionTable : IntIdTable("transactions") {
     val title = varchar("title", 200)
     val date = datetime("date_time")
-    val targetPaper = reference("target_paper_id", UserTable, onDelete = ReferenceOption.RESTRICT)
-    val sourcePaper = reference("source_paper_id", UserTable, onDelete = ReferenceOption.RESTRICT)
+    val targetPaper = reference("target_paper_id", PapersTable, onDelete = ReferenceOption.RESTRICT)
+    val sourcePaper = reference("source_paper_id", PapersTable, onDelete = ReferenceOption.RESTRICT)
     val targetValue = varchar("target_value", 100)
     val totalPriceInSource = varchar("total_price_in_source", 100)
     val pricePerUnit = varchar("price_per_unit", 100)
     val settlementRate = varchar("settlement_rate", 100)
     val fee = varchar("fee", 100)
-    val feePaper = reference("fee_paper_id", UserTable, onDelete = ReferenceOption.RESTRICT)
+    val feePaper = reference("fee_paper_id", PapersTable, onDelete = ReferenceOption.RESTRICT)
     val type = varchar("type", 100)
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 
@@ -47,7 +47,7 @@ class TransactionEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var feePaper by PaperEntity referencedOn TransactionTable.feePaper
     var type by TransactionTable.type
 
-    override var user by UserEntity referencedOn TasksTable.userId
+    override var user by UserEntity referencedOn TransactionTable.userId
 
     fun toDomain() = Transaction(
         id = id.value.toLong(),

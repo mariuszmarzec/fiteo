@@ -270,7 +270,7 @@ fun TestApplicationEngine.addTransaction(dto: TransactionDto) = runAddEndpoint(T
 fun TestApplicationEngine.addPaper(dto: PaperDto) = runAddEndpoint(TraderApiPath.ADD_PAPER, dto)
 
 inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: String, dto: REQUEST) {
-    handleRequest(HttpMethod.Post, endpointUrl.replace("{${Api.Args.ARG_ID}}", "1")) {
+    handleRequest(HttpMethod.Post, endpointUrl) {
         setBodyJson(dto)
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
     }
