@@ -1,6 +1,7 @@
 package com.marzec
 
 import com.google.common.truth.Truth.assertThat
+import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.trader.ApiPath
 import io.ktor.http.*
 import io.ktor.server.testing.*
@@ -47,6 +48,27 @@ class TraderTests {
                         paperDto,
                         paperDto2,
                         paperDto3
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
+    fun addPapers_onlyOneSettlementCurrency() {
+        testPostEndpoint(
+            uri = ApiPath.PAPERS,
+            status = HttpStatusCode.BadRequest,
+            dto = paperDto.copy(name = "second"),
+            responseDto = ErrorDto("There could be only one settlement currency"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addPaper(paperDto)
+            },
+            runRequestsAfter = {
+                assertThat(papers()).isEqualTo(
+                    listOf(
+                        paperDto
                     )
                 )
             }

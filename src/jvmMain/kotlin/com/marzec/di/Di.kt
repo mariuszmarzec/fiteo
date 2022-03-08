@@ -41,6 +41,7 @@ import com.marzec.todo.TodoService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
 import com.marzec.trader.TraderApiController
+import com.marzec.trader.TraderConstraints
 import com.marzec.trader.TraderRepository
 import com.marzec.trader.TraderService
 import com.marzec.trader.repositories.TraderRepositoryImpl
@@ -172,7 +173,7 @@ val MainModule = module {
 
     factory { params -> ToDoApiController(get { params }) }
 
-    factory { params -> TraderApiController(get { params }) }
+    factory { params -> TraderApiController(get { params }, get { params }) }
 
     factory { params -> TodoService(get { params }) }
 
@@ -181,4 +182,6 @@ val MainModule = module {
     factory<TraderRepository> { params -> TraderRepositoryImpl(get { params }) }
 
     factory<TrainingRepository> { params -> TrainingRepositoryImpl(get { params }) }
+
+    factory<TraderConstraints> { params -> TraderConstraints(get { params }) }
 }
