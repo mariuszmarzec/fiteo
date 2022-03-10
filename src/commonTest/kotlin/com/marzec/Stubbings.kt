@@ -505,8 +505,11 @@ val schedulerOneShotDto = SchedulerDto(
     hour = 7,
     minute = 0,
     startDate = dateTime,
+    lastDate = dateTime,
     daysOfWeek = emptyList(),
     dayOfMonth = 0,
+    repeatCount = -1,
+    repeatInEveryPeriod = 1,
     type = Scheduler.OneShot::class.simpleName.toString(),
 )
 
@@ -514,8 +517,11 @@ val schedulerWeeklyDto = SchedulerDto(
     hour = 12,
     minute = 0,
     startDate = dateTime,
+    lastDate = dateTime,
     daysOfWeek = listOf(DayOfWeek.MONDAY.isoDayNumber, DayOfWeek.FRIDAY.isoDayNumber),
     dayOfMonth = 0,
+    repeatCount = 3,
+    repeatInEveryPeriod = 3,
     type = Scheduler.Weekly::class.simpleName.toString(),
 )
 
@@ -523,7 +529,10 @@ val schedulerMonthlyDto = SchedulerDto(
     hour = 14,
     minute = 30,
     startDate = dateTime,
+    lastDate = dateTime,
     daysOfWeek = emptyList(),
     dayOfMonth = 27,
+    repeatCount = 5,
+    repeatInEveryPeriod = 1,
     type = Scheduler.Monthly::class.simpleName.toString(),
 )

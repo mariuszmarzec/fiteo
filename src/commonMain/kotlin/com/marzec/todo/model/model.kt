@@ -24,27 +24,50 @@ data class Task(
 sealed class Scheduler(
     open val hour: Int,
     open val minute: Int,
-    open val startDate: LocalDateTime
+    open val startDate: LocalDateTime,
+    open val lastDate: LocalDateTime,
+    open val repeatCount: Int = DEFAULT_REPEAT_COUNT,
+    open val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD
 ) {
     data class OneShot(
         override val hour: Int,
         override val minute: Int,
-        override val startDate: LocalDateTime
-    ) : Scheduler(hour, minute, startDate)
+        override val startDate: LocalDateTime,
+        override val lastDate: LocalDateTime,
+        override val repeatCount: Int = DEFAULT_REPEAT_COUNT,
+        override val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD
+    ) : Scheduler(
+        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod
+    )
 
     data class Weekly(
         override val hour: Int,
         override val minute: Int,
         override val startDate: LocalDateTime,
         val daysOfWeek: List<DayOfWeek>,
-    ) : Scheduler(hour, minute, startDate)
+        override val lastDate: LocalDateTime,
+        override val repeatCount: Int = DEFAULT_REPEAT_COUNT,
+        override val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD
+    ) : Scheduler(
+        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod
+    )
 
     data class Monthly(
         override val hour: Int,
         override val minute: Int,
         override val startDate: LocalDateTime,
         val dayOfMonth: Int,
-    ) : Scheduler(hour, minute, startDate)
+        override val lastDate: LocalDateTime,
+        override val repeatCount: Int = DEFAULT_REPEAT_COUNT,
+        override val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD
+    ) : Scheduler(
+        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod
+    )
+
+    companion object {
+        val DEFAULT_REPEAT_COUNT = -1
+        val DEFAULT_REPEAT_IN_EVERY_PERIOD = 1
+    }
 }
 
 @Serializable
@@ -52,28 +75,36 @@ data class SchedulerDto(
     val hour: Int,
     val minute: Int,
     val startDate: String,
+    val lastDate: String,
     val daysOfWeek: List<Int>,
     val dayOfMonth: Int,
+    val repeatCount: Int,
+    val repeatInEveryPeriod: Int,
     val type: String
 )
 
-fun SchedulerDto.toDomain(): Scheduler = when(type) {
+fun SchedulerDto.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
         hour = hour,
         minute = minute,
-        startDate = startDate.toLocalDateTime()
+        startDate = startDate.toLocalDateTime(),
+        lastDate = lastDate.toLocalDateTime(),
     )
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
         minute = minute,
         startDate = startDate.toLocalDateTime(),
-        daysOfWeek = daysOfWeek.map { DayOfWeek(it) }
+        lastDate = lastDate.toLocalDateTime(),
+        daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
-        hour = hour,
-        minute = minute,
-        startDate = startDate.toLocalDateTime(),
-        dayOfMonth = dayOfMonth
+        hour = hour, minute = minute, startDate = startDate.toLocalDateTime(),
+        lastDate = lastDate.toLocalDateTime(),
+        dayOfMonth = dayOfMonth,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
     )
     else -> throw IllegalArgumentException("Unknown type of scheduler")
 }
@@ -83,24 +114,33 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = emptyList(),
         dayOfMonth = 0,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
     is Scheduler.Weekly -> SchedulerDto(
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = daysOfWeek.map { it.isoDayNumber },
         dayOfMonth = 0,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
     is Scheduler.Monthly -> SchedulerDto(
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = emptyList(),
         dayOfMonth = dayOfMonth,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
 }
@@ -155,37 +195,22 @@ fun CreateTaskDto.toDomain() = CreateTask(
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    scheduler = scheduler?.toDto()
+    description = description, parentTaskId = parentTaskId, priority = priority, scheduler = scheduler?.toDto()
 )
 
 data class UpdateTask(
-    val description: String,
-    val parentTaskId: Int?,
-    val priority: Int,
-    val isToDo: Boolean
+    val description: String, val parentTaskId: Int?, val priority: Int, val isToDo: Boolean
 )
 
 @Serializable
 data class UpdateTaskDto(
-    val description: String,
-    val parentTaskId: Int? = null,
-    val priority: Int,
-    val isToDo: Boolean
+    val description: String, val parentTaskId: Int? = null, val priority: Int, val isToDo: Boolean
 )
 
 fun UpdateTaskDto.toDomain() = UpdateTask(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo
+    description = description, parentTaskId = parentTaskId, priority = priority, isToDo = isToDo
 )
 
 fun UpdateTask.toDto() = UpdateTaskDto(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo
+    description = description, parentTaskId = parentTaskId, priority = priority, isToDo = isToDo
 )

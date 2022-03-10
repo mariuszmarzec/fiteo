@@ -78,55 +78,72 @@ data class SchedulerEntity(
     val hour: Int,
     val minute: Int,
     val startDate: String,
+    val lastDate: String,
     val daysOfWeek: List<Int>,
     val dayOfMonth: Int,
+    val repeatCount: Int,
+    val repeatInEveryPeriod: Int,
     val type: String
 )
 
-private fun SchedulerEntity.toDomain(): Scheduler = when(type) {
+fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
         hour = hour,
         minute = minute,
-        startDate = startDate.toLocalDateTime()
+        startDate = startDate.toLocalDateTime(),
+        lastDate = lastDate.toLocalDateTime(),
     )
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
         minute = minute,
         startDate = startDate.toLocalDateTime(),
-        daysOfWeek = daysOfWeek.map { DayOfWeek(it) }
+        lastDate = lastDate.toLocalDateTime(),
+        daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
-        hour = hour,
-        minute = minute,
-        startDate = startDate.toLocalDateTime(),
-        dayOfMonth = dayOfMonth
+        hour = hour, minute = minute, startDate = startDate.toLocalDateTime(),
+        lastDate = lastDate.toLocalDateTime(),
+        dayOfMonth = dayOfMonth,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
     )
     else -> throw IllegalArgumentException("Unknown type of scheduler")
 }
 
-private fun Scheduler.toEntity(): SchedulerEntity = when (this) {
+fun Scheduler.toEntity(): SchedulerEntity = when (this) {
     is Scheduler.OneShot -> SchedulerEntity(
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = emptyList(),
         dayOfMonth = 0,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
     is Scheduler.Weekly -> SchedulerEntity(
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = daysOfWeek.map { it.isoDayNumber },
         dayOfMonth = 0,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
     is Scheduler.Monthly -> SchedulerEntity(
         hour = hour,
         minute = minute,
         startDate = startDate.formatDate(),
+        lastDate = lastDate.formatDate(),
         daysOfWeek = emptyList(),
         dayOfMonth = dayOfMonth,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty()
     )
 }
