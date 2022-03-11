@@ -47,6 +47,7 @@ class InitialDataLoaderImpl(
             equipmentRepository.getAll().isEmpty() ||
             exercisesRepository.getAll().isEmpty()
         ) {
+            loadDataInternal()
         }
     }
 
