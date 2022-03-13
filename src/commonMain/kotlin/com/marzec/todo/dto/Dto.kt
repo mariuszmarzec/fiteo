@@ -13,5 +13,5 @@ data class TaskDto(
     val subTasks: List<TaskDto>,
     val isToDo: Boolean,
     val priority: Int,
-    val scheduler: SchedulerDto?
+    val scheduler: SchedulerDto? = null
 )

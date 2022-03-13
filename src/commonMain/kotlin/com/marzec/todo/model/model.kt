@@ -183,7 +183,7 @@ data class CreateTaskDto(
     val parentTaskId: Int? = null,
     val priority: Int? = null,
     val highestPriorityAsDefault: Boolean? = null,
-    val scheduler: SchedulerDto?
+    val scheduler: SchedulerDto? = null
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
