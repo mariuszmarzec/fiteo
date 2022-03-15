@@ -199,18 +199,35 @@ fun CreateTask.toDto() = CreateTaskDto(
 )
 
 data class UpdateTask(
-    val description: String, val parentTaskId: Int?, val priority: Int, val isToDo: Boolean
+    val description: String,
+    val parentTaskId: Int?,
+    val priority: Int,
+    val isToDo: Boolean,
+    val scheduler: Scheduler?
 )
 
 @Serializable
 data class UpdateTaskDto(
-    val description: String, val parentTaskId: Int? = null, val priority: Int, val isToDo: Boolean
+    val description: String,
+    val parentTaskId: Int? = null,
+    val priority: Int,
+    val isToDo: Boolean,
+    val scheduler: SchedulerDto? = null
+
 )
 
 fun UpdateTaskDto.toDomain() = UpdateTask(
-    description = description, parentTaskId = parentTaskId, priority = priority, isToDo = isToDo
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+    isToDo = isToDo,
+    scheduler = scheduler?.toDomain()
 )
 
 fun UpdateTask.toDto() = UpdateTaskDto(
-    description = description, parentTaskId = parentTaskId, priority = priority, isToDo = isToDo
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+    isToDo = isToDo,
+    scheduler = scheduler?.toDto()
 )

@@ -193,9 +193,20 @@ class TodoTests {
     fun updateTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
-            dto = UpdateTaskDto(description = "updated task", parentTaskId = null, priority = 10, isToDo = false),
+            dto = UpdateTaskDto(
+                description = "updated task",
+                parentTaskId = null,
+                priority = 10,
+                isToDo = false,
+                scheduler = schedulerWeeklyDto
+            ),
             status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(description = "updated task", priority = 10, isToDo = false),
+            responseDto = stubTaskDto(
+                description = "updated task",
+                priority = 10,
+                isToDo = false,
+                scheduler = schedulerWeeklyDto
+            ),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
@@ -208,7 +219,8 @@ class TodoTests {
                             description = "updated task",
                             parentTaskId = null,
                             priority = 10,
-                            isToDo = false
+                            isToDo = false,
+                            scheduler = schedulerWeeklyDto
                         )
                     )
                 )

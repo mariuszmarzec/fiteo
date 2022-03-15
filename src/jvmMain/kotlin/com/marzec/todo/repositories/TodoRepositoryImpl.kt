@@ -58,6 +58,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         taskEntity.priority = task.priority
         taskEntity.isToDo = task.isToDo
         taskEntity.modifiedTime = currentTime()
+        taskEntity.scheduler = task.scheduler
         taskEntity.toDomain()
     }
 
