@@ -32,7 +32,6 @@ fun List<Exercise>.filter(
         }
     }.filter { exercise ->
         searchText.split(" ").all { it in exercise.name }
-
     }
 }
 
