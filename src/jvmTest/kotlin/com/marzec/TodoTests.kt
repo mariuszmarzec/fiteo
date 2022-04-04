@@ -164,6 +164,21 @@ class TodoTests {
     }
 
     @Test
+    fun addSubTask_withoutHighestPriority_withParentTaskPriority() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = createTaskDto.copy(parentTaskId = 1, priority = null, highestPriorityAsDefault = false),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 2, parentTaskId = 1, priority = -100),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto.copy(priority = -100))
+            },
+        )
+    }
+
+    @Test
     fun addTask_asChildTask() {
         testPostEndpoint(
             uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),

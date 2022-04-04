@@ -5,6 +5,7 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
+import com.marzec.extensions.ifNull
 import com.marzec.extensions.listOf
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
@@ -78,12 +79,19 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         task: CreateTask,
         parentTask: TaskEntity?
     ) = task.priority ?: database.dbCall {
-        (parentTask?.subtasks ?: TaskEntity.all()).toList().let { tasks ->
-            if (task.highestPriorityAsDefault) {
-                tasks.maxOfOrNull { it.priority }?.inc()
-            } else {
-                tasks.minOfOrNull { it.priority }?.dec()
+        when {
+            parentTask != null -> {
+                parentTask.subtasks.toList().takeIf { it.isNotEmpty() }
+                    ?.calcPriority(task.highestPriorityAsDefault)
+                    .ifNull(parentTask.priority)
             }
-        } ?: 0
+            else -> TaskEntity.all().toList().calcPriority(task.highestPriorityAsDefault) ?: 0
+        }
+    }
+
+    private fun List<TaskEntity>.calcPriority(highestPriorityAsDefault: Boolean) = if (highestPriorityAsDefault) {
+        maxOfOrNull { it.priority }?.inc()
+    } else {
+        minOfOrNull { it.priority }?.dec()
     }
 }
