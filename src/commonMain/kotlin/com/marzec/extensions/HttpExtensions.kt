@@ -27,10 +27,10 @@ fun <REQUEST, RESPONSE> HttpRequest<REQUEST>.serviceCall(
 }
 
 fun <REQUEST> constraint(
-    check: HttpRequest<REQUEST>.() -> Boolean,
+    breakingRule: HttpRequest<REQUEST>.() -> Boolean,
     exception: (HttpRequest<REQUEST>.() -> Exception)? = null
 ): HttpRequest<REQUEST>.() -> Unit = {
-    if (!check()) {
+    if (breakingRule()) {
         throw exception?.invoke(this) ?: HttpException("Bad request", HttpStatus.BAD_REQUEST)
     }
 }

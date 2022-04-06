@@ -9,7 +9,6 @@ import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
-import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.TransactionDto
 import com.marzec.trader.model.PaperType
@@ -76,11 +75,11 @@ class TraderConstraints(
     private val service: TraderService
 ) {
     val onlyOneSettlementCurrency = constraint<PaperDto>(
-        check = {
+        breakingRule = {
             if (data.toDomain().type == PaperType.SETTLEMENT_CURRENCY) {
-                service.getPapers().count { it.type == PaperType.SETTLEMENT_CURRENCY } == 0
+                service.getPapers().count { it.type == PaperType.SETTLEMENT_CURRENCY } > 0
             } else {
-                true
+                false
             }
         },
         exception = {

@@ -36,6 +36,7 @@ import com.marzec.fiteo.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.fiteo.repositories.UserRepository
 import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.repositories.WeightsRepositoryImpl
+import com.marzec.todo.TaskConstraints
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.TodoService
 import com.marzec.todo.TodoRepository
@@ -171,7 +172,7 @@ val MainModule = module {
 
     factory<WeightsRepository> { params -> WeightsRepositoryImpl(get { params }) }
 
-    factory { params -> ToDoApiController(get { params }) }
+    factory { params -> ToDoApiController(get { params }, get { params }) }
 
     factory { params -> TraderApiController(get { params }, get { params }) }
 
@@ -184,4 +185,6 @@ val MainModule = module {
     factory<TrainingRepository> { params -> TrainingRepositoryImpl(get { params }) }
 
     factory<TraderConstraints> { params -> TraderConstraints(get { params }) }
+
+    factory<TaskConstraints> { params -> TaskConstraints() }
 }

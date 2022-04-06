@@ -2,6 +2,7 @@ package com.marzec
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
+import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.todo.ApiPath
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.UpdateTaskDto
@@ -97,6 +98,24 @@ class TodoTests {
             },
             runRequestsAfter = {
                 assertThat(getTasks()).isEqualTo(listOf(taskDto.copy(scheduler = schedulerMonthlyDto)))
+            }
+        )
+    }
+
+    @Test
+    fun addTask_scheduledTaskCanNotHaveParent() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK,
+            dto = createTaskDto.copy(parentTaskId = 1, scheduler = schedulerMonthlyDto),
+            status = HttpStatusCode.BadRequest,
+            responseDto = ErrorDto("Scheduled task can't have parent"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto))
             }
         )
     }
@@ -314,6 +333,25 @@ class TodoTests {
     }
 
     @Test
+    fun updateTask_scheduledTaskCanNotHaveParent() {
+        testPatchEndpoint(
+            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
+            dto = stubUpdateTaskDto(parentTaskId = 1, scheduler = schedulerMonthlyDto),
+            status = HttpStatusCode.BadRequest,
+            responseDto = ErrorDto("Scheduled task can't have parent"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto, taskDto.copy(id = 2)))
+            }
+        )
+    }
+
+    @Test
     fun removeTask() {
         testDeleteEndpoint(
             uri = ApiPath.DELETE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
@@ -484,4 +522,3 @@ class TodoTests {
         GlobalContext.stopKoin()
     }
 }
-

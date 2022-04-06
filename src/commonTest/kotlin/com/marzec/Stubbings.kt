@@ -280,12 +280,14 @@ fun stubUpdateTaskDto(
     description: String = "",
     parentTaskId: Int? = null,
     priority: Int = 0,
-    isToDo: Boolean = true
+    isToDo: Boolean = true,
+    scheduler: SchedulerDto? = null
 ) = UpdateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
-    isToDo = isToDo
+    isToDo = isToDo,
+    scheduler = scheduler
 )
 
 fun stubCreateTrainingTemplateDto(
