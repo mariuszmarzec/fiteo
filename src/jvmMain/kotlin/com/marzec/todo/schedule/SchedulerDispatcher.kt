@@ -84,7 +84,7 @@ private fun Scheduler.shouldBeCreated(schedulerDispatcherInterval: Long): Boolea
 private fun Task.toCreateTask(parentTaskId: Int? = null) = CreateTask(
     description = description,
     parentTaskId = parentTaskId,
-    priority = priority,
+    priority = null,
     highestPriorityAsDefault = false,
     scheduler = null
 )
