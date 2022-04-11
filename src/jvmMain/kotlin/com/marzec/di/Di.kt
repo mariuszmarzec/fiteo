@@ -41,6 +41,7 @@ import com.marzec.todo.ToDoApiController
 import com.marzec.todo.TodoService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
+import com.marzec.todo.schedule.SchedulerDispatcher
 import com.marzec.trader.TraderApiController
 import com.marzec.trader.TraderConstraints
 import com.marzec.trader.TraderRepository
@@ -57,12 +58,15 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 const val SESSION_EXPIRATION_TIME = "SessionExpirationTime"
+const val SCHEDULER_DISPATCHER_INTERVAL = "SchedulerDispatcherInterval"
 
-private const val MILLISECONDS_IN_SECOND = 1000
-private const val SECONDS_IN_HOUR = 3600L
-private const val HOURS_IN_DAY = 24
-private const val DAYS_IN_MONTH = 31
+const val MILLISECONDS_IN_SECOND = 1000
+const val SECONDS_IN_HOUR = 3600L
+const val SECONDS_IN_MINUTE = 60L
+const val HOURS_IN_DAY = 24
+const val DAYS_IN_MONTH = 31
 private const val EXPIRATION_MONTHS_COUNT = 3
+private const val SCHEDULER_INTERVAL_IN_MIN = 15
 
 class Di(
     private val database: Database,
@@ -76,7 +80,11 @@ class Di(
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
     val traderApiController by inject<TraderApiController> { parametersOf(database, authToken) }
+    val schedulerDispatcher by inject<SchedulerDispatcher> { parametersOf(database, authToken) }
     val sessionExpirationTime by inject<Long>(qualifier = named(SESSION_EXPIRATION_TIME)) {
+        parametersOf(database, authToken)
+    }
+    val schedulerDispatcherInterval by inject<Long>(qualifier = named(SCHEDULER_DISPATCHER_INTERVAL)) {
         parametersOf(database, authToken)
     }
 }
@@ -101,6 +109,10 @@ val MainModule = module {
 
     single(qualifier = named(SESSION_EXPIRATION_TIME)) {
         EXPIRATION_MONTHS_COUNT * DAYS_IN_MONTH * HOURS_IN_DAY * SECONDS_IN_HOUR * MILLISECONDS_IN_SECOND
+    }
+
+    single(qualifier = named(SCHEDULER_DISPATCHER_INTERVAL)) {
+        SCHEDULER_INTERVAL_IN_MIN * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND
     }
 
     single { params -> ExerciseFileMapper(get { params }) }
@@ -186,5 +198,7 @@ val MainModule = module {
 
     factory<TraderConstraints> { params -> TraderConstraints(get { params }) }
 
-    factory<TaskConstraints> { params -> TaskConstraints() }
+    factory<TaskConstraints> { TaskConstraints() }
+
+    single { params -> SchedulerDispatcher(get { params }, get(named(SCHEDULER_DISPATCHER_INTERVAL))) }
 }

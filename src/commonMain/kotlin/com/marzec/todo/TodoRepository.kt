@@ -1,5 +1,6 @@
 package com.marzec.todo
 
+import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
@@ -7,6 +8,8 @@ import com.marzec.todo.model.UpdateTask
 interface TodoRepository {
 
     fun getTasks(userId: Int): List<Task>
+
+    fun getScheduledTasks(): Map<User, List<Task>>
 
     fun addTask(userId: Int, task: CreateTask): Task
 

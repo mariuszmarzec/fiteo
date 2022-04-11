@@ -24,6 +24,7 @@ import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
+import com.marzec.todo.schedule.runTodoSchedulerDispatcher
 import com.marzec.todo.todoApi
 import com.marzec.trader.TraderApiController
 import com.marzec.trader.traderApi
@@ -90,6 +91,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
         testDi.dataSource.loadData()
 
         clearSessionsInPeriod(di, testDi)
+        runTodoSchedulerDispatcher(di, testDi)
     }
 
     configuration(diModules, di)

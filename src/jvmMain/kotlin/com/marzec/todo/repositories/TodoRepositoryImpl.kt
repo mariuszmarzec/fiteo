@@ -7,6 +7,7 @@ import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
 import com.marzec.extensions.ifNull
 import com.marzec.extensions.listOf
+import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
 import com.marzec.todo.database.TasksTable
@@ -17,6 +18,7 @@ import com.marzec.todo.model.UpdateTask
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
+import java.security.KeyStore.Entry
 
 class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
@@ -28,6 +30,18 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             .sortTasks().map { task ->
                 task.copy(subTasks = task.subTasks.sortTasks())
             }
+    }
+
+    override fun getScheduledTasks(): Map<User, List<Task>> = database.dbCall {
+        TasksTable.selectAll().toList()
+            .groupBy { it[TasksTable.userId] }
+            .mapKeys { key ->
+                UserEntity.findByIdOrThrow(key.key.value).toDomain()
+            }.mapValues { entry ->
+                entry.value.map {
+                    TaskEntity.wrapRow(it).toDomain()
+                }.filter { it.scheduler != null }
+            }.filter { it.value.isNotEmpty() }
     }
 
     override fun addTask(userId: Int, task: CreateTask): Task {

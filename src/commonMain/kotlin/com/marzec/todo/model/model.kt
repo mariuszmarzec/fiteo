@@ -64,6 +64,23 @@ sealed class Scheduler(
         hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod
     )
 
+    fun updateLastDate(lastDate: LocalDateTime) = when (this) {
+        is OneShot -> OneShot(
+            hour,
+            minute,
+            startDate,
+            lastDate,
+            repeatCount,
+            repeatInEveryPeriod
+        )
+        is Weekly -> Weekly(
+            hour, minute, startDate, daysOfWeek, lastDate, repeatCount, repeatInEveryPeriod
+        )
+        is Monthly -> Monthly(
+            hour, minute, startDate, dayOfMonth, lastDate, repeatCount, repeatInEveryPeriod
+        )
+    }
+
     companion object {
         val DEFAULT_REPEAT_COUNT = -1
         val DEFAULT_REPEAT_IN_EVERY_PERIOD = 1
