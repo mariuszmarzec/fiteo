@@ -4,6 +4,7 @@ import com.marzec.core.currentTime
 import com.marzec.fiteo.model.domain.Series
 import com.marzec.fiteo.model.domain.Training
 import com.marzec.fiteo.model.domain.TrainingExerciseWithProgress
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -13,8 +14,12 @@ import org.jetbrains.exposed.sql.`java-time`.datetime
 
 object TrainingsTable : IntIdTable("trainings") {
     val templateId = reference("template_id", TrainingTemplateTable, onDelete = ReferenceOption.NO_ACTION)
-    val createDateInMillis = datetime("create_date_in_millis").apply { defaultValueFun = { currentTime() } }
-    val finishDateInMillis = datetime("finish_date_in_millis").apply { defaultValueFun = { currentTime() } }
+    val createDateInMillis = datetime("create_date_in_millis").apply {
+        defaultValueFun = { currentTime().toJavaLocalDateTime() }
+    }
+    val finishDateInMillis = datetime("finish_date_in_millis").apply {
+        defaultValueFun = { currentTime().toJavaLocalDateTime() }
+    }
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -27,11 +32,11 @@ class TrainingEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     override var user by UserEntity referencedOn TrainingsTable.userId
 
     fun toDomain() = Training(
-            id = id.value,
-            templateId = template.id.value,
-            createDateInMillis = createDateInMillis.toKotlinLocalDateTime(),
-            finishDateInMillis = finishDateInMillis.toKotlinLocalDateTime(),
-            exercisesWithProgress = exercises.map { it.toDomain(id.value) },
+        id = id.value,
+        templateId = template.id.value,
+        createDateInMillis = createDateInMillis.toKotlinLocalDateTime(),
+        finishDateInMillis = finishDateInMillis.toKotlinLocalDateTime(),
+        exercisesWithProgress = exercises.map { it.toDomain(id.value) },
     )
 
     companion object : IntEntityClass<TrainingEntity>(TrainingsTable)
@@ -53,10 +58,10 @@ class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(
     override var user by UserEntity referencedOn TrainingExerciseWithProgressTable.userId
 
     fun toDomain(
-            trainingId: Int
+        trainingId: Int
     ) = TrainingExerciseWithProgress(
-            exercise = exercise.toDomain(),
-            series = series.map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) }
+        exercise = exercise.toDomain(),
+        series = series.map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) }
     )
 
     companion object : IntEntityClass<TrainingExerciseWithProgressEntity>(TrainingExerciseWithProgressTable)
@@ -68,7 +73,7 @@ object ExerciseToSeries : IntIdTable("exercise_to_series") {
 }
 
 object SeriesTable : IntIdTable("series") {
-    val date = datetime("date").apply { defaultValueFun = { currentTime() } }
+    val date = datetime("date").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
     val burden = integer("burden").nullable()
     val timeInMillis = long("time_in_millis").nullable()
     val repsNumber = integer("reps_number").nullable()
@@ -86,17 +91,17 @@ class SeriesEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     override var user by UserEntity referencedOn SeriesTable.userId
 
     fun toDomain(
-            exerciseId: Int,
-            trainingId: Int
+        exerciseId: Int,
+        trainingId: Int
     ) = Series(
-            seriesId = id.value,
-            exerciseId = exerciseId,
-            trainingId = trainingId,
-            date = date.toKotlinLocalDateTime(),
-            burden = burden,
-            timeInMillis = timeInMillis,
-            repsNumber = repsNumber,
-            note = note
+        seriesId = id.value,
+        exerciseId = exerciseId,
+        trainingId = trainingId,
+        date = date.toKotlinLocalDateTime(),
+        burden = burden,
+        timeInMillis = timeInMillis,
+        repsNumber = repsNumber,
+        note = note
     )
 
     companion object : IntEntityClass<SeriesEntity>(SeriesTable)

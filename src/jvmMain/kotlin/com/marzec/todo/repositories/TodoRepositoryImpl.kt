@@ -15,6 +15,7 @@ import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
+import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
@@ -72,7 +73,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         taskEntity.parents = task.parentTaskId?.let { listOf(TaskEntity.findByIdOrThrow(it)) }.orEmpty().toSized()
         taskEntity.priority = task.priority
         taskEntity.isToDo = task.isToDo
-        taskEntity.modifiedTime = currentTime()
+        taskEntity.modifiedTime = currentTime().toJavaLocalDateTime()
         taskEntity.scheduler = task.scheduler
         taskEntity.toDomain()
     }

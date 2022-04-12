@@ -10,7 +10,7 @@ import org.junit.Test
 import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
-import com.marzec.di.SESSION_EXPIRATION_TIME
+import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
 import io.ktor.application.Application
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -136,7 +136,7 @@ class AuthorizationTest {
             withDbClear = false,
             mockConfiguration = {
                 defaultMockConfiguration()
-                single(qualifier = named(SESSION_EXPIRATION_TIME)) { mockSession }
+                single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
             },
             applicationModule = Application::module,
             test = {
@@ -150,7 +150,7 @@ class AuthorizationTest {
             withDbClear = false,
             mockConfiguration = {
                 defaultMockConfiguration()
-                single(qualifier = named(SESSION_EXPIRATION_TIME)) { mockSession }
+                single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
             },
             applicationModule = Application::module,
             test = {

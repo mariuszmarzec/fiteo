@@ -3,16 +3,20 @@ package com.marzec
 import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
+import com.marzec.core.currentTime
 import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.*
 import com.marzec.todo.dto.TaskDto
+import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.SchedulerDto
+import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.TransactionDto
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.json.Json
 
@@ -249,6 +253,20 @@ fun stubCreateTaskDto(
     scheduler = scheduler
 )
 
+fun stubCreateTask(
+    description: String = "",
+    parentTaskId: Int? = null,
+    priority: Int? = null,
+    scheduler: Scheduler? = null,
+    highestPriorityAsDefault: Boolean = false
+) = CreateTask(
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+    scheduler = scheduler,
+    highestPriorityAsDefault = highestPriorityAsDefault
+)
+
 val taskDto = stubTaskDto(
     id = 1,
     description = "task"
@@ -265,6 +283,28 @@ fun stubTaskDto(
     priority: Int = 0,
     scheduler: SchedulerDto? = null
 ) = TaskDto(
+    id = id,
+    description = description,
+    addedTime = addedTime,
+    modifiedTime = modifiedTime,
+    parentTaskId = parentTaskId,
+    subTasks = subTasks,
+    isToDo = isToDo,
+    priority = priority,
+    scheduler = scheduler
+)
+
+fun stubTask(
+    id: Int = 1,
+    description: String = "",
+    addedTime: LocalDateTime = currentTime(),
+    modifiedTime: LocalDateTime = currentTime(),
+    parentTaskId: Int? = null,
+    subTasks: List<Task> = emptyList(),
+    isToDo: Boolean = true,
+    priority: Int = 0,
+    scheduler: Scheduler? = null
+) = Task(
     id = id,
     description = description,
     addedTime = addedTime,

@@ -16,6 +16,7 @@ import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.*
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.isoDayNumber
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -25,8 +26,8 @@ import org.jetbrains.exposed.sql.Column
 
 object TasksTable : IntIdTable("todo_tasks") {
     val description = text("description")
-    val addedTime = datetime("added_time").apply { defaultValueFun = { currentTime() } }
-    val modifiedTime = datetime("modified_time").apply { defaultValueFun = { currentTime() } }
+    val addedTime = datetime("added_time").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
+    val modifiedTime = datetime("modified_time").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
 
     val isToDo = bool("is_to_do")
     val priority = integer("priority")

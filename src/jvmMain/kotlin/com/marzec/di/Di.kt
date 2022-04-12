@@ -57,8 +57,9 @@ import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-const val SESSION_EXPIRATION_TIME = "SessionExpirationTime"
-const val SCHEDULER_DISPATCHER_INTERVAL = "SchedulerDispatcherInterval"
+const val NAME_SESSION_EXPIRATION_TIME = "SessionExpirationTime"
+const val NAME_SCHEDULER_DISPATCHER_INTERVAL = "SchedulerDispatcherInterval"
+const val NAME_TIME_ZONE_OFFSET_HOURS = "TimeZoneOffsetHours"
 
 const val MILLISECONDS_IN_SECOND = 1000
 const val SECONDS_IN_HOUR = 3600L
@@ -67,6 +68,7 @@ const val HOURS_IN_DAY = 24
 const val DAYS_IN_MONTH = 31
 private const val EXPIRATION_MONTHS_COUNT = 3
 private const val SCHEDULER_INTERVAL_IN_MIN = 15
+private const val TIME_ZONE_OFFSET_HOURS = 2L
 
 class Di(
     private val database: Database,
@@ -81,10 +83,10 @@ class Di(
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
     val traderApiController by inject<TraderApiController> { parametersOf(database, authToken) }
     val schedulerDispatcher by inject<SchedulerDispatcher> { parametersOf(database, authToken) }
-    val sessionExpirationTime by inject<Long>(qualifier = named(SESSION_EXPIRATION_TIME)) {
+    val sessionExpirationTime by inject<Long>(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) {
         parametersOf(database, authToken)
     }
-    val schedulerDispatcherInterval by inject<Long>(qualifier = named(SCHEDULER_DISPATCHER_INTERVAL)) {
+    val schedulerDispatcherInterval by inject<Long>(qualifier = named(NAME_SCHEDULER_DISPATCHER_INTERVAL)) {
         parametersOf(database, authToken)
     }
 }
@@ -103,16 +105,20 @@ val MainModule = module {
 
     single<TimeProvider> {
         object : TimeProvider {
-            override fun currentTime(): LocalDateTime = com.marzec.core.currentTime().toKotlinLocalDateTime()
+            override fun currentTime(): LocalDateTime = com.marzec.core.currentTime()
         }
     }
 
-    single(qualifier = named(SESSION_EXPIRATION_TIME)) {
+    single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) {
         EXPIRATION_MONTHS_COUNT * DAYS_IN_MONTH * HOURS_IN_DAY * SECONDS_IN_HOUR * MILLISECONDS_IN_SECOND
     }
 
-    single(qualifier = named(SCHEDULER_DISPATCHER_INTERVAL)) {
+    single(qualifier = named(NAME_SCHEDULER_DISPATCHER_INTERVAL)) {
         SCHEDULER_INTERVAL_IN_MIN * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND
+    }
+
+    single(qualifier = named(NAME_TIME_ZONE_OFFSET_HOURS)) {
+        TIME_ZONE_OFFSET_HOURS
     }
 
     single { params -> ExerciseFileMapper(get { params }) }
@@ -172,7 +178,7 @@ val MainModule = module {
 
     factory<CachedSessionsRepository> { params ->
         CachedSessionsRepositoryImpl(
-            database = get { params }, sessionExpirationTime = get(named(SESSION_EXPIRATION_TIME))
+            database = get { params }, sessionExpirationTime = get(named(NAME_SESSION_EXPIRATION_TIME))
         )
     }
 
@@ -200,5 +206,11 @@ val MainModule = module {
 
     factory<TaskConstraints> { TaskConstraints() }
 
-    single { params -> SchedulerDispatcher(get { params }, get(named(SCHEDULER_DISPATCHER_INTERVAL))) }
+    single<SchedulerDispatcher> { params ->
+        SchedulerDispatcher(
+            todoRepository = get { params },
+            schedulerDispatcherInterval = get(named(NAME_SCHEDULER_DISPATCHER_INTERVAL)),
+            timeZoneOffsetHours = get(named(NAME_TIME_ZONE_OFFSET_HOURS)),
+        )
+    }
 }
