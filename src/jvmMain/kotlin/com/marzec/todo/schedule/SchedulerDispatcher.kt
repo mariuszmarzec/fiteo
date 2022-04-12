@@ -12,6 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 
 class SchedulerDispatcher(
@@ -75,6 +76,9 @@ class SchedulerDispatcher(
         val intervalEndTime = currentTime().toJavaLocalDateTime()
         val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
 
+        println("intervalEndTime $intervalEndTime")
+        println("intervalStartTime $intervalStartTime")
+        println("creationTime $creationTime")
         return intervalStartTime <= creationTime && creationTime <= intervalEndTime
     }
 
@@ -86,7 +90,7 @@ class SchedulerDispatcher(
     }
 
     private fun updateLastDate(userId: Int, task: Task) {
-        todoRepository.updateTask(userId, task.id, task.toUpdateWithCurrentLastDate())
+        todoRepository.updateTask(userId, task.id, task.toUpdateWithCurrentLastDate(timeZoneOffsetHours))
     }
 }
 
@@ -98,13 +102,18 @@ private fun Task.toCreateTask(parentTaskId: Int? = null) = CreateTask(
     scheduler = null
 )
 
-private fun Task.toUpdateWithCurrentLastDate() = UpdateTask(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo,
-    scheduler = scheduler?.updateLastDate(currentTime()),
-)
+private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateTask {
+    val lastDate = currentTime().toJavaLocalDateTime()
+            .plusHours(timeZoneOffsetHours)
+            .toKotlinLocalDateTime()
+    return UpdateTask(
+            description = description,
+            parentTaskId = parentTaskId,
+            priority = priority,
+            isToDo = isToDo,
+            scheduler = scheduler?.updateLastDate(lastDate),
+    )
+}
 
 fun runTodoSchedulerDispatcher(vararg dis: Di) {
     dis.forEach { di ->

@@ -9,10 +9,7 @@ import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.schedule.SchedulerDispatcher
-import io.mockk.Call
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.junit.Before
 import org.junit.Test
@@ -60,6 +57,27 @@ class TaskSchedulerTest {
             repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
         }
     }
+
+    @Test
+    fun `do not create one shot if scheduled too early`() {
+        CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 36)
+        val dispatcher = schedulerDispatcher(scheduledTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) { repository.addTask(any(), any()) }
+    }
+
+    @Test
+    fun `do not create one shot if scheduled too late`() {
+        CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 19)
+        val dispatcher = schedulerDispatcher(scheduledTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) { repository.addTask(any(), any()) }
+    }
+
 
     // scenarios
     // dont fire if lastdate != null
