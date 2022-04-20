@@ -5,6 +5,7 @@ import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.todo.ApiPath
 import com.marzec.todo.dto.TaskDto
+import com.marzec.todo.model.MarkAsToDoDto
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
@@ -258,6 +259,57 @@ class TodoTests {
                         )
                     )
                 )
+            }
+        )
+    }
+
+    @Test
+    fun markTaskAsToDo_asToDo() {
+        testPostEndpoint(
+            uri = ApiPath.MARK_AS_TO_DO,
+            dto = MarkAsToDoDto(
+                isToDo = true,
+                taskIds = listOf(2, 3)
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                taskDto.copy(id = 2, isToDo = true),
+                taskDto.copy(id = 3, isToDo = true),
+                taskDto.copy(id = 1, isToDo = false)
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto)
+                addTask(createTaskDto)
+                updateTask("1", stubUpdateTaskDto(description = "task", isToDo = false))
+                updateTask("2", stubUpdateTaskDto(description = "task", isToDo = false))
+                updateTask("3", stubUpdateTaskDto(description = "task", isToDo = false))
+            },
+        )
+    }
+
+    @Test
+    fun markTaskAsToDo_asDone() {
+        testPostEndpoint(
+            uri = ApiPath.MARK_AS_TO_DO,
+            dto = MarkAsToDoDto(
+                isToDo = false,
+                taskIds = listOf(2, 3)
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                taskDto.copy(id = 1),
+                taskDto.copy(id = 2, isToDo = false),
+                taskDto.copy(id = 3, isToDo = false)
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto)
+                addTask(createTaskDto)
             }
         )
     }

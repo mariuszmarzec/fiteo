@@ -12,6 +12,7 @@ object ApiPath {
 
     private const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION"
 
+    const val MARK_AS_TO_DO = "$API_ROOT/tasks/mark-as-to-do"
     const val UPDATE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
     const val DELETE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
 

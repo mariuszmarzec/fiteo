@@ -14,4 +14,7 @@ class TodoService(
     fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = repository.updateTask(userId, taskId, task)
 
     fun removeTask(userId: Int, taskId: Int): Task = repository.removeTask(userId, taskId)
+
+    fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>): List<Task> =
+        repository.markAsToDo(userId, isToDo, taskIds).run { repository.getTasks(userId) }
 }

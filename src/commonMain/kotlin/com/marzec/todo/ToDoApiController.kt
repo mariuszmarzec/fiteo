@@ -11,6 +11,8 @@ import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.MarkAsToDoDto
+import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.todo.model.toDomain
 import com.marzec.todo.model.toDto
@@ -51,6 +53,14 @@ class ToDoApiController(
             userId = request.userIdOrThrow(),
             taskId = request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
+    }
+
+    fun markAsToDo(request: HttpRequest<MarkAsToDoDto>): HttpResponse<List<TaskDto>> = serviceCall {
+        service.markAsToDo(
+            userId = request.userIdOrThrow(),
+            isToDo = request.data.isToDo,
+            taskIds = request.data.taskIds
+        ).map { it.toDto() }
     }
 }
 

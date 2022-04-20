@@ -24,14 +24,16 @@ import java.security.KeyStore.Entry
 class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
     override fun getTasks(userId: Int): List<Task> = database.dbCall {
-        TasksTable.selectAll()
-            .andWhere { TasksTable.userId.eq(userId) }
-            .map { TaskEntity.wrapRow(it).toDomain() }
-            .filter { it.parentTaskId == null }
-            .sortTasks().map { task ->
-                task.copy(subTasks = task.subTasks.sortTasks())
-            }
+        getAllTasks(userId)
     }
+
+    private fun getAllTasks(userId: Int) = TasksTable.selectAll()
+        .andWhere { TasksTable.userId.eq(userId) }
+        .map { TaskEntity.wrapRow(it).toDomain() }
+        .filter { it.parentTaskId == null }
+        .sortTasks().map { task ->
+            task.copy(subTasks = task.subTasks.sortTasks())
+        }
 
     override fun getScheduledTasks(): Map<User, List<Task>> = database.dbCall {
         TasksTable.selectAll().toList()
@@ -76,6 +78,14 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         taskEntity.modifiedTime = currentTime().toJavaLocalDateTime()
         taskEntity.scheduler = task.scheduler
         taskEntity.toDomain()
+    }
+
+    override fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>) = database.dbCall {
+        taskIds.forEach { id ->
+            val taskEntity = TaskEntity.findByIdOrThrow(id)
+            taskEntity.belongsToUserOrThrow(userId)
+            taskEntity.isToDo = isToDo
+        }
     }
 
     override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {
