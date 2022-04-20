@@ -19,21 +19,40 @@ class TaskSchedulerTest {
 
     val user = User(1, "test@user.com")
     val subTask = stubTask(id = 2, description = "2")
-    val task = stubTask(
-        id = 1,
-        description = "1",
-        subTasks = listOf(subTask),
-        scheduler = Scheduler.OneShot(
-            hour = 14,
-            minute = 20,
-            LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
-            lastDate = null,
-            repeatCount = -1,
-            repeatInEveryPeriod = 1
+    val scheduledOneShotTasks = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.OneShot(
+                    hour = 14,
+                    minute = 20,
+                    LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = null,
+                    repeatCount = -1,
+                    repeatInEveryPeriod = 1
+                )
+            )
         )
     )
-    val scheduledTasks = mapOf(
-        user to listOf(task)
+    val scheduledMonthlyTasks = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.Monthly(
+                    hour = 14,
+                    minute = 20,
+                    startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = null,
+                    repeatCount = 3,
+                    repeatInEveryPeriod = 2,
+                    dayOfMonth = 20
+                )
+            )
+        )
     )
     val repository = mockk<TodoRepository>()
 
@@ -48,7 +67,7 @@ class TaskSchedulerTest {
     @Test
     fun `run creation if scheduled for one shot`() {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledTasks)
+        val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
         dispatcher.dispatch()
 
@@ -61,7 +80,7 @@ class TaskSchedulerTest {
     @Test
     fun `do not create one shot if scheduled too early`() {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 36)
-        val dispatcher = schedulerDispatcher(scheduledTasks)
+        val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
         dispatcher.dispatch()
 
@@ -71,17 +90,78 @@ class TaskSchedulerTest {
     @Test
     fun `do not create one shot if scheduled too late`() {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 19)
-        val dispatcher = schedulerDispatcher(scheduledTasks)
+        val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
         dispatcher.dispatch()
 
         verify(inverse = true) { repository.addTask(any(), any()) }
     }
 
+    @Test
+    fun `run creation if scheduled monthly`() {
+        CurrentTimeUtil.setOtherTime(20, 5, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
 
-    // scenarios
-    // dont fire if lastdate != null
-    // dont fire if not in period
+        dispatcher.dispatch()
+
+        verify {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `run creation if scheduled monthly for last date`() {
+        // In november is winter time, one hour backward
+        CurrentTimeUtil.setOtherTime(20, 11, 2021, 15, 30)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `do not create if scheduled monthly and month not in step`() {
+        CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `do not create if scheduled monthly and wrong day`() {
+        CurrentTimeUtil.setOtherTime(21, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `do not create if scheduled monthly and wrong hour`() {
+        CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 55)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
 
     private fun schedulerDispatcher(scheduledTasks: Map<User, List<Task>>): SchedulerDispatcher = SchedulerDispatcher(
         todoRepository = repository.apply {

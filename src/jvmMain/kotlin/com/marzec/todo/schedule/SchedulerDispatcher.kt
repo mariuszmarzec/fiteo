@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
+import java.time.Period
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
@@ -23,7 +24,7 @@ class SchedulerDispatcher(
     fun dispatch() {
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
-                if (task.scheduler?.shouldBeCreated(schedulerDispatcherInterval) == true) {
+                if (task.scheduler?.shouldBeCreated() == true) {
                     createTaskCopy(user.id, task)
                     updateLastDate(user.id, task)
                 }
@@ -31,34 +32,11 @@ class SchedulerDispatcher(
         }
     }
 
-    private fun Scheduler.shouldBeCreated(schedulerDispatcherInterval: Long): Boolean {
-        val intervalEndTime = currentTime().toJavaLocalDateTime()
-        val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
+    private fun Scheduler.shouldBeCreated(): Boolean {
         return when (this) {
             is Scheduler.OneShot -> shouldBeCreated()
-            is Scheduler.Monthly -> {
-                val dayOfMonth = if (dayOfMonth > 27) currentTime().month.maxLength() else dayOfMonth
-                val startedInNextMonth = startDate.dayOfMonth < dayOfMonth
-                val maxDate = repeatInEveryPeriod.timesIf(repeatCount) {
-                    repeatCount > 0
-                }.incIf { startedInNextMonth }
-                val creationTime = if (lastDate != null) {
-                    lastDate!!.toJavaLocalDateTime()
-                        .withHour(hour)
-                        .withMinute(minute)
-                        .withDayOfMonth(dayOfMonth)
-                } else {
-                    startDate
-                        .toJavaLocalDateTime()
-                        .withHour(hour)
-                        .withMinute(minute)
-                        .plusMonths(if (startedInNextMonth) 1 else 0)
-                        .withDayOfMonth(dayOfMonth)
-                }
-                startDate.toJavaLocalDateTime() <= creationTime && intervalStartTime <= creationTime && creationTime <= intervalEndTime
-            }
+            is Scheduler.Monthly -> shouldBeCreated()
             is Scheduler.Weekly -> {
-                startDate.toJavaLocalDateTime().withHour(hour).withMinute(minute)
                 false
             }
         }
@@ -67,19 +45,43 @@ class SchedulerDispatcher(
     private fun Scheduler.OneShot.shouldBeCreated(): Boolean {
         val creationTime = startDate.toJavaLocalDateTime()
             .withHour(hour)
-            .minusHours(timeZoneOffsetHours)
             .withMinute(minute)
         return lastDate == null && isInStartWindow(creationTime)
     }
 
+    private fun Scheduler.Monthly.shouldBeCreated(): Boolean {
+        val today = currentTime().toJavaLocalDateTime()
+        val dayOfMonth = if (dayOfMonth > 27) 28 else dayOfMonth
+        val startedInNextMonth = startDate.dayOfMonth >= dayOfMonth
+        val firstDate = startDate.toJavaLocalDateTime()
+            .let { if (startedInNextMonth) it.plusMonths(1L) else it }
+            .withHour(hour)
+            .withMinute(minute)
+            .withDayOfMonth(dayOfMonth)
+        val maxDate = repeatCount.takeIf { it > 0 }
+            ?.let { firstDate.plusMonths(it * repeatInEveryPeriod.toLong()) }
+        val firstDateLocal = firstDate.toLocalDate()
+        val todayLocalDate = today.toLocalDate()
+
+        if (firstDateLocal <= todayLocalDate && (maxDate?.let { today <= it } != false)) {
+            if (Period.between(firstDateLocal, todayLocalDate).months % repeatInEveryPeriod == 0) {
+                val creationTime = today.withHour(hour).withMinute(minute)
+                return isInStartWindow(creationTime)
+            }
+        }
+        return false
+    }
+
     private fun isInStartWindow(creationTime: LocalDateTime): Boolean {
+        val normalisedCreationTime = creationTime.minusHours(timeZoneOffsetHours)
+
         val intervalEndTime = currentTime().toJavaLocalDateTime()
         val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
 
         println("intervalEndTime $intervalEndTime")
         println("intervalStartTime $intervalStartTime")
-        println("creationTime $creationTime")
-        return intervalStartTime <= creationTime && creationTime <= intervalEndTime
+        println("creationTime $normalisedCreationTime")
+        return intervalStartTime <= normalisedCreationTime && normalisedCreationTime <= intervalEndTime
     }
 
     private fun createTaskCopy(userId: Int, task: Task, parentTaskId: Int? = null) {
@@ -104,14 +106,14 @@ private fun Task.toCreateTask(parentTaskId: Int? = null) = CreateTask(
 
 private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateTask {
     val lastDate = currentTime().toJavaLocalDateTime()
-            .plusHours(timeZoneOffsetHours)
-            .toKotlinLocalDateTime()
+        .plusHours(timeZoneOffsetHours)
+        .toKotlinLocalDateTime()
     return UpdateTask(
-            description = description,
-            parentTaskId = parentTaskId,
-            priority = priority,
-            isToDo = isToDo,
-            scheduler = scheduler?.updateLastDate(lastDate),
+        description = description,
+        parentTaskId = parentTaskId,
+        priority = priority,
+        isToDo = isToDo,
+        scheduler = scheduler?.updateLastDate(lastDate),
     )
 }
 
