@@ -41,7 +41,8 @@ enum class TransactionType {
     FEE,
     SALE,
     PURCHASE,
-    COST
+    COST,
+    DIVIDEND
 }
 
 fun Paper.toDto(): PaperDto = PaperDto(
