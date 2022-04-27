@@ -227,17 +227,17 @@ val registerRequestDto = stubRegisterRequestDto(
 
 val loginDto = LoginRequestDto(email = "test@mail.com", password = "1234567890")
 
-val createWeightDto = PutWeightDto(60f, dateTime2)
+val createWeightDto = PutWeightDto(60f, dateTime)
 
-val weightDto = WeightDto(1, 60f, dateTime2)
+val weightDto = WeightDto(1, 60f, dateTime)
 
-val createWeightDto2 = PutWeightDto(61f, dateTime3)
+val createWeightDto2 = PutWeightDto(61f, dateTime2)
 
-val weightDto2 = WeightDto(2, 61f, dateTime3)
+val weightDto2 = WeightDto(2, 61f, dateTime2)
 
-val createWeightDto3 = PutWeightDto(60.5f, "2021-05-17T07:20:30")
+val createWeightDto3 = PutWeightDto(60.5f, dateTime3)
 
-val weightDto3 = WeightDto(3, 60.5f, "2021-05-17T07:20:30")
+val weightDto3 = WeightDto(3, 60.5f, dateTime3)
 
 val createTaskDto = stubCreateTaskDto("task", null, 0)
 
