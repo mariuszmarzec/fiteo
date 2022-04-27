@@ -21,8 +21,8 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.json.Json
 
 val dateTime = "2021-05-16T00:00:00"
-val dateTime2 = "2021-05-15T07:20:30"
-val dateTime3 = "2021-05-16T07:20:30"
+val dateTime2 = "2021-05-17T07:20:30"
+val dateTime3 = "2021-05-18T07:20:30"
 
 val categoryOne = stubCategory("1", "category_one")
 val categoryTwo = stubCategory("2", "category_two")
@@ -517,7 +517,7 @@ val transactionDto = TransactionDto(
 val transactionDto2 = TransactionDto(
     id = 2,
     title = "Stock market fee",
-    date = dateTime3,
+    date = dateTime2,
     targetPaper = paperDto2,
     sourcePaper = paperDto2,
     targetValue = "3.0",

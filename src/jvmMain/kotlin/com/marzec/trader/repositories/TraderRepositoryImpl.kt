@@ -12,6 +12,7 @@ import com.marzec.trader.model.Paper
 import com.marzec.trader.model.Transaction
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
@@ -49,6 +50,7 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
     override fun getTransactions(userId: Int): List<Transaction> = database.dbCall {
         TransactionTable.selectAll()
             .andWhere { TransactionTable.userId.eq(userId) }
+            .orderBy(TransactionTable.date, SortOrder.DESC)
             .map { TransactionEntity.wrapRow(it).toDomain() }
     }
 

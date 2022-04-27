@@ -118,9 +118,9 @@ class TraderTests {
             uri = ApiPath.TRANSACTIONS,
             status = HttpStatusCode.OK,
             responseDto = listOf(
-                transactionDto,
+                transactionDto3,
                 transactionDto2,
-                transactionDto3
+                transactionDto,
             ),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
@@ -154,9 +154,9 @@ class TraderTests {
             runRequestsAfter = {
                 assertThat(transactions()).isEqualTo(
                     listOf(
-                        transactionDto,
+                        transactionDto3,
                         transactionDto2,
-                        transactionDto3
+                        transactionDto,
                     )
                 )
             }
@@ -200,8 +200,8 @@ class TraderTests {
             runRequestsAfter = {
                 assertThat(transactions()).isEqualTo(
                     listOf(
-                        transactionDto,
-                        transactionDto3
+                        transactionDto3,
+                        transactionDto
                     )
                 )
             }
