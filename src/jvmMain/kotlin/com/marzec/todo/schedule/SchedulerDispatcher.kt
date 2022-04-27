@@ -65,7 +65,7 @@ class SchedulerDispatcher(
 
         if (firstDateLocal <= todayLocalDate && (maxDate?.let { today <= it } != false)) {
             if (Period.between(firstDateLocal, todayLocalDate).months % repeatInEveryPeriod == 0) {
-                val creationTime = today.withHour(hour).withMinute(minute)
+                val creationTime = today.withHour(hour).withMinute(minute).withDayOfMonth(dayOfMonth)
                 return isInStartWindow(creationTime)
             }
         }

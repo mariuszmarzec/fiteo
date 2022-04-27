@@ -138,7 +138,20 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled monthly and wrong day`() {
+    fun `do not create if scheduled monthly and wrong day, but good hour`() {
+        CurrentTimeUtil.setOtherTime(21, 5, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `do not create if scheduled monthly and not proper time`() {
         CurrentTimeUtil.setOtherTime(21, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
 
