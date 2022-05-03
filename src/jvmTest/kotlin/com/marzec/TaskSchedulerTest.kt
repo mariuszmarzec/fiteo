@@ -13,7 +13,10 @@ import io.mockk.*
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
 
 class TaskSchedulerTest {
 
@@ -50,6 +53,24 @@ class TaskSchedulerTest {
                     repeatCount = 3,
                     repeatInEveryPeriod = 2,
                     dayOfMonth = 20
+                )
+            )
+        )
+    )
+    val scheduledWeeklyTasks = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.Weekly(
+                    hour = 14,
+                    minute = 20,
+                    startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = null,
+                    repeatCount = 3,
+                    repeatInEveryPeriod = 2,
+                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
                 )
             )
         )
@@ -167,6 +188,59 @@ class TaskSchedulerTest {
     fun `do not create if scheduled monthly and wrong hour`() {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 55)
         val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `create if scheduled weekly`() {
+        CurrentTimeUtil.setOtherTime(19, 5, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
+
+        dispatcher.dispatch()
+
+        verify {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `create if scheduled weekly and today is in 2 week from start date`() {
+        CurrentTimeUtil.setOtherTime(2, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
+
+        dispatcher.dispatch()
+
+        verify {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+    @Test
+    fun `do not create if scheduled weekly but wrong hour`() {
+        CurrentTimeUtil.setOtherTime(19, 5, 2021, 14, 55)
+        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
+
+        dispatcher.dispatch()
+
+        verify(inverse = true) {
+            repository.addTask(user.id, stubCreateTask(description = "1"))
+            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+        }
+    }
+
+
+    @Test
+    fun `do not create if scheduled weekly but day out of range`() {
+        CurrentTimeUtil.setOtherTime(27, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
 
         dispatcher.dispatch()
 

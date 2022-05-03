@@ -15,6 +15,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 import java.time.Period
+import kotlin.math.ceil
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
@@ -36,9 +37,7 @@ class SchedulerDispatcher(
         return when (this) {
             is Scheduler.OneShot -> shouldBeCreated()
             is Scheduler.Monthly -> shouldBeCreated()
-            is Scheduler.Weekly -> {
-                false
-            }
+            is Scheduler.Weekly -> shouldBeCreated()
         }
     }
 
@@ -72,6 +71,31 @@ class SchedulerDispatcher(
         return false
     }
 
+    private fun Scheduler.Weekly.shouldBeCreated(): Boolean {
+        val today = currentTime().toJavaLocalDateTime()
+        val firstDate = startDate.toJavaLocalDateTime()
+            .withHour(hour)
+            .withMinute(minute)
+        val maxDate = repeatCount.takeIf { it > 0 }
+            ?.let { firstDate.plusDays(it.dec() * WEEK_DAYS_COUNT * repeatInEveryPeriod.toLong()) }
+        val firstDateLocal = firstDate.toLocalDate()
+        val todayLocalDate = today.toLocalDate()
+
+        if (today.dayOfWeek !in daysOfWeek) {
+            return false
+        }
+        val isLessOrEqualMaxDate = maxDate?.let { today <= it } != false
+        if (firstDateLocal <= todayLocalDate && isLessOrEqualMaxDate) {
+            if (ceil(Period.between(firstDateLocal, todayLocalDate).days / WEEK_DAYS_COUNT.toFloat()).toInt().dec()
+                    .mod(repeatInEveryPeriod) == 0
+            ) {
+                val creationTime = today.withHour(hour).withMinute(minute)
+                return isInStartWindow(creationTime)
+            }
+        }
+        return false
+    }
+
     private fun isInStartWindow(creationTime: LocalDateTime): Boolean {
         val normalisedCreationTime = creationTime.minusHours(timeZoneOffsetHours)
 
@@ -93,6 +117,10 @@ class SchedulerDispatcher(
 
     private fun updateLastDate(userId: Int, task: Task) {
         todoRepository.updateTask(userId, task.id, task.toUpdateWithCurrentLastDate(timeZoneOffsetHours))
+    }
+
+    companion object {
+        private const val WEEK_DAYS_COUNT = 7
     }
 }
 
