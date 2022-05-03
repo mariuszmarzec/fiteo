@@ -206,7 +206,7 @@ val MainModule = module {
 
     factory<TaskConstraints> { TaskConstraints() }
 
-    single<SchedulerDispatcher> { params ->
+    factory<SchedulerDispatcher> { params ->
         SchedulerDispatcher(
             todoRepository = get { params },
             schedulerDispatcherInterval = get(named(NAME_SCHEDULER_DISPATCHER_INTERVAL)),
