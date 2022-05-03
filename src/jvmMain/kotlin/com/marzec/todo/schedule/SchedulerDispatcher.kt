@@ -81,7 +81,7 @@ class SchedulerDispatcher(
         val firstDateLocal = firstDate.toLocalDate()
         val todayLocalDate = today.toLocalDate()
 
-        if (today.dayOfWeek !in daysOfWeek) {
+        if (daysOfWeek.isNotEmpty() && today.dayOfWeek !in daysOfWeek) {
             return false
         }
         val isLessOrEqualMaxDate = maxDate?.let { today <= it } != false
