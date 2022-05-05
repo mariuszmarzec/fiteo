@@ -81,10 +81,10 @@ class TaskSchedulerTest {
 
     @Before
     fun setUp() {
-        every { service.copyTask(any(), any()) } answers {
-            stubTask(id = secondArg<CreateTask>().description.toInt())
+        every { service.copyTask(userId = any(), id = any(), copyPriority = false, copyScheduler = false) } answers {
+            stubTask(id = secondArg<Int>().toInt())
         }
-        every { repository.updateTask(any(), any(), any()) } returns stubTask()
+        every { service.updateTask(any(), any(), any()) } returns stubTask()
     }
 
     @Test
@@ -95,7 +95,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            service.copyTask(user.id, 0, copyPriority = false, copyScheduler = false)
+            service.copyTask(user.id, 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -127,8 +127,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -141,8 +140,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -154,8 +152,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -167,8 +164,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -180,8 +176,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -193,8 +188,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -206,8 +200,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -219,8 +212,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -232,8 +224,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -246,8 +237,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            service.copyTask(user.id, 0)
-            service.copyTask(user.id, 0)
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
