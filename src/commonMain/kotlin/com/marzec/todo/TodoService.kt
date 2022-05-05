@@ -1,5 +1,6 @@
 package com.marzec.todo
 
+import com.marzec.todo.extensions.toCreateTask
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
@@ -10,6 +11,11 @@ class TodoService(
     fun getTasks(userId: Int): List<Task> = repository.getTasks(userId)
 
     fun addTask(userId: Int, task: CreateTask): Task = repository.addTask(userId, task)
+
+    fun copyTask(userId: Int, id: Int): Task = repository.addTask(
+        userId,
+        repository.getTask(userId, id).toCreateTask()
+    )
 
     fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = repository.updateTask(userId, taskId, task)
 

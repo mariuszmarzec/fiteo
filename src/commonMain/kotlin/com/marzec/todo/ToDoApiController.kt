@@ -26,6 +26,13 @@ class ToDoApiController(
         service.getTasks(request.userIdOrThrow()).map { it.toDto() }
     }
 
+    fun copyTasks(request: HttpRequest<Unit>): HttpResponse<TaskDto> = serviceCall {
+        service.copyTask(
+            userId = request.userIdOrThrow(),
+            id = request.getIntOrThrow(Api.Args.ARG_ID)
+        ).toDto()
+    }
+
     fun addTask(request: HttpRequest<CreateTaskDto>): HttpResponse<TaskDto> = request.serviceCall(
         constraint = taskConstraints.scheduledTaskCanNotHaveParentDuringCreation
     ) {

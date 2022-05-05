@@ -102,9 +102,6 @@ class SchedulerDispatcher(
         val intervalEndTime = currentTime().toJavaLocalDateTime()
         val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
 
-        println("intervalEndTime $intervalEndTime")
-        println("intervalStartTime $intervalStartTime")
-        println("creationTime $normalisedCreationTime")
         return intervalStartTime <= normalisedCreationTime && normalisedCreationTime <= intervalEndTime
     }
 

@@ -3,28 +3,30 @@ package com.marzec.todo.database
 import com.marzec.core.currentTime
 import com.marzec.database.ExerciseEntity.Companion.transform
 import com.marzec.database.IntEntityWithUser
+import com.marzec.database.IntEntityWithUserClass
+import com.marzec.database.IntIdWithUserTable
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.extensions.formatDate
-import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.`java-time`.datetime
 import com.marzec.todo.extensions.sortTasks
-import com.marzec.todo.model.*
+import com.marzec.todo.model.Scheduler
+import com.marzec.todo.model.Task
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.`java-time`.datetime
 
-object TasksTable : IntIdTable("todo_tasks") {
+object TasksTable : IntIdWithUserTable("todo_tasks") {
     val description = text("description")
     val addedTime = datetime("added_time").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
     val modifiedTime = datetime("modified_time").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
@@ -32,7 +34,7 @@ object TasksTable : IntIdTable("todo_tasks") {
     val isToDo = bool("is_to_do")
     val priority = integer("priority")
     val scheduler = text("scheduler")
-    val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
+    override val userId: Column<EntityID<Int>> = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
 class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
@@ -61,7 +63,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
         )
     }
 
-    companion object : IntEntityClass<TaskEntity>(TasksTable)
+    companion object : IntEntityWithUserClass<TaskEntity>(TasksTable)
 }
 
 object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {

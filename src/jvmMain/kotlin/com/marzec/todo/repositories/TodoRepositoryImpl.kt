@@ -3,6 +3,7 @@ package com.marzec.todo.repositories
 import com.marzec.core.currentTime
 import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
+import com.marzec.database.findByIdIfBelongsToUserOrThrow
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
 import com.marzec.extensions.ifNull
@@ -86,6 +87,10 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             taskEntity.belongsToUserOrThrow(userId)
             taskEntity.isToDo = isToDo
         }
+    }
+
+    override fun getTask(userId: Int, id: Int): Task = database.dbCall {
+        TaskEntity.findByIdIfBelongsToUserOrThrow(userId, id).toDomain()
     }
 
     override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {

@@ -153,6 +153,33 @@ class TodoTests {
     }
 
     @Test
+    fun addSubTask_copyTask() {
+        testGetEndpoint(
+            uri = ApiPath.COPY_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 3, parentTaskId = 1, priority = -1),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(parentTaskId = 1, priority = -1))
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(
+                            subTasks = listOf(
+                                taskDto.copy(id = 2, parentTaskId = 1, priority = -1),
+                                taskDto.copy(id = 3, parentTaskId = 1, priority = -1)
+                            )
+                        )
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
     fun addTask_withHighestPriorityByDefault() {
         testPostEndpoint(
             uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
