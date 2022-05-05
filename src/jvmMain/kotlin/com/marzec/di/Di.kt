@@ -209,6 +209,7 @@ val MainModule = module {
     factory<SchedulerDispatcher> { params ->
         SchedulerDispatcher(
             todoRepository = get { params },
+            todoService = get { params },
             schedulerDispatcherInterval = get(named(NAME_SCHEDULER_DISPATCHER_INTERVAL)),
             timeZoneOffsetHours = get(named(NAME_TIME_ZONE_OFFSET_HOURS)),
         )

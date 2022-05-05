@@ -5,6 +5,7 @@ import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.di.SECONDS_IN_MINUTE
 import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
+import com.marzec.todo.TodoService
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
@@ -76,10 +77,11 @@ class TaskSchedulerTest {
         )
     )
     val repository = mockk<TodoRepository>()
+    val service = mockk<TodoService>()
 
     @Before
     fun setUp() {
-        every { repository.addTask(any(), any()) } answers {
+        every { service.copyTask(any(), any()) } answers {
             stubTask(id = secondArg<CreateTask>().description.toInt())
         }
         every { repository.updateTask(any(), any(), any()) } returns stubTask()
@@ -93,8 +95,7 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0, copyPriority = false, copyScheduler = false)
         }
     }
 
@@ -105,7 +106,7 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify(inverse = true) { repository.addTask(any(), any()) }
+        verify(inverse = true) { service.copyTask(any(), any()) }
     }
 
     @Test
@@ -115,7 +116,7 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify(inverse = true) { repository.addTask(any(), any()) }
+        verify(inverse = true) { service.copyTask(any(), any()) }
     }
 
     @Test
@@ -126,8 +127,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -140,8 +141,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -153,8 +154,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -166,8 +167,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -179,8 +180,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -192,8 +193,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -205,8 +206,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -218,8 +219,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -231,8 +232,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -245,8 +246,8 @@ class TaskSchedulerTest {
         dispatcher.dispatch()
 
         verify(inverse = true) {
-            repository.addTask(user.id, stubCreateTask(description = "1"))
-            repository.addTask(user.id, stubCreateTask(description = "2", parentTaskId = 1))
+            service.copyTask(user.id, 0)
+            service.copyTask(user.id, 0)
         }
     }
 
@@ -254,6 +255,7 @@ class TaskSchedulerTest {
         todoRepository = repository.apply {
             every { getScheduledTasks() } returns scheduledTasks
         },
+        todoService = service,
         schedulerDispatcherInterval = 15 * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND,
         timeZoneOffsetHours = 2
     )

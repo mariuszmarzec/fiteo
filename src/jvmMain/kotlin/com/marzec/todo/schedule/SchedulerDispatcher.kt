@@ -4,6 +4,7 @@ import com.marzec.core.currentTime
 import com.marzec.di.Di
 import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.todo.TodoRepository
+import com.marzec.todo.TodoService
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
@@ -19,6 +20,7 @@ import kotlin.math.ceil
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
+    private val todoService: TodoService,
     private val schedulerDispatcherInterval: Long,
     private val timeZoneOffsetHours: Long
 ) {
@@ -26,7 +28,7 @@ class SchedulerDispatcher(
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
                 if (task.scheduler?.shouldBeCreated() == true) {
-                    createTaskCopy(user.id, task)
+                    todoService.copyTask(user.id, task.id, copyPriority = false, copyScheduler = false)
                     updateLastDate(user.id, task)
                 }
             }
@@ -105,29 +107,15 @@ class SchedulerDispatcher(
         return intervalStartTime <= normalisedCreationTime && normalisedCreationTime <= intervalEndTime
     }
 
-    private fun createTaskCopy(userId: Int, task: Task, parentTaskId: Int? = null) {
-        val newTask = todoRepository.addTask(userId, task.toCreateTask(parentTaskId))
-        task.subTasks.forEach { subTask ->
-            createTaskCopy(userId, subTask, newTask.id)
-        }
-    }
 
     private fun updateLastDate(userId: Int, task: Task) {
-        todoRepository.updateTask(userId, task.id, task.toUpdateWithCurrentLastDate(timeZoneOffsetHours))
+        todoService.updateTask(userId, task.id, task.toUpdateWithCurrentLastDate(timeZoneOffsetHours))
     }
 
     companion object {
         private const val WEEK_DAYS_COUNT = 7
     }
 }
-
-private fun Task.toCreateTask(parentTaskId: Int? = null) = CreateTask(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = null,
-    highestPriorityAsDefault = false,
-    scheduler = null
-)
 
 private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateTask {
     val lastDate = currentTime().toJavaLocalDateTime()

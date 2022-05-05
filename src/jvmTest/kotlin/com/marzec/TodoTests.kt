@@ -154,26 +154,32 @@ class TodoTests {
 
     @Test
     fun addSubTask_copyTask() {
+        val taskToCopy = taskDto.copy(
+            id = 2,
+            parentTaskId = 1,
+            priority = -1,
+            subTasks = listOf(taskDto.copy(id = 3, parentTaskId = 2))
+        )
+        val copiedTask = taskDto.copy(
+            id = 4,
+            parentTaskId = 1,
+            priority = -1,
+            subTasks = listOf(taskDto.copy(id = 5, parentTaskId = 4)),
+        )
         testGetEndpoint(
             uri = ApiPath.COPY_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
-            responseDto = taskDto.copy(id = 3, parentTaskId = 1, priority = -1),
+            responseDto = copiedTask,
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
                 addTask(createTaskDto.copy(parentTaskId = 1, priority = -1))
+                addTask(createTaskDto.copy(parentTaskId = 2))
             },
             runRequestsAfter = {
                 assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        taskDto.copy(
-                            subTasks = listOf(
-                                taskDto.copy(id = 2, parentTaskId = 1, priority = -1),
-                                taskDto.copy(id = 3, parentTaskId = 1, priority = -1)
-                            )
-                        )
-                    )
+                    listOf(taskDto.copy(subTasks = listOf(taskToCopy, copiedTask)))
                 )
             }
         )
