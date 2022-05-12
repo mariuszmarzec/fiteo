@@ -18,6 +18,7 @@ data class Paper(
 enum class PaperType {
     SETTLEMENT_CURRENCY,
     CURRENCY,
+    CRYPTO_CURRENCY,
     SHARE,
     COMMODITY
 }
