@@ -6,7 +6,6 @@ import com.marzec.di.SECONDS_IN_MINUTE
 import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
-import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.schedule.SchedulerDispatcher
@@ -15,9 +14,7 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import org.junit.Before
 import org.junit.Test
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 
 class TaskSchedulerTest {
 
@@ -72,6 +69,42 @@ class TaskSchedulerTest {
                     repeatCount = 3,
                     repeatInEveryPeriod = 2,
                     daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+                )
+            )
+        )
+    )
+    val scheduledWeeklyTasks2 = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.Weekly(
+                    hour = 7,
+                    minute = 0,
+                    startDate = LocalDateTime.of(2022, 5, 12, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = null,
+                    repeatCount = -1,
+                    repeatInEveryPeriod = 1,
+                    daysOfWeek = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY)
+                )
+            )
+        )
+    )
+    val scheduledWeeklyTasks3 = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.Weekly(
+                    hour = 7,
+                    minute = 0,
+                    startDate = LocalDateTime.of(2022, 5, 12, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = LocalDateTime.of(2022, 5, 19, 0, 0).toKotlinLocalDateTime(),
+                    repeatCount = -1,
+                    repeatInEveryPeriod = 1,
+                    daysOfWeek = listOf(DayOfWeek.FRIDAY)
                 )
             )
         )
@@ -218,25 +251,62 @@ class TaskSchedulerTest {
 
     @Test
     fun `do not create if scheduled weekly but wrong hour`() {
-        CurrentTimeUtil.setOtherTime(19, 5, 2021, 14, 55)
-        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
-
-        dispatcher.dispatch()
-
-        verify(inverse = true) {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-        }
+        verifyDispatcher(scheduledWeeklyTasks, 19, 5, 2021, 14, 55, true)
     }
 
 
     @Test
     fun `do not create if scheduled weekly but day out of range`() {
-        CurrentTimeUtil.setOtherTime(27, 6, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
+        verifyDispatcher(
+            scheduler = scheduledWeeklyTasks,
+            day = 27,
+            month = 6,
+            year = 2021,
+            hour = 14,
+            minute = 30,
+            falseCase = true
+        )
+    }
+
+    @Test
+    fun `create if scheduled weekly, 30 may case`() {
+        verifyDispatcher(
+            scheduler = scheduledWeeklyTasks2,
+            day = 30,
+            month = 5,
+            year = 2022,
+            hour = 7,
+            minute = 10,
+        )
+    }
+
+    @Test
+    fun `create if scheduled weekly, 27 may case`() {
+        verifyDispatcher(
+            scheduler = scheduledWeeklyTasks3,
+            day = 27,
+            month = 5,
+            year = 2022,
+            hour = 7,
+            minute = 10,
+        )
+    }
+
+    private fun verifyDispatcher(
+        scheduler: Map<User, List<Task>>,
+        day: Int,
+        month: Int,
+        year: Int,
+        hour: Int,
+        minute: Int,
+        falseCase: Boolean = false
+    ) {
+        CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
+        val dispatcher = schedulerDispatcher(scheduler)
 
         dispatcher.dispatch()
 
-        verify(inverse = true) {
+        verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
