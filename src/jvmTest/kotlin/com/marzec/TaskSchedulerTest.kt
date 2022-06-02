@@ -292,6 +292,18 @@ class TaskSchedulerTest {
         )
     }
 
+    @Test
+    fun `create if scheduled weekly, 31 may case`() {
+        verifyDispatcher(
+            scheduler = scheduledWeeklyTasks2,
+            day = 31,
+            month = 5,
+            year = 2022,
+            hour = 7,
+            minute = 10,
+        )
+    }
+
     private fun verifyDispatcher(
         scheduler: Map<User, List<Task>>,
         day: Int,

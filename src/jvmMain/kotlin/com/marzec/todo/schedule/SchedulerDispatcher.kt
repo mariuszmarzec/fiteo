@@ -14,6 +14,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.Period
 import kotlin.math.ceil
@@ -24,12 +26,16 @@ class SchedulerDispatcher(
     private val schedulerDispatcherInterval: Long,
     private val timeZoneOffsetHours: Long
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     fun dispatch() {
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
                 if (task.scheduler?.shouldBeCreated() == true) {
                     todoService.copyTask(user.id, task.id, copyPriority = false, copyScheduler = false)
                     updateLastDate(user.id, task)
+                } else {
+                    logger.debug("TASK ${task.id} not added by scheduler")
                 }
             }
         }
