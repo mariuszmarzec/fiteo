@@ -32,8 +32,21 @@ class SchedulerDispatcher(
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
                 if (task.scheduler?.shouldBeCreated() == true) {
-                    todoService.copyTask(user.id, task.id, copyPriority = false, copyScheduler = false)
-                    updateLastDate(user.id, task)
+                    todoService.copyTask(
+                        userId = user.id,
+                        id = task.id,
+                        copyPriority = false,
+                        copyScheduler = false,
+                        highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
+                    )
+                    if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
+                        todoService.removeTask(
+                            userId = user.id,
+                            taskId = task.id,
+                        )
+                    } else {
+                        updateLastDate(user.id, task)
+                    }
                 } else {
                     logger.debug("TASK ${task.id} not added by scheduler")
                 }

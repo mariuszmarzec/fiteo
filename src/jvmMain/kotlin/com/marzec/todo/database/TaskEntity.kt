@@ -10,7 +10,10 @@ import com.marzec.database.UserTable
 import com.marzec.extensions.formatDate
 import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.Scheduler
+import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
+import com.marzec.todo.model.getHighestPriorityAsDefault
+import com.marzec.todo.model.getRemoveScheduled
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toJavaLocalDateTime
@@ -73,7 +76,9 @@ object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {
 
 fun Column<String>.transformStringSchedulerNullable() = transform(
     toColumn = { scheduler -> scheduler?.toEntity()?.let { Json.encodeToString(it) }.orEmpty() },
-    toReal = { value -> value.takeIf { it.isNotEmpty() }?.let { Json.decodeFromString<SchedulerEntity>(it) }?.toDomain() }
+    toReal = { value ->
+        value.takeIf { it.isNotEmpty() }?.let { Json.decodeFromString<SchedulerEntity>(it) }?.toDomain()
+    }
 )
 
 @Serializable
@@ -86,8 +91,15 @@ data class SchedulerEntity(
     val dayOfMonth: Int,
     val repeatCount: Int,
     val repeatInEveryPeriod: Int,
-    val type: String
+    val type: String,
+    val options: Map<String, String>? = null
 )
+
+val SchedulerEntity.highestPriorityAsDefault: Boolean
+    get() = getHighestPriorityAsDefault(options)
+
+val SchedulerEntity.removeScheduled: Boolean
+    get() = getRemoveScheduled(options)
 
 fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
@@ -95,6 +107,8 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         minute = minute,
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
+        highestPriorityAsDefault = highestPriorityAsDefault,
+        removeScheduled = removeScheduled
     )
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
@@ -104,6 +118,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
+        highestPriorityAsDefault = highestPriorityAsDefault,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
         hour = hour, minute = minute, startDate = startDate.toLocalDateTime(),
@@ -111,6 +126,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         dayOfMonth = dayOfMonth,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
+        highestPriorityAsDefault = highestPriorityAsDefault,
     )
     else -> throw IllegalArgumentException("Unknown type of scheduler")
 }
@@ -125,7 +141,11 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         dayOfMonth = 0,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
-        type = this::class.simpleName.orEmpty()
+        type = this::class.simpleName.orEmpty(),
+        options = mapOf(
+            Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
+            Scheduler.OneShot::removeScheduled.name to removeScheduled.toString()
+        )
     )
     is Scheduler.Weekly -> SchedulerEntity(
         hour = hour,
@@ -136,7 +156,10 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         dayOfMonth = 0,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
-        type = this::class.simpleName.orEmpty()
+        type = this::class.simpleName.orEmpty(),
+        options = mapOf(
+            Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
+        )
     )
     is Scheduler.Monthly -> SchedulerEntity(
         hour = hour,
@@ -147,6 +170,10 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         dayOfMonth = dayOfMonth,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
-        type = this::class.simpleName.orEmpty()
+        type = this::class.simpleName.orEmpty(),
+        options = mapOf(
+            Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
+        )
+
     )
 }

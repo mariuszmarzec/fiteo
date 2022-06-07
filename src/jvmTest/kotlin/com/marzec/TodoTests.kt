@@ -70,6 +70,33 @@ class TodoTests {
     }
 
     @Test
+    fun addTask_scheduledWithOptions() {
+        val schedulerDto = schedulerOneShotDto.copy(
+            options = mapOf(
+                "highestPriorityAsDefault" to "true",
+                "removeScheduled" to "true"
+            )
+        )
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = createTaskDto.copy(scheduler = schedulerDto),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(scheduler = schedulerDto),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(scheduler = schedulerDto)
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
     fun addTask_scheduledWeekly() {
         testPostEndpoint(
             uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),

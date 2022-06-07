@@ -15,7 +15,8 @@ class TodoService(
         userId: Int,
         id: Int,
         copyPriority: Boolean = true,
-        copyScheduler: Boolean = true
+        copyScheduler: Boolean = true,
+        highestPriorityAsDefault: Boolean = false,
     ): Task {
         val taskToCopy = repository.getTask(userId, id)
         val copiedTaskId = createTaskCopy(
@@ -23,7 +24,8 @@ class TodoService(
             task = taskToCopy,
             parentTaskId = taskToCopy.parentTaskId,
             copyPriority = copyPriority,
-            copyScheduler = copyScheduler
+            copyScheduler = copyScheduler,
+            highestPriorityAsDefault = highestPriorityAsDefault
         )
         return repository.getTask(userId, copiedTaskId)
     }
@@ -40,11 +42,15 @@ class TodoService(
         task: Task,
         parentTaskId: Int? = null,
         copyPriority: Boolean,
-        copyScheduler: Boolean
+        copyScheduler: Boolean,
+        highestPriorityAsDefault: Boolean,
     ): Int {
-        val newTask = repository.addTask(userId, task.toCreateTask(parentTaskId, copyPriority, copyScheduler))
+        val newTask = repository.addTask(
+            userId,
+            task.toCreateTask(parentTaskId, copyPriority, copyScheduler, highestPriorityAsDefault)
+        )
         task.subTasks.forEach { subTask ->
-            createTaskCopy(userId, subTask, newTask.id, copyPriority, copyScheduler)
+            createTaskCopy(userId, subTask, newTask.id, copyPriority, copyScheduler, highestPriorityAsDefault = false)
         }
         return newTask.id
     }
@@ -52,12 +58,13 @@ class TodoService(
     private fun Task.toCreateTask(
         parentTaskId: Int? = null,
         copyPriority: Boolean,
-        copyScheduler: Boolean
+        copyScheduler: Boolean,
+        highestPriorityAsDefault: Boolean
     ) = CreateTask(
         description = description,
         parentTaskId = parentTaskId,
         priority = priority.takeIf { copyPriority },
-        highestPriorityAsDefault = false,
+        highestPriorityAsDefault = highestPriorityAsDefault,
         scheduler = scheduler.takeIf { copyScheduler }
     )
 }
