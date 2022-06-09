@@ -7,7 +7,14 @@ data class PaperDto(
     val id: Long,
     val code: String,
     val name: String,
-    val type: String
+    val type: String,
+    val tags: List<PaperTagDto>? = null
+)
+
+@Serializable
+data class PaperTagDto(
+    val id: Long,
+    val name: String
 )
 
 @Serializable

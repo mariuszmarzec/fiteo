@@ -10,7 +10,6 @@ import com.marzec.database.UserTable
 import com.marzec.extensions.formatDate
 import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.Scheduler
-import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.getHighestPriorityAsDefault
 import com.marzec.todo.model.getRemoveScheduled

@@ -4,6 +4,7 @@ import com.marzec.core.Decimal
 import com.marzec.core.toDecimal
 import com.marzec.extensions.formatDate
 import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.PaperTagDto
 import com.marzec.trader.dto.TransactionDto
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -12,7 +13,13 @@ data class Paper(
     val id: Long,
     val code: String,
     val name: String,
-    val type: PaperType
+    val type: PaperType,
+    val tags: List<PaperTag>?
+)
+
+data class PaperTag(
+    val id: Long,
+    val name: String
 )
 
 enum class PaperType {
@@ -51,6 +58,7 @@ fun Paper.toDto(): PaperDto = PaperDto(
     code = code,
     name = name,
     type = type.toString(),
+    tags = tags?.map { it.toDto() }
 )
 
 fun PaperDto.toDomain(): Paper = Paper(
@@ -58,6 +66,17 @@ fun PaperDto.toDomain(): Paper = Paper(
     code = code,
     name = name,
     type = PaperType.valueOf(type),
+    tags = tags?.map { it.toDomain() }
+)
+
+fun PaperTag.toDto(): PaperTagDto = PaperTagDto(
+    id = id,
+    name = name
+)
+
+fun PaperTagDto.toDomain(): PaperTag = PaperTag(
+    id = id,
+    name = name
 )
 
 fun Transaction.toDto(): TransactionDto = TransactionDto(

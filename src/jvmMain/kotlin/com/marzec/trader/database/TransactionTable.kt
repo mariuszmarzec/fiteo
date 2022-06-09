@@ -4,14 +4,9 @@ import com.marzec.core.toDecimal
 import com.marzec.database.IntEntityWithUser
 import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
-import com.marzec.todo.database.TasksTable
-import com.marzec.trader.model.Paper
-import com.marzec.trader.model.PaperType
 import com.marzec.trader.model.Transaction
 import com.marzec.trader.model.TransactionType
 import kotlinx.datetime.toKotlinLocalDateTime
-import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
