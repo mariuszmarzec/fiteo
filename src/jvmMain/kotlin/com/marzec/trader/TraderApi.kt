@@ -15,12 +15,25 @@ fun Route.traderApi(di: Di, api: TraderApiController) {
         papers(api)
         addPaper(api)
 
+        updatePaperTag(api)
+        removePaperTag(api)
+        tags(api)
+        addPaperTag(api)
+
         updateTransaction(api)
         removeTransaction(api)
         transactions(api)
         addTransaction(api)
     }
 }
+
+fun Route.updatePaperTag(api: TraderApiController) = updateByIdEndpoint(ApiPath.UPDATE_PAPER_TAG, api::updatePaperTag)
+
+fun Route.removePaperTag(api: TraderApiController) = deleteByIdEndpoint(ApiPath.DELETE_PAPER_TAG, api::removePaperTag)
+
+fun Route.tags(api: TraderApiController) = getAllEndpoint(ApiPath.PAPER_TAGS, api::getPaperTags)
+
+fun Route.addPaperTag(api: TraderApiController) = postEndpoint(ApiPath.ADD_PAPER_TAG, api::addPaperTag)
 
 fun Route.updatePaper(api: TraderApiController) = updateByIdEndpoint(ApiPath.UPDATE_PAPERS, api::updatePaper)
 

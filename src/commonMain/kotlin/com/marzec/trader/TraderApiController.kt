@@ -10,6 +10,7 @@ import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.PaperTagDto
 import com.marzec.trader.dto.TransactionDto
 import com.marzec.trader.model.PaperType
 import com.marzec.trader.model.toDomain
@@ -41,6 +42,28 @@ class TraderApiController(
     fun removePaper(request: HttpRequest<Unit>): HttpResponse<PaperDto> = serviceCall {
         service.removePaper(
             paperId = request.getIntOrThrow(Api.Args.ARG_ID)
+        ).toDto()
+    }
+
+    fun getPaperTags(request: HttpRequest<Unit>): HttpResponse<List<PaperTagDto>> = serviceCall {
+        service.getPaperTags().map { it.toDto() }
+    }
+
+    fun addPaperTag(request: HttpRequest<PaperTagDto>): HttpResponse<PaperTagDto> = serviceCall {
+        service.addPaperTag(
+            tag = request.data.toDomain()
+        ).toDto()
+    }
+
+    fun updatePaperTag(request: HttpRequest<PaperTagDto>): HttpResponse<PaperTagDto> = serviceCall {
+        service.updatePaperTag(
+            tag = request.data.toDomain()
+        ).toDto()
+    }
+
+    fun removePaperTag(request: HttpRequest<Unit>): HttpResponse<PaperTagDto> = serviceCall {
+        service.removePaperTag(
+            tagId = request.getIntOrThrow(Api.Args.ARG_ID)
         ).toDto()
     }
 

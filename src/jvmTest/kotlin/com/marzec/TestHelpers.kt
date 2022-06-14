@@ -14,6 +14,7 @@ import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.ExercisesData
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
+import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
@@ -22,6 +23,7 @@ import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.PaperTagDto
 import com.marzec.trader.dto.TransactionDto
 import io.ktor.application.*
 import io.ktor.http.*
@@ -145,6 +147,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             dto?.let { setBodyJson(it) }
             authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
         }.apply {
+            if (response.status() != status) {
+                error(json.decodeFromString<ErrorDto>(response.content.orEmpty()).reason)
+            }
             assertThatJson<RESPONSE>(response.content).isEqualTo(
                 responseDto
             )
@@ -267,6 +272,8 @@ fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
 
 fun TestApplicationEngine.addTransaction(dto: TransactionDto) = runAddEndpoint(TraderApiPath.ADD_TRANSACTIONS, dto)
 
+fun TestApplicationEngine.addPaperTag(dto: PaperTagDto) = runAddEndpoint(TraderApiPath.ADD_PAPER_TAG, dto)
+
 fun TestApplicationEngine.addPaper(dto: PaperDto) = runAddEndpoint(TraderApiPath.ADD_PAPER, dto)
 
 fun TestApplicationEngine.updateTask(id: String, dto: UpdateTaskDto) = runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
@@ -288,6 +295,8 @@ inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: S
 fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
 
 fun TestApplicationEngine.papers(): List<PaperDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
+
+fun TestApplicationEngine.tags(): List<PaperTagDto> = runGetAllEndpoint(TraderApiPath.PAPER_TAGS)
 
 inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
     handleRequest(HttpMethod.Get, endpointUrl) {

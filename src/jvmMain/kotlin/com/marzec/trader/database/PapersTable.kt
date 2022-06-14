@@ -19,7 +19,7 @@ class PaperEntity(id: EntityID<Int>) : IntEntity(id) {
     var code by PapersTable.code
     var name by PapersTable.name
     var type by PapersTable.type
-    var tags by PaperTagsEntity via TaskToSubtasksTable
+    var tags by PaperTagsEntity via PaperToTagTable
 
     fun toDomain(): Paper = Paper(
         id = id.value.toLong(),
@@ -37,17 +37,16 @@ object PaperTagsTable : IntIdTable("paper_tags") {
 }
 
 class PaperTagsEntity(id: EntityID<Int>) : IntEntity(id) {
-    var name by PapersTable.name
+    var name by PaperTagsTable.name
 
     fun toDomain() = PaperTag(
         id = id.value.toLong(),
         name = name
     )
-
-    companion object : IntEntityClass<PaperTagsEntity>(PapersTable)
+    companion object : IntEntityClass<PaperTagsEntity>(PaperTagsTable)
 }
 
-object TaskToSubtasksTable : IntIdTable("paper_to_tags") {
+object PaperToTagTable : IntIdTable("paper_to_tags") {
     val paper = reference("paper_id", PapersTable, onDelete = ReferenceOption.CASCADE)
     val tag = reference("tag_id", PaperTagsTable, onDelete = ReferenceOption.RESTRICT)
 }

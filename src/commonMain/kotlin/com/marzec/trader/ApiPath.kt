@@ -18,6 +18,11 @@ object ApiPath {
     const val PAPERS = "${API_ROOT}/papers"
     const val ADD_PAPER = "${API_ROOT}/papers"
 
+    const val PAPER_TAGS = "$PAPERS/tags"
+    const val ADD_PAPER_TAG = "$PAPERS/tags"
+    const val UPDATE_PAPER_TAG = "$PAPERS/tags/{${Api.Args.ARG_ID}}"
+    const val DELETE_PAPER_TAG = "$PAPERS/tags/{${Api.Args.ARG_ID}}"
+
     const val UPDATE_TRANSACTIONS = "${API_ROOT}/transactions/{${Api.Args.ARG_ID}}"
     const val DELETE_TRANSACTIONS = "${API_ROOT}/transactions/{${Api.Args.ARG_ID}}"
 

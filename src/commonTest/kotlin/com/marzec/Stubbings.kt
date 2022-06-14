@@ -14,6 +14,7 @@ import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
+import com.marzec.trader.dto.PaperTagDto
 import com.marzec.trader.dto.TransactionDto
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
@@ -479,6 +480,8 @@ fun stubCreateTrainingExerciseWithProgressDto(
     exerciseId, series
 )
 
+val tagDto = PaperTagDto(1, "TAG1")
+val tagDto2 = PaperTagDto(2, "TAG2")
 
 val paperDto = PaperDto(
     id = 1,

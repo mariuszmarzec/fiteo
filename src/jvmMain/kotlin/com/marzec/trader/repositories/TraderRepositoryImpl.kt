@@ -3,12 +3,16 @@ package com.marzec.trader.repositories
 import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
+import com.marzec.database.toSized
 import com.marzec.trader.TraderRepository
 import com.marzec.trader.database.PaperEntity
+import com.marzec.trader.database.PaperTagsEntity
+import com.marzec.trader.database.PaperTagsTable
 import com.marzec.trader.database.PapersTable
 import com.marzec.trader.database.TransactionEntity
 import com.marzec.trader.database.TransactionTable
 import com.marzec.trader.model.Paper
+import com.marzec.trader.model.PaperTag
 import com.marzec.trader.model.Transaction
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
@@ -29,6 +33,8 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
             name = paper.name
             type = paper.type.toString()
         }
+        paperEntity.tags = paper.tags?.map { PaperTagsEntity.findByIdOrThrow(it.id.toInt()) }.orEmpty().toSized()
+
         paperEntity.toDomain()
     }
 
@@ -37,6 +43,7 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
         paperEntity.code = paper.code
         paperEntity.name = paper.name
         paperEntity.type = paper.type.toString()
+        paperEntity.tags = paper.tags?.map { PaperTagsEntity.findByIdOrThrow(it.id.toInt()) }.orEmpty().toSized()
         paperEntity.toDomain()
     }
 
@@ -45,6 +52,31 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
         val paper = paperEntity.toDomain()
         paperEntity.delete()
         paper
+    }
+    
+    override fun getPaperTags(): List<PaperTag> = database.dbCall {
+        PaperTagsTable.selectAll()
+            .map { PaperTagsEntity.wrapRow(it).toDomain() }
+    }
+
+    override fun addPaperTag(tag: PaperTag): PaperTag = database.dbCall {
+        val tagEntity = PaperTagsEntity.new {
+            name = tag.name
+        }
+        tagEntity.toDomain()
+    }
+
+    override fun updatePaperTag(tag: PaperTag): PaperTag = database.dbCall {
+        val tagEntity = PaperTagsEntity.findByIdOrThrow(tag.id.toInt())
+        tagEntity.name = tag.name
+        tagEntity.toDomain()
+    }
+
+    override fun removePaperTag(tagId: Int): PaperTag = database.dbCall {
+        val tagEntity = PaperTagsEntity.findByIdOrThrow(tagId)
+        val tag = tagEntity.toDomain()
+        tagEntity.delete()
+        tag
     }
 
     override fun getTransactions(userId: Int): List<Transaction> = database.dbCall {

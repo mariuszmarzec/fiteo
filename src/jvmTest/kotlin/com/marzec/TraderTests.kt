@@ -3,11 +3,13 @@ package com.marzec
 import com.google.common.truth.Truth.assertThat
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.trader.ApiPath
+import com.marzec.trader.dto.PaperTagDto
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
+import kotlin.test.fail
 
 class TraderTests {
 
@@ -55,20 +57,23 @@ class TraderTests {
     }
 
     @Test
-    fun addPapers_onlyOneSettlementCurrency() {
+    fun addPapersWithTags() {
         testPostEndpoint(
             uri = ApiPath.PAPERS,
-            status = HttpStatusCode.BadRequest,
-            dto = paperDto.copy(name = "second"),
-            responseDto = ErrorDto("There could be only one settlement currency"),
+            status = HttpStatusCode.OK,
+            dto = paperDto2.copy(tags = listOf(tagDto, tagDto2)),
+            responseDto = paperDto2.copy(tags = listOf(tagDto, tagDto2)),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
-                addPaper(paperDto)
+                addPaperTag(tagDto)
+                addPaperTag(tagDto2)
+                addPaper(paperDto.copy(tags = listOf(tagDto)))
             },
             runRequestsAfter = {
                 assertThat(papers()).isEqualTo(
                     listOf(
-                        paperDto
+                        paperDto.copy(tags = listOf(tagDto)),
+                        paperDto2.copy(tags = listOf(tagDto, tagDto2)),
                     )
                 )
             }
@@ -106,6 +111,86 @@ class TraderTests {
                     listOf(
                         paperDto,
                         paperDto3
+                    )
+                )
+            }
+        )
+    }
+    
+    @Test
+    fun addTag() {
+        testPostEndpoint(
+            uri = ApiPath.ADD_PAPER_TAG,
+            status = HttpStatusCode.OK,
+            dto = tagDto,
+            responseDto = tagDto,
+            authorize = TestApplicationEngine::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTags() {
+        testGetEndpoint(
+            uri = ApiPath.PAPER_TAGS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                tagDto,
+                tagDto2,
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addPaperTag(tagDto)
+                addPaperTag(tagDto2)
+            }
+        )
+    }
+
+    @Test
+    fun updateTag() {
+        testPatchEndpoint(
+            uri = ApiPath.UPDATE_PAPER_TAG.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            dto = tagDto2.copy(id = 1),
+            responseDto = tagDto2.copy(id = 1),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addPaperTag(tagDto)
+            }
+        )
+    }
+
+    @Test
+    fun removeTag() {
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_PAPER_TAG.replace("{${Api.Args.ARG_ID}}", "2"),
+            status = HttpStatusCode.OK,
+            responseDto = tagDto2,
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addPaperTag(tagDto)
+                addPaperTag(tagDto2)
+            },
+            runRequestsAfter = {
+                assertThat(tags()).isEqualTo(listOf(tagDto))
+            }
+        )
+    }
+
+    @Test
+    fun addPapers_onlyOneSettlementCurrency() {
+        testPostEndpoint(
+            uri = ApiPath.PAPERS,
+            status = HttpStatusCode.BadRequest,
+            dto = paperDto.copy(name = "second"),
+            responseDto = ErrorDto("There could be only one settlement currency"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                addPaper(paperDto)
+            },
+            runRequestsAfter = {
+                assertThat(papers()).isEqualTo(
+                    listOf(
+                        paperDto
                     )
                 )
             }
