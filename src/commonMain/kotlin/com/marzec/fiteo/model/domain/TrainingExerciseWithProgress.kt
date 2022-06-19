@@ -15,7 +15,7 @@ data class Series(
     val exerciseId: Int,
     val trainingId: Int,
     val date: LocalDateTime,
-    val burden: Int?,
+    val burden: Float?,
     val timeInMillis: Long?,
     val repsNumber: Int?,
     val note: String
@@ -33,7 +33,7 @@ data class SeriesDto(
     val exerciseId: Int,
     val trainingId: Int,
     val date: String,
-    val burden: Int?,
+    val burden: Float?,
     val timeInMillis: Long?,
     val repsNumber: Int?,
     val note: String

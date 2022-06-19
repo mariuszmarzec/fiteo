@@ -74,7 +74,7 @@ object ExerciseToSeries : IntIdTable("exercise_to_series") {
 
 object SeriesTable : IntIdTable("series") {
     val date = datetime("date").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
-    val burden = integer("burden").nullable()
+    val burden = float("burden").nullable()
     val timeInMillis = long("time_in_millis").nullable()
     val repsNumber = integer("reps_number").nullable()
     val note = text("note")

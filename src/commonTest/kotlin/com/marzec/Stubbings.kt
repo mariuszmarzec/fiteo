@@ -412,7 +412,7 @@ fun stubSeriesDto(
     exerciseId: Int = 0,
     trainingId: Int = 0,
     date: String = dateTime,
-    burden: Int? = null,
+    burden: Float? = null,
     timeInMillis: Long? = null,
     repsNumber: Int? = null,
     note: String = ""
