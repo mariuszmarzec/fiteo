@@ -55,7 +55,7 @@ class TrainingTests {
                     stubSeriesDto(
                         exerciseId = 1,
                         trainingId = 1,
-                        burden = 10
+                        burden = 10f
                     )
                 )
             ),
@@ -65,7 +65,7 @@ class TrainingTests {
                     stubSeriesDto(
                         exerciseId = 4,
                         trainingId = 1,
-                        burden = 3,
+                        burden = 3f,
                         repsNumber = 10,
                         note = "note"
                     )
@@ -85,7 +85,7 @@ class TrainingTests {
                         seriesId = 1,
                         exerciseId = 1,
                         trainingId = 1,
-                        burden = 10
+                        burden = 10f
                     )
                 )
             ),
@@ -96,7 +96,7 @@ class TrainingTests {
                         seriesId = 2,
                         exerciseId = 4,
                         trainingId = 1,
-                        burden = 3,
+                        burden = 3f,
                         repsNumber = 10,
                         note = "note"
                     )
