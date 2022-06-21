@@ -9,14 +9,11 @@ import com.marzec.fiteo.model.domain.CachedSession
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import io.ktor.server.sessions.defaultSessionSerializer
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 
 class CachedSessionsRepositoryImpl(
     private val database: Database,
@@ -27,7 +24,7 @@ class CachedSessionsRepositoryImpl(
         database.dbCall {
             if (CachedSessionEntity.findById(session.id) == null) {
                 CachedSessionEntity.new(session.id) {
-                    this.session = ExposedBlob(session.session)
+                    this.session = session.session
                 }
             }
         }
@@ -47,27 +44,22 @@ class CachedSessionsRepositoryImpl(
 
     override suspend fun clearOldSessions() = database.dbCall {
         CachedSessionEntity.all().toList().distinctBy { it.id }.forEach { entity ->
-            CoroutineScope(Dispatchers.Unconfined).launch {
-                val session = readSession(entity).orEmpty()
-                val userSession = session.deserializeSession<UserSession>()
-                userSession?.let {
-                    if (isSessionExpired(userSession.timestamp)) {
+            val session = entity.session.orEmpty()
+            val userSession = session.deserializeSession<UserSession>()
+            userSession?.let {
+                if (isSessionExpired(userSession.timestamp)) {
+                    entity.delete()
+                }
+            } ?: run {
+                val testUserSession = session.deserializeSession<TestUserSession>()
+                testUserSession?.let {
+                    if (isSessionExpired(testUserSession.timestamp)) {
                         entity.delete()
-                    }
-                } ?: run {
-                    val testUserSession = session.deserializeSession<TestUserSession>()
-                    testUserSession?.let {
-                        if (isSessionExpired(testUserSession.timestamp)) {
-                            entity.delete()
-                        }
                     }
                 }
             }
         }
     }
-
-    private suspend fun readSession(it: CachedSessionEntity) =
-        ByteReadChannel(it.session.bytes).readUTF8Line()
 
     private fun isSessionExpired(timestamp: Long) = currentMillis() - timestamp > sessionExpirationTime
 }

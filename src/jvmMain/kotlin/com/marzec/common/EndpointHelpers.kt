@@ -51,7 +51,7 @@ inline fun <reified T : Any> Route.getByIdEndpoint(
 
 inline fun <reified T : Any> Route.getAllEndpoint(
     path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<List<T>>>
+    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
     get(path) {
         (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
@@ -85,7 +85,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
         val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             data = dto,
-            parameters = mapOf(pair = Api.Args.ARG_ID to taskId),
+            parameters = mapOf(Api.Args.ARG_ID to taskId),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
@@ -102,7 +102,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
         val httpRequest = HttpRequest(
             data = dto,
             parameters = mapOf(
-                pair = Api.Args.ARG_ID to taskId,
+                Api.Args.ARG_ID to taskId,
             ),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
