@@ -25,7 +25,7 @@ import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
 import com.marzec.trader.dto.PaperTagDto
 import com.marzec.trader.dto.TransactionDto
-import io.ktor.application.*
+import io.ktor.server.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.every

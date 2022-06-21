@@ -11,7 +11,7 @@ import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
-import io.ktor.application.Application
+import io.ktor.server.application.Application
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.koin.core.qualifier.named

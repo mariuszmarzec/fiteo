@@ -5,12 +5,12 @@ import com.marzec.common.*
 import com.marzec.di.Di
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.model.http.HttpRequest
-import io.ktor.application.call
-import io.ktor.auth.authenticate
+import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
 import io.ktor.http.ContentType
-import io.ktor.response.respondText
-import io.ktor.routing.Route
-import io.ktor.routing.get
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 
 fun Route.fiteoApi(di: Di, api: Controller) {
     authenticate(di.authToken) {

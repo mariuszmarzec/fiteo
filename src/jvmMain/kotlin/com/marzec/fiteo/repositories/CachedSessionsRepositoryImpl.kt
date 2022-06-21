@@ -8,7 +8,7 @@ import com.marzec.database.toDomain
 import com.marzec.fiteo.model.domain.CachedSession
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
-import io.ktor.sessions.defaultSessionSerializer
+import io.ktor.server.sessions.defaultSessionSerializer
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.CoroutineScope

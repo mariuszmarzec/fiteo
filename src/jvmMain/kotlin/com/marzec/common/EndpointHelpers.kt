@@ -5,17 +5,17 @@ import com.marzec.database.UserPrincipal
 import com.marzec.extensions.emptyString
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.auth.principal
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.auth.principal
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.patch
-import io.ktor.routing.post
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
+import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KFunction1
 

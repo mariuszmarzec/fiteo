@@ -5,8 +5,8 @@ import com.marzec.common.getAllEndpoint
 import com.marzec.common.postEndpoint
 import com.marzec.common.updateByIdEndpoint
 import com.marzec.di.Di
-import io.ktor.auth.authenticate
-import io.ktor.routing.Route
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.Route
 
 fun Route.cheatDayApi(
     di: Di,
