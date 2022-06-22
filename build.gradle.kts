@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
-        classpath("mysql:mysql-connector-java:8.0.12")
+        classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Dependency.kotlin_version}")
@@ -132,6 +132,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
+                implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
