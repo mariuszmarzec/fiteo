@@ -9,7 +9,7 @@ object Dependency {
     val buildkonfig_version = "0.7.0"
     val flyway_version = "8.5.13"
     val mysql_connector_version = "8.0.29"
-    val serialization_version = "1.1.0"
+    val serialization_version = "1.3.3"
     val datetime_version = "0.2.1"
     val mockk_version = "1.10.6"
     val koin_version = "3.2.0"
