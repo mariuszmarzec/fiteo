@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
-        classpath("mysql:mysql-connector-java:8.0.12")
+        classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Dependency.kotlin_version}")
@@ -99,10 +99,16 @@ kotlin {
                 implementation(kotlin("stdlib-jdk8"))
                 implementation("io.insert-koin:koin-ktor:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
-                implementation("io.ktor:ktor-html-builder:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-html-builder:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sessions:${Dependency.ktor_version}")
-                implementation("io.ktor:ktor-serialization:${Dependency.ktor_version}")
-                implementation("io.ktor:ktor-auth:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-cors:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-call-logging:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-compression:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-content-negotiation:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-default-headers:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-content-negotiation:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-auth:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("org.slf4j:slf4j-simple:${Dependency.sl4j_version}")
                 implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")
@@ -126,6 +132,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
+                implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")

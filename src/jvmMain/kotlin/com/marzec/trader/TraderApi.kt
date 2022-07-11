@@ -5,8 +5,8 @@ import com.marzec.common.getAllEndpoint
 import com.marzec.common.postEndpoint
 import com.marzec.common.updateByIdEndpoint
 import com.marzec.di.Di
-import io.ktor.auth.*
-import io.ktor.routing.*
+import io.ktor.server.auth.*
+import io.ktor.server.routing.Route
 
 fun Route.traderApi(di: Di, api: TraderApiController) {
     authenticate(di.authToken) {
