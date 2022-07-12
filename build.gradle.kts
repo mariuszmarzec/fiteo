@@ -141,6 +141,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-js"))
+                implementation("io.ktor:ktor-client-content-negotiation:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-client-js:${Dependency.ktor_version}") //include http&websockets
                 implementation(npm("text-encoding", "0.7.0"))
                 //ktor client js json
