@@ -17,12 +17,15 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
         addTask(todoController)
         updateTask(todoController)
         removeTask(todoController)
+        removeTaskWithSubtasks(todoController)
     }
 }
 
 fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(ApiPath.UPDATE_TASK, api::updateTask)
 
 fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
+
+fun Route.removeTaskWithSubtasks(api: ToDoApiController) = postEndpoint(ApiPath.DELETE_TASK_WITH_SUBTASKS, api::removeTaskWithSubtask)
 
 fun Route.tasks(api: ToDoApiController) = getAllEndpoint(ApiPath.TASKS, api::getTasks)
 

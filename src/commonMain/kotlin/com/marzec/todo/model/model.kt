@@ -280,6 +280,11 @@ data class MarkAsToDoDto(
     val taskIds: List<Int>,
 )
 
+@Serializable
+data class RemoveWithSubtasksDto(
+    val removeWithSubtasks: Boolean
+)
+
 fun UpdateTaskDto.toDomain() = UpdateTask(
     description = description,
     parentTaskId = parentTaskId,
