@@ -436,6 +436,46 @@ class TodoTests {
     }
 
     @Test
+    fun removeTaskWithSubtasks_removeChildWithoutRemovingSubtasks() {
+        testPostEndpoint(
+            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS.replace("{${Api.Args.ARG_ID}}", "2"),
+            dto = RemoveWithSubtasksDto(
+                removeWithSubtasks = false
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(
+                id = 2,
+                parentTaskId = 1,
+                subTasks = listOf(
+                    taskDto.copy(id = 3, parentTaskId = 2),
+                    taskDto.copy(id = 4, parentTaskId = 2)
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(parentTaskId = 1))
+                addTask(createTaskDto.copy(parentTaskId = 2))
+                addTask(createTaskDto.copy(parentTaskId = 2))
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(
+                            id = 1,
+                            subTasks = listOf(
+                                taskDto.copy(id = 3, parentTaskId = 1),
+                                taskDto.copy(id = 4, parentTaskId = 1)
+                            )
+                        )
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
     fun updateTask_pinToParentTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
