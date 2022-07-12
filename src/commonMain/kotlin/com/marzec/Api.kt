@@ -9,10 +9,6 @@ object Api {
         const val ARG_USER_ID = "userId"
     }
 
-    object QueryParam {
-        const val REMOVE_TASK_WITH_SUBTASKS = "remove-with-subtasks"
-    }
-
     object Headers {
         const val AUTHORIZATION = "Authorization"
         const val AUTHORIZATION_TEST = "Authorization-Test"
