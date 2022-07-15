@@ -50,7 +50,7 @@ import io.ktor.server.engine.commandLineEnvironment
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.resource
 import io.ktor.server.http.content.static
-import io.ktor.server.netty.Netty
+import io.ktor.server.netty.*
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.compression.deflate
@@ -78,9 +78,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
 
-fun main(args: Array<String>) {
-    embeddedServer(Netty, commandLineEnvironment(args)).start()
-}
+fun main(args: Array<String>) = EngineMain.main(args)
 
 @Suppress("unused")
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
