@@ -43,6 +43,7 @@ class SchedulerDispatcher(
                         todoService.removeTask(
                             userId = user.id,
                             taskId = task.id,
+                            removeWithSubtasks = true
                         )
                     } else {
                         updateLastDate(user.id, task)
