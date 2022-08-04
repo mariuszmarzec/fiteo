@@ -24,6 +24,7 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
 
     override fun getPapers(): List<Paper> = database.dbCall {
         PapersTable.selectAll()
+            .orderBy(PapersTable.code)
             .map { PaperEntity.wrapRow(it).toDomain() }
     }
 
@@ -56,6 +57,7 @@ class TraderRepositoryImpl(private val database: Database) : TraderRepository {
     
     override fun getPaperTags(): List<PaperTag> = database.dbCall {
         PaperTagsTable.selectAll()
+            .orderBy(PaperTagsTable.name)
             .map { PaperTagsEntity.wrapRow(it).toDomain() }
     }
 
