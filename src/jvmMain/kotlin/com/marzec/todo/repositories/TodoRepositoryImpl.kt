@@ -60,6 +60,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                 isToDo = true
                 priority = taskPriority
                 scheduler = task.scheduler
+                isToDo = task.isToDo
                 user = UserEntity.findByIdOrThrow(userId)
             }
         }

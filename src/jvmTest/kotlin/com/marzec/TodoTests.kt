@@ -448,7 +448,7 @@ class TodoTests {
                 parentTaskId = 1,
                 subTasks = listOf(
                     taskDto.copy(id = 3, parentTaskId = 2),
-                    taskDto.copy(id = 4, parentTaskId = 2)
+                    taskDto.copy(id = 4, parentTaskId = 2, isToDo = false)
                 )
             ),
             authorize = TestApplicationEngine::registerAndLogin,
@@ -457,7 +457,7 @@ class TodoTests {
                 addTask(createTaskDto)
                 addTask(createTaskDto.copy(parentTaskId = 1))
                 addTask(createTaskDto.copy(parentTaskId = 2))
-                addTask(createTaskDto.copy(parentTaskId = 2))
+                addTask(createTaskDto.copy(parentTaskId = 2, isToDo = false))
             },
             runRequestsAfter = {
                 assertThat(getTasks()).isEqualTo(
@@ -466,7 +466,7 @@ class TodoTests {
                             id = 1,
                             subTasks = listOf(
                                 taskDto.copy(id = 3, parentTaskId = 1),
-                                taskDto.copy(id = 4, parentTaskId = 1)
+                                taskDto.copy(id = 4, parentTaskId = 1, isToDo = false)
                             )
                         )
                     )

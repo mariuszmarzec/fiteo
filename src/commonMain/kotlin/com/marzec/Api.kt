@@ -21,5 +21,6 @@ object Api {
 
     object Default {
         const val HIGHEST_PRIORITY_AS_DEFAULT = false
+        const val IS_TO_DO_DEFAULT = true
     }
 }

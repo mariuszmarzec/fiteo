@@ -68,6 +68,7 @@ class TodoService(
         parentTaskId = parentTaskId,
         priority = priority.takeIf { copyPriority },
         highestPriorityAsDefault = highestPriorityAsDefault,
-        scheduler = scheduler.takeIf { copyScheduler }
+        scheduler = scheduler.takeIf { copyScheduler },
+        isToDo = isToDo
     )
 }
