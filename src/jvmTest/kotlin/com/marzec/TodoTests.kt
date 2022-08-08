@@ -10,7 +10,7 @@ import com.marzec.todo.model.RemoveWithSubtasksDto
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -27,7 +27,7 @@ class TodoTests {
                 taskDto.copy(id = 2),
                 taskDto.copy(id = 3)
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -44,7 +44,7 @@ class TodoTests {
             dto = createTaskDto,
             status = HttpStatusCode.OK,
             responseDto = taskDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
             },
@@ -61,7 +61,7 @@ class TodoTests {
             dto = createTaskDto.copy(scheduler = schedulerOneShotDto),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(scheduler = schedulerOneShotDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
             },
@@ -84,7 +84,7 @@ class TodoTests {
             dto = createTaskDto.copy(scheduler = schedulerDto),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(scheduler = schedulerDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
             },
@@ -105,7 +105,7 @@ class TodoTests {
             dto = createTaskDto.copy(scheduler = schedulerWeeklyDto),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(scheduler = schedulerWeeklyDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
             },
@@ -122,7 +122,7 @@ class TodoTests {
             dto = createTaskDto.copy(scheduler = schedulerMonthlyDto),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(scheduler = schedulerMonthlyDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
             },
@@ -139,7 +139,7 @@ class TodoTests {
             dto = createTaskDto.copy(parentTaskId = 1, scheduler = schedulerMonthlyDto),
             status = HttpStatusCode.BadRequest,
             responseDto = ErrorDto("Scheduled task can't have parent"),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -157,7 +157,7 @@ class TodoTests {
             dto = createTaskDto.copy(priority = null),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 2, priority = -2),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto.copy(priority = -1))
@@ -172,7 +172,7 @@ class TodoTests {
             dto = createTaskDto.copy(parentTaskId = 1, priority = null),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 3, parentTaskId = 1, priority = -2),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -199,7 +199,7 @@ class TodoTests {
             uri = ApiPath.COPY_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = copiedTask,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -221,7 +221,7 @@ class TodoTests {
             dto = createTaskDto.copy(priority = null, highestPriorityAsDefault = true),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 2, priority = 0),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto.copy(priority = -1))
@@ -236,7 +236,7 @@ class TodoTests {
             dto = createTaskDto.copy(parentTaskId = 1, priority = null, highestPriorityAsDefault = true),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 3, parentTaskId = 1, priority = 0),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -252,7 +252,7 @@ class TodoTests {
             dto = createTaskDto.copy(parentTaskId = 1, priority = null, highestPriorityAsDefault = false),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 2, parentTaskId = 1, priority = -100),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto.copy(priority = -100))
@@ -267,7 +267,7 @@ class TodoTests {
             dto = stubCreateTaskDto(description = "subtask", parentTaskId = 1),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "subtask", parentTaskId = 1),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -304,7 +304,7 @@ class TodoTests {
                 isToDo = false,
                 scheduler = schedulerWeeklyDto
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -339,7 +339,7 @@ class TodoTests {
                 taskDto.copy(id = 3, isToDo = true),
                 taskDto.copy(id = 1, isToDo = false)
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -366,7 +366,7 @@ class TodoTests {
                 taskDto.copy(id = 2, isToDo = false),
                 taskDto.copy(id = 3, isToDo = false)
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -390,7 +390,7 @@ class TodoTests {
                     taskDto.copy(id = 3, parentTaskId = 1)
                 )
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -417,7 +417,7 @@ class TodoTests {
                     taskDto.copy(id = 3, parentTaskId = 1)
                 )
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -451,7 +451,7 @@ class TodoTests {
                     taskDto.copy(id = 4, parentTaskId = 2, isToDo = false)
                 )
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -482,7 +482,7 @@ class TodoTests {
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = 1),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = 1),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(stubCreateTaskDto("task", null, 0))
@@ -517,7 +517,7 @@ class TodoTests {
             dto = stubUpdateTaskDto(description = "task2", parentTaskId = null),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = null),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(stubCreateTaskDto("task", null, 0))
@@ -552,7 +552,7 @@ class TodoTests {
             dto = stubUpdateTaskDto(parentTaskId = 1, scheduler = schedulerMonthlyDto),
             status = HttpStatusCode.BadRequest,
             responseDto = ErrorDto("Scheduled task can't have parent"),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -570,7 +570,7 @@ class TodoTests {
             uri = ApiPath.DELETE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = taskDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)
@@ -612,7 +612,7 @@ class TodoTests {
                     )
                 )
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto.copy(priority = 1))
@@ -663,7 +663,7 @@ class TodoTests {
                     )
                 )
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto.copy(priority = 1))
@@ -708,7 +708,7 @@ class TodoTests {
             uri = ApiPath.DELETE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = removedTask,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addTask(createTaskDto)

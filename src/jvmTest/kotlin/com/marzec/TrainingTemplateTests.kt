@@ -5,7 +5,7 @@ import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.domain.toDto
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -110,7 +110,7 @@ class TrainingTemplateTests {
             dto = createTrainingTemplateDto,
             status = HttpStatusCode.OK,
             responseDto = trainingTemplateDto,
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -120,7 +120,7 @@ class TrainingTemplateTests {
             uri = ApiPath.TRAINING_TEMPLATES,
             status = HttpStatusCode.OK,
             responseDto = listOf(trainingTemplateDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 putTemplate(createTrainingTemplateDto)
             }
@@ -133,7 +133,7 @@ class TrainingTemplateTests {
             uri = ApiPath.DELETE_TRAINING_TEMPLATES.replace("{id}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingTemplateDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 putTemplate(createTrainingTemplateDto)
             },
@@ -152,7 +152,7 @@ class TrainingTemplateTests {
             dto = updateTrainingTemplateDto,
             status = HttpStatusCode.OK,
             responseDto = updatedTrainingTemplateDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 putTemplate(createTrainingTemplateDto)
             },

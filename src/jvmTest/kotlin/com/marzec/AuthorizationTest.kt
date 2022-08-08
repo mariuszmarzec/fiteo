@@ -4,7 +4,6 @@ import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.dto.UserDto
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -12,6 +11,7 @@ import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
 import io.ktor.server.application.Application
+import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.koin.core.qualifier.named
@@ -100,7 +100,7 @@ class AuthorizationTest {
             uri = ApiPath.USER,
             status = HttpStatusCode.OK,
             responseDto = UserDto(2, "test@mail.com"),
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -110,7 +110,7 @@ class AuthorizationTest {
             uri = ApiPath.LOGOUT,
             status = HttpStatusCode.OK,
             responseDto = Unit,
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -124,7 +124,7 @@ class AuthorizationTest {
             uri = ApiPath.USER,
             status = HttpStatusCode.OK,
             responseDto = UserDto(2, "test@mail.com"),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsAfter = {
                 token = authToken
             }

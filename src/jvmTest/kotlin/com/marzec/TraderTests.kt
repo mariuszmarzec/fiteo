@@ -23,7 +23,7 @@ class TraderTests {
                 paperDto2,
                 paperDto3
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -39,7 +39,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = paperDto3,
             responseDto = paperDto3,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -63,7 +63,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = paperDto2.copy(tags = listOf(tagDto, tagDto2)),
             responseDto = paperDto2.copy(tags = listOf(tagDto, tagDto2)),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaperTag(tagDto)
                 addPaperTag(tagDto2)
@@ -87,7 +87,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = paperDto3.copy(id = 1),
             responseDto = paperDto3.copy(id = 1),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
             }
@@ -100,7 +100,7 @@ class TraderTests {
             uri = ApiPath.DELETE_PAPERS.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = paperDto2,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -124,7 +124,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = tagDto,
             responseDto = tagDto,
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -137,7 +137,7 @@ class TraderTests {
                 tagDto,
                 tagDto2,
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaperTag(tagDto)
                 addPaperTag(tagDto2)
@@ -152,7 +152,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = tagDto2.copy(id = 1),
             responseDto = tagDto2.copy(id = 1),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaperTag(tagDto)
             }
@@ -165,7 +165,7 @@ class TraderTests {
             uri = ApiPath.DELETE_PAPER_TAG.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = tagDto2,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaperTag(tagDto)
                 addPaperTag(tagDto2)
@@ -183,7 +183,7 @@ class TraderTests {
             status = HttpStatusCode.BadRequest,
             dto = paperDto.copy(name = "second"),
             responseDto = ErrorDto("There could be only one settlement currency"),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
             },
@@ -207,7 +207,7 @@ class TraderTests {
                 transactionDto2,
                 transactionDto,
             ),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -227,7 +227,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = transactionDto3,
             responseDto = transactionDto3,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -255,7 +255,7 @@ class TraderTests {
             status = HttpStatusCode.OK,
             dto = transactionDto3.copy(id = 1),
             responseDto = transactionDto3.copy(id = 1),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)
@@ -272,7 +272,7 @@ class TraderTests {
             uri = ApiPath.DELETE_TRANSACTIONS.replace("{${Api.Args.ARG_ID}}", "2"),
             status = HttpStatusCode.OK,
             responseDto = transactionDto2,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 addPaper(paperDto)
                 addPaper(paperDto2)

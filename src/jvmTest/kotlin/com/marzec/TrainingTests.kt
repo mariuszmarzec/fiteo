@@ -6,7 +6,7 @@ import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.toDto
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -111,7 +111,7 @@ class TrainingTests {
             uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
@@ -125,7 +125,7 @@ class TrainingTests {
             uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
@@ -140,7 +140,7 @@ class TrainingTests {
             uri = ApiPath.TRAININGS,
             status = HttpStatusCode.OK,
             responseDto = listOf(trainingDto),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
@@ -155,7 +155,7 @@ class TrainingTests {
             uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
@@ -174,7 +174,7 @@ class TrainingTests {
             dto = updateDto,
             status = HttpStatusCode.OK,
             responseDto = updatedTraining,
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
