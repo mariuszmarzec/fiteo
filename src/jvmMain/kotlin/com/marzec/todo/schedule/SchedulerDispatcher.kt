@@ -18,6 +18,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.YearMonth
 import kotlin.math.ceil
 
 class SchedulerDispatcher(
@@ -72,7 +73,7 @@ class SchedulerDispatcher(
 
     private fun Scheduler.Monthly.shouldBeCreated(): Boolean {
         val today = currentTime().toJavaLocalDateTime()
-        val dayOfMonth = if (dayOfMonth > 27) 28 else dayOfMonth
+        val dayOfMonth = if (dayOfMonth > 27) YearMonth.of(today.year, today.month).atEndOfMonth().dayOfMonth else dayOfMonth
         val startedInNextMonth = startDate.dayOfMonth >= dayOfMonth
         val firstDate = startDate.toJavaLocalDateTime()
             .let { if (startedInNextMonth) it.plusMonths(1L) else it }
@@ -161,7 +162,3 @@ fun runTodoSchedulerDispatcher(vararg dis: Di) {
         }
     }
 }
-
-private fun Int.timesIf(other: Int, condition: () -> Boolean) = if (condition()) this.times(other) else this
-
-private fun Int.incIf(condition: () -> Boolean) = if (condition()) inc() else this
