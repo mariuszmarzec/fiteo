@@ -170,11 +170,20 @@ class TrainingTests {
         testGetEndpoint(
             uri = ApiPath.TRAININGS,
             status = HttpStatusCode.OK,
-            responseDto = listOf(trainingDto),
+            responseDto = listOf(
+                trainingDto.copy(
+                    id = 2,
+                    createDateInMillis = dateTime4,
+                    finishDateInMillis = dateTime4
+                ),
+                trainingDto
+            ),
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
+                createTraining("1")
+                CurrentTimeUtil.setOtherTime(19, 5, 2021)
                 createTraining("1")
             }
         )

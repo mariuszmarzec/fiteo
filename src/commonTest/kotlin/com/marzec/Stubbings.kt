@@ -24,6 +24,7 @@ import kotlinx.serialization.json.Json
 val dateTime = "2021-05-16T00:00:00"
 val dateTime2 = "2021-05-17T07:20:30"
 val dateTime3 = "2021-05-18T07:20:30"
+val dateTime4 = "2021-05-19T00:00:00"
 
 val categoryOne = stubCategory("1", "category_one")
 val categoryTwo = stubCategory("2", "category_two")

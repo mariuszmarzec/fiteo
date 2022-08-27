@@ -16,6 +16,7 @@ import com.marzec.fiteo.model.domain.Series
 import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
@@ -41,7 +42,9 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
 
     override fun getTrainings(userId: Int): List<Training> {
         return database.dbCall {
-            TrainingsTable.selectAll().andWhere { TrainingsTable.userId eq userId }
+            TrainingsTable.selectAll()
+                .andWhere { TrainingsTable.userId eq userId }
+                .orderBy(TrainingsTable.createDateInMillis, SortOrder.DESC)
                 .map { TrainingEntity.wrapRow(it).toDomain() }
         }
     }
