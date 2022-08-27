@@ -5,6 +5,7 @@ import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.toDto
+import com.marzec.fiteo.model.dto.ErrorDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After
@@ -29,6 +30,20 @@ class TrainingTests {
                 categoryIds = listOf("2"),
                 excludedExercisesIds = listOf(),
                 excludedEquipmentIds = listOf("5")
+            )
+        ),
+        availableEquipmentIds = listOf("4", "5")
+    )
+
+    private val createTrainingTemplateDto2 = stubCreateTrainingTemplateDto(
+        name = "trainingTemplate",
+        exercises = listOf(
+            stubCreateTrainingTemplatePartDto(
+                name = "part_one",
+                pinnedExerciseId = null,
+                categoryIds = listOf(),
+                excludedExercisesIds = listOf(2),
+                excludedEquipmentIds = listOf(),
             )
         ),
         availableEquipmentIds = listOf("4", "5")
@@ -115,6 +130,22 @@ class TrainingTests {
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
+            }
+        )
+    }
+
+    @Test
+    fun createTraining_doNotCreateTrainingInCaseOfError() {
+        testGetEndpoint(
+            uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.InternalServerError,
+            responseDto = ErrorDto("No exercise for training part with: 1"),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto2)
+            }, runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
             }
         )
     }
