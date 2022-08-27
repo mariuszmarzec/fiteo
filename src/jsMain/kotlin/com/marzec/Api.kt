@@ -1,9 +1,11 @@
 package com.marzec
 
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 
 val jsonClient = HttpClient {
-    install(JsonFeature) { serializer = KotlinxSerializer() }
+    install(ContentNegotiation) {
+        json()
+    }
 }

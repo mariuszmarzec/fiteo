@@ -37,24 +37,23 @@ class TaskSchedulerTest {
             )
         )
     )
-    val scheduledMonthlyTasks = mapOf(
-        user to listOf(
-            stubTask(
-                id = 1,
-                description = "1",
-                subTasks = listOf(subTask),
-                scheduler = Scheduler.Monthly(
-                    hour = 14,
-                    minute = 20,
-                    startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
-                    lastDate = null,
-                    repeatCount = 3,
-                    repeatInEveryPeriod = 2,
-                    dayOfMonth = 20
-                )
-            )
-        )
+    val monthlyScheduler = Scheduler.Monthly(
+        hour = 14,
+        minute = 20,
+        startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+        lastDate = null,
+        repeatCount = 3,
+        repeatInEveryPeriod = 2,
+        dayOfMonth = 20
     )
+    val monthlyTask = stubTask(
+        id = 1,
+        description = "1",
+        subTasks = listOf(subTask),
+        scheduler = monthlyScheduler
+    )
+    val scheduledMonthlyTasks = taskMap(monthlyTask)
+
     val scheduledWeeklyTasks = mapOf(
         user to listOf(
             stubTask(
@@ -167,12 +166,41 @@ class TaskSchedulerTest {
     @Test
     fun `run creation if scheduled monthly for last date`() {
         // In november is winter time, one hour backward
-        CurrentTimeUtil.setOtherTime(20, 11, 2021, 15, 30)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        CurrentTimeUtil.setOtherTime(30, 11, 2021, 15, 30)
+        val dispatcher =
+            schedulerDispatcher(taskMap(monthlyTask.copy(scheduler = monthlyScheduler.copy(dayOfMonth = 30))))
 
         dispatcher.dispatch()
 
         verify {
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+        }
+    }
+
+    @Test
+    fun `run creation if scheduled monthly for last date - case 2`() {
+        // In november is winter time, one hour backward
+        CurrentTimeUtil.setOtherTime(9, 8, 2022, 8, 13)
+        val dispatcher =
+            schedulerDispatcher(
+                taskMap(
+                    monthlyTask.copy(
+                        scheduler = monthlyScheduler.copy(
+                            hour = 8,
+                            minute = 0,
+                            startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                            lastDate = null,
+                            repeatCount = -1,
+                            repeatInEveryPeriod = 1,
+                            dayOfMonth = 30
+                        )
+                    )
+                )
+            )
+
+        dispatcher.dispatch()
+
+        verify(exactly = 0) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
@@ -330,5 +358,11 @@ class TaskSchedulerTest {
         todoService = service,
         schedulerDispatcherInterval = 15 * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND,
         timeZoneOffsetHours = 2
+    )
+
+    private fun taskMap(task: Task) = mapOf(
+        user to listOf(
+            task
+        )
     )
 }

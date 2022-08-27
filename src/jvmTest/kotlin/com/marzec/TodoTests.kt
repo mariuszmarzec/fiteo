@@ -6,6 +6,8 @@ import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.todo.ApiPath
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.MarkAsToDoDto
+import com.marzec.todo.model.RemoveWithSubtasksDto
+import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.TestApplicationEngine
@@ -370,6 +372,105 @@ class TodoTests {
                 addTask(createTaskDto)
                 addTask(createTaskDto)
                 addTask(createTaskDto)
+            }
+        )
+    }
+
+    @Test
+    fun removeTaskWithSubtasks() {
+        testPostEndpoint(
+            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = RemoveWithSubtasksDto(
+                removeWithSubtasks = true
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(
+                subTasks = listOf(
+                    taskDto.copy(id = 2, parentTaskId = 1),
+                    taskDto.copy(id = 3, parentTaskId = 1)
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(parentTaskId = 1))
+                addTask(createTaskDto.copy(parentTaskId = 1))
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(emptyList<TaskDto>())
+            }
+        )
+    }
+
+    @Test
+    fun removeTaskWithSubtasks_removeSubtasksFalse() {
+        testPostEndpoint(
+            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = RemoveWithSubtasksDto(
+                removeWithSubtasks = false
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(
+                subTasks = listOf(
+                    taskDto.copy(id = 2, parentTaskId = 1),
+                    taskDto.copy(id = 3, parentTaskId = 1)
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(parentTaskId = 1))
+                addTask(createTaskDto.copy(parentTaskId = 1))
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(id = 2),
+                        taskDto.copy(id = 3)
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
+    fun removeTaskWithSubtasks_removeChildWithoutRemovingSubtasks() {
+        testPostEndpoint(
+            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS.replace("{${Api.Args.ARG_ID}}", "2"),
+            dto = RemoveWithSubtasksDto(
+                removeWithSubtasks = false
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(
+                id = 2,
+                parentTaskId = 1,
+                subTasks = listOf(
+                    taskDto.copy(id = 3, parentTaskId = 2),
+                    taskDto.copy(id = 4, parentTaskId = 2, isToDo = false)
+                )
+            ),
+            authorize = TestApplicationEngine::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(parentTaskId = 1))
+                addTask(createTaskDto.copy(parentTaskId = 2))
+                addTask(createTaskDto.copy(parentTaskId = 2, isToDo = false))
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(
+                            id = 1,
+                            subTasks = listOf(
+                                taskDto.copy(id = 3, parentTaskId = 1),
+                                taskDto.copy(id = 4, parentTaskId = 1, isToDo = false)
+                            )
+                        )
+                    )
+                )
             }
         )
     }

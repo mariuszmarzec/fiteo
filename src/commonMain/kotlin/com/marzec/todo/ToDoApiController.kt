@@ -12,7 +12,7 @@ import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.MarkAsToDoDto
-import com.marzec.todo.model.Task
+import com.marzec.todo.model.RemoveWithSubtasksDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.todo.model.toDomain
 import com.marzec.todo.model.toDto
@@ -59,6 +59,14 @@ class ToDoApiController(
         service.removeTask(
             userId = request.userIdOrThrow(),
             taskId = request.getIntOrThrow(Api.Args.ARG_ID)
+        ).toDto()
+    }
+
+    fun removeTaskWithSubtask(request: HttpRequest<RemoveWithSubtasksDto>): HttpResponse<TaskDto> = serviceCall {
+        service.removeTask(
+            userId = request.userIdOrThrow(),
+            taskId = request.getIntOrThrow(Api.Args.ARG_ID),
+            removeWithSubtasks = request.data.removeWithSubtasks,
         ).toDto()
     }
 

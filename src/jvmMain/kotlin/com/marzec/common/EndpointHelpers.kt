@@ -5,17 +5,17 @@ import com.marzec.database.UserPrincipal
 import com.marzec.extensions.emptyString
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
-import io.ktor.application.ApplicationCall
-import io.ktor.application.call
-import io.ktor.auth.principal
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.auth.principal
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.delete
-import io.ktor.routing.get
-import io.ktor.routing.patch
-import io.ktor.routing.post
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
+import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KFunction1
 
@@ -51,7 +51,7 @@ inline fun <reified T : Any> Route.getByIdEndpoint(
 
 inline fun <reified T : Any> Route.getAllEndpoint(
     path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<List<T>>>
+    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
     get(path) {
         (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
@@ -85,7 +85,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
         val taskId = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             data = dto,
-            parameters = mapOf(pair = Api.Args.ARG_ID to taskId),
+            parameters = mapOf(Api.Args.ARG_ID to taskId),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
@@ -102,7 +102,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
         val httpRequest = HttpRequest(
             data = dto,
             parameters = mapOf(
-                pair = Api.Args.ARG_ID to taskId,
+                Api.Args.ARG_ID to taskId,
             ),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )

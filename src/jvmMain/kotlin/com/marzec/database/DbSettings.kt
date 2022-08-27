@@ -2,6 +2,7 @@ package com.marzec.database
 
 import com.marzec.fiteo.BuildKonfig
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -31,10 +32,11 @@ object DbSettings {
         url = endpoint,
         driver = "com.mysql.cj.jdbc.Driver",
         user = user,
-        password = password
-    ).also {
-        it.useNestedTransactions = true
-    }
+        password = password,
+        databaseConfig = DatabaseConfig {
+            useNestedTransactions = true
+        }
+    )
 }
 
 fun<T> Database.dbCall(statement: Transaction.() -> T) = transaction(this) {

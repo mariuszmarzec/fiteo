@@ -19,5 +19,7 @@ interface TodoRepository {
 
     fun removeTask(userId: Int, taskId: Int): Task
 
+    fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task
+
     fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>)
 }

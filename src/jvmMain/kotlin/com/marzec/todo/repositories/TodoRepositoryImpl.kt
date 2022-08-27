@@ -19,8 +19,8 @@ import com.marzec.todo.model.UpdateTask
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.emptySized
 import org.jetbrains.exposed.sql.selectAll
-import java.security.KeyStore.Entry
 
 class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
@@ -60,6 +60,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                 isToDo = true
                 priority = taskPriority
                 scheduler = task.scheduler
+                isToDo = task.isToDo
                 user = UserEntity.findByIdOrThrow(userId)
             }
         }
@@ -96,13 +97,31 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
     override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         val task = taskEntity.toDomain()
+        removeInternal(taskEntity, userId, removeWithSubtasks = false)
+        task
+    }
+
+    override fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task = database.dbCall {
+        val taskEntity = TaskEntity.findByIdOrThrow(taskId)
+        val task = taskEntity.toDomain()
+        removeInternal(taskEntity, userId, removeWithSubtasks)
+        task
+    }
+
+    private fun removeInternal(taskEntity: TaskEntity, userId: Int, removeWithSubtasks: Boolean) {
         val subtasks = taskEntity.subtasks
         val parentTask = taskEntity.parents
-        taskEntity.deleteIfBelongsToUserOrThrow(userId)
-        if (!parentTask.empty()) {
-            subtasks.forEach { it.parents = parentTask }
+        if (removeWithSubtasks) {
+            subtasks.forEach {
+                it.parents = emptySized()
+                removeInternal(it, userId, removeWithSubtasks = true)
+            }
+        } else {
+            if (!parentTask.empty()) {
+                subtasks.forEach { it.parents = parentTask }
+            }
         }
-        task
+        taskEntity.deleteIfBelongsToUserOrThrow(userId)
     }
 
     private fun calcPriority(

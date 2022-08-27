@@ -5,7 +5,6 @@ import com.marzec.di.Di
 import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
-import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
@@ -14,10 +13,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.YearMonth
 import kotlin.math.ceil
 
 class SchedulerDispatcher(
@@ -43,6 +42,7 @@ class SchedulerDispatcher(
                         todoService.removeTask(
                             userId = user.id,
                             taskId = task.id,
+                            removeWithSubtasks = true
                         )
                     } else {
                         updateLastDate(user.id, task)
@@ -71,13 +71,15 @@ class SchedulerDispatcher(
 
     private fun Scheduler.Monthly.shouldBeCreated(): Boolean {
         val today = currentTime().toJavaLocalDateTime()
-        val dayOfMonth = if (dayOfMonth > 27) 28 else dayOfMonth
+        val dayOfMonth = if (dayOfMonth > 27) today.lastDayOfTheMonth() else dayOfMonth
         val startedInNextMonth = startDate.dayOfMonth >= dayOfMonth
         val firstDate = startDate.toJavaLocalDateTime()
             .let { if (startedInNextMonth) it.plusMonths(1L) else it }
             .withHour(hour)
             .withMinute(minute)
-            .withDayOfMonth(dayOfMonth)
+            .let {
+                it.withDayOfMonth(if (dayOfMonth > 27) it.lastDayOfTheMonth() else dayOfMonth)
+            }
         val maxDate = repeatCount.takeIf { it > 0 }
             ?.let { firstDate.plusMonths(it * repeatInEveryPeriod.toLong()) }
         val firstDateLocal = firstDate.toLocalDate()
@@ -161,6 +163,4 @@ fun runTodoSchedulerDispatcher(vararg dis: Di) {
     }
 }
 
-private fun Int.timesIf(other: Int, condition: () -> Boolean) = if (condition()) this.times(other) else this
-
-private fun Int.incIf(condition: () -> Boolean) = if (condition()) inc() else this
+private fun LocalDateTime.lastDayOfTheMonth() = YearMonth.of(year, month).atEndOfMonth().dayOfMonth

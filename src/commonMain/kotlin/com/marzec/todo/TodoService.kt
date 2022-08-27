@@ -34,6 +34,9 @@ class TodoService(
 
     fun removeTask(userId: Int, taskId: Int): Task = repository.removeTask(userId, taskId)
 
+    fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task =
+        repository.removeTask(userId, taskId, removeWithSubtasks)
+
     fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>): List<Task> =
         repository.markAsToDo(userId, isToDo, taskIds).run { repository.getTasks(userId) }
 
@@ -65,6 +68,7 @@ class TodoService(
         parentTaskId = parentTaskId,
         priority = priority.takeIf { copyPriority },
         highestPriorityAsDefault = highestPriorityAsDefault,
-        scheduler = scheduler.takeIf { copyScheduler }
+        scheduler = scheduler.takeIf { copyScheduler },
+        isToDo = isToDo
     )
 }

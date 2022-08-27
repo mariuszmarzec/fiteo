@@ -1,7 +1,7 @@
 package com.marzec.database
 
 import com.marzec.fiteo.model.dto.UserDto
-import io.ktor.auth.Principal
+import io.ktor.server.auth.Principal
 
 data class UserPrincipal(val id: Int, val email: String): Principal
 

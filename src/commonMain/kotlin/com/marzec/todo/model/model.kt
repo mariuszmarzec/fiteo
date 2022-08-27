@@ -2,6 +2,7 @@ package com.marzec.todo.model
 
 import com.marzec.Api
 import com.marzec.Api.Default.HIGHEST_PRIORITY_AS_DEFAULT
+import com.marzec.Api.Default.IS_TO_DO_DEFAULT
 import com.marzec.extensions.formatDate
 import com.marzec.todo.dto.TaskDto
 import kotlinx.datetime.DayOfWeek
@@ -232,7 +233,8 @@ data class CreateTask(
     val parentTaskId: Int?,
     val priority: Int?,
     val highestPriorityAsDefault: Boolean,
-    val scheduler: Scheduler?
+    val scheduler: Scheduler?,
+    val isToDo: Boolean = true
 )
 
 @Serializable
@@ -241,7 +243,8 @@ data class CreateTaskDto(
     val parentTaskId: Int? = null,
     val priority: Int? = null,
     val highestPriorityAsDefault: Boolean? = null,
-    val scheduler: SchedulerDto? = null
+    val scheduler: SchedulerDto? = null,
+    val isToDo: Boolean? = null
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
@@ -249,11 +252,16 @@ fun CreateTaskDto.toDomain() = CreateTask(
     parentTaskId = parentTaskId,
     priority = priority,
     highestPriorityAsDefault = highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT,
-    scheduler = scheduler?.toDomain()
+    scheduler = scheduler?.toDomain(),
+    isToDo = isToDo ?: IS_TO_DO_DEFAULT
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
-    description = description, parentTaskId = parentTaskId, priority = priority, scheduler = scheduler?.toDto()
+    description = description,
+    parentTaskId = parentTaskId,
+    priority = priority,
+    scheduler = scheduler?.toDto(),
+    isToDo = isToDo
 )
 
 data class UpdateTask(
@@ -278,6 +286,11 @@ data class UpdateTaskDto(
 data class MarkAsToDoDto(
     val isToDo: Boolean,
     val taskIds: List<Int>,
+)
+
+@Serializable
+data class RemoveWithSubtasksDto(
+    val removeWithSubtasks: Boolean
 )
 
 fun UpdateTaskDto.toDomain() = UpdateTask(

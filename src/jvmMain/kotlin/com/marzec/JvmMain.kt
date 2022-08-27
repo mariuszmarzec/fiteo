@@ -28,58 +28,57 @@ import com.marzec.todo.schedule.runTodoSchedulerDispatcher
 import com.marzec.todo.todoApi
 import com.marzec.trader.TraderApiController
 import com.marzec.trader.traderApi
-import io.ktor.application.Application
-import io.ktor.application.call
-import io.ktor.application.install
-import io.ktor.auth.Authentication
-import io.ktor.auth.UnauthorizedResponse
-import io.ktor.auth.authenticate
-import io.ktor.auth.session
-import io.ktor.features.CORS
-import io.ktor.features.CallLogging
-import io.ktor.features.Compression
-import io.ktor.features.ContentNegotiation
-import io.ktor.features.DefaultHeaders
-import io.ktor.features.deflate
-import io.ktor.features.gzip
-import io.ktor.features.minimumSize
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.UnauthorizedResponse
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.session
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
-import io.ktor.http.content.resource
-import io.ktor.http.content.static
-import io.ktor.request.receiveOrNull
-import io.ktor.request.uri
-import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.routing.routing
-import io.ktor.serialization.json
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.request.receiveOrNull
+import io.ktor.server.request.uri
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
 import io.ktor.server.engine.commandLineEnvironment
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.sessions.SessionTransportTransformerMessageAuthentication
-import io.ktor.sessions.Sessions
-import io.ktor.sessions.clear
-import io.ktor.sessions.header
-import io.ktor.sessions.sessions
+import io.ktor.server.http.content.resource
+import io.ktor.server.http.content.static
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.compression.Compression
+import io.ktor.server.plugins.compression.deflate
+import io.ktor.server.plugins.compression.gzip
+import io.ktor.server.plugins.compression.minimumSize
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.sessions.SessionTransportTransformerMessageAuthentication
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.clear
+import io.ktor.server.sessions.header
+import io.ktor.server.sessions.sessions
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.module.Module
-import org.koin.ktor.ext.Koin
-import org.koin.ktor.ext.KoinApplicationStarted
+import org.koin.ktor.plugin.Koin
+import org.koin.ktor.plugin.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.serialization.ExperimentalSerializationApi
 
 private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
 
-fun main(args: Array<String>) {
-    embeddedServer(Netty, commandLineEnvironment(args)).start()
-}
+fun main(args: Array<String>) = EngineMain.main(args)
 
 @Suppress("unused")
 fun Application.module(diModules: List<Module> = listOf(MainModule)) {
@@ -132,7 +131,7 @@ private fun clearSessionsInPeriod(di: Di, testDi: Di) {
     }
 }
 
-private fun Application.configuration(
+fun Application.configuration(
     diModules: List<Module>,
     di: Di
 ) {
@@ -156,9 +155,9 @@ private fun Application.configuration(
     }
 
     install(CORS) {
-        method(HttpMethod.Get)
-        method(HttpMethod.Post)
-        method(HttpMethod.Delete)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Delete)
         anyHost()
     }
 
