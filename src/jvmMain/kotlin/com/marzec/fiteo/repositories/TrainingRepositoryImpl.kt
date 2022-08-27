@@ -22,15 +22,13 @@ import org.jetbrains.exposed.sql.selectAll
 class TrainingRepositoryImpl(private val database: Database) : TrainingRepository {
 
     override fun createTraining(userId: Int, templateId: Int): Training = database.dbCall {
-        val userEntity = database.dbCall { UserEntity.findByIdOrThrow(userId) }
-        val trainingTemplateEntity = database.dbCall { TrainingTemplateEntity.findByIdOrThrow(templateId) }
-        val trainingEntity = database.dbCall {
-            TrainingEntity.new {
-                template = trainingTemplateEntity
-                user = userEntity
-            }
+        val userEntity = UserEntity.findByIdOrThrow(userId)
+        val trainingTemplateEntity = TrainingTemplateEntity.findByIdOrThrow(templateId)
+        val trainingEntity = TrainingEntity.new {
+            template = trainingTemplateEntity
+            user = userEntity
         }
-        database.dbCall { trainingEntity.toDomain() }
+        trainingEntity.toDomain()
     }
 
     override fun getTraining(userId: Int, trainingId: Int): Training {

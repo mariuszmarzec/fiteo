@@ -48,7 +48,6 @@ class TrainingServiceImpl(
         templateRepository.removeTemplate(userId, trainingTemplateId)
 
     override fun createTraining(userId: Int, templateId: Int): Training {
-        val newTraining = trainingRepository.createTraining(userId, templateId)
         val template = templateRepository.getTemplate(userId, templateId)
         val allExercises = exercisesRepository.getAll()
             .filter { exercise ->
@@ -68,6 +67,7 @@ class TrainingServiceImpl(
                 CreateTrainingExerciseWithProgress(exercise.id, emptyList())
             }
         )
+        val newTraining = trainingRepository.createTraining(userId, templateId)
         return trainingRepository.updateTraining(
             userId = userId,
             trainingId = newTraining.id,
