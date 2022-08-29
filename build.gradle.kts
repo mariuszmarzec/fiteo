@@ -11,6 +11,7 @@ buildscript {
 
     dependencies {
         classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
+        classpath("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
         classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
