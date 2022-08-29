@@ -70,7 +70,7 @@ class TrainingTests {
                     stubSeriesDto(
                         exerciseId = 1,
                         trainingId = 1,
-                        burden = 10f
+                        burden = 10.4f
                     )
                 )
             ),
@@ -100,7 +100,7 @@ class TrainingTests {
                         seriesId = 1,
                         exerciseId = 1,
                         trainingId = 1,
-                        burden = 10f
+                        burden = 10.4f
                     )
                 )
             ),
