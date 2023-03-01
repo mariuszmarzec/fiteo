@@ -5,6 +5,7 @@ import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.ExerciseDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
@@ -16,6 +17,7 @@ import com.marzec.fiteo.model.http.HttpResponse
 interface Controller {
 
     fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
+    fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
     fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
     fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>

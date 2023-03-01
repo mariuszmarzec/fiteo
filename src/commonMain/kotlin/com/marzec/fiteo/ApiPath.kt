@@ -16,7 +16,9 @@ object ApiPath {
 
     const val USER = "$API_ROOT/user"
     const val EXERCISES_PAGE = "$API_ROOT/exercises/page"
+
     const val EXERCISES = "$API_ROOT/exercises"
+
     const val CATEGORIES = "$API_ROOT/categories"
     const val EQUIPMENT = "$API_ROOT/equipment"
 

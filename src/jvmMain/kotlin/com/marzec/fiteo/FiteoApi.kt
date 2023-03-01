@@ -26,7 +26,10 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         updateTraining(api)
     }
     equipment(api)
+
     exercises(api)
+    putExercise(api)
+
     exercisesPage()
     categories(api)
 
@@ -56,6 +59,8 @@ fun Route.updateTemplate(api: Controller) =
     updateByIdEndpoint(ApiPath.UPDATE_TRAINING_TEMPLATES, api::updateTrainingTemplate)
 
 fun Route.exercises(api: Controller) = getAllEndpoint(ApiPath.EXERCISES, api::getExercises)
+
+fun Route.putExercise(api: Controller) = postEndpoint(ApiPath.EXERCISES, api::createExercise)
 
 fun Route.exercisesPage() {
     get(ApiPath.EXERCISES_PAGE) {

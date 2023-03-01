@@ -6,6 +6,7 @@ import com.marzec.database.EquipmentEntity
 import com.marzec.database.EquipmentTable
 import com.marzec.database.ExerciseEntity
 import com.marzec.database.dbCall
+import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Exercise
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
@@ -67,4 +68,15 @@ class ExercisesRepositoryImpl(private val database: Database) : ExercisesReposit
                     exercise.neededEquipment = equipment
                 }
             }
+
+    override fun createExercise(exercise: CreateExercise) = database.dbCall {
+        ExerciseEntity.new {
+            name = exercise.name
+            animationUrl = exercise.animationUrl
+            videoUrl = exercise.videoUrl
+            thumbnailUrl = exercise.thumbnailUrl
+            category = CategoryEntity.forIds(exercise.category.map { it.id })
+            neededEquipment = EquipmentEntity.forIds(exercise.neededEquipment.map { it.id })
+        }.toDomain()
+    }
 }

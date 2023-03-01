@@ -148,7 +148,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
         }.apply {
             if (response.status() != status) {
-                error(json.decodeFromString<ErrorDto>(response.content.orEmpty()).reason)
+                error("Error occurred: " + json.decodeFromString<ErrorDto>(response.content.orEmpty()).reason)
             }
             assertThatJson<RESPONSE>(response.content).isEqualTo(
                 responseDto

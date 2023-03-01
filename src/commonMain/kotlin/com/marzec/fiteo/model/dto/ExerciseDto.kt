@@ -1,8 +1,10 @@
 package com.marzec.fiteo.model.dto
 
 import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Equipment
 import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.toDto
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -29,6 +31,16 @@ data class ExerciseDto(
         val musclesName: List<String>?,
         val neededEquipment: List<EquipmentDto>,
         val thumbnailName: String?,
+        val thumbnailUrl: String?
+)
+
+@Serializable
+data class CreateExerciseDto(
+        val name: String,
+        val animationUrl: String?,
+        val videoUrl: String?,
+        val category: List<CategoryDto>,
+        val neededEquipment: List<EquipmentDto>,
         val thumbnailUrl: String?
 )
 
@@ -66,4 +78,13 @@ fun CategoryDto.toDomain() = Category(
 fun EquipmentDto.toDomain() = Equipment(
         id = id,
         name = name
+)
+
+fun CreateExerciseDto.toDomain() = CreateExercise(
+      name = name,
+      animationUrl = animationUrl,
+      videoUrl = videoUrl,
+      category = category.map { it.toDomain() },
+      neededEquipment = neededEquipment.map { it.toDomain() },
+      thumbnailUrl = thumbnailUrl,
 )

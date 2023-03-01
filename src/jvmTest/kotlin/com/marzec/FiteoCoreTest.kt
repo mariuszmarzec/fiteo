@@ -2,7 +2,7 @@ package com.marzec
 
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.toDto
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -41,4 +41,3 @@ class FiteoCoreTest {
         GlobalContext.stopKoin()
     }
 }
-

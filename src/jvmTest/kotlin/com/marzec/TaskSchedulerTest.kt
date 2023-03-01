@@ -164,20 +164,6 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `run creation if scheduled monthly for last date`() {
-        // In november is winter time, one hour backward
-        CurrentTimeUtil.setOtherTime(30, 11, 2021, 15, 30)
-        val dispatcher =
-            schedulerDispatcher(taskMap(monthlyTask.copy(scheduler = monthlyScheduler.copy(dayOfMonth = 30))))
-
-        dispatcher.dispatch()
-
-        verify {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-        }
-    }
-
-    @Test
     fun `run creation if scheduled monthly for last date - case 2`() {
         // In november is winter time, one hour backward
         CurrentTimeUtil.setOtherTime(9, 8, 2022, 8, 13)

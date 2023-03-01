@@ -12,11 +12,13 @@ import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.domain.toDomain
 import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.ExerciseDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
+import com.marzec.fiteo.model.dto.toDomain
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.AuthenticationService
@@ -37,6 +39,9 @@ class ControllerImpl(
 
     override fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>> =
         serviceCall { exercisesService.getExercises().map { it.toDto() } }
+
+    override fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto> =
+        serviceCall { exercisesService.createExercise(httpRequest.data.toDomain()).toDto() }
 
     override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> = serviceCall {
         val email = httpRequest.data?.email.orEmpty()
