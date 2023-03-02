@@ -11,6 +11,7 @@ import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.domain.toDomain
 import com.marzec.fiteo.model.domain.toDto
+import com.marzec.fiteo.model.domain.toUpdateExercise
 import com.marzec.fiteo.model.dto.CategoryDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.EquipmentDto
@@ -24,6 +25,8 @@ import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.AuthenticationService
 import com.marzec.fiteo.services.ExercisesService
 import com.marzec.fiteo.services.TrainingService
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 
 class ControllerImpl(
     private val exercisesService: ExercisesService,
@@ -42,6 +45,14 @@ class ControllerImpl(
 
     override fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto> =
         serviceCall { exercisesService.createExercise(httpRequest.data.toDomain()).toDto() }
+
+    override fun updateExercise(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto> =
+        serviceCall {
+            exercisesService.updateExercise(
+                id = request.getIntOrThrow(Api.Args.ARG_ID),
+                exercise = request.data.toUpdateExercise()
+            ).toDto()
+        }
 
     override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> = serviceCall {
         val email = httpRequest.data?.email.orEmpty()

@@ -4,6 +4,7 @@ import com.marzec.fiteo.model.domain.Category
 import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Equipment
 import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.UpdateExercise
 import com.marzec.fiteo.repositories.CategoriesRepository
 import com.marzec.fiteo.repositories.EquipmentRepository
 import com.marzec.fiteo.repositories.ExercisesRepository
@@ -14,6 +15,7 @@ interface ExercisesService {
     fun getCategories(): List<Category>
     fun getEquipment(): List<Equipment>
     fun createExercise(exercise: CreateExercise): Exercise
+    fun updateExercise(id: Int, exercise: UpdateExercise): Exercise
 }
 
 class ExercisesServiceImpl(
@@ -29,4 +31,6 @@ class ExercisesServiceImpl(
     override fun getEquipment(): List<Equipment> = equipmentRepository.getAll()
 
     override fun createExercise(exercise: CreateExercise): Exercise = exercisesRepository.createExercise(exercise)
+
+    override fun updateExercise(id: Int, exercise: UpdateExercise): Exercise = exercisesRepository.updateExercise(id, exercise)
 }

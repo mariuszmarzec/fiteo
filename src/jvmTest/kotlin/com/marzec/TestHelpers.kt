@@ -14,7 +14,9 @@ import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.ExercisesData
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
+import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.ExerciseDto
 import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
@@ -32,12 +34,21 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.serializer
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.util.*
 import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
+import com.marzec.fiteo.ApiPath as FiteoApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
 import com.marzec.trader.ApiPath as TraderApiPath
 
@@ -108,7 +119,8 @@ inline fun <reified T : Any> assertThatJson(actual: String?): Subject {
 
 inline fun <reified T> TestApplicationRequest.setBodyJson(dto: T) {
     addHeader("Content-Type", "application/json")
-    setBody(json.encodeToString(dto))
+    val jsonString = json.encodeToString(dto)
+    setBody(jsonString)
 }
 
 inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
@@ -275,6 +287,8 @@ fun TestApplicationEngine.addTransaction(dto: TransactionDto) = runAddEndpoint(T
 fun TestApplicationEngine.addPaperTag(dto: PaperTagDto) = runAddEndpoint(TraderApiPath.ADD_PAPER_TAG, dto)
 
 fun TestApplicationEngine.addPaper(dto: PaperDto) = runAddEndpoint(TraderApiPath.ADD_PAPER, dto)
+
+fun TestApplicationEngine.addExercise(dto: CreateExerciseDto) = runAddEndpoint(FiteoApiPath.EXERCISES, dto)
 
 fun TestApplicationEngine.updateTask(id: String, dto: UpdateTaskDto) = runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
 

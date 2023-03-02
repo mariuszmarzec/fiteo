@@ -6,11 +6,17 @@ import com.marzec.database.EquipmentEntity
 import com.marzec.database.EquipmentTable
 import com.marzec.database.ExerciseEntity
 import com.marzec.database.dbCall
+import com.marzec.database.findByIdOrThrow
+import com.marzec.extensions.update
+import com.marzec.extensions.updateNullable
 import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.NullableField
+import com.marzec.fiteo.model.domain.UpdateExercise
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.insertAndGetId
+import kotlin.reflect.KMutableProperty0
 
 class ExercisesRepositoryImpl(private val database: Database) : ExercisesRepository {
 
@@ -77,6 +83,17 @@ class ExercisesRepositoryImpl(private val database: Database) : ExercisesReposit
             thumbnailUrl = exercise.thumbnailUrl
             category = CategoryEntity.forIds(exercise.category.map { it.id })
             neededEquipment = EquipmentEntity.forIds(exercise.neededEquipment.map { it.id })
+        }.toDomain()
+    }
+
+    override fun updateExercise(id: Int, update: UpdateExercise): Exercise = database.dbCall {
+        ExerciseEntity.findByIdOrThrow(id).apply {
+            update(this::name, update.name)
+            updateNullable(this::animationUrl, update.animationUrl)
+            updateNullable(this::videoUrl, update.videoUrl)
+            updateNullable(this::thumbnailUrl, update.thumbnailUrl)
+            update(this::category, update.category?.map { it.id }?.let { CategoryEntity.forIds(it) })
+            update(this::neededEquipment, update.neededEquipment?.map { it.id }?.let { EquipmentEntity.forIds(it) })
         }.toDomain()
     }
 }

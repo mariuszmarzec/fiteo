@@ -13,11 +13,13 @@ import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
+import kotlinx.serialization.json.JsonElement
 
 interface Controller {
 
     fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
     fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
+    fun updateExercise(httpRequest: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto>
     fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
     fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
