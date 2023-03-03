@@ -1,6 +1,8 @@
 package com.marzec
 
+import com.google.common.truth.Truth.assertThat
 import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
 import io.ktor.http.*
 import kotlinx.serialization.encodeToString
@@ -60,6 +62,35 @@ class ExerciseTests {
             responseDto = exerciseDto.copy(name = "updatedName", category = listOf(categoryTwoDto)),
             runRequestsBefore = {
                 addExercise(createExerciseDto)
+            }
+        )
+    }
+
+    @Test
+    fun getExercise() {
+        testGetEndpoint(
+            uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
+            status = HttpStatusCode.OK,
+            responseDto = exerciseDto,
+            runRequestsBefore = {
+                addExercise(createExerciseDto)
+            }
+        )
+    }
+
+    @Test
+    fun deleteExercise() {
+        testDeleteEndpoint(
+            uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
+            status = HttpStatusCode.OK,
+            responseDto = exerciseDto,
+            runRequestsBefore = {
+                addExercise(createExerciseDto)
+            },
+            runRequestsAfter = {
+                val allExercises = exercises.map { it.toDto() }
+
+                assertThat(getExercises()).isEqualTo(allExercises)
             }
         )
     }

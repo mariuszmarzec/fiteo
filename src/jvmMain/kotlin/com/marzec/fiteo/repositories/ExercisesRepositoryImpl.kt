@@ -15,6 +15,7 @@ import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.model.domain.UpdateExercise
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
+import org.jetbrains.exposed.sql.emptySized
 import org.jetbrains.exposed.sql.insertAndGetId
 import kotlin.reflect.KMutableProperty0
 
@@ -84,6 +85,19 @@ class ExercisesRepositoryImpl(private val database: Database) : ExercisesReposit
             category = CategoryEntity.forIds(exercise.category.map { it.id })
             neededEquipment = EquipmentEntity.forIds(exercise.neededEquipment.map { it.id })
         }.toDomain()
+    }
+
+    override fun getExercise(id: Int): Exercise = database.dbCall {
+        ExerciseEntity.findByIdOrThrow(id).toDomain()
+    }
+
+    override fun deleteExercise(id: Int): Exercise =database.dbCall {
+        val entity = ExerciseEntity.findByIdOrThrow(id)
+        val domain = entity.toDomain()
+        entity.category = emptySized()
+        entity.neededEquipment = emptySized()
+        entity.delete()
+        domain
     }
 
     override fun updateExercise(id: Int, update: UpdateExercise): Exercise = database.dbCall {

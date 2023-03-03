@@ -9,4 +9,6 @@ interface ExercisesRepository {
     fun addAll(exercises: List<Exercise>)
     fun createExercise(exercise: CreateExercise): Exercise
     fun updateExercise(id: Int, exercise: UpdateExercise): Exercise
+    fun getExercise(id: Int): Exercise
+    fun deleteExercise(id: Int): Exercise
 }

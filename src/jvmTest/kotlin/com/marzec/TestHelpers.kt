@@ -308,6 +308,8 @@ inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: S
 
 fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
 
+fun TestApplicationEngine.getExercises(): List<ExerciseDto> = runGetAllEndpoint(FiteoApiPath.EXERCISES)
+
 fun TestApplicationEngine.papers(): List<PaperDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
 
 fun TestApplicationEngine.tags(): List<PaperTagDto> = runGetAllEndpoint(TraderApiPath.PAPER_TAGS)

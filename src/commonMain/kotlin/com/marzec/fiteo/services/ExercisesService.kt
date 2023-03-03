@@ -16,6 +16,8 @@ interface ExercisesService {
     fun getEquipment(): List<Equipment>
     fun createExercise(exercise: CreateExercise): Exercise
     fun updateExercise(id: Int, exercise: UpdateExercise): Exercise
+    fun getExercise(id: Int): Exercise
+    fun deleteExercise(id: Int): Exercise
 }
 
 class ExercisesServiceImpl(
@@ -33,4 +35,8 @@ class ExercisesServiceImpl(
     override fun createExercise(exercise: CreateExercise): Exercise = exercisesRepository.createExercise(exercise)
 
     override fun updateExercise(id: Int, exercise: UpdateExercise): Exercise = exercisesRepository.updateExercise(id, exercise)
+
+    override fun getExercise(id: Int): Exercise = exercisesRepository.getExercise(id)
+
+    override fun deleteExercise(id: Int): Exercise = exercisesRepository.deleteExercise(id)
 }

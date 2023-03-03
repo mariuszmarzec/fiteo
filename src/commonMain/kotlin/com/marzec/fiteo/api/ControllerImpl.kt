@@ -34,17 +34,17 @@ class ControllerImpl(
     private val trainingService: TrainingService,
     private val initialDataLoader: InitialDataLoader
 ) : Controller {
-    override fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
+    override fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
         serviceCall { exercisesService.getCategories().map { it.toDto() } }
 
-    override fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>> =
+    override fun getEquipment(request: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>> =
         serviceCall { exercisesService.getEquipment().map { it.toDto() } }
 
-    override fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>> =
+    override fun getExercises(request: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>> =
         serviceCall { exercisesService.getExercises().map { it.toDto() } }
 
-    override fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto> =
-        serviceCall { exercisesService.createExercise(httpRequest.data.toDomain()).toDto() }
+    override fun createExercise(request: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto> =
+        serviceCall { exercisesService.createExercise(request.data.toDomain()).toDto() }
 
     override fun updateExercise(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto> =
         serviceCall {
@@ -54,18 +54,26 @@ class ControllerImpl(
             ).toDto()
         }
 
-    override fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> = serviceCall {
-        val email = httpRequest.data?.email.orEmpty()
-        val password = httpRequest.data?.password.orEmpty()
+    override fun getExercise(request: HttpRequest<Unit>): HttpResponse<ExerciseDto> = serviceCall {
+        exercisesService.getExercise(id = request.getIntOrThrow(Api.Args.ARG_ID)).toDto()
+    }
+
+    override fun deleteExercise(request: HttpRequest<Unit>): HttpResponse<ExerciseDto> = serviceCall {
+        exercisesService.deleteExercise(id = request.getIntOrThrow(Api.Args.ARG_ID)).toDto()
+    }
+
+    override fun postLogin(request: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> = serviceCall {
+        val email = request.data?.email.orEmpty()
+        val password = request.data?.password.orEmpty()
         authenticationService.checkPassword(email, password).toDto()
     }
 
-    override fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto> = serviceCall {
-        authenticationService.getUser(httpRequest.userIdOrThrow()).toDto()
+    override fun getUser(request: HttpRequest<Unit>): HttpResponse<UserDto> = serviceCall {
+        authenticationService.getUser(request.userIdOrThrow()).toDto()
     }
 
-    override fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto> =
-        with(httpRequest.data) {
+    override fun postRegister(request: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto> =
+        with(request.data) {
             serviceCall {
                 authenticationService.register(email, password, repeatedPassword).toDto()
             }

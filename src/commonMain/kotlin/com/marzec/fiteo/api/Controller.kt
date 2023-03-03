@@ -18,6 +18,8 @@ import kotlinx.serialization.json.JsonElement
 interface Controller {
 
     fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
+    fun getExercise(httpRequest: HttpRequest<Unit>): HttpResponse<ExerciseDto>
+    fun deleteExercise(httpRequest: HttpRequest<Unit>): HttpResponse<ExerciseDto>
     fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
     fun updateExercise(httpRequest: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto>
     fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
