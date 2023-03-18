@@ -56,10 +56,17 @@ class ExerciseTests {
             uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
             dto = mapOf(
                 "name" to JsonPrimitive("updatedName"),
-                "category" to Json.encodeToJsonElement(listOf(categoryTwoDto))
+                "animationUrl" to JsonObject(mapOf("value" to JsonPrimitive("updatedAnimationUrl"))),
+                "category" to Json.encodeToJsonElement(listOf(categoryTwoDto)),
+                "neededEquipment" to JsonPrimitive(null as String?),
+                "videoUrl" to JsonPrimitive(null as String?),
             ),
             status = HttpStatusCode.OK,
-            responseDto = exerciseDto.copy(name = "updatedName", category = listOf(categoryTwoDto)),
+            responseDto = exerciseDto.copy(
+                name = "updatedName",
+                animationUrl = "updatedAnimationUrl",
+                category = listOf(categoryTwoDto)
+            ),
             runRequestsBefore = {
                 addExercise(createExerciseDto)
             }
