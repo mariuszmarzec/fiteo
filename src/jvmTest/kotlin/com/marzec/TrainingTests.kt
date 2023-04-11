@@ -54,17 +54,19 @@ class TrainingTests {
         templateId = 1,
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
-                exercise = exerciseCategoryOneEquipment0ne.toDto()
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                templatePartId = 1
             ),
             stubTrainingExerciseWithProgressDto(
-                exercise = exerciseCategoryTwoEquipmentOne.toDto()
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                templatePartId = 2
             )
         )
     )
 
-    private val updateDto = stubCreateTrainingDto(
+    private val updateDto = stubUpdateTrainingDto(
         exercisesWithProgress = listOf(
-            stubCreateTrainingExerciseWithProgressDto(
+            stubUpdateTrainingExerciseWithProgressDto(
                 exerciseId = 1,
                 series = listOf(
                     stubSeriesDto(
@@ -72,9 +74,10 @@ class TrainingTests {
                         trainingId = 1,
                         burden = 10.4f
                     )
-                )
+                ),
+                trainingPartId = 1
             ),
-            stubCreateTrainingExerciseWithProgressDto(
+            stubUpdateTrainingExerciseWithProgressDto(
                 exerciseId = 4,
                 series = listOf(
                     stubSeriesDto(
@@ -84,7 +87,8 @@ class TrainingTests {
                         repsNumber = 10,
                         note = "note"
                     )
-                )
+                ),
+                trainingPartId = 2
             )
         )
     )
@@ -94,6 +98,7 @@ class TrainingTests {
         templateId = 1,
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
+                templatePartId = 1,
                 exercise = exerciseCategoryOneEquipment0ne.toDto(),
                 series = listOf(
                     stubSeriesDto(
@@ -105,6 +110,7 @@ class TrainingTests {
                 )
             ),
             stubTrainingExerciseWithProgressDto(
+                templatePartId = 2,
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),
                 series = listOf(
                     stubSeriesDto(
@@ -136,10 +142,13 @@ class TrainingTests {
 
     @Test
     fun createTraining_doNotCreateTrainingInCaseOfError() {
-        testGetEndpoint(
+        testGetEndpoint<ErrorDto>(
             uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.InternalServerError,
-            responseDto = ErrorDto("No exercise for training part with: 1"),
+            responseDtoCheck = {
+                assertThat(it).isInstanceOf(ErrorDto::class.java)
+                assertThat((it as ErrorDto).reason).contains("No exercise for training part with: 1")
+            },
             authorize = TestApplicationEngine::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)

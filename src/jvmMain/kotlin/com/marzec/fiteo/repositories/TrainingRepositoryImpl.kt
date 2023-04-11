@@ -10,8 +10,8 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
-import com.marzec.fiteo.model.domain.CreateTraining
-import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgress
+import com.marzec.fiteo.model.domain.UpdateTraining
+import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.Series
 import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
@@ -58,7 +58,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         }
     }
 
-    override fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training {
+    override fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training {
         val userEntity = database.dbCall { UserEntity.findByIdOrThrow(userId) }
 
         val trainingEntity = database.dbCall {
@@ -85,16 +85,17 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
 
     private fun createTrainingWithExercises(
         userEntity: UserEntity,
-        training: CreateTrainingExerciseWithProgress
+        createPart: UpdateTrainingExerciseWithProgress
     ): TrainingExerciseWithProgressEntity {
-        val series = training.series.map {
+        val series = createPart.series.map {
             createSeries(userEntity, it)
         }
 
         val progressEntity = database.dbCall {
             TrainingExerciseWithProgressEntity.new {
                 this.user = userEntity
-                this.exercise = ExerciseEntity.findByIdOrThrow(training.exerciseId)
+                this.exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
+                this.templatePartId = createPart.trainingPartId
             }
         }
         database.dbCall {

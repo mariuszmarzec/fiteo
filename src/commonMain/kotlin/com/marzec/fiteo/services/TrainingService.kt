@@ -1,8 +1,8 @@
 package com.marzec.fiteo.services
 
 import com.marzec.core.TimeProvider
-import com.marzec.fiteo.model.domain.CreateTraining
-import com.marzec.fiteo.model.domain.CreateTrainingExerciseWithProgress
+import com.marzec.fiteo.model.domain.UpdateTraining
+import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.CreateTrainingTemplate
 import com.marzec.fiteo.model.domain.Training
 import com.marzec.fiteo.model.domain.TrainingTemplate
@@ -27,7 +27,7 @@ interface TrainingService {
 
     fun removeTraining(userId: Int, trainingId: Int): Training
 
-    fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training
+    fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training
 }
 
 class TrainingServiceImpl(
@@ -54,7 +54,7 @@ class TrainingServiceImpl(
                 exercise.neededEquipment.all { equipment -> equipment in template.availableEquipment }
             }
 
-        val trainingUpdate = CreateTraining(
+        val trainingUpdate = UpdateTraining(
             timeProvider.currentTime(),
             exercisesWithProgress = template.exercises.map { trainingPart ->
                 val exercise = allExercises.filter { exercise ->
@@ -64,7 +64,7 @@ class TrainingServiceImpl(
                 }.randomOrNull()
                     ?: trainingPart.pinnedExercise
                     ?: throw NoSuchElementException("No exercise for training part with: ${trainingPart.id}")
-                CreateTrainingExerciseWithProgress(exercise.id, emptyList())
+                UpdateTrainingExerciseWithProgress(exercise.id, emptyList(), trainingPart.id)
             }
         )
         val newTraining = trainingRepository.createTraining(userId, templateId)
@@ -83,7 +83,7 @@ class TrainingServiceImpl(
     override fun removeTraining(userId: Int, trainingId: Int): Training =
         trainingRepository.removeTrainings(userId, trainingId)
 
-    override fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training {
+    override fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training {
         return trainingRepository.updateTraining(userId, trainingId, training)
     }
 }

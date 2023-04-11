@@ -402,10 +402,12 @@ fun stubTraining(
 
 fun stubTrainingExerciseWithProgressDto(
     exercise: ExerciseDto = stubExerciseDto(),
-    series: List<SeriesDto> = emptyList()
+    series: List<SeriesDto> = emptyList(),
+    templatePartId: Int?
 ) = TrainingExerciseWithProgressDto(
     exercise = exercise,
     series = series,
+    templatePartId = templatePartId
 )
 
 fun stubSeriesDto(
@@ -466,19 +468,22 @@ fun stubExerciseDto(
     thumbnailUrl = thumbnailUrl
 )
 
-fun stubCreateTrainingDto(
+fun stubUpdateTrainingDto(
     finishDateInMillis: String = dateTime,
-    exercisesWithProgress: List<CreateTrainingExerciseWithProgressDto> = emptyList()
-) = CreateTrainingDto(
+    exercisesWithProgress: List<UpdateTrainingExerciseWithProgressDto> = emptyList()
+) = UpdateTrainingDto(
     finishDateInMillis,
     exercisesWithProgress
 )
 
-fun stubCreateTrainingExerciseWithProgressDto(
+fun stubUpdateTrainingExerciseWithProgressDto(
     exerciseId: Int = 0,
-    series: List<SeriesDto> = emptyList()
-) = CreateTrainingExerciseWithProgressDto(
-    exerciseId, series
+    series: List<SeriesDto> = emptyList(),
+    trainingPartId: Int?
+) = UpdateTrainingExerciseWithProgressDto(
+    exerciseId,
+    series,
+    trainingPartId
 )
 
 val tagDto = PaperTagDto(1, "TAG1")

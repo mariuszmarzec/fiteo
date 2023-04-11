@@ -29,34 +29,37 @@ fun Training.toDto() = TrainingDto(
     exercisesWithProgress = exercisesWithProgress.map { it.toDto() }
 )
 
-data class CreateTraining(
+data class UpdateTraining(
     val finishDateInMillis: LocalDateTime,
-    val exercisesWithProgress: List<CreateTrainingExerciseWithProgress>
+    val exercisesWithProgress: List<UpdateTrainingExerciseWithProgress>
 )
 
 @Serializable
-data class CreateTrainingDto(
+data class UpdateTrainingDto(
     val finishDateInMillis: String,
-    val exercisesWithProgress: List<CreateTrainingExerciseWithProgressDto>
+    val exercisesWithProgress: List<UpdateTrainingExerciseWithProgressDto>
 )
 
-data class CreateTrainingExerciseWithProgress(
+data class UpdateTrainingExerciseWithProgress(
     val exerciseId: Int,
-    val series: List<Series>
+    val series: List<Series>,
+    val trainingPartId: Int?
 )
 
 @Serializable
-data class CreateTrainingExerciseWithProgressDto(
+data class UpdateTrainingExerciseWithProgressDto(
     val exerciseId: Int,
-    val series: List<SeriesDto>
+    val series: List<SeriesDto>,
+    val trainingPartId: Int?
 )
 
-fun CreateTrainingDto.toDomain() = CreateTraining(
+fun UpdateTrainingDto.toDomain() = UpdateTraining(
     finishDateInMillis = LocalDateTime.parse(finishDateInMillis),
     exercisesWithProgress = exercisesWithProgress.map { it.toDomain() },
 )
 
-fun CreateTrainingExerciseWithProgressDto.toDomain() = CreateTrainingExerciseWithProgress(
+fun UpdateTrainingExerciseWithProgressDto.toDomain() = UpdateTrainingExerciseWithProgress(
     exerciseId = exerciseId,
-    series = series.map { it.toDomain() }
+    series = series.map { it.toDomain() },
+    trainingPartId = trainingPartId
 )

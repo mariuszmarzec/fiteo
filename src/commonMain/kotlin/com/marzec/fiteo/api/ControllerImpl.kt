@@ -5,7 +5,7 @@ import com.marzec.extensions.getIntOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.data.InitialDataLoader
-import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.UpdateTrainingDto
 import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
@@ -26,7 +26,6 @@ import com.marzec.fiteo.services.AuthenticationService
 import com.marzec.fiteo.services.ExercisesService
 import com.marzec.fiteo.services.TrainingService
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
 
 class ControllerImpl(
     private val exercisesService: ExercisesService,
@@ -141,7 +140,7 @@ class ControllerImpl(
         ).toDto()
     }
 
-    override fun updateTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto> = serviceCall {
+    override fun updateTraining(request: HttpRequest<UpdateTrainingDto>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.updateTraining(
             request.userIdOrThrow(),
             request.getIntOrThrow(Api.Args.ARG_ID),

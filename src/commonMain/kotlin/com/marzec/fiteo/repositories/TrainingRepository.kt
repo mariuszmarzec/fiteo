@@ -1,6 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.fiteo.model.domain.CreateTraining
+import com.marzec.fiteo.model.domain.UpdateTraining
 import com.marzec.fiteo.model.domain.Training
 
 interface TrainingRepository {
@@ -13,5 +13,5 @@ interface TrainingRepository {
 
     fun removeTrainings(userId: Int, trainingId: Int): Training
 
-    fun updateTraining(userId: Int, trainingId: Int, training: CreateTraining): Training
+    fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training
 }

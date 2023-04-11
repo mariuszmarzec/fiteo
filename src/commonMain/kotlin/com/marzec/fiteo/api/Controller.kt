@@ -1,6 +1,6 @@
 package com.marzec.fiteo.api
 
-import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.UpdateTrainingDto
 import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
@@ -35,6 +35,6 @@ interface Controller {
     fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>>
     fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
-    fun updateTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto>
+    fun updateTraining(request: HttpRequest<UpdateTrainingDto>): HttpResponse<TrainingDto>
     fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit>
 }

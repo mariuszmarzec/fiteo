@@ -34,14 +34,6 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.serializer
 import org.flywaydb.core.Flyway
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -151,6 +143,26 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     crossinline authorize: TestApplicationEngine.() -> String? = { null },
     crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
     crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint<REQUEST, RESPONSE>(
+    method = method,
+    uri = uri,
+    dto = dto,
+    status = status,
+    responseDtoCheck = { assertThat(it).isEqualTo(responseDto) },
+    authorize = authorize,
+    runRequestsBefore = runRequestsBefore,
+    runRequestsAfter = runRequestsAfter
+)
+
+inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
+    method: HttpMethod,
+    uri: String,
+    dto: REQUEST?,
+    status: HttpStatusCode,
+    crossinline responseDtoCheck: (RESPONSE?) -> Unit,
+    crossinline authorize: TestApplicationEngine.() -> String? = { null },
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
 ) {
     withDefaultMockTestApplication {
         authToken = authorize()
@@ -162,9 +174,8 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             if (response.status() != status) {
                 error("Error occurred: " + json.decodeFromString<ErrorDto>(response.content.orEmpty()).reason)
             }
-            assertThatJson<RESPONSE>(response.content).isEqualTo(
-                responseDto
-            )
+            val responseBody = response.content?.let { json.decodeFromString<RESPONSE>(it) }
+            responseDtoCheck(responseBody)
             assertThat(response.status()).isEqualTo(status)
             runRequestsAfter()
         }
@@ -184,6 +195,24 @@ inline fun <reified RESPONSE : Any> testGetEndpoint(
     null,
     status,
     responseDto,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
+inline fun <reified RESPONSE : Any> testGetEndpoint(
+    uri: String,
+    status: HttpStatusCode,
+    crossinline responseDtoCheck: (RESPONSE?) -> Unit,
+    crossinline authorize: TestApplicationEngine.() -> String? = { null },
+    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
+    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+) = testEndpoint(
+    HttpMethod.Get,
+    uri,
+    null,
+    status,
+    responseDtoCheck,
     authorize,
     runRequestsBefore,
     runRequestsAfter
