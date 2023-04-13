@@ -50,7 +50,7 @@ data class UpdateTrainingExerciseWithProgress(
 data class UpdateTrainingExerciseWithProgressDto(
     val exerciseId: Int,
     val series: List<SeriesDto>,
-    val trainingPartId: Int? = null
+    val trainingPartId: Int?
 )
 
 fun UpdateTrainingDto.toDomain() = UpdateTraining(
