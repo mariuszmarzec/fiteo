@@ -111,7 +111,7 @@ inline fun <reified T : Any> assertThatJson(actual: String?): Subject {
 
 inline fun <reified T> TestApplicationRequest.setBodyJson(dto: T) {
     addHeader("Content-Type", "application/json")
-    val jsonString = json.encodeToString(dto)
+    val jsonString = (dto as? String)?.let { it } ?: json.encodeToString(dto)
     setBody(jsonString)
 }
 

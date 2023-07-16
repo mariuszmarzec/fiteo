@@ -74,6 +74,23 @@ class ExerciseTests {
     }
 
     @Test
+    fun patchExercise_jsonString() {
+        testPatchEndpoint(
+            uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
+            dto = """
+                {"name":"updatedName","animationUrl":null,"videoUrl":null,"category":null,"neededEquipment":null,"thumbnailUrl":null}
+            """,
+            status = HttpStatusCode.OK,
+            responseDto = exerciseDto.copy(
+                name = "updatedName"
+            ),
+            runRequestsBefore = {
+                addExercise(createExerciseDto)
+            }
+        )
+    }
+
+    @Test
     fun getExercise() {
         testGetEndpoint(
             uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
