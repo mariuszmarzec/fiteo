@@ -39,4 +39,8 @@ class UserRepositoryImpl(private val database: Database) : UserRepository {
                     }
         }
     }
+
+    override fun getUsers(): List<User> = database.dbCall {
+        UserEntity.all().map { User(it.id.value, it.email) }
+    }
 }

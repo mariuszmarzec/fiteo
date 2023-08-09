@@ -26,6 +26,7 @@ interface Controller {
     fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
     fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
     fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto>
+    fun getUsers(httpRequest: HttpRequest<Unit>): HttpResponse<List<UserDto>>
     fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>
     fun getTrainingTemplates(request: HttpRequest<Unit>): HttpResponse<List<TrainingTemplateDto>>
     fun addTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>

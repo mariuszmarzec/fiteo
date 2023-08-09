@@ -15,6 +15,7 @@ object ApiPath {
     const val TEST_API_PREFIX = "/test"
 
     const val USER = "$API_ROOT/user"
+    const val USERS = "$API_ROOT/users"
     const val EXERCISES_PAGE = "$API_ROOT/exercises/page"
 
     const val EXERCISES = "$API_ROOT/exercises"

@@ -71,6 +71,10 @@ class ControllerImpl(
         authenticationService.getUser(request.userIdOrThrow()).toDto()
     }
 
+    override fun getUsers(request: HttpRequest<Unit>): HttpResponse<List<UserDto>> = serviceCall {
+        authenticationService.getUsers().map { it.toDto() }
+    }
+
     override fun postRegister(request: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto> =
         with(request.data) {
             serviceCall {

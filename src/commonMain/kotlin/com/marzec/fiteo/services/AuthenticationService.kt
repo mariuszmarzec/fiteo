@@ -9,6 +9,9 @@ interface AuthenticationService {
 
     fun checkPassword(email: String, password: String): User
     fun getUser(id: Int): User
+
+    fun getUsers(): List<User>
+
     fun register(email: String, password: String, repeatedPassword: String): User
 }
 
@@ -29,6 +32,8 @@ class AuthenticationServiceImpl(
     }
 
     override fun getUser(id: Int): User = userRepository.getUser(id)
+
+    override fun getUsers(): List<User> = userRepository.getUsers()
 
     override fun register(email: String, password: String, repeatedPassword: String): User {
 
