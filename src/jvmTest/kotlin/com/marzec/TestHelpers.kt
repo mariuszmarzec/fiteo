@@ -276,6 +276,12 @@ fun TestApplicationEngine.login(dto: LoginRequestDto = loginDto): String {
     }.response.headers[Headers.AUTHORIZATION]!!
 }
 
+fun TestApplicationEngine.loginBearer(dto: LoginRequestDto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")): String {
+    return handleRequest(HttpMethod.Post, ApiPath.LOGIN_BEARER) {
+        setBodyJson(dto)
+    }.response.headers[Headers.AUTHORIZATION]!!
+}
+
 fun TestApplicationEngine.addWeight(dto: WeightDto) {
     handleRequest(HttpMethod.Post, CheatApiPath.WEIGHT) {
         setBodyJson(dto)

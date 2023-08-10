@@ -17,6 +17,11 @@ object Api {
     object Auth {
         const val NAME = "fiteo_auth"
         const val TEST = "fiteo_test_auth"
+        const val BEARER = "fiteo_auth_bearer"
+    }
+
+    object Session {
+        const val BEARER_SESSION = "bearer_session"
     }
 
     object Default {

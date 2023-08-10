@@ -2,6 +2,7 @@ package com.marzec
 
 import com.marzec.Api.Auth
 import com.marzec.Api.Headers
+import com.marzec.Api.Session
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
@@ -74,6 +75,9 @@ import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import javax.crypto.spec.SecretKeySpec
 import kotlinx.serialization.ExperimentalSerializationApi
+import io.ktor.server.auth.*
+import com.marzec.database.UserPrincipal
+import io.ktor.server.sessions.SessionStorageMemory
 
 private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
@@ -177,6 +181,8 @@ private fun Application.sessions(di: Di, testDi: Di) {
         header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.cachedSessionsRepository)) {
             transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
         }
+        header<String>(Session.BEARER_SESSION, SessionStorageMemory()) {
+        }
     }
 
     install(Authentication) {
@@ -202,6 +208,16 @@ private fun Application.sessions(di: Di, testDi: Di) {
                 }
             }
         }
+        bearer(Auth.BEARER) {
+            realm = "Access to the '/' users"
+            authenticate { tokenCredential ->
+                if (tokenCredential.token == "123456") {
+                    UserPrincipal(1, "mariusz.marzec00@gmail.com")
+                } else {
+                    null
+                }
+            }
+        }
     }
 }
 
@@ -221,7 +237,13 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
         user(api)
         logout()
     }
-    users(api)
+
+    if (di.authToken == Auth.NAME) {
+        loginBearer(api)
+        authenticate(Auth.BEARER) {
+            users(api)
+        }
+    }
 }
 
 fun Route.register(api: Controller) = postEndpoint(ApiPath.REGISTRATION, api::postRegister)
@@ -238,6 +260,18 @@ fun Route.login(api: Controller) {
             } else {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentMillis()))
             }
+        }
+        dispatch(httpResponse)
+    }
+}
+
+fun Route.loginBearer(api: Controller) {
+    post(ApiPath.LOGIN_BEARER) {
+        val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
+        val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
+        if (httpResponse is HttpResponse.Success<UserDto>) {
+            call.sessions.set(Session.BEARER_SESSION, "Bearer 123456")
+            call.response.headers.append(Headers.AUTHORIZATION, "Bearer 123456")
         }
         dispatch(httpResponse)
     }
