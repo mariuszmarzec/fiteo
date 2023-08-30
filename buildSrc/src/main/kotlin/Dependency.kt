@@ -1,6 +1,6 @@
 object Dependency {
 
-    val kotlin_version = "1.7.0"
+    val kotlin_version = "1.9.10"
     val detekt_version = "1.20.0"
     val ktor_version = "2.3.3"
     val sl4j_version = "1.7.36"
