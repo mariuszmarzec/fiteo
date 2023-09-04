@@ -11,8 +11,10 @@ import com.marzec.todo.model.Task
 import com.marzec.todo.schedule.SchedulerDispatcher
 import io.mockk.*
 import kotlinx.datetime.toKotlinLocalDateTime
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.koin.core.context.GlobalContext
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 
@@ -330,6 +332,11 @@ class TaskSchedulerTest {
             hour = 7,
             minute = 10,
         )
+    }
+
+    @After
+    fun tearDown() {
+        GlobalContext.stopKoin()
     }
 
     private fun verifyDispatcher(

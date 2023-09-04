@@ -112,6 +112,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-content-negotiation:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-auth:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("org.slf4j:slf4j-simple:${Dependency.sl4j_version}")
                 implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")

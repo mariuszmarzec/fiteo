@@ -20,10 +20,6 @@ object Api {
         const val BEARER = "fiteo_auth_bearer"
     }
 
-    object Session {
-        const val BEARER_SESSION = "bearer_session"
-    }
-
     object Default {
         const val HIGHEST_PRIORITY_AS_DEFAULT = false
         const val IS_TO_DO_DEFAULT = true

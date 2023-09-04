@@ -1,8 +1,9 @@
 package com.marzec
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import com.marzec.Api.Auth
 import com.marzec.Api.Headers
-import com.marzec.Api.Session
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
@@ -53,6 +54,7 @@ import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
+import java.util.*
 import javax.crypto.spec.SecretKeySpec
 
 private const val PRIORITY = 10.0
@@ -157,8 +159,6 @@ private fun Application.sessions(di: Di, testDi: Di) {
         header<TestUserSession>(Headers.AUTHORIZATION_TEST, DatabaseSessionStorage(testDi.cachedSessionsRepository)) {
             transform(SessionTransportTransformerMessageAuthentication(SecretKeySpec("key".toByteArray(), "AES")))
         }
-        header<String>(Session.BEARER_SESSION, SessionStorageMemory()) {
-        }
     }
 
     install(Authentication) {
@@ -184,14 +184,21 @@ private fun Application.sessions(di: Di, testDi: Di) {
                 }
             }
         }
+
         bearer(Auth.BEARER) {
-            realm = "Access to the '/' users"
             authenticate { tokenCredential ->
-                if (tokenCredential.token == "123456") {
-                    UserPrincipal(1, "mariusz.marzec00@gmail.com")
-                } else {
-                    null
-                }
+                val secret = "secret"
+                val issuer = "http://0.0.0.0:8080/"
+                val audience = "http://0.0.0.0:8080/users"
+
+                val jwt = JWT.require(Algorithm.HMAC256(secret))
+                    .withAudience(audience)
+                    .withIssuer(issuer)
+                    .build()
+                    .verify(tokenCredential.token)
+
+                val user = di.userRepository.getUser(jwt.getClaim("mail").asString())
+                UserPrincipal(user.id, user.email)
             }
         }
     }
@@ -246,8 +253,16 @@ fun Route.loginBearer(api: Controller) {
         val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
         if (httpResponse is HttpResponse.Success<UserDto>) {
-            call.sessions.set(Session.BEARER_SESSION, "Bearer 123456")
-            call.response.headers.append(Headers.AUTHORIZATION, "Bearer 123456")
+            val secret = "secret"
+            val issuer = "http://0.0.0.0:8080/"
+            val audience = "http://0.0.0.0:8080/users"
+            val token = JWT.create()
+                .withAudience(audience)
+                .withIssuer(issuer)
+                .withClaim("mail", httpResponse.data.email)
+                .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                .sign(Algorithm.HMAC256(secret))
+            call.response.headers.append(Headers.AUTHORIZATION, "Bearer $token")
         }
         dispatch(httpResponse)
     }

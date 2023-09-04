@@ -11,7 +11,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.encodeToJsonElement
+import org.junit.After
 import org.junit.Test
+import org.koin.core.context.GlobalContext
 
 class ExerciseTests {
 
@@ -117,5 +119,10 @@ class ExerciseTests {
                 assertThat(getExercises()).isEqualTo(allExercises)
             }
         )
+    }
+
+    @After
+    fun tearDown() {
+        GlobalContext.stopKoin()
     }
 }

@@ -78,6 +78,7 @@ class Di(
     val dataSource by inject<InitialDataLoader> { parametersOf(database, authToken) }
     val json by inject<Json> { parametersOf(database, authToken) }
     val cachedSessionsRepository by inject<CachedSessionsRepository> { parametersOf(database, authToken) }
+    val userRepository by inject<UserRepository> { parametersOf(database) }
     val api by inject<Controller> { parametersOf(database, authToken) }
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }

@@ -40,4 +40,9 @@ class BearerAuthorizationTest {
             authorize = TestApplicationEngine::loginBearer
         )
     }
+
+    @After
+    fun tearDown() {
+        GlobalContext.stopKoin()
+    }
 }
