@@ -58,7 +58,7 @@ class TrainingServiceImpl(
             timeProvider.currentTime(),
             exercisesWithProgress = template.exercises.map { trainingPart ->
                 val exercise = allExercises.filter { exercise ->
-                    exercise.category.all { it in trainingPart.categories } &&
+                    exercise.category.any { it in trainingPart.categories } &&
                             exercise.id !in trainingPart.excludedExercises &&
                             exercise.neededEquipment.none { it in trainingPart.excludedEquipment }
                 }.randomOrNull()
