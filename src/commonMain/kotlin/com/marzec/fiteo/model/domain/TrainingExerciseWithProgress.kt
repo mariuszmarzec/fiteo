@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 data class TrainingExerciseWithProgress(
     val exercise: Exercise,
     val series: List<Series>,
-    val templatePart: TrainingTemplatePart?
+    val templatePart: TrainingTemplatePart?,
+    val name: String
 )
 
 data class Series(
@@ -26,7 +27,8 @@ data class Series(
 data class TrainingExerciseWithProgressDto(
     val exercise: ExerciseDto,
     val series: List<SeriesDto>,
-    val templatePartId: Int?
+    val templatePartId: Int?,
+    val name: String
 )
 
 @Serializable
@@ -44,7 +46,8 @@ data class SeriesDto(
 fun TrainingExerciseWithProgress.toDto() = TrainingExerciseWithProgressDto(
     exercise = exercise.toDto(),
     series = series.map { it.toDto() },
-    templatePartId = templatePart?.id
+    templatePartId = templatePart?.id,
+    name = name
 )
 
 fun Series.toDto() = SeriesDto(

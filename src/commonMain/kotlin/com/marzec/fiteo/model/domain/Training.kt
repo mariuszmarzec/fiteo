@@ -43,14 +43,16 @@ data class UpdateTrainingDto(
 data class UpdateTrainingExerciseWithProgress(
     val exerciseId: Int,
     val series: List<Series>,
-    val trainingPartId: Int?
+    val trainingPartId: Int?,
+    val name: String
 )
 
 @Serializable
 data class UpdateTrainingExerciseWithProgressDto(
     val exerciseId: Int,
     val series: List<SeriesDto>,
-    val trainingPartId: Int?
+    val trainingPartId: Int?,
+    val name: String
 )
 
 fun UpdateTrainingDto.toDomain() = UpdateTraining(
@@ -61,5 +63,6 @@ fun UpdateTrainingDto.toDomain() = UpdateTraining(
 fun UpdateTrainingExerciseWithProgressDto.toDomain() = UpdateTrainingExerciseWithProgress(
     exerciseId = exerciseId,
     series = series.map { it.toDomain() },
-    trainingPartId = trainingPartId
+    trainingPartId = trainingPartId,
+    name = name
 )

@@ -51,12 +51,14 @@ object TrainingExerciseWithProgressTable : IntIdTable("exercise_with_progress") 
     val exerciseId = reference("exercise_id", ExerciseTable, onDelete = ReferenceOption.NO_ACTION)
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
     val templateId = integer("template_part_id").nullable()
+    val name = varchar("name", 255)
 }
 
 class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var exercise by ExerciseEntity referencedOn TrainingExerciseWithProgressTable.exerciseId
     var series by SeriesEntity via ExerciseToSeries
     var templatePartId by TrainingExerciseWithProgressTable.templateId
+    var name by TrainingExerciseWithProgressTable.name
     override var user by UserEntity referencedOn TrainingExerciseWithProgressTable.userId
 
     fun toDomain(
@@ -64,7 +66,8 @@ class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(
     ) = TrainingExerciseWithProgress(
         exercise = exercise.toDomain(),
         series = series.map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) },
-        templatePart = templatePartId?.let { TrainingTemplatePartEntity.findById(it) }?.toDomain()
+        templatePart = templatePartId?.let { TrainingTemplatePartEntity.findById(it) }?.toDomain(),
+        name = name
     )
 
     companion object : IntEntityClass<TrainingExerciseWithProgressEntity>(TrainingExerciseWithProgressTable)

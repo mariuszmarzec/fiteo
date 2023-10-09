@@ -55,7 +55,7 @@ class TrainingServiceImpl(
             }
 
         val trainingUpdate = UpdateTraining(
-            timeProvider.currentTime(),
+            finishDateInMillis = timeProvider.currentTime(),
             exercisesWithProgress = template.exercises.map { trainingPart ->
                 val exercise = allExercises.filter { exercise ->
                     exercise.category.any { it in trainingPart.categories } &&
@@ -64,7 +64,12 @@ class TrainingServiceImpl(
                 }.randomOrNull()
                     ?: trainingPart.pinnedExercise
                     ?: throw NoSuchElementException("No exercise for training part with: ${trainingPart.id}")
-                UpdateTrainingExerciseWithProgress(exercise.id, emptyList(), trainingPart.id)
+                UpdateTrainingExerciseWithProgress(
+                    exerciseId = exercise.id,
+                    series = emptyList(),
+                    trainingPartId = trainingPart.id,
+                    name = trainingPart.name
+                )
             }
         )
         val newTraining = trainingRepository.createTraining(userId, templateId)

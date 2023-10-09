@@ -96,6 +96,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
                 this.user = userEntity
                 this.exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
                 this.templatePartId = createPart.trainingPartId
+                this.name = createPart.name
             }
         }
         database.dbCall {

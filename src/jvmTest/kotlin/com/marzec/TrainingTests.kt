@@ -55,11 +55,13 @@ class TrainingTests {
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
                 exercise = exerciseCategoryOneEquipment0ne.toDto(),
-                templatePartId = 1
+                templatePartId = 1,
+                name = "part_one"
             ),
             stubTrainingExerciseWithProgressDto(
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),
-                templatePartId = 2
+                templatePartId = 2,
+                name = "part_two"
             )
         )
     )
@@ -75,7 +77,8 @@ class TrainingTests {
                         burden = 10.4f
                     )
                 ),
-                trainingPartId = 1
+                trainingPartId = 1,
+                name = "part_one",
             ),
             stubUpdateTrainingExerciseWithProgressDto(
                 exerciseId = 4,
@@ -88,7 +91,8 @@ class TrainingTests {
                         note = "note"
                     )
                 ),
-                trainingPartId = 2
+                trainingPartId = 2,
+                name = "part_updated"
             )
         )
     )
@@ -99,6 +103,7 @@ class TrainingTests {
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
                 templatePartId = 1,
+                name = "part_one",
                 exercise = exerciseCategoryOneEquipment0ne.toDto(),
                 series = listOf(
                     stubSeriesDto(
@@ -111,6 +116,7 @@ class TrainingTests {
             ),
             stubTrainingExerciseWithProgressDto(
                 templatePartId = 2,
+                name = "part_updated",
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),
                 series = listOf(
                     stubSeriesDto(
