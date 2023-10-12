@@ -16,18 +16,23 @@ import com.marzec.fiteo.model.http.HttpResponse
 import kotlinx.serialization.json.JsonElement
 
 interface Controller {
-
-    fun getExercises(httpRequest: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
-    fun getExercise(httpRequest: HttpRequest<Unit>): HttpResponse<ExerciseDto>
-    fun deleteExercise(httpRequest: HttpRequest<Unit>): HttpResponse<ExerciseDto>
-    fun createExercise(httpRequest: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
-    fun updateExercise(httpRequest: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto>
-    fun getCategories(httpRequest: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
-    fun getEquipment(httpRequest: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
-    fun postLogin(httpRequest: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
-    fun getUser(httpRequest: HttpRequest<Unit>): HttpResponse<UserDto>
-    fun getUsers(httpRequest: HttpRequest<Unit>): HttpResponse<List<UserDto>>
-    fun postRegister(httpRequest: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>
+    fun getExercises(request: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>>
+    fun getExercise(request: HttpRequest<Unit>): HttpResponse<ExerciseDto>
+    fun deleteExercise(request: HttpRequest<Unit>): HttpResponse<ExerciseDto>
+    fun createExercise(request: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
+    fun updateExercise(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto>
+    fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
+    fun deleteCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto>
+    fun createCategory(request: HttpRequest<CategoryDto>): HttpResponse<CategoryDto>
+    fun updateCategory(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<CategoryDto>
+    fun getEquipment(request: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
+    fun deleteEquipment(request: HttpRequest<Unit>): HttpResponse<EquipmentDto>
+    fun createEquipment(request: HttpRequest<EquipmentDto>): HttpResponse<EquipmentDto>
+    fun updateEquipment(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<EquipmentDto>
+    fun postLogin(request: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
+    fun getUser(request: HttpRequest<Unit>): HttpResponse<UserDto>
+    fun getUsers(request: HttpRequest<Unit>): HttpResponse<List<UserDto>>
+    fun postRegister(request: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>
     fun getTrainingTemplates(request: HttpRequest<Unit>): HttpResponse<List<TrainingTemplateDto>>
     fun addTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>
     fun updateTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>

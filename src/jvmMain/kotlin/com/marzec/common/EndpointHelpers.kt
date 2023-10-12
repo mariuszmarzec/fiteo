@@ -82,10 +82,10 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
 ) {
     patch(path) {
         val dto = call.receive<REQUEST>()
-        val taskId = call.parameters[Api.Args.ARG_ID]
+        val id = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             data = dto,
-            parameters = mapOf(Api.Args.ARG_ID to taskId),
+            parameters = mapOf(Api.Args.ARG_ID to id),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )
         dispatch(apiFunRef(httpRequest))
@@ -98,11 +98,11 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
 ) {
     post(path) {
         val dto = call.receive<REQUEST>()
-        val taskId = call.parameters[Api.Args.ARG_ID]
+        val id = call.parameters[Api.Args.ARG_ID]
         val httpRequest = HttpRequest(
             data = dto,
             parameters = mapOf(
-                Api.Args.ARG_ID to taskId,
+                Api.Args.ARG_ID to id,
             ),
             sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
         )

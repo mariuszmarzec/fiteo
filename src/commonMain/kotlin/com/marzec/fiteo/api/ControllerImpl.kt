@@ -1,17 +1,9 @@
 package com.marzec.fiteo.api
 
 import com.marzec.Api
-import com.marzec.extensions.getIntOrThrow
-import com.marzec.extensions.serviceCall
-import com.marzec.extensions.userIdOrThrow
+import com.marzec.extensions.*
 import com.marzec.fiteo.data.InitialDataLoader
-import com.marzec.fiteo.model.domain.UpdateTrainingDto
-import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
-import com.marzec.fiteo.model.domain.TrainingDto
-import com.marzec.fiteo.model.domain.TrainingTemplateDto
-import com.marzec.fiteo.model.domain.toDomain
-import com.marzec.fiteo.model.domain.toDto
-import com.marzec.fiteo.model.domain.toUpdateExercise
+import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.CategoryDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.EquipmentDto
@@ -36,8 +28,36 @@ class ControllerImpl(
     override fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
         serviceCall { exercisesService.getCategories().map { it.toDto() } }
 
+    override fun deleteCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto> =
+        serviceCall { exercisesService.deleteCategory(request.getStringIdOrThrow()).toDto() }
+
+    override fun createCategory(request: HttpRequest<CategoryDto>): HttpResponse<CategoryDto> =
+        serviceCall { exercisesService.createCategory(request.data.toDomain()).toDto() }
+
+    override fun updateCategory(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<CategoryDto> =
+        serviceCall {
+            exercisesService.updateCategory(
+                id = request.getStringIdOrThrow(),
+                update = request.data.toUpdateCategory()
+            ).toDto()
+        }
+
     override fun getEquipment(request: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>> =
         serviceCall { exercisesService.getEquipment().map { it.toDto() } }
+
+    override fun deleteEquipment(request: HttpRequest<Unit>): HttpResponse<EquipmentDto> =
+        serviceCall { exercisesService.deleteEquipment(request.getStringIdOrThrow()).toDto() }
+
+    override fun createEquipment(request: HttpRequest<EquipmentDto>): HttpResponse<EquipmentDto> =
+        serviceCall { exercisesService.createEquipment(request.data.toDomain()).toDto() }
+
+    override fun updateEquipment(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<EquipmentDto> =
+        serviceCall {
+            exercisesService.updateEquipment(
+                id = request.getStringIdOrThrow(),
+                update = request.data.toUpdateEquipment()
+            ).toDto()
+        }
 
     override fun getExercises(request: HttpRequest<Unit>): HttpResponse<List<ExerciseDto>> =
         serviceCall { exercisesService.getExercises().map { it.toDto() } }

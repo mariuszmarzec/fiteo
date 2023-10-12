@@ -22,7 +22,9 @@ object ApiPath {
     const val EXERCISE = "$API_ROOT/exercises/{${Api.Args.ARG_ID}}"
 
     const val CATEGORIES = "$API_ROOT/categories"
+    const val CATEGORY_BY_ID = "$API_ROOT/categories/{${Api.Args.ARG_ID}}"
     const val EQUIPMENT = "$API_ROOT/equipment"
+    const val EQUIPMENT_BY_ID = "$API_ROOT/equipment/{${Api.Args.ARG_ID}}"
 
     const val TRAINING_TEMPLATES = "$API_ROOT/trainings/templates"
     const val TRAINING_TEMPLATE = "$API_ROOT/trainings/template"

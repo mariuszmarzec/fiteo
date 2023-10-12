@@ -45,3 +45,8 @@ fun <T> HttpRequest<T>.userIdOrThrow() = (sessions[Api.Args.ARG_USER_ID])?.toInt
 
 fun <T> HttpRequest<T>.getIntOrThrow(key: String) = parameters[key]?.toIntOrNull()
         ?: throw HttpException("Argument $key is empty or not integer", HttpStatus.BAD_REQUEST)
+
+fun <T> HttpRequest<T>.getStringOrThrow(key: String) = parameters[key]
+        ?: throw HttpException("Argument $key is empty or not string", HttpStatus.BAD_REQUEST)
+
+fun <T> HttpRequest<T>.getStringIdOrThrow() = getStringOrThrow(Api.Args.ARG_ID)

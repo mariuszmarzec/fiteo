@@ -25,8 +25,6 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         removeTraining(api)
         updateTraining(api)
     }
-    equipment(api)
-
     exercises(api)
     putExercise(api)
     updateExercise(api)
@@ -34,7 +32,16 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     getExercise(api)
 
     exercisesPage()
+
+    equipment(api)
+    createEquipment(api)
+    updateEquipment(api)
+    deleteEquipment(api)
+
     categories(api)
+    createCategory(api)
+    updateCategory(api)
+    deleteCategory(api)
 
     if (di.authToken == Api.Auth.TEST) {
         loadForceData(api)
@@ -80,9 +87,21 @@ fun Route.exercisesPage() {
     }
 }
 
+fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::getEquipment)
+
+fun Route.createEquipment(api: Controller) = postEndpoint(ApiPath.EQUIPMENT, api::createEquipment)
+
+fun Route.updateEquipment(api: Controller) = updateByIdEndpoint(ApiPath.EQUIPMENT, api::updateEquipment)
+
+fun Route.deleteEquipment(api: Controller) = deleteByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::deleteEquipment)
+
 fun Route.categories(api: Controller) = getAllEndpoint(ApiPath.CATEGORIES, api::getCategories)
 
-fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::getEquipment)
+fun Route.createCategory(api: Controller) = postEndpoint(ApiPath.CATEGORIES, api::createCategory)
+
+fun Route.updateCategory(api: Controller) = updateByIdEndpoint(ApiPath.CATEGORIES, api::updateCategory)
+
+fun Route.deleteCategory(api: Controller) = deleteByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::deleteCategory)
 
 fun Route.loadForceData(api: Controller) {
     get(ApiPath.LOAD_DATA) {
