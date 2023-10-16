@@ -5,6 +5,7 @@ import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.ErrorDto
 import io.ktor.http.*
+import kotlinx.serialization.json.JsonPrimitive
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -44,9 +45,9 @@ class FiteoCoreTest {
     
     @Test
     fun updateEquipment() {
-        testPostEndpoint(
-            uri = ApiPath.EQUIPMENT_BY_ID,
-            dto = mapOf("name" to "updated"),
+        testPatchEndpoint(
+            uri = ApiPath.EQUIPMENT_BY_ID.replace("{${Api.Args.ARG_ID}}", newEquipment.id),
+            dto = mapOf("name" to JsonPrimitive("updated")),
             status = HttpStatusCode.OK,
             responseDto = newEquipment.copy(name = "updated"),
             runRequestsBefore = {
@@ -59,7 +60,7 @@ class FiteoCoreTest {
     @Test
     fun deleteEquipment() {
         testDeleteEndpoint(
-            uri = ApiPath.EQUIPMENT_BY_ID,
+            uri = ApiPath.EQUIPMENT_BY_ID.replace("{${Api.Args.ARG_ID}}", newEquipment.id),
             status = HttpStatusCode.OK,
             responseDto = newEquipment,
             runRequestsBefore = {
@@ -89,8 +90,8 @@ class FiteoCoreTest {
 
     @Test
     fun updateCategory() {
-        testPostEndpoint(
-            uri = ApiPath.CATEGORY_BY_ID,
+        testPatchEndpoint(
+            uri = ApiPath.CATEGORY_BY_ID.replace("{${Api.Args.ARG_ID}}", "category_id"),
             dto = mapOf("name" to "updated"),
             status = HttpStatusCode.OK,
             responseDto = newCategory.copy(name = "updated"),
@@ -104,7 +105,7 @@ class FiteoCoreTest {
     @Test
     fun deleteCategory() {
         testDeleteEndpoint(
-            uri = ApiPath.CATEGORY_BY_ID,
+            uri = ApiPath.CATEGORY_BY_ID.replace("{${Api.Args.ARG_ID}}", "category_id"),
             status = HttpStatusCode.OK,
             responseDto = newCategory,
             runRequestsBefore = {

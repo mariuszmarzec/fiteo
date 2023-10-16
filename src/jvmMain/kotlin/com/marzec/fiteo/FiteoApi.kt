@@ -91,7 +91,7 @@ fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::ge
 
 fun Route.createEquipment(api: Controller) = postEndpoint(ApiPath.EQUIPMENT, api::createEquipment)
 
-fun Route.updateEquipment(api: Controller) = updateByIdEndpoint(ApiPath.EQUIPMENT, api::updateEquipment)
+fun Route.updateEquipment(api: Controller) = updateByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::updateEquipment)
 
 fun Route.deleteEquipment(api: Controller) = deleteByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::deleteEquipment)
 
@@ -99,7 +99,7 @@ fun Route.categories(api: Controller) = getAllEndpoint(ApiPath.CATEGORIES, api::
 
 fun Route.createCategory(api: Controller) = postEndpoint(ApiPath.CATEGORIES, api::createCategory)
 
-fun Route.updateCategory(api: Controller) = updateByIdEndpoint(ApiPath.CATEGORIES, api::updateCategory)
+fun Route.updateCategory(api: Controller) = updateByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::updateCategory)
 
 fun Route.deleteCategory(api: Controller) = deleteByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::deleteCategory)
 
