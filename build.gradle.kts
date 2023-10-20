@@ -167,9 +167,9 @@ kotlin {
         }
     }
 }
-tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
+tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 tasks.getByName<Jar>("jvmJar") {
-    duplicatesStrategy = DuplicatesStrategy.INHERIT
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     doFirst {
         manifest {
             attributes["Main-Class"] = "com.marzec.JvmMainKt"
