@@ -24,9 +24,6 @@ import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
-import com.marzec.trader.dto.PaperDto
-import com.marzec.trader.dto.PaperTagDto
-import com.marzec.trader.dto.TransactionDto
 import io.ktor.server.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
@@ -42,7 +39,6 @@ import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.fiteo.ApiPath as FiteoApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
-import com.marzec.trader.ApiPath as TraderApiPath
 
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
@@ -317,12 +313,6 @@ fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
     }
 }
 
-fun TestApplicationEngine.addTransaction(dto: TransactionDto) = runAddEndpoint(TraderApiPath.ADD_TRANSACTIONS, dto)
-
-fun TestApplicationEngine.addPaperTag(dto: PaperTagDto) = runAddEndpoint(TraderApiPath.ADD_PAPER_TAG, dto)
-
-fun TestApplicationEngine.addPaper(dto: PaperDto) = runAddEndpoint(TraderApiPath.ADD_PAPER, dto)
-
 fun TestApplicationEngine.addExercise(dto: CreateExerciseDto) = runAddEndpoint(FiteoApiPath.EXERCISES, dto)
 
 fun TestApplicationEngine.updateTask(id: String, dto: UpdateTaskDto) = runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
@@ -345,10 +335,6 @@ fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiP
 
 fun TestApplicationEngine.getExercises(): List<ExerciseDto> = runGetAllEndpoint(FiteoApiPath.EXERCISES)
 
-fun TestApplicationEngine.papers(): List<PaperDto> = runGetAllEndpoint(TraderApiPath.PAPERS)
-
-fun TestApplicationEngine.tags(): List<PaperTagDto> = runGetAllEndpoint(TraderApiPath.PAPER_TAGS)
-
 inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
     handleRequest(HttpMethod.Get, endpointUrl) {
         authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
@@ -356,8 +342,6 @@ inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUr
         .content
         ?.let { json.decodeFromString<List<RESPONSE>>(it) }.orEmpty()
 
-
-fun TestApplicationEngine.transactions(): List<TransactionDto> = runGetAllEndpoint(TraderApiPath.TRANSACTIONS)
 
 fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
     handleRequest(HttpMethod.Post, ApiPath.TRAINING_TEMPLATE) {

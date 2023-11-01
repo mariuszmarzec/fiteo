@@ -13,9 +13,6 @@ import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTaskDto
-import com.marzec.trader.dto.PaperDto
-import com.marzec.trader.dto.PaperTagDto
-import com.marzec.trader.dto.TransactionDto
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.isoDayNumber
@@ -488,72 +485,6 @@ fun stubUpdateTrainingExerciseWithProgressDto(
     series = series,
     trainingPartId = trainingPartId,
     name = name
-)
-
-val tagDto = PaperTagDto(1, "TAG1")
-val tagDto2 = PaperTagDto(2, "TAG2")
-
-val paperDto = PaperDto(
-    id = 1,
-    code = "PLN",
-    name = "Zloty",
-    type = "SETTLEMENT_CURRENCY"
-)
-val paperDto2 = PaperDto(
-    id = 2,
-    code = "USD",
-    name = "Dollar",
-    type = "CURRENCY"
-)
-
-val paperDto3 = PaperDto(
-    id = 3,
-    code = "Z",
-    name = "Zillow",
-    type = "SHARE"
-)
-
-val transactionDto = TransactionDto(
-    id = 1,
-    title = "Dollar buy",
-    date = dateTime,
-    targetPaper = paperDto2,
-    sourcePaper = paperDto,
-    targetValue = "10.0",
-    totalPriceInSource = "41.1",
-    pricePerUnit = "4.01",
-    settlementRate = "3.99",
-    fee = "1.0",
-    feePaper = paperDto2,
-    type = "PURCHASE"
-)
-val transactionDto2 = TransactionDto(
-    id = 2,
-    title = "Stock market fee",
-    date = dateTime2,
-    targetPaper = paperDto2,
-    sourcePaper = paperDto2,
-    targetValue = "3.0",
-    totalPriceInSource = "3.0",
-    pricePerUnit = "3.0",
-    settlementRate = "3.98",
-    fee = "3.0",
-    feePaper = paperDto2,
-    type = "SALE"
-)
-val transactionDto3 = TransactionDto(
-    id = 3,
-    title = "Stock market fee",
-    date = dateTime3,
-    targetPaper = paperDto2,
-    sourcePaper = paperDto,
-    targetValue = "40.0",
-    totalPriceInSource = "10.0",
-    pricePerUnit = "0.25",
-    settlementRate = "3.935",
-    fee = "0.5",
-    feePaper = paperDto2,
-    type = "FEE"
 )
 
 val schedulerOneShotDto = SchedulerDto(

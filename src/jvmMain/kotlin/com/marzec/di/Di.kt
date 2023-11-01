@@ -42,11 +42,6 @@ import com.marzec.todo.TodoService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
 import com.marzec.todo.schedule.SchedulerDispatcher
-import com.marzec.trader.TraderApiController
-import com.marzec.trader.TraderConstraints
-import com.marzec.trader.TraderRepository
-import com.marzec.trader.TraderService
-import com.marzec.trader.repositories.TraderRepositoryImpl
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
@@ -82,7 +77,6 @@ class Di(
     val api by inject<Controller> { parametersOf(database, authToken) }
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
-    val traderApiController by inject<TraderApiController> { parametersOf(database, authToken) }
     val schedulerDispatcher by inject<SchedulerDispatcher> { parametersOf(database, authToken) }
     val sessionExpirationTime by inject<Long>(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) {
         parametersOf(database, authToken)
@@ -146,12 +140,6 @@ val MainModule = module {
             get { params })
     }
 
-    factory<TraderService> { params ->
-        TraderService(
-            get { params }
-        )
-    }
-
     factory<TrainingTemplateRepository> { params ->
         TrainingTemplateRepositoryImpl(get { params })
     }
@@ -193,17 +181,11 @@ val MainModule = module {
 
     factory { params -> ToDoApiController(get { params }, get { params }) }
 
-    factory { params -> TraderApiController(get { params }, get { params }) }
-
     factory { params -> TodoService(get { params }) }
 
     factory<TodoRepository> { params -> TodoRepositoryImpl(get { params }) }
 
-    factory<TraderRepository> { params -> TraderRepositoryImpl(get { params }) }
-
     factory<TrainingRepository> { params -> TrainingRepositoryImpl(get { params }) }
-
-    factory<TraderConstraints> { params -> TraderConstraints(get { params }) }
 
     factory<TaskConstraints> { TaskConstraints() }
 
