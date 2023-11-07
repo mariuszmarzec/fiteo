@@ -162,7 +162,6 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
         authToken = authorize()
         runRequestsBefore()
         this.client.request(uri) {
-            println(uri.toString())
             this.method = method
             dto?.let { setBodyJson(it) }
             authToken?.let { header(Headers.AUTHORIZATION, it) }
@@ -282,9 +281,7 @@ suspend inline fun <reified RESPONSE> ApplicationTestBuilder.getWithAuth(uri: St
     client.request(uri) {
         this.method = HttpMethod.Get
         authToken?.let { header(Headers.AUTHORIZATION, it) }
-    }.bodyAsText().let {
-        println("TEST $it")
-        json.decodeFromString<RESPONSE>(it) }
+    }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
 
 suspend fun ApplicationTestBuilder.register(dto: RegisterRequestDto = registerRequestDto) {
     request(HttpMethod.Post, ApiPath.REGISTRATION, dto)
@@ -370,8 +367,6 @@ suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =
     getWithAuth(ApiPath.TRAINING_TEMPLATES)
 
 suspend fun ApplicationTestBuilder.getTrainings(): List<TrainingDto> = getWithAuth(ApiPath.TRAININGS)
-
-suspend fun ApplicationTestBuilder.getUserCall(): UserDto? = getWithAuth(ApiPath.USER)
 
 suspend fun ApplicationTestBuilder.markAsDone(taskId: Int) {
     val task = getTasks().flatMapTaskDto().first { it.id == taskId }

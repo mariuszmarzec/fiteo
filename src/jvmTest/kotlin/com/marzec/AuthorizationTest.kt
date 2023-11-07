@@ -1,18 +1,19 @@
 package com.marzec
 
-import com.marzec.fiteo.ApiPath
-import com.marzec.fiteo.model.dto.ErrorDto
-import com.marzec.fiteo.model.dto.UserDto
-import io.ktor.http.HttpStatusCode
-import org.junit.After
-import org.junit.Test
-import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
+import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.UserDto
+import io.ktor.client.request.*
+import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Test
+import org.koin.core.context.GlobalContext
 import org.koin.core.qualifier.named
 
 class AuthorizationTest {
@@ -151,7 +152,11 @@ class AuthorizationTest {
             }
         ) {
             authToken = token
-            assertThat(getUserCall()).isNull()
+            val response = client.request(ApiPath.USER) {
+                method = HttpMethod.Get
+                authToken?.let { header(Api.Headers.AUTHORIZATION, it) }
+            }
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
         }
     }
 
