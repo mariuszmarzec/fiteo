@@ -44,8 +44,12 @@ import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
 import com.marzec.trader.ApiPath as TraderApiPath
 
-TODO doesnt work due to:
-https://youtrack.jetbrains.com/issue/KT-45505/IAE-suspend-default-lambda-X-cannot-be-inlined-use-a-function-reference-instead-with-crossinline-suspend-lambda-and-default
+//Workaround
+//https://youtrack.jetbrains.com/issue/KT-45505/IAE-suspend-default-lambda-X-cannot-be-inlined-use-a-function-reference-instead-with-crossinline-suspend-lambda-and-default
+
+
+suspend fun ApplicationTestBuilder.defLambda() = Unit
+suspend fun ApplicationTestBuilder.defStringLambda(): String? = null
 
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
@@ -127,9 +131,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
     dto: REQUEST,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = { null },
-    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = { },
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Post,
     uri,
@@ -147,9 +151,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     dto: REQUEST?,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = { null },
-    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = { },
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) {
     withDefaultMockTestApplication {
         authToken = authorize()
@@ -175,9 +179,9 @@ inline fun <reified RESPONSE : Any> testGetEndpoint(
     uri: String,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = { null },
-    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = { },
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Get,
     uri,
@@ -193,9 +197,9 @@ inline fun <reified RESPONSE : Any> testDeleteEndpoint(
     uri: String,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = { null },
-    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = { },
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Delete,
     uri,
@@ -212,9 +216,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
     dto: REQUEST,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = { null },
-    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = { },
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Patch,
     uri,
