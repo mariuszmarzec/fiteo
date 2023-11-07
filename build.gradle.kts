@@ -72,7 +72,9 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                cssSupport.enabled = true
+                cssSupport {
+                    enabled.set(true)
+                }
             }
         }
         binaries.executable()
@@ -97,7 +99,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib-jdk8"))
-                implementation("io.insert-koin:koin-ktor:${Dependency.koin_version}")
+                implementation("io.insert-koin:koin-ktor:${Dependency.koin_ktor_version}")
                 implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-server-html-builder:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sessions:${Dependency.ktor_version}")
@@ -130,6 +132,7 @@ kotlin {
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
                 implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
                 implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")

@@ -48,7 +48,6 @@ import com.marzec.trader.TraderRepository
 import com.marzec.trader.TraderService
 import com.marzec.trader.repositories.TraderRepositoryImpl
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.core.component.KoinComponent

@@ -10,7 +10,6 @@ import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
-import io.ktor.server.application.Application
 import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -137,27 +136,23 @@ class AuthorizationTest {
             mockConfiguration = {
                 defaultMockConfiguration()
                 single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
-            },
-            applicationModule = Application::module,
-            test = {
-                // Without this delay, db transaction removing entity from cached session table doesn't always finish
-                // closing application. TODO find better solution in future
-                runBlocking { delay(1000) }
             }
-        )
+        ) {
+            // Without this delay, db transaction removing entity from cached session table doesn't always finish
+            // closing application. TODO find better solution in future
+            runBlocking { delay(1000) }
+        }
 
         withMockTestApplication(
             withDbClear = false,
             mockConfiguration = {
                 defaultMockConfiguration()
                 single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
-            },
-            applicationModule = Application::module,
-            test = {
-                authToken = token
-                assertThat(getUserCall()).isNull()
             }
-        )
+        ) {
+            authToken = token
+            assertThat(getUserCall()).isNull()
+        }
     }
 
     @After

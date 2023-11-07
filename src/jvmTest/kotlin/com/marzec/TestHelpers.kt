@@ -20,7 +20,6 @@ import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.todo.dto.TaskDto
-import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.trader.dto.PaperDto
@@ -36,8 +35,11 @@ import io.mockk.mockk
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.mp.KoinPlatformTools
 import java.util.*
 import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
@@ -64,14 +66,13 @@ fun setupDb() {
 
 fun <T> withDefaultMockTestApplication(
     mockConfiguration: Module.() -> Unit = { },
-    applicationModule: Application.(List<Module>) -> Unit = Application::module,
     test: suspend ApplicationTestBuilder.() -> T
 ) {
     val withMockConfiguration: Module.() -> Unit = {
         defaultMockConfiguration()
         mockConfiguration()
     }
-    withMockTestApplication(withDbClear = true, withMockConfiguration, applicationModule, test)
+    withMockTestApplication(withDbClear = true, withMockConfiguration, test)
 }
 
 fun Module.defaultMockConfiguration() {
@@ -95,20 +96,22 @@ fun Module.defaultMockConfiguration() {
 fun <T> withMockTestApplication(
     withDbClear: Boolean,
     mockConfiguration: Module.() -> Unit,
-    applicationModule: Application.(List<Module>) -> Unit = Application::module,
     test: suspend ApplicationTestBuilder.() -> T
 ) {
     if (withDbClear) {
         setupDb()
     }
 
-    val modules = MainModule.plus(module { mockConfiguration() })
+    val diModules = MainModule.plus(module { mockConfiguration() })
+
+    KoinPlatformTools.defaultContext().getOrNull()?.close()
+    startKoin { modules(diModules) }.koin
+
     testApplication {
-        application {
-            applicationModule(modules)
-        }
         test()
     }
+
+    stopKoin()
 }
 
 inline fun <reified T : Any> Module.factoryMock(crossinline mockConfiguration: (T) -> Unit) {
@@ -159,6 +162,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
         authToken = authorize()
         runRequestsBefore()
         this.client.request(uri) {
+            println(uri.toString())
             this.method = method
             dto?.let { setBodyJson(it) }
             authToken?.let { header(Headers.AUTHORIZATION, it) }
@@ -166,6 +170,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             if (response.status != status) {
                 error(json.decodeFromString<ErrorDto>(response.bodyAsText()).reason)
             }
+            println(response.bodyAsText())
             assertThatJson<RESPONSE>(response.bodyAsText()).isEqualTo(
                 responseDto
             )
@@ -275,9 +280,11 @@ suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.patchW
 
 suspend inline fun <reified RESPONSE> ApplicationTestBuilder.getWithAuth(uri: String): RESPONSE =
     client.request(uri) {
-        this.method = HttpMethod.Post
+        this.method = HttpMethod.Get
         authToken?.let { header(Headers.AUTHORIZATION, it) }
-    }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
+    }.bodyAsText().let {
+        println("TEST $it")
+        json.decodeFromString<RESPONSE>(it) }
 
 suspend fun ApplicationTestBuilder.register(dto: RegisterRequestDto = registerRequestDto) {
     request(HttpMethod.Post, ApiPath.REGISTRATION, dto)
@@ -316,7 +323,8 @@ suspend fun ApplicationTestBuilder.addTask(dto: CreateTaskDto) {
     postWithAuth<CreateTaskDto, Unit>(TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"), dto)
 }
 
-suspend fun ApplicationTestBuilder.addTransaction(dto: TransactionDto) = runAddEndpoint(TraderApiPath.ADD_TRANSACTIONS, dto)
+suspend fun ApplicationTestBuilder.addTransaction(dto: TransactionDto) =
+    runAddEndpoint(TraderApiPath.ADD_TRANSACTIONS, dto)
 
 suspend fun ApplicationTestBuilder.addPaperTag(dto: PaperTagDto) = runAddEndpoint(TraderApiPath.ADD_PAPER_TAG, dto)
 

@@ -46,8 +46,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import io.ktor.server.engine.commandLineEnvironment
-import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.resource
 import io.ktor.server.http.content.static
 import io.ktor.server.netty.*
@@ -67,13 +65,11 @@ import io.ktor.server.sessions.sessions
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.core.module.Module
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.KoinApplicationStarted
 import org.koin.logger.slf4jLogger
 import org.slf4j.event.Level
 import javax.crypto.spec.SecretKeySpec
-import kotlinx.serialization.ExperimentalSerializationApi
 
 private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
@@ -81,7 +77,7 @@ private const val MINIMUM_SIZE: Long = 1024
 fun main(args: Array<String>) = EngineMain.main(args)
 
 @Suppress("unused")
-fun Application.module(diModules: List<Module> = listOf(MainModule)) {
+fun Application.module() {
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
@@ -93,7 +89,7 @@ fun Application.module(diModules: List<Module> = listOf(MainModule)) {
         runTodoSchedulerDispatcher(di, testDi)
     }
 
-    configuration(diModules, di)
+    configuration(di)
     sessions(di, testDi)
 
     routing {
@@ -131,17 +127,14 @@ private fun clearSessionsInPeriod(di: Di, testDi: Di) {
     }
 }
 
-fun Application.configuration(
-    diModules: List<Module>,
-    di: Di
-) {
+fun Application.configuration(di: Di) {
     install(CallLogging) {
         level = Level.INFO
     }
 
     install(Koin) {
         slf4jLogger(level = org.koin.core.logger.Level.ERROR)
-        modules(diModules)
+        modules(MainModule)
     }
 
     install(DefaultHeaders)
