@@ -1,19 +1,19 @@
 package com.marzec
 
-import com.marzec.fiteo.ApiPath
-import com.marzec.fiteo.model.dto.ErrorDto
-import com.marzec.fiteo.model.dto.UserDto
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
-import org.junit.After
-import org.junit.Test
-import org.koin.core.context.GlobalContext
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.NAME_SESSION_EXPIRATION_TIME
-import io.ktor.server.application.Application
+import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.UserDto
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.server.testing.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Test
+import org.koin.core.context.GlobalContext
 import org.koin.core.qualifier.named
 
 class AuthorizationTest {
@@ -100,7 +100,7 @@ class AuthorizationTest {
             uri = ApiPath.USER,
             status = HttpStatusCode.OK,
             responseDto = UserDto(2, "test@mail.com"),
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -110,7 +110,7 @@ class AuthorizationTest {
             uri = ApiPath.LOGOUT,
             status = HttpStatusCode.OK,
             responseDto = Unit,
-            authorize = TestApplicationEngine::registerAndLogin
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 
@@ -124,7 +124,7 @@ class AuthorizationTest {
             uri = ApiPath.USER,
             status = HttpStatusCode.OK,
             responseDto = UserDto(2, "test@mail.com"),
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsAfter = {
                 token = authToken
             }
@@ -137,27 +137,27 @@ class AuthorizationTest {
             mockConfiguration = {
                 defaultMockConfiguration()
                 single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
-            },
-            applicationModule = Application::module,
-            test = {
-                // Without this delay, db transaction removing entity from cached session table doesn't always finish
-                // closing application. TODO find better solution in future
-                runBlocking { delay(1000) }
             }
-        )
+        ) {
+            // Without this delay, db transaction removing entity from cached session table doesn't always finish
+            // closing application. TODO find better solution in future
+            runBlocking { delay(1000) }
+        }
 
         withMockTestApplication(
             withDbClear = false,
             mockConfiguration = {
                 defaultMockConfiguration()
                 single(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) { mockSession }
-            },
-            applicationModule = Application::module,
-            test = {
-                authToken = token
-                assertThat(getUserCall()).isNull()
             }
-        )
+        ) {
+            authToken = token
+            val response = client.request(ApiPath.USER) {
+                method = HttpMethod.Get
+                authToken?.let { header(Api.Headers.AUTHORIZATION, it) }
+            }
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+        }
     }
 
     @After

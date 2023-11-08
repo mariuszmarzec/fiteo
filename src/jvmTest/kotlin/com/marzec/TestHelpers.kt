@@ -32,13 +32,23 @@ import io.mockk.mockk
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.koin.mp.KoinPlatformTools
 import java.util.*
 import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.fiteo.ApiPath as FiteoApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
+
+//Workaround
+//https://youtrack.jetbrains.com/issue/KT-45505/IAE-suspend-default-lambda-X-cannot-be-inlined-use-a-function-reference-instead-with-crossinline-suspend-lambda-and-default
+
+
+suspend fun ApplicationTestBuilder.defLambda() = Unit
+suspend fun ApplicationTestBuilder.defStringLambda(): String? = null
 
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
@@ -53,14 +63,13 @@ fun setupDb() {
 
 fun <T> withDefaultMockTestApplication(
     mockConfiguration: Module.() -> Unit = { },
-    applicationModule: Application.(List<Module>) -> Unit = Application::module,
-    test: TestApplicationEngine.() -> T
+    test: suspend ApplicationTestBuilder.() -> T
 ) {
     val withMockConfiguration: Module.() -> Unit = {
         defaultMockConfiguration()
         mockConfiguration()
     }
-    withMockTestApplication(withDbClear = true, withMockConfiguration, applicationModule, test)
+    withMockTestApplication(withDbClear = true, withMockConfiguration, test)
 }
 
 fun Module.defaultMockConfiguration() {
@@ -84,15 +93,22 @@ fun Module.defaultMockConfiguration() {
 fun <T> withMockTestApplication(
     withDbClear: Boolean,
     mockConfiguration: Module.() -> Unit,
-    applicationModule: Application.(List<Module>) -> Unit = Application::module,
-    test: TestApplicationEngine.() -> T
+    test: suspend ApplicationTestBuilder.() -> T
 ) {
     if (withDbClear) {
         setupDb()
     }
 
-    val modules = MainModule.plus(module { mockConfiguration() })
-    withTestApplication({ applicationModule(modules) }, test)
+    val diModules = MainModule.plus(module { mockConfiguration() })
+
+    KoinPlatformTools.defaultContext().getOrNull()?.close()
+    startKoin { modules(diModules) }.koin
+
+    testApplication {
+        test()
+    }
+
+    stopKoin()
 }
 
 inline fun <reified T : Any> Module.factoryMock(crossinline mockConfiguration: (T) -> Unit) {
@@ -105,8 +121,8 @@ inline fun <reified T : Any> assertThatJson(actual: String?): Subject {
     return actual?.let { assertThat(json.decodeFromString<T>(it)) } ?: assertThat(null as Any?)
 }
 
-inline fun <reified T> TestApplicationRequest.setBodyJson(dto: T) {
-    addHeader("Content-Type", "application/json")
+inline fun <reified T> HttpRequestBuilder.setBodyJson(dto: T) {
+    header("Content-Type", "application/json")
     val jsonString = (dto as? String)?.let { it } ?: json.encodeToString(dto)
     setBody(jsonString)
 }
@@ -116,9 +132,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
     dto: REQUEST,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Post,
     uri,
@@ -130,15 +146,16 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
     runRequestsAfter
 )
 
+
 inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     method: HttpMethod,
     uri: String,
     dto: REQUEST?,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint<REQUEST, RESPONSE>(
     method = method,
     uri = uri,
@@ -156,21 +173,22 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     dto: REQUEST?,
     status: HttpStatusCode,
     crossinline responseDtoCheck: (RESPONSE?) -> Unit,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) {
     withDefaultMockTestApplication {
         authToken = authorize()
         runRequestsBefore()
-        handleRequest(method, uri) {
+        this.client.request(uri) {
+            this.method = method
             dto?.let { setBodyJson(it) }
-            authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-        }.apply {
-            if (response.status() != status) {
-                error("Error occurred: " + json.decodeFromString<ErrorDto>(response.content.orEmpty()).reason)
+            authToken?.let { header(Headers.AUTHORIZATION, it) }
+        }.let { response ->
+            if (response.status != status) {
+                error("Error occurred: " + json.decodeFromString<ErrorDto>(response.bodyAsText()).reason)
             }
-            val responseBody = response.content?.let { json.decodeFromString<RESPONSE>(it) }
+            val responseBody = response.bodyAsText()?.let { json.decodeFromString<RESPONSE>(it) }
             responseDtoCheck(responseBody)
             assertThat(response.status()).isEqualTo(status)
             runRequestsAfter()
@@ -182,9 +200,9 @@ inline fun <reified RESPONSE : Any> testGetEndpoint(
     uri: String,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Get,
     uri,
@@ -218,9 +236,9 @@ inline fun <reified RESPONSE : Any> testDeleteEndpoint(
     uri: String,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Delete,
     uri,
@@ -237,9 +255,9 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
     dto: REQUEST,
     status: HttpStatusCode,
     responseDto: RESPONSE,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Patch,
     uri,
@@ -251,26 +269,38 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
     runRequestsAfter
 )
 
-var TestApplicationEngine.authToken: String? by FieldProperty<TestApplicationEngine, String?> { null }
+var ApplicationTestBuilder.authToken: String? by FieldProperty<ApplicationTestBuilder, String?> { null }
 
-fun TestApplicationEngine.register(dto: RegisterRequestDto = registerRequestDto) {
-    handleRequest(HttpMethod.Post, ApiPath.REGISTRATION) {
+suspend inline fun <reified DTO> ApplicationTestBuilder.request(
+    method: HttpMethod,
+    uri: String,
+    dto: DTO
+): HttpResponse =
+    client.request(uri) {
+        this.method = method
         setBodyJson(dto)
     }
-}
 
-fun TestApplicationEngine.registerAndLogin(dto: LoginRequestDto = loginDto): String {
-    register()
-    return handleRequest(HttpMethod.Post, ApiPath.LOGIN) {
+suspend inline fun <reified DTO> ApplicationTestBuilder.requestWithAuth(
+    method: HttpMethod,
+    uri: String,
+    dto: DTO
+): HttpResponse =
+    client.request(uri) {
+        this.method = method
         setBodyJson(dto)
-    }.response.headers[Headers.AUTHORIZATION]!!
-}
+        authToken?.let { header(Headers.AUTHORIZATION, it) }
+    }
 
-fun TestApplicationEngine.login(dto: LoginRequestDto = loginDto): String {
-    return handleRequest(HttpMethod.Post, ApiPath.LOGIN) {
+suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.postWithAuth(
+    uri: String,
+    dto: DTO
+): RESPONSE =
+    client.request(uri) {
+        this.method = HttpMethod.Post
         setBodyJson(dto)
-    }.response.headers[Headers.AUTHORIZATION]!!
-}
+        authToken?.let { header(Headers.AUTHORIZATION, it) }
+    }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
 
 fun TestApplicationEngine.loginBearer(dto: LoginRequestDto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")): String {
     return handleRequest(HttpMethod.Post, ApiPath.LOGIN_BEARER) {
@@ -281,16 +311,44 @@ fun TestApplicationEngine.loginBearer(dto: LoginRequestDto = LoginRequestDto(ema
 fun TestApplicationEngine.addWeight(dto: WeightDto) {
     handleRequest(HttpMethod.Post, CheatApiPath.WEIGHT) {
         setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+        authToken?.let { header(Headers.AUTHORIZATION, it) }
+    }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
+}
+    suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.patchWithAuth(
+        uri: String,
+        dto: DTO
+    ): RESPONSE =
+        client.request(uri) {
+            this.method = HttpMethod.Patch
+            setBodyJson(dto)
+            authToken?.let { header(Headers.AUTHORIZATION, it) }
+        }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
+
+
+    suspend inline fun <reified RESPONSE> ApplicationTestBuilder.getWithAuth(uri: String): RESPONSE =
+    client.request(uri) {
+        this.method = HttpMethod.Get
+        authToken?.let { header(Headers.AUTHORIZATION, it) }
+    }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
+
+suspend fun ApplicationTestBuilder.register(dto: RegisterRequestDto = registerRequestDto) {
+    request(HttpMethod.Post, ApiPath.REGISTRATION, dto)
 }
 
-fun TestApplicationEngine.getWeights(): List<WeightDto> =
-    handleRequest(HttpMethod.Get, CheatApiPath.WEIGHTS) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString<List<WeightDto>>(it) }.orEmpty()
+suspend fun ApplicationTestBuilder.registerAndLogin(dto: LoginRequestDto = loginDto): String {
+    register()
+    return login()
+}
+
+suspend fun ApplicationTestBuilder.login(dto: LoginRequestDto = loginDto): String =
+    request(HttpMethod.Post, ApiPath.LOGIN, dto).headers[Headers.AUTHORIZATION]!!
+
+suspend fun ApplicationTestBuilder.addWeight(dto: WeightDto) {
+    postWithAuth<WeightDto, Unit>(CheatApiPath.WEIGHT, dto)
+}
+
+suspend fun ApplicationTestBuilder.getWeights(): List<WeightDto> =
+    getWithAuth(CheatApiPath.WEIGHTS)
 
 class FieldProperty<R, T>(
     val initializer: (R) -> T = { throw IllegalStateException("Not initialized.") }
@@ -306,86 +364,52 @@ class FieldProperty<R, T>(
     }
 }
 
-fun TestApplicationEngine.addTask(dto: CreateTaskDto) {
-    handleRequest(HttpMethod.Post, TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1")) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+suspend fun ApplicationTestBuilder.addTask(dto: CreateTaskDto) {
+    postWithAuth<CreateTaskDto, Unit>(TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"), dto)
 }
 
 fun TestApplicationEngine.addExercise(dto: CreateExerciseDto) = runAddEndpoint(FiteoApiPath.EXERCISES, dto)
 
-fun TestApplicationEngine.updateTask(id: String, dto: UpdateTaskDto) = runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
+suspend fun ApplicationTestBuilder.updateTask(id: String, dto: UpdateTaskDto) =
+    runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
 
-inline fun <reified REQUEST> TestApplicationEngine.runPatchEndpoint(id: String, endpointUrl: String, dto: REQUEST) {
-    handleRequest(HttpMethod.Patch, endpointUrl.replace("{${Api.Args.ARG_ID}}", id)) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+suspend inline fun <reified REQUEST> ApplicationTestBuilder.runPatchEndpoint(
+    id: String,
+    endpointUrl: String,
+    dto: REQUEST
+) {
+    requestWithAuth(HttpMethod.Patch, endpointUrl.replace("{${Api.Args.ARG_ID}}", id), dto)
 }
 
-inline fun <reified REQUEST> TestApplicationEngine.runAddEndpoint(endpointUrl: String, dto: REQUEST) {
-    handleRequest(HttpMethod.Post, endpointUrl) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+suspend inline fun <reified REQUEST> ApplicationTestBuilder.runAddEndpoint(endpointUrl: String, dto: REQUEST) {
+    postWithAuth<REQUEST, Unit>(endpointUrl, dto)
 }
 
-fun TestApplicationEngine.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
+suspend fun ApplicationTestBuilder.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
 
 fun TestApplicationEngine.getExercises(): List<ExerciseDto> = runGetAllEndpoint(FiteoApiPath.EXERCISES)
 
-inline fun <reified RESPONSE> TestApplicationEngine.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
-    handleRequest(HttpMethod.Get, endpointUrl) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString<List<RESPONSE>>(it) }.orEmpty()
+suspend inline fun <reified RESPONSE> ApplicationTestBuilder.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
+    getWithAuth<List<RESPONSE>>(endpointUrl)
 
 
-fun TestApplicationEngine.putTemplate(dto: CreateTrainingTemplateDto) {
-    handleRequest(HttpMethod.Post, ApiPath.TRAINING_TEMPLATE) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+suspend fun ApplicationTestBuilder.transactions(): List<TransactionDto> = runGetAllEndpoint(TraderApiPath.TRANSACTIONS)
+
+suspend fun ApplicationTestBuilder.putTemplate(dto: CreateTrainingTemplateDto) {
+    postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATE, dto)
 }
 
-fun TestApplicationEngine.createTraining(trainingTemplateId: String): TrainingDto {
-    return handleRequest(
-        HttpMethod.Get,
+suspend fun ApplicationTestBuilder.createTraining(trainingTemplateId: String): TrainingDto =
+    getWithAuth(
         ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", trainingTemplateId)
-    ) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        .let { json.decodeFromString(it!!) }
-}
+    )
 
-fun TestApplicationEngine.getTemplates(): List<TrainingTemplateDto> {
-    return handleRequest(HttpMethod.Get, ApiPath.TRAINING_TEMPLATES) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString<List<TrainingTemplateDto>>(it) }.orEmpty()
-}
+suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =
+    getWithAuth(ApiPath.TRAINING_TEMPLATES)
 
-fun TestApplicationEngine.getTrainings(): List<TrainingDto> {
-    return handleRequest(HttpMethod.Get, ApiPath.TRAININGS) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString<List<TrainingDto>>(it) }.orEmpty()
-}
+suspend fun ApplicationTestBuilder.getTrainings(): List<TrainingDto> = getWithAuth(ApiPath.TRAININGS)
 
-fun TestApplicationEngine.getUserCall(): UserDto? {
-    return handleRequest(HttpMethod.Get, ApiPath.USER) {
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }.response
-        .content
-        ?.let { json.decodeFromString(it) }
-}
-
-fun TestApplicationEngine.markAsDone(taskId: Int) {
+suspend fun ApplicationTestBuilder.markAsDone(taskId: Int) {
     val task = getTasks().flatMapTaskDto().first { it.id == taskId }
     val dto = UpdateTaskDto(
         description = task.description,
@@ -394,10 +418,7 @@ fun TestApplicationEngine.markAsDone(taskId: Int) {
         isToDo = false
     )
 
-    handleRequest(HttpMethod.Patch, TodoApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "$taskId")) {
-        setBodyJson(dto)
-        authToken?.let { addHeader(Headers.AUTHORIZATION, it) }
-    }
+    patchWithAuth<UpdateTaskDto, Unit>(TodoApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "$taskId"), dto)
 }
 
 fun List<TaskDto>.flatMapTaskDto(tasks: MutableList<TaskDto> = mutableListOf()): List<TaskDto> {

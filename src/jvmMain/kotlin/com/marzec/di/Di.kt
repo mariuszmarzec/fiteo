@@ -43,7 +43,6 @@ import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
 import com.marzec.todo.schedule.SchedulerDispatcher
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.koin.core.component.KoinComponent
