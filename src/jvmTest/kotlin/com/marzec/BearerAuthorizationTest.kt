@@ -4,7 +4,6 @@ import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.dto.UserDto
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.testing.TestApplicationEngine
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -16,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.koin.core.qualifier.named
 import com.marzec.fiteo.model.dto.*
+import io.ktor.server.testing.*
 
 class BearerAuthorizationTest {
 
@@ -37,7 +37,7 @@ class BearerAuthorizationTest {
             ApiPath.USERS,
             HttpStatusCode.OK,
             listOf(user),
-            authorize = TestApplicationEngine::loginBearer
+            authorize = ApplicationTestBuilder::loginBearer
         )
     }
 

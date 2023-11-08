@@ -21,9 +21,12 @@ import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
+import com.marzec.request
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.server.application.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
@@ -190,7 +193,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             }
             val responseBody = response.bodyAsText()?.let { json.decodeFromString<RESPONSE>(it) }
             responseDtoCheck(responseBody)
-            assertThat(response.status()).isEqualTo(status)
+            assertThat(response.status).isEqualTo(status)
             runRequestsAfter()
         }
     }
@@ -214,13 +217,13 @@ inline fun <reified RESPONSE : Any> testGetEndpoint(
     runRequestsAfter
 )
 
-inline fun <reified RESPONSE : Any> testGetEndpoint(
+inline fun <reified RESPONSE : Any> testGetEndpointCheck(
     uri: String,
     status: HttpStatusCode,
     crossinline responseDtoCheck: (RESPONSE?) -> Unit,
-    crossinline authorize: TestApplicationEngine.() -> String? = { null },
-    crossinline runRequestsBefore: TestApplicationEngine.() -> Unit = { },
-    crossinline runRequestsAfter: TestApplicationEngine.() -> Unit = { }
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
 ) = testEndpoint(
     HttpMethod.Get,
     uri,
@@ -302,30 +305,26 @@ suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.postWi
         authToken?.let { header(Headers.AUTHORIZATION, it) }
     }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
 
-fun TestApplicationEngine.loginBearer(dto: LoginRequestDto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")): String {
-    return handleRequest(HttpMethod.Post, ApiPath.LOGIN_BEARER) {
+suspend fun ApplicationTestBuilder.loginBearer(
+    dto: LoginRequestDto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")
+): String =
+    client.request(ApiPath.LOGIN_BEARER) {
+        this.method = HttpMethod.Post
         setBodyJson(dto)
-    }.response.headers[Headers.AUTHORIZATION]!!
-}
+    }.headers[Headers.AUTHORIZATION]!!
 
-fun TestApplicationEngine.addWeight(dto: WeightDto) {
-    handleRequest(HttpMethod.Post, CheatApiPath.WEIGHT) {
+suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.patchWithAuth(
+    uri: String,
+    dto: DTO
+): RESPONSE =
+    client.request(uri) {
+        this.method = HttpMethod.Patch
         setBodyJson(dto)
         authToken?.let { header(Headers.AUTHORIZATION, it) }
     }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
-}
-    suspend inline fun <reified DTO, reified RESPONSE> ApplicationTestBuilder.patchWithAuth(
-        uri: String,
-        dto: DTO
-    ): RESPONSE =
-        client.request(uri) {
-            this.method = HttpMethod.Patch
-            setBodyJson(dto)
-            authToken?.let { header(Headers.AUTHORIZATION, it) }
-        }.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
 
 
-    suspend inline fun <reified RESPONSE> ApplicationTestBuilder.getWithAuth(uri: String): RESPONSE =
+suspend inline fun <reified RESPONSE> ApplicationTestBuilder.getWithAuth(uri: String): RESPONSE =
     client.request(uri) {
         this.method = HttpMethod.Get
         authToken?.let { header(Headers.AUTHORIZATION, it) }
@@ -368,7 +367,7 @@ suspend fun ApplicationTestBuilder.addTask(dto: CreateTaskDto) {
     postWithAuth<CreateTaskDto, Unit>(TodoApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"), dto)
 }
 
-fun TestApplicationEngine.addExercise(dto: CreateExerciseDto) = runAddEndpoint(FiteoApiPath.EXERCISES, dto)
+suspend fun ApplicationTestBuilder.addExercise(dto: CreateExerciseDto) = runAddEndpoint(FiteoApiPath.EXERCISES, dto)
 
 suspend fun ApplicationTestBuilder.updateTask(id: String, dto: UpdateTaskDto) =
     runPatchEndpoint(id, TodoApiPath.UPDATE_TASK, dto)
@@ -387,13 +386,10 @@ suspend inline fun <reified REQUEST> ApplicationTestBuilder.runAddEndpoint(endpo
 
 suspend fun ApplicationTestBuilder.getTasks(): List<TaskDto> = runGetAllEndpoint(TodoApiPath.TASKS)
 
-fun TestApplicationEngine.getExercises(): List<ExerciseDto> = runGetAllEndpoint(FiteoApiPath.EXERCISES)
+suspend fun ApplicationTestBuilder.getExercises(): List<ExerciseDto> = runGetAllEndpoint(FiteoApiPath.EXERCISES)
 
 suspend inline fun <reified RESPONSE> ApplicationTestBuilder.runGetAllEndpoint(endpointUrl: String): List<RESPONSE> =
     getWithAuth<List<RESPONSE>>(endpointUrl)
-
-
-suspend fun ApplicationTestBuilder.transactions(): List<TransactionDto> = runGetAllEndpoint(TraderApiPath.TRANSACTIONS)
 
 suspend fun ApplicationTestBuilder.putTemplate(dto: CreateTrainingTemplateDto) {
     postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATE, dto)

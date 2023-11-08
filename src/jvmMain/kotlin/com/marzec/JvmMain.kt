@@ -29,18 +29,14 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.schedule.runTodoSchedulerDispatcher
 import com.marzec.todo.todoApi
-import com.marzec.trader.TraderApiController
-import com.marzec.trader.traderApi
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.UnauthorizedResponse
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.session
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.auth.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receiveOrNull
 import io.ktor.server.request.uri
 import io.ktor.server.response.respond
@@ -257,7 +253,7 @@ fun Route.login(api: Controller) {
     }
 }
 
-fun Route.loginBearer(api: Controller) {
+private fun Route.loginBearer(api: Controller) {
     post(ApiPath.LOGIN_BEARER) {
         val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
         val httpResponse = api.postLogin(HttpRequest(loginRequestDto))

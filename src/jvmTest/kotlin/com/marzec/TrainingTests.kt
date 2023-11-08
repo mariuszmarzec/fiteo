@@ -148,14 +148,14 @@ class TrainingTests {
 
     @Test
     fun createTraining_doNotCreateTrainingInCaseOfError() {
-        testGetEndpoint<ErrorDto>(
+        testGetEndpointCheck<ErrorDto>(
             uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
             status = HttpStatusCode.InternalServerError,
             responseDtoCheck = {
                 assertThat(it).isInstanceOf(ErrorDto::class.java)
                 assertThat((it as ErrorDto).reason).contains("No exercise for training part with: 1")
             },
-            authorize = TestApplicationEngine::registerAndLogin,
+            authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto2)
