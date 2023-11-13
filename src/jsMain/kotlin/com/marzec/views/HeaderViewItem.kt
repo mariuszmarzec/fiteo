@@ -5,14 +5,13 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import com.marzec.views.exerciserowview.ExerciseRowViewItem
-import com.marzec.widget.exerciseview.ExerciseRowView
-import react.RBuilder
-import react.child
+import react.ChildrenBuilder
 import react.dom.h1
 import react.dom.h3
 import react.dom.h5
-import react.key
+import react.dom.html.ReactHTML.h1
+import react.dom.html.ReactHTML.h3
+import react.dom.html.ReactHTML.h5
 
 enum class HeaderSize {
     BIG,
@@ -42,7 +41,7 @@ data class MediumHeaderViewItem(
 
 class HeaderDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as HeaderViewItem
         when (item.size) {
             HeaderSize.BIG -> h1 { +item.message }

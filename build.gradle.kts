@@ -154,16 +154,11 @@ kotlin {
                 implementation("io.ktor:ktor-client-json-js:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-client-serialization-js:${Dependency.ktor_version}")
 
-                implementation("org.jetbrains:kotlin-react:${Dependency.pre_react_version}")
-                implementation("org.jetbrains:kotlin-react-dom:${Dependency.pre_react_version}")
-                implementation(npm("react", Dependency.react_version))
-                implementation(npm("react-dom", Dependency.react_version))
-
-                implementation("org.jetbrains:kotlin-react-router-dom:5.2.0-pre.150-kotlin-1.4.31")
-                implementation(npm("react-router-dom", "5.2.0"))
-
-                implementation("org.jetbrains:kotlin-styled:5.2.1-pre.148-kotlin-1.4.21")
-                implementation(npm("styled-components", "~5.2.1"))
+                implementation(platform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:${Dependency.kotlinWrappersVersion}"))
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-styled")
             }
         }
     }

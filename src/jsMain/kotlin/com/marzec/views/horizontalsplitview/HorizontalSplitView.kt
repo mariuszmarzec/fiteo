@@ -10,7 +10,7 @@ import kotlinx.css.LinearDimension
 import kotlinx.css.display
 import kotlinx.css.height
 import kotlinx.css.width
-import react.RBuilder
+import react.ChildrenBuilder
 import styled.css
 import styled.styledDiv
 
@@ -29,7 +29,7 @@ data class HorizontalSplitView(
 
 class HorizontalSplitDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as HorizontalSplitView
         renderer as ReactRenderer
         styledDiv {

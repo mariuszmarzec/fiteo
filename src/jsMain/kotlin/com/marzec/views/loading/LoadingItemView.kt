@@ -6,8 +6,9 @@ import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import com.marzec.views.error.ErrorItemView
-import react.RBuilder
+import react.ChildrenBuilder
 import react.dom.h3
+import react.dom.html.ReactHTML.h3
 
 data class LoadingItemView(override val id: String = emptyString()) : ViewItem {
 
@@ -16,7 +17,8 @@ data class LoadingItemView(override val id: String = emptyString()) : ViewItem {
 
 class LoadingDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {        item as LoadingItemView
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
+        item as LoadingItemView
         h3 { +"Loading" }
     }
 }

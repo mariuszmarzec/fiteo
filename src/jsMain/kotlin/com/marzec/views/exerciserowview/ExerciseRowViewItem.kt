@@ -6,9 +6,7 @@ import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import com.marzec.widget.exerciseview.ExerciseRowView
-import react.RBuilder
-import react.child
-import react.key
+import react.ChildrenBuilder
 
 class ExerciseRowViewItem(
     override val id: String,
@@ -24,11 +22,11 @@ class ExerciseRowViewItem(
 
 class ExerciseDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as ExerciseRowViewItem
-        child(ExerciseRowView) {
-            this.attrs.key = item.id
-            this.attrs.exercise = item
+        ExerciseRowView {
+            key = item.id
+            exercise = item
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.marzec.views.base
 
-import react.RBuilder
+import react.ChildrenBuilder
 
 interface RendererDelegate {
 
@@ -9,11 +9,11 @@ interface RendererDelegate {
 
 abstract class ReactRendererDelegate : RendererDelegate {
 
-    lateinit var builder: RBuilder
+    lateinit var builder: ChildrenBuilder
 
     override fun render(renderer: Renderer, item: ViewItem): Unit = builder.render(renderer as ReactRenderer, item)
 
-    abstract fun RBuilder.render(renderer: Renderer, item: ViewItem)
+    abstract fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem)
 }
 
 interface Renderer {
@@ -41,7 +41,7 @@ class RendererImpl : Renderer {
 
 class ReactRenderer : Renderer {
 
-    lateinit var builder: RBuilder
+    lateinit var builder: ChildrenBuilder
 
     private val delegates = mutableListOf<RendererDelegate>()
 
@@ -54,7 +54,7 @@ class ReactRenderer : Renderer {
         render(items, builder)
     }
 
-    fun render(items: List<ViewItem>, builder: RBuilder = this.builder) {
+    fun render(items: List<ViewItem>, builder: ChildrenBuilder = this.builder) {
         items.forEach { item ->
             val rendererDelegate = delegates.firstOrNull { item.check(it) }
                 ?: throw NoSuchElementException("No delegates for item: ${item::class.simpleName}")

@@ -17,22 +17,21 @@ import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.w3c.dom.url.URLSearchParams
-import react.RProps
-import react.functionalComponent
-import react.router.dom.useHistory
-import react.router.dom.useLocation
+import react.FC
+import react.router.useLocation
+import react.router.useNavigate
 import react.useEffect
 
 
 @ExperimentalCoroutinesApi
-val ExerciseList = functionalComponent<RProps> { _ ->
+val ExerciseList = FC {
     val state = useStateFlow(exerciseListStore.state, defaultState)
 
     val location = useLocation()
-    val history = useHistory()
+    val navigateFunction = useNavigate()
     val queries = location.search
 
-    useEffect(emptyList()) {
+    useEffect(Unit) {
         val urlSearchParams = URLSearchParams(queries)
         val query = urlSearchParams.get("query").orEmpty()
         val filters = urlSearchParams.get("filters")?.split(",")?.toSet().orEmpty()
@@ -54,7 +53,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
         console.log(newPath)
 
         if (currentPath != newPath && params.toString().isNotEmpty()) {
-            history.push(newPath)
+            navigateFunction(newPath)
         }
     }
 
@@ -62,7 +61,7 @@ val ExerciseList = functionalComponent<RProps> { _ ->
     val views: List<ViewItem> = ExerciseListUiMapper.map(state)
 
     ReactRenderer()
-        .apply { builder = this@functionalComponent }
+        .apply { builder = this@FC }
         .add(
             CheckboxDelegate { id: String ->
                 exerciseListStore.sendAction(ExercisesListActions.OnFilterCheckedChange(filterId = id))

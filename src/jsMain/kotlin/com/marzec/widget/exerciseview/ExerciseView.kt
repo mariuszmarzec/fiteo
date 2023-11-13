@@ -1,24 +1,24 @@
 package com.marzec.widget.exerciseview
 
 import com.marzec.views.exerciserowview.ExerciseRowViewItem
-import react.RProps
-import react.dom.div
-import react.dom.h3
-import react.dom.img
-import react.functionalComponent
+import react.FC
+import react.Props
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.h3
+import react.dom.html.ReactHTML.img
 import react.useState
 
-val ExerciseRowView = functionalComponent<ExerciseRowViewProps> { props ->
+val ExerciseRowView = FC<ExerciseRowViewProps> { props ->
     val (exercise, _) = useState(props.exercise)
 
     val imageUrl = exercise.animationUrl ?: exercise.imageUrl
 
     div {
         h3 { +exercise.name }
-        imageUrl?.let { animationUrl -> img { attrs.src = animationUrl } }
+        imageUrl?.let { animationUrl -> img { src = animationUrl } }
     }
 }
 
-external interface ExerciseRowViewProps : RProps {
+external interface ExerciseRowViewProps : Props {
     var exercise: ExerciseRowViewItem
 }

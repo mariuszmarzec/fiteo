@@ -7,10 +7,11 @@ import com.marzec.views.base.ViewItem
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import org.w3c.dom.HTMLInputElement
-import react.RBuilder
+import react.ChildrenBuilder
 import react.dom.div
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.input
 import react.dom.input
-import react.key
 
 data class TextInputViewItem(
     override val id: String,
@@ -24,19 +25,19 @@ class TextInputDelegate(
     private val onTextChange: (id: String, text: String) -> Unit
 ) : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as TextInputViewItem
         div {
-            input(type = InputType.text, name = item.text) {
+            input {
+                type = web.html.InputType.text
+                name = item.text
                 key = item.id
 
-                attrs {
-                    value = item.text
-                    placeholder = item.hint
-                    onChangeFunction = {
-                        val target = it.target as HTMLInputElement
-                        onTextChange(item.id, target.value)
-                    }
+                value = item.text
+                placeholder = item.hint
+                onChange = {
+                    val target = it.target
+                    onTextChange(item.id, target.value)
                 }
             }
         }

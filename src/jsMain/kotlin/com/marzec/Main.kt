@@ -3,15 +3,17 @@ package com.marzec
 import com.marzec.screen.exerciselist.view.ExerciseList
 import kotlinx.browser.document
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.html.HTML
 import react.child
+import react.dom.client.RootOptions
+import react.dom.client.createRoot
 import react.dom.render
-import react.router.dom.hashRouter
-import react.router.dom.switch
-import react.router.dom.route
+import web.html.HTMLElement
 
 @ExperimentalCoroutinesApi
 fun main() {
-    render(document.getElementById("root")) {
+    val root = createRoot(document.getElementById("root").unsafeCast<HTMLElement>())
+    root.render {
         hashRouter {
             switch {
                 route("/") {
@@ -19,5 +21,6 @@ fun main() {
                 }
             }
         }
+
     }
 }

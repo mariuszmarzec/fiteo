@@ -5,8 +5,8 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import react.RBuilder
-import react.dom.h3
+import react.ChildrenBuilder
+import react.dom.html.ReactHTML.h3
 
 data class ErrorItemView(
     override val id: String = emptyString(),
@@ -18,7 +18,7 @@ data class ErrorItemView(
 
 class ErrorDelegate : ReactRendererDelegate() {
 
-    override fun RBuilder.render(renderer: Renderer, item: ViewItem) {
+    override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as ErrorItemView
         h3 { +"Error: ${item.message}" }
     }
