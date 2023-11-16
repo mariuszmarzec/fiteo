@@ -1,13 +1,11 @@
 package com.marzec.widget.checkbox
 
 import com.marzec.views.checkbox.CheckboxViewItem
-import kotlinx.html.js.onChangeFunction
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
-import react.dom.label
 import react.useState
 
 val Checkbox = FC<CheckboxProps> { props ->

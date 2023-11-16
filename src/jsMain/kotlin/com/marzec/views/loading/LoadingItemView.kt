@@ -5,9 +5,7 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import com.marzec.views.error.ErrorItemView
 import react.ChildrenBuilder
-import react.dom.h3
 import react.dom.html.ReactHTML.h3
 
 data class LoadingItemView(override val id: String = emptyString()) : ViewItem {

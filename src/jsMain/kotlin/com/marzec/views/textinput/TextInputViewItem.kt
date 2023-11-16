@@ -4,14 +4,9 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import kotlinx.html.InputType
-import kotlinx.html.js.onChangeFunction
-import org.w3c.dom.HTMLInputElement
 import react.ChildrenBuilder
-import react.dom.div
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
-import react.dom.input
 
 data class TextInputViewItem(
     override val id: String,

@@ -5,21 +5,19 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import kotlinx.css.Display
-import kotlinx.css.LinearDimension
-import kotlinx.css.display
-import kotlinx.css.height
-import kotlinx.css.width
+import emotion.react.css
 import react.ChildrenBuilder
-import styled.css
-import styled.styledDiv
+import react.create
+import react.dom.html.ReactHTML.div
+import web.cssom.Display
+import web.cssom.pct
 
 data class HorizontalSplitView(
     override val id: String,
     val leftColumnItems: List<ViewItem>,
     val rightColumnItems: List<ViewItem>,
-    val leftPercentageWidth: String = "50%",
-    val rightPercentageWidth: String = "50%"
+    val leftPercentageWidth: Int = 50,
+    val rightPercentageWidth: Int = 50
 ) : ViewItem {
 
     override fun check(render: RendererDelegate): Boolean {
@@ -32,22 +30,22 @@ class HorizontalSplitDelegate : ReactRendererDelegate() {
     override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as HorizontalSplitView
         renderer as ReactRenderer
-        styledDiv {
+        div.create {
             css {
-                height = LinearDimension("100%")
-                width = LinearDimension("100%")
+                height = 100.pct
+                width = 100.pct
                 display = Display.flex
             }
-            styledDiv {
+            div.create {
                 css {
-                    width = LinearDimension(item.leftPercentageWidth)
+                    width = item.leftPercentageWidth.pct
                 }
                 renderer.render(item.leftColumnItems, this)
             }
 
-            styledDiv {
+            div.create {
                 css {
-                    width = LinearDimension(item.rightPercentageWidth)
+                    width = item.rightPercentageWidth.pct
                 }
                 renderer.render(item.rightColumnItems, this)
             }

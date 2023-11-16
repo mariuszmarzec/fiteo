@@ -6,9 +6,6 @@ import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
 import react.ChildrenBuilder
-import react.dom.h1
-import react.dom.h3
-import react.dom.h5
 import react.dom.html.ReactHTML.h1
 import react.dom.html.ReactHTML.h3
 import react.dom.html.ReactHTML.h5
