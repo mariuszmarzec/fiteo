@@ -30,20 +30,20 @@ class HorizontalSplitDelegate : ReactRendererDelegate() {
     override fun ChildrenBuilder.render(renderer: Renderer, item: ViewItem) {
         item as HorizontalSplitView
         renderer as ReactRenderer
-        div.create {
+        div {
             css {
                 height = 100.pct
                 width = 100.pct
                 display = Display.flex
             }
-            div.create {
+            div {
                 css {
                     width = item.leftPercentageWidth.pct
                 }
                 renderer.render(item.leftColumnItems, this)
             }
 
-            div.create {
+            div {
                 css {
                     width = item.rightPercentageWidth.pct
                 }

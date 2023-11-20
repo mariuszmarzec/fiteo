@@ -57,7 +57,6 @@ val ExerciseList = FC {
         }
     }
 
-
     val views: List<ViewItem> = ExerciseListUiMapper.map(state)
 
     ReactRenderer()
