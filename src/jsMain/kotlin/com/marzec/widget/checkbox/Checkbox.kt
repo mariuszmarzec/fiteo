@@ -9,7 +9,10 @@ import react.dom.html.ReactHTML.label
 import react.useState
 
 val Checkbox = FC<CheckboxProps> { props ->
-    val (state, _) = useState(props.state)
+//    val (state, _) = useState(props.state)
+    val state = props.state
+
+    console.log("state: ${state.label} ${state.isChecked}")
 
     div {
         input {

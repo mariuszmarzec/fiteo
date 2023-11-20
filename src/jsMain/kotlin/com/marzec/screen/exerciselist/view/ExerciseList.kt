@@ -15,6 +15,7 @@ import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
+import js.core.jso
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.w3c.dom.url.URLSearchParams
 import react.FC
@@ -22,13 +23,12 @@ import react.router.useLocation
 import react.router.useNavigate
 import react.useEffect
 
-
 @ExperimentalCoroutinesApi
 val ExerciseList = FC {
     val state = useStateFlow(exerciseListStore.state, defaultState)
 
     val location = useLocation()
-    val navigateFunction = useNavigate()
+    val navigate = useNavigate()
     val queries = location.search
 
     useEffect(Unit) {
@@ -40,20 +40,26 @@ val ExerciseList = FC {
 
     if (state is State.Data) {
         val params = URLSearchParams(queries)
-        if (state.data.searchText.isNotEmpty()) {
-            params.set("query", state.data.searchText)
+        val searchText = state.data.searchText
+        if (searchText.isNotEmpty()) {
+            params.append("query", searchText)
         }
         val filters = state.data.checkedFilters.joinToString(",")
         if (filters.isNotEmpty()) {
-            params.set("filters", filters)
+            params.append("filters", filters)
         }
-        val newPath = "/?$params"
+        val newPath = if (searchText.isNotEmpty() || filters.isNotEmpty()) {
+            "/?$params"
+        } else {
+            "/"
+        }
+
         val currentPath = location.pathname + location.search
         console.log(currentPath)
         console.log(newPath)
 
-        if (currentPath != newPath && params.toString().isNotEmpty()) {
-            navigateFunction(newPath)
+        if (currentPath != newPath) {
+            navigate(newPath, jso { replace = false })
         }
     }
 

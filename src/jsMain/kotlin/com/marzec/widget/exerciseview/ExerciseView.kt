@@ -9,7 +9,7 @@ import react.dom.html.ReactHTML.img
 import react.useState
 
 val ExerciseRowView = FC<ExerciseRowViewProps> { props ->
-    val (exercise, _) = useState(props.exercise)
+    val exercise = props.exercise
 
     val imageUrl = exercise.animationUrl ?: exercise.imageUrl
 
