@@ -12,12 +12,36 @@ object ApiPath {
 
     private const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION"
 
-    const val MARK_AS_TO_DO = "$API_ROOT/tasks/mark-as-to-do"
+
+    const val TASKS = "$API_ROOT/tasks"
+    const val ADD_TASK = "$API_ROOT/tasks"
     const val UPDATE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
     const val DELETE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
     const val DELETE_TASK_WITH_SUBTASKS = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}/removeWithSubtasks"
 
-    const val TASKS = "$API_ROOT/tasks"
+    const val MARK_AS_TO_DO = "$API_ROOT/tasks/mark-as-to-do"
     const val COPY_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}/copy"
-    const val ADD_TASK = "$API_ROOT/tasks"
 }
+
+/**
+TODO TODO TASKS unify endpoints:
+DELETE_TASK_WITH_SUBTASKS
+$API_ROOT/tasks/{${Api.Args.ARG_ID}}/removeWithSubtasks -> removeWithSubtasks as query Param ?removeWithSubtasks=true
+default = false
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+GET_BY_ID
+get by id -
+LACKED -> "$API_ROOT/tasks/{${Api.Args.ARG_ID}}
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+UPDATE use updater, think how to keep old/new functionality
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+ */

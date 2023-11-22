@@ -42,3 +42,62 @@ object ApiPath {
 
     const val LOAD_DATA = "$API_ROOT/force-load"
 }
+/**
+TODO FITEO unify endpoints:
+CATEGORIES
+get by id -
+LACKED -> "$API_ROOT/categories/{$ARG_ID}"
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+
+EQUIPMENT
+get by id -
+LACKED -> "$API_ROOT/categories/{$ARG_ID}"
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+
+
+TRAINING_TEMPLATES
+get all - ok
+
+post -
+$API_ROOT/trainings/template -> $API_ROOT/trainings/templates
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+get by id -
+LACKED -> "$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}"
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+update - update by map?
+$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+remove -
+$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+CREATE_TRAINING
+const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
+TO
+const val TRAINING = "$API_ROOT/trainings"
+ {
+    val templateId: Int
+ }
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+TRAINING
+UPDATE use updater, think how to keep old/new functionality
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+ */
