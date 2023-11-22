@@ -42,11 +42,15 @@ val ExerciseList = FC {
         val params = URLSearchParams(queries)
         val searchText = state.data.searchText
         if (searchText.isNotEmpty()) {
-            params.append("query", searchText)
+            params.set("query", searchText)
+        } else {
+            params.delete("query")
         }
         val filters = state.data.checkedFilters.joinToString(",")
         if (filters.isNotEmpty()) {
-            params.append("filters", filters)
+            params.set("filters", filters)
+        } else {
+            params.delete("filters")
         }
         val newPath = if (searchText.isNotEmpty() || filters.isNotEmpty()) {
             "/?$params"
