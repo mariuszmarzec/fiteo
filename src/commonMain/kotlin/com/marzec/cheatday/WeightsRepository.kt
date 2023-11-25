@@ -7,6 +7,8 @@ interface WeightsRepository {
 
     fun getWeights(userId: Int): List<Weight>
 
+    fun getWeight(userId: Int, weightId: Int): Weight
+
     fun addWeight(userId: Int, weight: Float, date: LocalDateTime): Weight
 
     fun removeWeight(userId: Int, weightId: Int): Weight

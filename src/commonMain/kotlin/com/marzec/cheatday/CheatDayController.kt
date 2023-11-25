@@ -21,6 +21,15 @@ class CheatDayController(
         }
     }
 
+    fun getWeight(request: HttpRequest<Unit>): HttpResponse<WeightDto> {
+        return serviceCall {
+            cheatDayService.getWeight(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(Api.Args.ARG_ID)
+            ).toDto()
+        }
+    }
+
     fun putWeight(request: HttpRequest<PutWeightDto>): HttpResponse<WeightDto> {
         return serviceCall {
             cheatDayService.putWeight(

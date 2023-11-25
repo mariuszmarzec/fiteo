@@ -13,9 +13,13 @@ object ApiPath {
     const val API_ROOT = "/$APPLICATION_NAME/$API/$CURRENT_API_VERSION/"
 
     const val WEIGHTS = "$API_ROOT/weights"
+    const val WEIGHT_BY_ID = "$API_ROOT/weights/{$ARG_ID}"
+    @Deprecated("")
     const val WEIGHT = "$API_ROOT/weight"
-    const val UPDATE_WEIGHT = "$API_ROOT/weight/{$ARG_ID}"
-    const val REMOVE_WEIGHT = "$API_ROOT/weight/{$ARG_ID}"
+    @Deprecated("")
+    const val UPDATE_WEIGHT_DEPRECATED = "$API_ROOT/weight/{$ARG_ID}"
+    @Deprecated("")
+    const val REMOVE_WEIGHT_DEPRECATED = "$API_ROOT/weight/{$ARG_ID}"
 
 }
 
@@ -25,13 +29,13 @@ get all - ok
 
 post -
 "$API_ROOT/weight" -> "$API_ROOT/weights"
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
 get by id -
 LACKED -> "$API_ROOT/weights/{$ARG_ID}"
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
@@ -43,7 +47,7 @@ remove deprecated NOT_DONE
 
 remove -
 "$API_ROOT/weights/{$ARG_ID}" -> "$API_ROOT/weights/{$ARG_ID}"
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
  */

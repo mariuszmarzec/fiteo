@@ -26,6 +26,12 @@ class WeightsRepositoryImpl(private val database: Database) : WeightsRepository 
         }
     }
 
+    override fun getWeight(userId: Int, weightId: Int): Weight = database.dbCall {
+        val weightEntity = WeightEntity.findByIdOrThrow(weightId)
+        weightEntity.belongsToUserOrThrow(userId)
+        weightEntity.toDomain()
+    }
+
     override fun addWeight(userId: Int, weight: Float, date: LocalDateTime): Weight {
         return database.dbCall {
             WeightEntity.new {
