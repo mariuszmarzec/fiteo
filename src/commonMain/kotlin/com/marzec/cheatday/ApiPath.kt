@@ -41,7 +41,7 @@ remove deprecated NOT_DONE
 
 update - UPDATE MAP?
 "$API_ROOT/weights/{$ARG_ID}" -> "$API_ROOT/weights/{$ARG_ID}"
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 

@@ -1,8 +1,8 @@
 package com.marzec
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.marzec.cheatday.ApiPath
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
@@ -101,7 +101,7 @@ class CheatDayTest {
                 addWeight(weightDto3)
             },
             runRequestsAfter = {
-                Truth.assertThat(getWeights()).isEqualTo(
+                assertThat(getWeights()).isEqualTo(
                     listOf(
                         weightDto3,
                         weightDto
@@ -126,7 +126,7 @@ class CheatDayTest {
                 addWeight(weightDto3)
             },
             runRequestsAfter = {
-                Truth.assertThat(getWeights()).isEqualTo(
+                assertThat(getWeights()).isEqualTo(
                     listOf(
                         weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
                         weightDto3,
@@ -150,7 +150,7 @@ class CheatDayTest {
                 addWeight(weightDto3)
             },
             runRequestsAfter = {
-                Truth.assertThat(getWeights()).isEqualTo(
+                assertThat(getWeights()).isEqualTo(
                     listOf(
                         weightDto3,
                         weightDto
@@ -163,8 +163,13 @@ class CheatDayTest {
     @Test
     fun updateWeight() {
         testPatchEndpoint(
-            uri = ApiPath.WEIGHT_BY_ID,
-            dto = weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
+            uri = ApiPath.WEIGHT_BY_ID.replace("{id}", "2"),
+            dto = """
+                {
+                    "value": 63.2f,
+                    "date": "2021-05-18T07:20:30"
+                }
+            """.trimIndent(),
             status = HttpStatusCode.OK,
             responseDto = weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -174,7 +179,7 @@ class CheatDayTest {
                 addWeight(weightDto3)
             },
             runRequestsAfter = {
-                Truth.assertThat(getWeights()).isEqualTo(
+                assertThat(getWeights()).isEqualTo(
                     listOf(
                         weightDto2.copy(value = 63.2f, date = "2021-05-18T07:20:30"),
                         weightDto3,

@@ -1,5 +1,6 @@
 package com.marzec.cheatday
 
+import com.marzec.cheatday.domain.UpdateWeight
 import com.marzec.cheatday.domain.Weight
 import kotlinx.datetime.LocalDateTime
 
@@ -24,4 +25,7 @@ class CheatDayService(
     fun updateWeight(userId: Int, weight: Weight): Weight {
         return weightsRepository.updateWeight(userId, weight)
     }
+
+    fun updateWeight(userId: Int, weightId: Int, weight: UpdateWeight): Weight =
+        weightsRepository.updateWeight(userId, weightId, weight)
 }

@@ -34,7 +34,7 @@ fun Route.putWeight(api: CheatDayController) = postEndpoint(ApiPath.WEIGHTS, api
 fun Route.removeWeightDeprecated(api: CheatDayController) = deleteByIdEndpoint(ApiPath.REMOVE_WEIGHT_DEPRECATED, api::removeWeight)
 
 @Deprecated("")
-fun Route.updateWeightDeprecated(api: CheatDayController) = updateByIdEndpoint(ApiPath.UPDATE_WEIGHT_DEPRECATED, api::updateWeight)
+fun Route.updateWeightDeprecated(api: CheatDayController) = updateByIdEndpoint(ApiPath.UPDATE_WEIGHT_DEPRECATED, api::updateWeightDeprecated)
 
 fun Route.removeWeight(api: CheatDayController) = deleteByIdEndpoint(ApiPath.WEIGHT_BY_ID, api::removeWeight)
 

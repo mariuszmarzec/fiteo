@@ -1,5 +1,6 @@
 package com.marzec.cheatday
 
+import com.marzec.cheatday.domain.UpdateWeight
 import com.marzec.cheatday.domain.Weight
 import kotlinx.datetime.LocalDateTime
 
@@ -14,4 +15,6 @@ interface WeightsRepository {
     fun removeWeight(userId: Int, weightId: Int): Weight
 
     fun updateWeight(userId: Int, weight: Weight): Weight
+
+    fun updateWeight(userId: Int, weightId: Int, weight: UpdateWeight): Weight
 }
