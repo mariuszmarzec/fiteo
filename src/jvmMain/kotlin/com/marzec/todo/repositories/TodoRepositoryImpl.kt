@@ -94,13 +94,6 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         TaskEntity.findByIdIfBelongsToUserOrThrow(userId, id).toDomain()
     }
 
-    override fun removeTask(userId: Int, taskId: Int): Task = database.dbCall {
-        val taskEntity = TaskEntity.findByIdOrThrow(taskId)
-        val task = taskEntity.toDomain()
-        removeInternal(taskEntity, userId, removeWithSubtasks = false)
-        task
-    }
-
     override fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task = database.dbCall {
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         val task = taskEntity.toDomain()

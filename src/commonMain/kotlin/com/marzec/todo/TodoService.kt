@@ -32,8 +32,6 @@ class TodoService(
 
     fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = repository.updateTask(userId, taskId, task)
 
-    fun removeTask(userId: Int, taskId: Int): Task = repository.removeTask(userId, taskId)
-
     fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task =
         repository.removeTask(userId, taskId, removeWithSubtasks)
 

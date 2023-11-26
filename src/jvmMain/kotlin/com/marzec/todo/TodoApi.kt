@@ -25,7 +25,8 @@ fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(ApiPath.UPDATE
 
 fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
 
-fun Route.removeTaskWithSubtasks(api: ToDoApiController) = postEndpoint(ApiPath.DELETE_TASK_WITH_SUBTASKS, api::removeTaskWithSubtask)
+@Deprecated("")
+fun Route.removeTaskWithSubtasks(api: ToDoApiController) = postEndpoint(ApiPath.DELETE_TASK_WITH_SUBTASKS_DEPRECATED, api::removeTaskWithSubtask)
 
 fun Route.tasks(api: ToDoApiController) = getAllEndpoint(ApiPath.TASKS, api::getTasks)
 

@@ -58,7 +58,8 @@ class ToDoApiController(
     fun removeTask(request: HttpRequest<Unit>): HttpResponse<TaskDto> = serviceCall {
         service.removeTask(
             userId = request.userIdOrThrow(),
-            taskId = request.getIntOrThrow(Api.Args.ARG_ID)
+            taskId = request.getIntOrThrow(Api.Args.ARG_ID),
+            removeWithSubtasks = request.removeWithSubtasks(),
         ).toDto()
     }
 
@@ -78,6 +79,9 @@ class ToDoApiController(
         ).map { it.toDto() }
     }
 }
+
+private fun <T> HttpRequest<T>.removeWithSubtasks(): Boolean =
+    queries["removeWithSubtasks"]?.first()?.toBooleanStrictOrNull() ?: false
 
 class TaskConstraints {
 

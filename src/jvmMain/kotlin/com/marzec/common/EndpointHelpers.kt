@@ -16,6 +16,7 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
+import io.ktor.util.*
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KFunction1
 
@@ -43,7 +44,8 @@ inline fun <reified T : Any> Route.getByIdEndpoint(
             parameters = mapOf(
                 Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
             ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+            queries = call.request.queryParameters.toMap()
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -70,7 +72,8 @@ inline fun <reified T : Any> Route.deleteByIdEndpoint(
             parameters = mapOf(
                 Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
             ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+            queries = call.request.queryParameters.toMap()
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -86,7 +89,8 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
         val httpRequest = HttpRequest(
             data = dto,
             parameters = mapOf(Api.Args.ARG_ID to id),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+            queries = call.request.queryParameters.toMap()
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -104,7 +108,8 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
             parameters = mapOf(
                 Api.Args.ARG_ID to id,
             ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString())
+            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+            queries = call.request.queryParameters.toMap()
         )
         dispatch(apiFunRef(httpRequest))
     }
@@ -124,5 +129,5 @@ inline fun <reified T : Any> Route.getBySessionEndpoint(
 fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
     data = Unit,
     parameters = emptyMap(),
-    sessions = mapOf(Api.Args.ARG_USER_ID to userId.toString())
+    sessions = mapOf(Api.Args.ARG_USER_ID to userId.toString()),
 )
