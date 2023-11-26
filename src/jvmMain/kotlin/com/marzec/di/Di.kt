@@ -197,3 +197,5 @@ val MainModule = module {
         )
     }
 }
+
+var diModules = listOf(MainModule)

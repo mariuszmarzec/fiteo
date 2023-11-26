@@ -6,6 +6,7 @@ import com.marzec.Api.Headers
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.database.DbSettings
 import com.marzec.di.MainModule
+import com.marzec.di.diModules
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.io.ExercisesReader
@@ -102,10 +103,7 @@ fun <T> withMockTestApplication(
         setupDb()
     }
 
-    val diModules = MainModule.plus(module { mockConfiguration() })
-
-    KoinPlatformTools.defaultContext().getOrNull()?.close()
-    startKoin { modules(diModules) }.koin
+    diModules = MainModule.plus(module { mockConfiguration() })
 
     testApplication {
         test()

@@ -16,6 +16,7 @@ import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.MainModule
+import com.marzec.di.diModules
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.fiteoApi
@@ -128,7 +129,7 @@ fun Application.configuration(di: Di) {
 
     install(Koin) {
         slf4jLogger(level = org.koin.core.logger.Level.ERROR)
-        modules(MainModule)
+        modules(diModules)
     }
 
     install(DefaultHeaders)
