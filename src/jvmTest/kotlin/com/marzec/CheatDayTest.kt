@@ -55,7 +55,7 @@ class CheatDayTest {
     @Test
     fun getWeightById() {
         testGetEndpoint(
-            uri = ApiPath.WEIGHT_BY_ID.replace("{id}", "2"),
+            uri = ApiPath.WEIGHT_BY_ID.replace("{id}", "1"),
             status = HttpStatusCode.OK,
             responseDto = weightDto,
             authorize = ApplicationTestBuilder::registerAndLogin,
