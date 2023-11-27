@@ -1,10 +1,6 @@
 package com.marzec.todo
 
-import com.marzec.common.deleteByIdEndpoint
-import com.marzec.common.getAllEndpoint
-import com.marzec.common.getByIdEndpoint
-import com.marzec.common.postEndpoint
-import com.marzec.common.updateByIdEndpoint
+import com.marzec.common.*
 import com.marzec.di.Di
 import io.ktor.server.auth.*
 import io.ktor.server.routing.Route
@@ -21,7 +17,11 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
     }
 }
 
-fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(ApiPath.UPDATE_TASK, api::updateTask)
+fun Route.updateTask(api: ToDoApiController) = updateByIdEndpointMigrationHelper(
+    path = ApiPath.UPDATE_TASK,
+    apiFunRef = api::updateTask,
+    apiFunRefForV2 = api::updateTask2
+)
 
 fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
 

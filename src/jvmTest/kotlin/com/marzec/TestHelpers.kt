@@ -33,6 +33,7 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
@@ -156,11 +157,13 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     responseDto: RESPONSE,
     crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    headers: Map<String, String> = mapOf()
 ) = testEndpoint<REQUEST, RESPONSE>(
     method = method,
     uri = uri,
     dto = dto,
+    headers = headers,
     status = status,
     responseDtoCheck = { assertThat(it).isEqualTo(responseDto) },
     authorize = authorize,
@@ -176,13 +179,15 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     crossinline responseDtoCheck: (RESPONSE?) -> Unit,
     crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
-    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    headers: Map<String, String> = mapOf(),
 ) {
     withDefaultMockTestApplication {
         authToken = authorize()
         runRequestsBefore()
         this.client.request(uri) {
             this.method = method
+            headers.forEach { this.headers.append(it.key, it.value) }
             dto?.let { setBodyJson(it) }
             authToken?.let { header(Headers.AUTHORIZATION, it) }
         }.let { response ->
@@ -256,6 +261,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
     dto: REQUEST,
     status: HttpStatusCode,
     responseDto: RESPONSE,
+    headers: Map<String, String> = mapOf(),
     crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
@@ -267,7 +273,8 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPatchEndpoint(
     responseDto,
     authorize,
     runRequestsBefore,
-    runRequestsAfter
+    runRequestsAfter,
+    headers
 )
 
 var ApplicationTestBuilder.authToken: String? by FieldProperty<ApplicationTestBuilder, String?> { null }

@@ -34,7 +34,7 @@ FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
 UPDATE use updater, think how to keep old/new functionality
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 

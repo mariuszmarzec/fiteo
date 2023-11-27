@@ -11,13 +11,11 @@ import com.marzec.extensions.update
 import com.marzec.extensions.updateNullable
 import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Exercise
-import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.model.domain.UpdateExercise
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SizedCollection
 import org.jetbrains.exposed.sql.emptySized
 import org.jetbrains.exposed.sql.insertAndGetId
-import kotlin.reflect.KMutableProperty0
 
 class ExercisesRepositoryImpl(private val database: Database) : ExercisesRepository {
 

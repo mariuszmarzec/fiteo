@@ -10,12 +10,8 @@ import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.todo.dto.TaskDto
-import com.marzec.todo.model.CreateTaskDto
-import com.marzec.todo.model.MarkAsToDoDto
-import com.marzec.todo.model.RemoveWithSubtasksDto
-import com.marzec.todo.model.UpdateTaskDto
-import com.marzec.todo.model.toDomain
-import com.marzec.todo.model.toDto
+import com.marzec.todo.model.*
+import kotlinx.serialization.json.JsonElement
 
 class ToDoApiController(
     private val service: TodoService,
@@ -49,6 +45,19 @@ class ToDoApiController(
         )
     ) {
         service.updateTask(
+            userId = request.userIdOrThrow(),
+            taskId = request.getIntOrThrow(Api.Args.ARG_ID),
+            task = request.data.toDomain()
+        ).toDto()
+    }
+
+    fun updateTask2(request: HttpRequest<UpdateTaskDto2>): HttpResponse<TaskDto> = request.serviceCall(
+        constraints = listOf(
+            taskConstraints.taskCantBeOwnParent2,
+            taskConstraints.scheduledTaskCanNotHaveParentDuringUpdate2
+        )
+    ) {
+        service.updateTask2(
             userId = request.userIdOrThrow(),
             taskId = request.getIntOrThrow(Api.Args.ARG_ID),
             task = request.data.toDomain()
@@ -96,6 +105,17 @@ class TaskConstraints {
         }
     )
 
+    val taskCantBeOwnParent2 = constraint<UpdateTaskDto2>(
+        breakingRule = {
+            val taskId = getIntOrThrow(Api.Args.ARG_ID)
+            val newParentTaskId = data.parentTaskId?.value
+            taskId == newParentTaskId
+        },
+        exception = {
+            HttpException("New parent task id couldn't be same as id of updated task", HttpStatus.BAD_REQUEST)
+        }
+    )
+
     val scheduledTaskCanNotHaveParentDuringCreation = constraint<CreateTaskDto>(
         breakingRule = {
             data.scheduler != null && data.parentTaskId != null
@@ -108,6 +128,15 @@ class TaskConstraints {
     val scheduledTaskCanNotHaveParentDuringUpdate = constraint<UpdateTaskDto>(
         breakingRule = {
             data.scheduler != null && data.parentTaskId != null
+        },
+        exception = {
+            HttpException("Scheduled task can't have parent", HttpStatus.BAD_REQUEST)
+        }
+    )
+
+    val scheduledTaskCanNotHaveParentDuringUpdate2 = constraint<UpdateTaskDto2>(
+        breakingRule = {
+            data.scheduler?.value != null && data.parentTaskId?.value != null
         },
         exception = {
             HttpException("Scheduled task can't have parent", HttpStatus.BAD_REQUEST)

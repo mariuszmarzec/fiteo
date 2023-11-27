@@ -8,6 +8,9 @@ import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
 import com.marzec.extensions.ifNull
 import com.marzec.extensions.listOf
+import com.marzec.extensions.update
+import com.marzec.extensions.updateNullable
+import com.marzec.extensions.updateByNullable
 import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
@@ -16,11 +19,9 @@ import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
+import com.marzec.todo.model.UpdateTask2
 import kotlinx.datetime.toJavaLocalDateTime
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.emptySized
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 
 class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
@@ -92,6 +93,21 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
     override fun getTask(userId: Int, id: Int): Task = database.dbCall {
         TaskEntity.findByIdIfBelongsToUserOrThrow(userId, id).toDomain()
+    }
+
+    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask2): Task = database.dbCall {
+        TaskEntity.findByIdOrThrow(taskId).apply {
+            belongsToUserOrThrow(userId)
+            update(this::description, task.description)
+            updateByNullable(this::parents, task.parentTaskId) {
+                it?.let { listOf(TaskEntity.findByIdOrThrow(it)) }.orEmpty().toSized()
+            }
+            update(this::priority, task.priority)
+            update(this::isToDo, task.isToDo)
+            update(this::modifiedTime, currentTime().toJavaLocalDateTime())
+            updateNullable(this::scheduler, task.scheduler)
+
+        }.toDomain()
     }
 
     override fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task = database.dbCall {

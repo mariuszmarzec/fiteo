@@ -42,3 +42,7 @@ fun <T> update(toUpdate: KMutableProperty0<T>, updatedValue: T?) {
 fun <T> updateNullable(toUpdate: KMutableProperty0<T?>, updatedValue: NullableField<T>?) {
     updatedValue?.let { toUpdate.set(it.value) }
 }
+
+fun <T, V> updateByNullable(toUpdate: KMutableProperty0<T>, updatedValue: NullableField<V>?, transform:(V?) -> T) {
+    updatedValue?.let { toUpdate.set(transform(it.value)) }
+}

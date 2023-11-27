@@ -79,6 +79,36 @@ inline fun <reified T : Any> Route.deleteByIdEndpoint(
     }
 }
 
+inline fun <reified REQUEST : Any, reified REQUEST2 : Any, reified RESPONSE : Any> Route.updateByIdEndpointMigrationHelper(
+    path: String,
+    apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>,
+    apiFunRefForV2: KFunction1<HttpRequest<REQUEST2>, HttpResponse<RESPONSE>>
+) {
+    patch(path) {
+        if (call.request.headers.get("Version") == "V2") {
+            val dto = call.receive<REQUEST2>()
+            val id = call.parameters[Api.Args.ARG_ID]
+            val httpRequest = HttpRequest(
+                data = dto,
+                parameters = mapOf(Api.Args.ARG_ID to id),
+                sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+                queries = call.request.queryParameters.toMap()
+            )
+            dispatch(apiFunRefForV2(httpRequest))
+        } else {
+            val dto = call.receive<REQUEST>()
+            val id = call.parameters[Api.Args.ARG_ID]
+            val httpRequest = HttpRequest(
+                data = dto,
+                parameters = mapOf(Api.Args.ARG_ID to id),
+                sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+                queries = call.request.queryParameters.toMap()
+            )
+            dispatch(apiFunRef(httpRequest))
+        }
+    }
+}
+
 inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpoint(
     path: String,
     apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>

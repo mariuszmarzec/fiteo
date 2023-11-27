@@ -4,6 +4,9 @@ import com.marzec.Api
 import com.marzec.Api.Default.HIGHEST_PRIORITY_AS_DEFAULT
 import com.marzec.Api.Default.IS_TO_DO_DEFAULT
 import com.marzec.extensions.formatDate
+import com.marzec.fiteo.model.domain.NullableField
+import com.marzec.fiteo.model.dto.NullableFieldDto
+import com.marzec.fiteo.model.dto.toDomain
 import com.marzec.todo.dto.TaskDto
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
@@ -272,6 +275,14 @@ data class UpdateTask(
     val scheduler: Scheduler?
 )
 
+data class UpdateTask2(
+    val description: String?,
+    val parentTaskId: NullableField<Int>?,
+    val priority: Int?,
+    val isToDo: Boolean?,
+    val scheduler: NullableField<Scheduler>?
+)
+
 @Serializable
 data class UpdateTaskDto(
     val description: String,
@@ -279,7 +290,15 @@ data class UpdateTaskDto(
     val priority: Int,
     val isToDo: Boolean,
     val scheduler: SchedulerDto? = null
+)
 
+@Serializable
+data class UpdateTaskDto2(
+    val description: String? = null,
+    val parentTaskId: NullableFieldDto<Int>? = null,
+    val priority: Int? = null,
+    val isToDo: Boolean? = null,
+    val scheduler: NullableFieldDto<SchedulerDto>? = null
 )
 
 @Serializable
@@ -307,4 +326,12 @@ fun UpdateTask.toDto() = UpdateTaskDto(
     priority = priority,
     isToDo = isToDo,
     scheduler = scheduler?.toDto()
+)
+
+fun UpdateTaskDto2.toDomain() = UpdateTask2(
+    description = description,
+    parentTaskId = parentTaskId?.toDomain(),
+    priority = priority,
+    isToDo = isToDo,
+    scheduler = scheduler?.toDomain { it?.toDomain() }
 )
