@@ -28,6 +28,12 @@ class ControllerImpl(
     override fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
         serviceCall { exercisesService.getCategories().map { it.toDto() } }
 
+    override fun getCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto> = serviceCall {
+        exercisesService.getCategory(
+            id = request.getStringIdOrThrow(),
+        ).toDto()
+    }
+
     override fun deleteCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto> =
         serviceCall { exercisesService.deleteCategory(request.getStringIdOrThrow()).toDto() }
 
@@ -44,6 +50,9 @@ class ControllerImpl(
 
     override fun getEquipment(request: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>> =
         serviceCall { exercisesService.getEquipment().map { it.toDto() } }
+
+    override fun getEquipmentById(request: HttpRequest<Unit>): HttpResponse<EquipmentDto> =
+        serviceCall { exercisesService.getEquipmentById(request.getStringIdOrThrow()).toDto() }
 
     override fun deleteEquipment(request: HttpRequest<Unit>): HttpResponse<EquipmentDto> =
         serviceCall { exercisesService.deleteEquipment(request.getStringIdOrThrow()).toDto() }
@@ -107,6 +116,14 @@ class ControllerImpl(
             trainingService.getTrainingTemplates(
                 request.userIdOrThrow()
             ).map { it.toDto() }
+        }
+
+    override fun getTrainingTemplate(request: HttpRequest<Unit>): HttpResponse<TrainingTemplateDto> =
+        serviceCall {
+            trainingService.getTrainingTemplate(
+                request.userIdOrThrow(),
+                request.getIntOrThrow(Api.Args.ARG_ID)
+            ).toDto()
         }
 
     override fun addTrainingTemplate(

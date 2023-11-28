@@ -7,6 +7,8 @@ interface CategoriesRepository {
 
     fun getAll(): List<Category>
 
+    fun getById(id: String): Category
+
     fun addAll(categories: List<Category>)
 
     fun create(category: Category): Category

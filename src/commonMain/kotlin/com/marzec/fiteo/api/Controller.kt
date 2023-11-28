@@ -22,10 +22,12 @@ interface Controller {
     fun createExercise(request: HttpRequest<CreateExerciseDto>): HttpResponse<ExerciseDto>
     fun updateExercise(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<ExerciseDto>
     fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>>
+    fun getCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto>
     fun deleteCategory(request: HttpRequest<Unit>): HttpResponse<CategoryDto>
     fun createCategory(request: HttpRequest<CategoryDto>): HttpResponse<CategoryDto>
     fun updateCategory(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<CategoryDto>
     fun getEquipment(request: HttpRequest<Unit>): HttpResponse<List<EquipmentDto>>
+    fun getEquipmentById(request: HttpRequest<Unit>): HttpResponse<EquipmentDto>
     fun deleteEquipment(request: HttpRequest<Unit>): HttpResponse<EquipmentDto>
     fun createEquipment(request: HttpRequest<EquipmentDto>): HttpResponse<EquipmentDto>
     fun updateEquipment(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<EquipmentDto>
@@ -34,6 +36,7 @@ interface Controller {
     fun getUsers(request: HttpRequest<Unit>): HttpResponse<List<UserDto>>
     fun postRegister(request: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>
     fun getTrainingTemplates(request: HttpRequest<Unit>): HttpResponse<List<TrainingTemplateDto>>
+    fun getTrainingTemplate(request: HttpRequest<Unit>): HttpResponse<TrainingTemplateDto>
     fun addTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>
     fun updateTrainingTemplate(request: HttpRequest<CreateTrainingTemplateDto>): HttpResponse<TrainingTemplateDto>
     fun removeTrainingTemplate(request: HttpRequest<Unit>): HttpResponse<TrainingTemplateDto>

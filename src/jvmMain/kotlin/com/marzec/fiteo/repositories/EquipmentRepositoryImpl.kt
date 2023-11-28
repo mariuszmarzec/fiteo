@@ -14,6 +14,10 @@ class EquipmentRepositoryImpl(private val database: Database) : EquipmentReposit
         EquipmentEntity.all().map { it.toDomain() }
     }
 
+    override fun getById(id: String): Equipment = database.dbCall {
+        EquipmentEntity.findByIdOrThrow(id).toDomain()
+    }
+
     override fun addAll(equipment: List<Equipment>) = database.dbCall {
         equipment.forEach { equipment ->
             EquipmentTable.insert {

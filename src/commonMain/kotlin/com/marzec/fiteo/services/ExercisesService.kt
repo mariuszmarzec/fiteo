@@ -13,6 +13,7 @@ interface ExercisesService {
     fun getExercise(id: Int): Exercise
     fun deleteExercise(id: Int): Exercise
     fun getCategories(): List<Category>
+    fun getCategory(id: String): Category
     fun createCategory(category: Category): Category
     fun updateCategory(id: String, update: UpdateCategory): Category
     fun deleteCategory(id: String): Category
@@ -20,6 +21,7 @@ interface ExercisesService {
     fun createEquipment(equipment: Equipment): Equipment
     fun updateEquipment(id: String, update: UpdateEquipment): Equipment
     fun deleteEquipment(id: String): Equipment
+    fun getEquipmentById(id: String): Equipment
 }
 
 class ExercisesServiceImpl(
@@ -31,6 +33,9 @@ class ExercisesServiceImpl(
     override fun getExercises(): List<Exercise> = exercisesRepository.getAll()
 
     override fun getCategories(): List<Category> = categoriesRepository.getAll()
+
+    override fun getCategory(id: String): Category = categoriesRepository.getById(id)
+
     override fun createCategory(category: Category): Category = categoriesRepository.create(category)
 
     override fun updateCategory(id: String, update: UpdateCategory): Category = categoriesRepository.update(id, update)
@@ -43,6 +48,8 @@ class ExercisesServiceImpl(
     override fun updateEquipment(id: String, update: UpdateEquipment): Equipment = equipmentRepository.update(id, update)
 
     override fun deleteEquipment(id: String): Equipment = equipmentRepository.delete(id)
+
+    override fun getEquipmentById(id: String): Equipment = equipmentRepository.getById(id)
 
     override fun createExercise(exercise: CreateExercise): Exercise = exercisesRepository.createExercise(exercise)
 

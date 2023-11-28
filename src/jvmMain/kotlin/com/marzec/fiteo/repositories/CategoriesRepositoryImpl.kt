@@ -16,6 +16,10 @@ class CategoriesRepositoryImpl(private val database: Database) : CategoriesRepos
         }
     }
 
+    override fun getById(id: String): Category = database.dbCall {
+        CategoryEntity.findByIdOrThrow(id).toDomain()
+    }
+
     override fun addAll(categories: List<Category>) {
         database.dbCall {
             categories.forEach {

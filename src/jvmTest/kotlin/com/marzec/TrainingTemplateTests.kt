@@ -2,6 +2,7 @@ package com.marzec
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
 import com.marzec.fiteo.model.domain.TrainingTemplateDto
 import com.marzec.fiteo.model.domain.toDto
 import io.ktor.http.HttpStatusCode
@@ -9,6 +10,7 @@ import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
+import kotlin.test.fail
 
 class TrainingTemplateTests {
 
@@ -104,6 +106,18 @@ class TrainingTemplateTests {
     )
 
     @Test
+    @Deprecated("")
+    fun putTemplateDeprecated() {
+        testPostEndpoint(
+            uri = ApiPath.TRAINING_TEMPLATE_DEPRECATED,
+            dto = createTrainingTemplateDto,
+            status = HttpStatusCode.OK,
+            responseDto = trainingTemplateDto,
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
     fun putTemplate() {
         testPostEndpoint(
             uri = ApiPath.TRAINING_TEMPLATE,
@@ -128,9 +142,22 @@ class TrainingTemplateTests {
     }
 
     @Test
+    fun getTemplate() {
+        testGetEndpoint(
+            uri = TRAINING_TEMPLATE_BY_ID.replace("{id}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingTemplateDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            }
+        )
+    }
+
+    @Test
     fun removeTemplate() {
         testDeleteEndpoint(
-            uri = ApiPath.DELETE_TRAINING_TEMPLATES.replace("{id}", "1"),
+            uri = TRAINING_TEMPLATE_BY_ID.replace("{id}", "1"),
             status = HttpStatusCode.OK,
             responseDto = trainingTemplateDto,
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -146,9 +173,49 @@ class TrainingTemplateTests {
     }
 
     @Test
-    fun updateTemplate() {
+    @Deprecated("")
+    fun removeTemplateDeprecated() {
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_TRAINING_TEMPLATES_DEPRECATED.replace("{id}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingTemplateDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTemplates()).isEqualTo(
+                    emptyList<TrainingTemplateDto>()
+                )
+            }
+        )
+    }
+
+    @Test
+    @Deprecated("")
+    fun updateTemplateDeprecated() {
         testPatchEndpoint(
-            uri = ApiPath.UPDATE_TRAINING_TEMPLATES,
+            uri = ApiPath.UPDATE_TRAINING_TEMPLATES_DEPRECATED,
+            dto = updateTrainingTemplateDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTrainingTemplateDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                putTemplate(createTrainingTemplateDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTemplates()).isEqualTo(
+                    listOf(updatedTrainingTemplateDto)
+                )
+            }
+        )
+    }
+
+    @Test
+    fun updateTemplate() {
+        fail("new update")
+        testPatchEndpoint(
+            uri = TRAINING_TEMPLATE_BY_ID,
             dto = updateTrainingTemplateDto,
             status = HttpStatusCode.OK,
             responseDto = updatedTrainingTemplateDto,

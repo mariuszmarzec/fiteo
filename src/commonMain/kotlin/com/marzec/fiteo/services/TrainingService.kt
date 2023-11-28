@@ -28,6 +28,8 @@ interface TrainingService {
     fun removeTraining(userId: Int, trainingId: Int): Training
 
     fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training
+
+    fun getTrainingTemplate(userId: Int, templateId: Int): TrainingTemplate
 }
 
 class TrainingServiceImpl(
@@ -91,4 +93,7 @@ class TrainingServiceImpl(
     override fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training {
         return trainingRepository.updateTraining(userId, trainingId, training)
     }
+
+    override fun getTrainingTemplate(userId: Int, templateId: Int): TrainingTemplate =
+        templateRepository.getTemplate(userId, templateId)
 }

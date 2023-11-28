@@ -27,9 +27,15 @@ object ApiPath {
     const val EQUIPMENT_BY_ID = "$API_ROOT/equipment/{${Api.Args.ARG_ID}}"
 
     const val TRAINING_TEMPLATES = "$API_ROOT/trainings/templates"
-    const val TRAINING_TEMPLATE = "$API_ROOT/trainings/template"
-    const val DELETE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}"
-    const val UPDATE_TRAINING_TEMPLATES = "$API_ROOT/trainings/template"
+    const val TRAINING_TEMPLATE = "$API_ROOT/trainings/templates"
+    const val TRAINING_TEMPLATE_BY_ID = "$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}"
+
+    @Deprecated("")
+    const val TRAINING_TEMPLATE_DEPRECATED = "$API_ROOT/trainings/template"
+    @Deprecated("")
+    const val DELETE_TRAINING_TEMPLATES_DEPRECATED = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}"
+    @Deprecated("")
+    const val UPDATE_TRAINING_TEMPLATES_DEPRECATED = "$API_ROOT/trainings/template"
 
     const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
     const val TRAINING = "$API_ROOT/trainings/{${Api.Args.ARG_ID}}"
@@ -47,14 +53,12 @@ TODO FITEO unify endpoints:
 CATEGORIES
 get by id -
 LACKED -> "$API_ROOT/categories/{$ARG_ID}"
-backend fix - NOT_DONE
-FIX on CLIENTS NOT_DONE
+backend fix - DONE
 
 EQUIPMENT
 get by id -
 LACKED -> "$API_ROOT/categories/{$ARG_ID}"
-backend fix - NOT_DONE
-FIX on CLIENTS NOT_DONE
+backend fix - DONE
 
 
 TRAINING_TEMPLATES
@@ -62,27 +66,23 @@ get all - ok
 
 post -
 $API_ROOT/trainings/template -> $API_ROOT/trainings/templates
-backend fix - NOT_DONE
-FIX on CLIENTS NOT_DONE
-remove deprecated NOT_DONE
-
-get by id -
-LACKED -> "$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}"
-backend fix - NOT_DONE
-FIX on CLIENTS NOT_DONE
-remove deprecated NOT_DONE
-
-update - update by map?
-$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
 remove -
 $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
+
+get by id -
+LACKED -> "$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}"
+backend fix - DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
+------------------------------------------------------------ START FROM BOTTOM
 
 CREATE_TRAINING
 const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
@@ -100,4 +100,13 @@ UPDATE use updater, think how to keep old/new functionality
 backend fix - NOT_DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
+
+HARDEST
+fail("new update")
+update - update by map?
+$API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
+backend fix - NOT_DONE
+FIX on CLIENTS NOT_DONE
+remove deprecated NOT_DONE
+
  */

@@ -42,7 +42,16 @@ class FiteoCoreTest {
             newEquipment
         )
     }
-    
+
+    @Test
+    fun getEquipmentById() {
+        testGetEndpoint(
+            ApiPath.EQUIPMENT_BY_ID.replace("{${Api.Args.ARG_ID}}", equipmentOneDto.id),
+            HttpStatusCode.OK,
+            equipmentOneDto
+        )
+    }
+
     @Test
     fun updateEquipment() {
         testPatchEndpoint(
@@ -75,6 +84,15 @@ class FiteoCoreTest {
             ApiPath.CATEGORIES,
             HttpStatusCode.OK,
             categories.map { it.toDto() }
+        )
+    }
+
+    @Test
+    fun getCategory() {
+        testGetEndpoint(
+            ApiPath.CATEGORY_BY_ID.replace("{${Api.Args.ARG_ID}}", categoryOne.id),
+            HttpStatusCode.OK,
+            categoryOne.toDto()
         )
     }
 

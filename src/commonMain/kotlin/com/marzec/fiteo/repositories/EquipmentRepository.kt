@@ -7,12 +7,12 @@ interface EquipmentRepository {
 
     fun getAll(): List<Equipment>
 
+    fun getById(id: String): Equipment
+
     fun addAll(equipment: List<Equipment>)
 
     fun create(equipment: Equipment): Equipment
 
     fun update(id: String, update: UpdateEquipment): Equipment
-
     fun delete(id: String): Equipment
-
 }

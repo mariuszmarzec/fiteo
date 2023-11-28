@@ -3,6 +3,7 @@ package com.marzec.fiteo
 import com.marzec.Api
 import com.marzec.common.*
 import com.marzec.di.Di
+import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.model.http.HttpRequest
 import io.ktor.server.application.call
@@ -15,9 +16,13 @@ import io.ktor.server.routing.get
 fun Route.fiteoApi(di: Di, api: Controller) {
     authenticate(di.authToken) {
         templates(api)
+        template(api)
         putTemplate(api)
         removeTemplate(api)
         updateTemplate(api)
+        putTemplateDeprecated(api)
+        removeTemplateDeprecated(api)
+        updateTemplateDeprecated(api)
 
         createTraining(api)
         getTraining(api)
@@ -34,11 +39,13 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     exercisesPage()
 
     equipment(api)
+    getEquipment(api)
     createEquipment(api)
     updateEquipment(api)
     deleteEquipment(api)
 
     categories(api)
+    category(api)
     createCategory(api)
     updateCategory(api)
     deleteCategory(api)
@@ -60,13 +67,26 @@ fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING,
 
 fun Route.templates(api: Controller) = getAllEndpoint(ApiPath.TRAINING_TEMPLATES, api::getTrainingTemplates)
 
+fun Route.template(api: Controller) = getByIdEndpoint(ApiPath.TRAINING_TEMPLATE_BY_ID, api::getTrainingTemplate)
+
+@Deprecated("")
+fun Route.putTemplateDeprecated(api: Controller) = postEndpoint(ApiPath.TRAINING_TEMPLATE_DEPRECATED, api::addTrainingTemplate)
+
+@Deprecated("")
+fun Route.removeTemplateDeprecated(api: Controller) =
+    deleteByIdEndpoint(ApiPath.DELETE_TRAINING_TEMPLATES_DEPRECATED, api::removeTrainingTemplate)
+
+@Deprecated("")
+fun Route.updateTemplateDeprecated(api: Controller) =
+    updateByIdEndpoint(ApiPath.UPDATE_TRAINING_TEMPLATES_DEPRECATED, api::updateTrainingTemplate)
+
 fun Route.putTemplate(api: Controller) = postEndpoint(ApiPath.TRAINING_TEMPLATE, api::addTrainingTemplate)
 
 fun Route.removeTemplate(api: Controller) =
-    deleteByIdEndpoint(ApiPath.DELETE_TRAINING_TEMPLATES, api::removeTrainingTemplate)
+    deleteByIdEndpoint(TRAINING_TEMPLATE_BY_ID, api::removeTrainingTemplate)
 
 fun Route.updateTemplate(api: Controller) =
-    updateByIdEndpoint(ApiPath.UPDATE_TRAINING_TEMPLATES, api::updateTrainingTemplate)
+    updateByIdEndpoint(TRAINING_TEMPLATE_BY_ID, api::updateTrainingTemplate)
 
 fun Route.exercises(api: Controller) = getAllEndpoint(ApiPath.EXERCISES, api::getExercises)
 
@@ -89,6 +109,8 @@ fun Route.exercisesPage() {
 
 fun Route.equipment(api: Controller) = getAllEndpoint(ApiPath.EQUIPMENT, api::getEquipment)
 
+fun Route.getEquipment(api: Controller) = getByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::getEquipmentById)
+
 fun Route.createEquipment(api: Controller) = postEndpoint(ApiPath.EQUIPMENT, api::createEquipment)
 
 fun Route.updateEquipment(api: Controller) = updateByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::updateEquipment)
@@ -96,6 +118,8 @@ fun Route.updateEquipment(api: Controller) = updateByIdEndpoint(ApiPath.EQUIPMEN
 fun Route.deleteEquipment(api: Controller) = deleteByIdEndpoint(ApiPath.EQUIPMENT_BY_ID, api::deleteEquipment)
 
 fun Route.categories(api: Controller) = getAllEndpoint(ApiPath.CATEGORIES, api::getCategories)
+
+fun Route.category(api: Controller) = getByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::getCategory)
 
 fun Route.createCategory(api: Controller) = postEndpoint(ApiPath.CATEGORIES, api::createCategory)
 

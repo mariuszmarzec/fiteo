@@ -21,8 +21,6 @@ import com.marzec.fiteo.model.dto.ExerciseDto
 import com.marzec.fiteo.model.dto.ExercisesFileDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
-import com.marzec.fiteo.model.dto.UserDto
-import com.marzec.request
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
@@ -33,15 +31,11 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.flywaydb.core.Flyway
-import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import org.koin.mp.KoinPlatformTools
 import java.util.*
 import kotlin.reflect.KProperty
 import com.marzec.cheatday.ApiPath as CheatApiPath
@@ -397,7 +391,7 @@ suspend inline fun <reified RESPONSE> ApplicationTestBuilder.runGetAllEndpoint(e
     getWithAuth<List<RESPONSE>>(endpointUrl)
 
 suspend fun ApplicationTestBuilder.putTemplate(dto: CreateTrainingTemplateDto) {
-    postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATE, dto)
+    postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATE_DEPRECATED, dto)
 }
 
 suspend fun ApplicationTestBuilder.createTraining(trainingTemplateId: String): TrainingDto =
