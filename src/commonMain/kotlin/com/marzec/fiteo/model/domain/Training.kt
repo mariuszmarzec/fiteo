@@ -40,6 +40,11 @@ data class UpdateTrainingDto(
     val exercisesWithProgress: List<UpdateTrainingExerciseWithProgressDto>
 )
 
+@Serializable
+data class CreateTrainingDto(
+    val templateTrainingId: Int
+)
+
 data class UpdateTrainingExerciseWithProgress(
     val exerciseId: Int,
     val series: List<Series>,

@@ -24,6 +24,7 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         removeTemplateDeprecated(api)
         updateTemplateDeprecated(api)
 
+        createTrainingDeprecated(api)
         createTraining(api)
         getTraining(api)
         getTrainings(api)
@@ -55,7 +56,10 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     }
 }
 
-fun Route.createTraining(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING, api::createTraining)
+@Deprecated("")
+fun Route.createTrainingDeprecated(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING_DEPRECATED, api::createTrainingDeprecated)
+
+fun Route.createTraining(api: Controller) = postEndpoint(ApiPath.TRAININGS, api::createTraining)
 
 fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
 

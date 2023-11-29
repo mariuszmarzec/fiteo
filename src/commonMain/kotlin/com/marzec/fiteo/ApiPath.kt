@@ -37,7 +37,8 @@ object ApiPath {
     @Deprecated("")
     const val UPDATE_TRAINING_TEMPLATES_DEPRECATED = "$API_ROOT/trainings/template"
 
-    const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
+    @Deprecated("")
+    const val CREATE_TRAINING_DEPRECATED = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
     const val TRAINING = "$API_ROOT/trainings/{${Api.Args.ARG_ID}}"
     const val TRAININGS = "$API_ROOT/trainings"
 
@@ -82,7 +83,6 @@ backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
------------------------------------------------------------- START FROM BOTTOM
 
 CREATE_TRAINING
 const val CREATE_TRAINING = "$API_ROOT/trainings/template/{${Api.Args.ARG_ID}}/create-training"
@@ -91,9 +91,12 @@ const val TRAINING = "$API_ROOT/trainings"
  {
     val templateId: Int
  }
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
+
+------------------------------------------------------------ START FROM BOTTOM
+
 
 TRAINING
 UPDATE use updater, think how to keep old/new functionality

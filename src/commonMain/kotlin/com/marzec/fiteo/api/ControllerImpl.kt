@@ -154,10 +154,17 @@ class ControllerImpl(
             ).toDto()
         }
 
-    override fun createTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
+    override fun createTrainingDeprecated(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {
         trainingService.createTraining(
             request.userIdOrThrow(),
             request.getIntOrThrow(Api.Args.ARG_ID)
+        ).toDto()
+    }
+
+    override fun createTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto> = serviceCall {
+        trainingService.createTraining(
+            request.userIdOrThrow(),
+            request.data.templateTrainingId
         ).toDto()
     }
 

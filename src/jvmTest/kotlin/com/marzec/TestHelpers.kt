@@ -142,6 +142,25 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
     runRequestsAfter
 )
 
+inline fun <reified REQUEST : Any, reified RESPONSE : Any> testPostEndpoint(
+    uri: String,
+    dto: REQUEST,
+    status: HttpStatusCode,
+    crossinline responseDtoCheck: (RESPONSE?) -> Unit,
+    crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
+    crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
+    crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda
+) = testEndpoint(
+    HttpMethod.Post,
+    uri,
+    dto,
+    status,
+    responseDtoCheck,
+    authorize,
+    runRequestsBefore,
+    runRequestsAfter
+)
+
 
 inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     method: HttpMethod,
@@ -396,7 +415,7 @@ suspend fun ApplicationTestBuilder.putTemplate(dto: CreateTrainingTemplateDto) {
 
 suspend fun ApplicationTestBuilder.createTraining(trainingTemplateId: String): TrainingDto =
     getWithAuth(
-        ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", trainingTemplateId)
+        ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", trainingTemplateId)
     )
 
 suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =

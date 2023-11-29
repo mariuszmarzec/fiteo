@@ -3,6 +3,7 @@ package com.marzec
 import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.model.domain.CreateTrainingDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.ErrorDto
@@ -133,9 +134,45 @@ class TrainingTests {
     )
 
     @Test
-    fun createTraining() {
+    @Deprecated("")
+    fun createTrainingDeprecated() {
         testGetEndpoint(
-            uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            uri = ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+            }
+        )
+    }
+
+    @Test
+    @Deprecated("")
+    fun createTraining_doNotCreateTrainingInCaseOfErrorDeprecated() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.InternalServerError,
+            responseDtoCheck = {
+                assertThat(it).isInstanceOf(ErrorDto::class.java)
+                assertThat((it as ErrorDto).reason).contains("No exercise for training part with: 1")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto2)
+            }, runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
+            }
+        )
+    }
+
+    @Test
+    fun createTraining() {
+        testPostEndpoint(
+            uri = ApiPath.TRAININGS,
+            dto = CreateTrainingDto(1),
             status = HttpStatusCode.OK,
             responseDto = trainingDto,
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -148,8 +185,9 @@ class TrainingTests {
 
     @Test
     fun createTraining_doNotCreateTrainingInCaseOfError() {
-        testGetEndpointCheck<ErrorDto>(
-            uri = ApiPath.CREATE_TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+        testPostEndpoint<CreateTrainingDto, ErrorDto>(
+            uri = ApiPath.TRAININGS,
+            dto = CreateTrainingDto(1),
             status = HttpStatusCode.InternalServerError,
             responseDtoCheck = {
                 assertThat(it).isInstanceOf(ErrorDto::class.java)
