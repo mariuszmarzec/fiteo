@@ -213,7 +213,6 @@ class TrainingTemplateTests {
 
     @Test
     fun updateTemplate() {
-        fail("new update")
         testPatchEndpoint(
             uri = TRAINING_TEMPLATE_BY_ID,
             dto = updateTrainingTemplateDto,

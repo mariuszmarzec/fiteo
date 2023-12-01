@@ -95,20 +95,9 @@ backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
------------------------------------------------------------- START FROM BOTTOM
 
-
-TRAINING
-UPDATE use updater, think how to keep old/new functionality
-backend fix - NOT_DONE
-FIX on CLIENTS NOT_DONE
-remove deprecated NOT_DONE
-
-HARDEST
-fail("new update")
-update - update by map?
 $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}" -> $API_ROOT/trainings/templates/{${Api.Args.ARG_ID}}
-backend fix - NOT_DONE
+backend fix - DONE
 FIX on CLIENTS NOT_DONE
 remove deprecated NOT_DONE
 
