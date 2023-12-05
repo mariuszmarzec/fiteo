@@ -7,9 +7,7 @@ import com.marzec.fiteo.model.dto.NullableFieldDto
 import com.marzec.todo.ApiPath
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.MarkAsToDoDto
-import com.marzec.todo.model.RemoveWithSubtasksDto
 import com.marzec.todo.model.UpdateTaskDto
-import com.marzec.todo.model.UpdateTaskDto2
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
 import org.junit.After
@@ -307,9 +305,9 @@ class TodoTests {
                 addTask(createTaskDto)
                 addTask(createTaskDto)
                 addTask(createTaskDto)
-                updateTask("1", stubUpdateTaskDto(description = "task", isToDo = false))
-                updateTask("2", stubUpdateTaskDto(description = "task", isToDo = false))
-                updateTask("3", stubUpdateTaskDto(description = "task", isToDo = false))
+                updateTask("1", UpdateTaskDto(description = "task", isToDo = false))
+                updateTask("2", UpdateTaskDto(description = "task", isToDo = false))
+                updateTask("3", UpdateTaskDto(description = "task", isToDo = false))
             },
         )
     }
@@ -337,109 +335,6 @@ class TodoTests {
             }
         )
     }
-
-    @Test
-    @Deprecated("")
-    fun removeTaskWithSubtasksDeprecated() {
-        testPostEndpoint(
-            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
-            dto = RemoveWithSubtasksDto(
-                removeWithSubtasks = true
-            ),
-            status = HttpStatusCode.OK,
-            responseDto = taskDto.copy(
-                subTasks = listOf(
-                    taskDto.copy(id = 2, parentTaskId = 1),
-                    taskDto.copy(id = 3, parentTaskId = 1)
-                )
-            ),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(createTaskDto)
-                addTask(createTaskDto.copy(parentTaskId = 1))
-                addTask(createTaskDto.copy(parentTaskId = 1))
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(emptyList<TaskDto>())
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun removeTaskWithSubtasks_removeSubtasksFalseDeprecated() {
-        testPostEndpoint(
-            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
-            dto = RemoveWithSubtasksDto(
-                removeWithSubtasks = false
-            ),
-            status = HttpStatusCode.OK,
-            responseDto = taskDto.copy(
-                subTasks = listOf(
-                    taskDto.copy(id = 2, parentTaskId = 1),
-                    taskDto.copy(id = 3, parentTaskId = 1)
-                )
-            ),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(createTaskDto)
-                addTask(createTaskDto.copy(parentTaskId = 1))
-                addTask(createTaskDto.copy(parentTaskId = 1))
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        taskDto.copy(id = 2),
-                        taskDto.copy(id = 3)
-                    )
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun removeTaskWithSubtasks_removeChildWithoutRemovingSubtasksDeprecated() {
-        testPostEndpoint(
-            uri = ApiPath.DELETE_TASK_WITH_SUBTASKS_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = RemoveWithSubtasksDto(
-                removeWithSubtasks = false
-            ),
-            status = HttpStatusCode.OK,
-            responseDto = taskDto.copy(
-                id = 2,
-                parentTaskId = 1,
-                subTasks = listOf(
-                    taskDto.copy(id = 3, parentTaskId = 2),
-                    taskDto.copy(id = 4, parentTaskId = 2, isToDo = false)
-                )
-            ),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(createTaskDto)
-                addTask(createTaskDto.copy(parentTaskId = 1))
-                addTask(createTaskDto.copy(parentTaskId = 2))
-                addTask(createTaskDto.copy(parentTaskId = 2, isToDo = false))
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        taskDto.copy(
-                            id = 1,
-                            subTasks = listOf(
-                                taskDto.copy(id = 3, parentTaskId = 1),
-                                taskDto.copy(id = 4, parentTaskId = 1, isToDo = false)
-                            )
-                        )
-                    )
-                )
-            }
-        )
-    }
-
 
     @Test
     fun removeTaskWithSubtasks() {
@@ -535,7 +430,7 @@ class TodoTests {
     fun updateTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
-            dto = UpdateTaskDto2(
+            dto = UpdateTaskDto(
                 description = "updated task",
                 parentTaskId = NullableFieldDto(null),
                 priority = 10,
@@ -575,7 +470,7 @@ class TodoTests {
     fun updateTask_pinToParentTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = UpdateTaskDto2(
+            dto = UpdateTaskDto(
                 description=  "task2",
                 parentTaskId = NullableFieldDto(1)
             ),
@@ -614,7 +509,7 @@ class TodoTests {
     fun updateTask_unpinFromParentTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = UpdateTaskDto2(
+            dto = UpdateTaskDto(
                 description = "task2",
                 parentTaskId = NullableFieldDto(null)
             ),
@@ -653,143 +548,11 @@ class TodoTests {
     fun updateTask_scheduledTaskCanNotHaveParent() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = UpdateTaskDto2(
+            dto = UpdateTaskDto(
                 parentTaskId = NullableFieldDto(1),
                 scheduler = NullableFieldDto(schedulerMonthlyDto)
             ),
             headers = mapOf("Version" to "V2"),
-            status = HttpStatusCode.BadRequest,
-            responseDto = ErrorDto("Scheduled task can't have parent"),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(createTaskDto)
-                addTask(createTaskDto)
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(listOf(taskDto, taskDto.copy(id = 2)))
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun updateTaskDeprecated() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
-            dto = UpdateTaskDto(
-                description = "updated task",
-                parentTaskId = null,
-                priority = 10,
-                isToDo = false,
-                scheduler = schedulerWeeklyDto
-            ),
-            status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(
-                description = "updated task",
-                priority = 10,
-                isToDo = false,
-                scheduler = schedulerWeeklyDto
-            ),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(createTaskDto)
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        taskDto.copy(
-                            description = "updated task",
-                            parentTaskId = null,
-                            priority = 10,
-                            isToDo = false,
-                            scheduler = schedulerWeeklyDto
-                        )
-                    )
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun updateTask_pinToParentTaskDeprecated() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = stubUpdateTaskDto(description = "task2", parentTaskId = 1),
-            status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = 1),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(stubCreateTaskDto("task", null, 0))
-                addTask(stubCreateTaskDto("task2", null, 0))
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        stubTaskDto(id = 1, description = "task"),
-                        stubTaskDto(id = 2, description = "task2")
-                    )
-                )
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        stubTaskDto(
-                            id = 1,
-                            description = "task",
-                            subTasks = listOf(
-                                stubTaskDto(id = 2, description = "task2", parentTaskId = 1)
-                            )
-                        )
-                    )
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun updateTask_unpinFromParentTaskDeprecated() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = stubUpdateTaskDto(description = "task2", parentTaskId = null),
-            status = HttpStatusCode.OK,
-            responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = null),
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                addTask(stubCreateTaskDto("task", null, 0))
-                addTask(stubCreateTaskDto("task2", 1, 0))
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        stubTaskDto(
-                            id = 1,
-                            description = "task",
-                            subTasks = listOf(
-                                stubTaskDto(id = 2, description = "task2", parentTaskId = 1)
-                            )
-                        )
-                    )
-                )
-            },
-            runRequestsAfter = {
-                assertThat(getTasks()).isEqualTo(
-                    listOf(
-                        stubTaskDto(id = 1, description = "task"),
-                        stubTaskDto(id = 2, description = "task2")
-                    )
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun updateTask_scheduledTaskCanNotHaveParentDeprecated() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = stubUpdateTaskDto(parentTaskId = 1, scheduler = schedulerMonthlyDto),
             status = HttpStatusCode.BadRequest,
             responseDto = ErrorDto("Scheduled task can't have parent"),
             authorize = ApplicationTestBuilder::registerAndLogin,

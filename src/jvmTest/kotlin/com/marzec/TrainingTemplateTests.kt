@@ -106,18 +106,6 @@ class TrainingTemplateTests {
     )
 
     @Test
-    @Deprecated("")
-    fun putTemplateDeprecated() {
-        testPostEndpoint(
-            uri = ApiPath.TRAINING_TEMPLATE_DEPRECATED,
-            dto = createTrainingTemplateDto,
-            status = HttpStatusCode.OK,
-            responseDto = trainingTemplateDto,
-            authorize = ApplicationTestBuilder::registerAndLogin
-        )
-    }
-
-    @Test
     fun putTemplate() {
         testPostEndpoint(
             uri = ApiPath.TRAINING_TEMPLATE,
@@ -167,45 +155,6 @@ class TrainingTemplateTests {
             runRequestsAfter = {
                 assertThat(getTemplates()).isEqualTo(
                     emptyList<TrainingTemplateDto>()
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun removeTemplateDeprecated() {
-        testDeleteEndpoint(
-            uri = ApiPath.DELETE_TRAINING_TEMPLATES_DEPRECATED.replace("{id}", "1"),
-            status = HttpStatusCode.OK,
-            responseDto = trainingTemplateDto,
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                putTemplate(createTrainingTemplateDto)
-            },
-            runRequestsAfter = {
-                assertThat(getTemplates()).isEqualTo(
-                    emptyList<TrainingTemplateDto>()
-                )
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun updateTemplateDeprecated() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TRAINING_TEMPLATES_DEPRECATED,
-            dto = updateTrainingTemplateDto,
-            status = HttpStatusCode.OK,
-            responseDto = updatedTrainingTemplateDto,
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                putTemplate(createTrainingTemplateDto)
-            },
-            runRequestsAfter = {
-                assertThat(getTemplates()).isEqualTo(
-                    listOf(updatedTrainingTemplateDto)
                 )
             }
         )

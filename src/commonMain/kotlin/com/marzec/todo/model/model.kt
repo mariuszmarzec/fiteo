@@ -268,32 +268,15 @@ fun CreateTask.toDto() = CreateTaskDto(
 )
 
 data class UpdateTask(
-    val description: String,
-    val parentTaskId: Int?,
-    val priority: Int,
-    val isToDo: Boolean,
-    val scheduler: Scheduler?
-)
-
-data class UpdateTask2(
-    val description: String?,
-    val parentTaskId: NullableField<Int>?,
-    val priority: Int?,
-    val isToDo: Boolean?,
-    val scheduler: NullableField<Scheduler>?
+    val description: String? = null,
+    val parentTaskId: NullableField<Int>? = null,
+    val priority: Int? = null,
+    val isToDo: Boolean? = null,
+    val scheduler: NullableField<Scheduler>? = null
 )
 
 @Serializable
 data class UpdateTaskDto(
-    val description: String,
-    val parentTaskId: Int? = null,
-    val priority: Int,
-    val isToDo: Boolean,
-    val scheduler: SchedulerDto? = null
-)
-
-@Serializable
-data class UpdateTaskDto2(
     val description: String? = null,
     val parentTaskId: NullableFieldDto<Int>? = null,
     val priority: Int? = null,
@@ -307,28 +290,7 @@ data class MarkAsToDoDto(
     val taskIds: List<Int>,
 )
 
-@Serializable
-data class RemoveWithSubtasksDto(
-    val removeWithSubtasks: Boolean
-)
-
 fun UpdateTaskDto.toDomain() = UpdateTask(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo,
-    scheduler = scheduler?.toDomain()
-)
-
-fun UpdateTask.toDto() = UpdateTaskDto(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo,
-    scheduler = scheduler?.toDto()
-)
-
-fun UpdateTaskDto2.toDomain() = UpdateTask2(
     description = description,
     parentTaskId = parentTaskId?.toDomain(),
     priority = priority,

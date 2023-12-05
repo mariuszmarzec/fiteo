@@ -3,6 +3,7 @@ package com.marzec.todo.schedule
 import com.marzec.core.currentTime
 import com.marzec.di.Di
 import com.marzec.di.MILLISECONDS_IN_SECOND
+import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
 import com.marzec.todo.model.Scheduler
@@ -143,11 +144,7 @@ private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateT
         .plusHours(timeZoneOffsetHours)
         .toKotlinLocalDateTime()
     return UpdateTask(
-        description = description,
-        parentTaskId = parentTaskId,
-        priority = priority,
-        isToDo = isToDo,
-        scheduler = scheduler?.updateLastDate(lastDate),
+        scheduler = NullableField(scheduler?.updateLastDate(lastDate)),
     )
 }
 

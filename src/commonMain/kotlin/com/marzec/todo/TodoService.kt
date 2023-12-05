@@ -3,7 +3,6 @@ package com.marzec.todo
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
-import com.marzec.todo.model.UpdateTask2
 
 class TodoService(
     private val repository: TodoRepository
@@ -32,8 +31,6 @@ class TodoService(
     }
 
     fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = repository.updateTask(userId, taskId, task)
-
-    fun updateTask2(userId: Int, taskId: Int, task: UpdateTask2): Task = repository.updateTask(userId, taskId, task)
 
     fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task =
         repository.removeTask(userId, taskId, removeWithSubtasks)

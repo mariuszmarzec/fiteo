@@ -134,41 +134,6 @@ class TrainingTests {
     )
 
     @Test
-    @Deprecated("")
-    fun createTrainingDeprecated() {
-        testGetEndpoint(
-            uri = ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
-            status = HttpStatusCode.OK,
-            responseDto = trainingDto,
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                putTemplate(createTrainingTemplateDto)
-            }
-        )
-    }
-
-    @Test
-    @Deprecated("")
-    fun createTraining_doNotCreateTrainingInCaseOfErrorDeprecated() {
-        testGetEndpointCheck<ErrorDto>(
-            uri = ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", "1"),
-            status = HttpStatusCode.InternalServerError,
-            responseDtoCheck = {
-                assertThat(it).isInstanceOf(ErrorDto::class.java)
-                assertThat((it as ErrorDto).reason).contains("No exercise for training part with: 1")
-            },
-            authorize = ApplicationTestBuilder::registerAndLogin,
-            runRequestsBefore = {
-                CurrentTimeUtil.setOtherTime(16, 5, 2021)
-                putTemplate(createTrainingTemplateDto2)
-            }, runRequestsAfter = {
-                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
-            }
-        )
-    }
-
-    @Test
     fun createTraining() {
         testPostEndpoint(
             uri = ApiPath.TRAININGS,
@@ -213,7 +178,7 @@ class TrainingTests {
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
-                createTraining("1")
+                createTraining(1)
             }
         )
     }
@@ -235,9 +200,9 @@ class TrainingTests {
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
-                createTraining("1")
+                createTraining(1)
                 CurrentTimeUtil.setOtherTime(19, 5, 2021)
-                createTraining("1")
+                createTraining(1)
             }
         )
     }
@@ -252,7 +217,7 @@ class TrainingTests {
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
-                createTraining("1")
+                createTraining(1)
             },
             runRequestsAfter = {
                 assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
@@ -271,7 +236,7 @@ class TrainingTests {
             runRequestsBefore = {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
-                createTraining("1")
+                createTraining(1)
             },
             runRequestsAfter = {
                 assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))

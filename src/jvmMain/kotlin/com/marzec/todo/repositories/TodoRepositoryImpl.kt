@@ -19,7 +19,6 @@ import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
-import com.marzec.todo.model.UpdateTask2
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.*
 
@@ -71,18 +70,6 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         }
     }
 
-    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = database.dbCall {
-        val taskEntity = TaskEntity.findByIdOrThrow(taskId)
-        taskEntity.belongsToUserOrThrow(userId)
-        taskEntity.description = task.description
-        taskEntity.parents = task.parentTaskId?.let { listOf(TaskEntity.findByIdOrThrow(it)) }.orEmpty().toSized()
-        taskEntity.priority = task.priority
-        taskEntity.isToDo = task.isToDo
-        taskEntity.modifiedTime = currentTime().toJavaLocalDateTime()
-        taskEntity.scheduler = task.scheduler
-        taskEntity.toDomain()
-    }
-
     override fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>) = database.dbCall {
         taskIds.forEach { id ->
             val taskEntity = TaskEntity.findByIdOrThrow(id)
@@ -95,7 +82,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         TaskEntity.findByIdIfBelongsToUserOrThrow(userId, id).toDomain()
     }
 
-    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask2): Task = database.dbCall {
+    override fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task = database.dbCall {
         TaskEntity.findByIdOrThrow(taskId).apply {
             belongsToUserOrThrow(userId)
             update(this::description, task.description)

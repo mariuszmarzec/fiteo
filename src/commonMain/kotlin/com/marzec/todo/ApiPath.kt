@@ -17,25 +17,7 @@ object ApiPath {
     const val ADD_TASK = "$API_ROOT/tasks"
     const val UPDATE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
     const val DELETE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
-    @Deprecated("")
-    const val DELETE_TASK_WITH_SUBTASKS_DEPRECATED = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}/removeWithSubtasks"
 
     const val MARK_AS_TO_DO = "$API_ROOT/tasks/mark-as-to-do"
     const val COPY_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}/copy"
 }
-
-/**
-TODO TODO TASKS unify endpoints:
-DELETE_TASK_WITH_SUBTASKS
-$API_ROOT/tasks/{${Api.Args.ARG_ID}}/removeWithSubtasks -> removeWithSubtasks as query Param ?removeWithSubtasks=true
-default = false
-backend fix - DONE
-FIX on CLIENTS NOT_DONE
-remove deprecated NOT_DONE
-
-UPDATE use updater, think how to keep old/new functionality
-backend fix - DONE
-FIX on CLIENTS NOT_DONE
-remove deprecated NOT_DONE
-
- */

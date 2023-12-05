@@ -12,7 +12,6 @@ import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
-import com.marzec.todo.model.UpdateTaskDto
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.isoDayNumber
@@ -312,20 +311,6 @@ fun stubTask(
     subTasks = subTasks,
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler
-)
-
-fun stubUpdateTaskDto(
-    description: String = "",
-    parentTaskId: Int? = null,
-    priority: Int = 0,
-    isToDo: Boolean = true,
-    scheduler: SchedulerDto? = null
-) = UpdateTaskDto(
-    description = description,
-    parentTaskId = parentTaskId,
-    priority = priority,
-    isToDo = isToDo,
     scheduler = scheduler
 )
 

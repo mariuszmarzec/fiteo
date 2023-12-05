@@ -52,16 +52,6 @@ class CheatDayController(
         }
     }
 
-    @Deprecated("")
-    fun updateWeightDeprecated(request: HttpRequest<WeightDto>): HttpResponse<WeightDto> {
-        return serviceCall {
-            cheatDayService.updateWeight(
-                request.userIdOrThrow(),
-                request.data.toDomain()
-            ).toDto()
-        }
-    }
-
     fun updateWeight(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<WeightDto> =
         serviceCall {
             cheatDayService.updateWeight(

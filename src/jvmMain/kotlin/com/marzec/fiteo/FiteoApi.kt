@@ -20,11 +20,7 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         putTemplate(api)
         removeTemplate(api)
         updateTemplate(api)
-        putTemplateDeprecated(api)
-        removeTemplateDeprecated(api)
-        updateTemplateDeprecated(api)
 
-        createTrainingDeprecated(api)
         createTraining(api)
         getTraining(api)
         getTrainings(api)
@@ -56,9 +52,6 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     }
 }
 
-@Deprecated("")
-fun Route.createTrainingDeprecated(api: Controller) = getByIdEndpoint(ApiPath.CREATE_TRAINING_DEPRECATED, api::createTrainingDeprecated)
-
 fun Route.createTraining(api: Controller) = postEndpoint(ApiPath.TRAININGS, api::createTraining)
 
 fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
@@ -72,17 +65,6 @@ fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING,
 fun Route.templates(api: Controller) = getAllEndpoint(ApiPath.TRAINING_TEMPLATES, api::getTrainingTemplates)
 
 fun Route.template(api: Controller) = getByIdEndpoint(ApiPath.TRAINING_TEMPLATE_BY_ID, api::getTrainingTemplate)
-
-@Deprecated("")
-fun Route.putTemplateDeprecated(api: Controller) = postEndpoint(ApiPath.TRAINING_TEMPLATE_DEPRECATED, api::addTrainingTemplate)
-
-@Deprecated("")
-fun Route.removeTemplateDeprecated(api: Controller) =
-    deleteByIdEndpoint(ApiPath.DELETE_TRAINING_TEMPLATES_DEPRECATED, api::removeTrainingTemplate)
-
-@Deprecated("")
-fun Route.updateTemplateDeprecated(api: Controller) =
-    updateByIdEndpoint(ApiPath.UPDATE_TRAINING_TEMPLATES_DEPRECATED, api::updateTrainingTemplate)
 
 fun Route.putTemplate(api: Controller) = postEndpoint(ApiPath.TRAINING_TEMPLATE, api::addTrainingTemplate)
 

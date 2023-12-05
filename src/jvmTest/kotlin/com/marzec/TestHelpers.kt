@@ -11,16 +11,8 @@ import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.io.ExercisesReader
 import com.marzec.fiteo.io.ResourceFileReader
-import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
-import com.marzec.fiteo.model.domain.ExercisesData
-import com.marzec.fiteo.model.domain.TrainingDto
-import com.marzec.fiteo.model.domain.TrainingTemplateDto
-import com.marzec.fiteo.model.dto.CreateExerciseDto
-import com.marzec.fiteo.model.dto.ErrorDto
-import com.marzec.fiteo.model.dto.ExerciseDto
-import com.marzec.fiteo.model.dto.ExercisesFileDto
-import com.marzec.fiteo.model.dto.LoginRequestDto
-import com.marzec.fiteo.model.dto.RegisterRequestDto
+import com.marzec.fiteo.model.domain.*
+import com.marzec.fiteo.model.dto.*
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
@@ -361,7 +353,7 @@ suspend fun ApplicationTestBuilder.login(dto: LoginRequestDto = loginDto): Strin
     request(HttpMethod.Post, ApiPath.LOGIN, dto).headers[Headers.AUTHORIZATION]!!
 
 suspend fun ApplicationTestBuilder.addWeight(dto: WeightDto) {
-    postWithAuth<WeightDto, Unit>(CheatApiPath.WEIGHT, dto)
+    postWithAuth<WeightDto, Unit>(CheatApiPath.WEIGHTS, dto)
 }
 
 suspend fun ApplicationTestBuilder.getWeights(): List<WeightDto> =
@@ -410,12 +402,13 @@ suspend inline fun <reified RESPONSE> ApplicationTestBuilder.runGetAllEndpoint(e
     getWithAuth<List<RESPONSE>>(endpointUrl)
 
 suspend fun ApplicationTestBuilder.putTemplate(dto: CreateTrainingTemplateDto) {
-    postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATE_DEPRECATED, dto)
+    postWithAuth<CreateTrainingTemplateDto, Unit>(ApiPath.TRAINING_TEMPLATES, dto)
 }
 
-suspend fun ApplicationTestBuilder.createTraining(trainingTemplateId: String): TrainingDto =
-    getWithAuth(
-        ApiPath.CREATE_TRAINING_DEPRECATED.replace("{${Api.Args.ARG_ID}}", trainingTemplateId)
+suspend fun ApplicationTestBuilder.createTraining(trainingTemplateId: Int): TrainingDto =
+    postWithAuth(
+        ApiPath.TRAININGS,
+        CreateTrainingDto(trainingTemplateId)
     )
 
 suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =
@@ -424,11 +417,7 @@ suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =
 suspend fun ApplicationTestBuilder.getTrainings(): List<TrainingDto> = getWithAuth(ApiPath.TRAININGS)
 
 suspend fun ApplicationTestBuilder.markAsDone(taskId: Int) {
-    val task = getTasks().flatMapTaskDto().first { it.id == taskId }
     val dto = UpdateTaskDto(
-        description = task.description,
-        parentTaskId = task.parentTaskId,
-        priority = task.priority,
         isToDo = false
     )
 
