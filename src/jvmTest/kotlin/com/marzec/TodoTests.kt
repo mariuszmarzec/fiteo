@@ -437,7 +437,6 @@ class TodoTests {
                 isToDo = false,
                 scheduler = NullableFieldDto(schedulerWeeklyDto)
             ),
-            headers = mapOf("Version" to "V2"),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(
                 description = "updated task",
@@ -474,7 +473,6 @@ class TodoTests {
                 description=  "task2",
                 parentTaskId = NullableFieldDto(1)
             ),
-            headers = mapOf("Version" to "V2"),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = 1),
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -509,11 +507,10 @@ class TodoTests {
     fun updateTask_unpinFromParentTask() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "2"),
-            dto = UpdateTaskDto(
-                description = "task2",
-                parentTaskId = NullableFieldDto(null)
+            dto = mapOf(
+                "description" to "task2",
+                "parentTaskId" to NullableFieldDto(null)
             ),
-            headers = mapOf("Version" to "V2"),
             status = HttpStatusCode.OK,
             responseDto = stubTaskDto(id = 2, description = "task2", parentTaskId = null),
             authorize = ApplicationTestBuilder::registerAndLogin,

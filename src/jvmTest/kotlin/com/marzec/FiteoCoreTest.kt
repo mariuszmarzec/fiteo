@@ -56,7 +56,7 @@ class FiteoCoreTest {
     fun updateEquipment() {
         testPatchEndpoint(
             uri = ApiPath.EQUIPMENT_BY_ID.replace("{${Api.Args.ARG_ID}}", newEquipment.id),
-            dto = mapOf("name" to JsonPrimitive("updated")),
+            dto = mapOf("name" to "updated"),
             status = HttpStatusCode.OK,
             responseDto = newEquipment.copy(name = "updated"),
             runRequestsBefore = {

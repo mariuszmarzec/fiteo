@@ -18,18 +18,25 @@ import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.UpdateTaskDto
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.server.application.*
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.*
 import org.flywaydb.core.Flyway
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.util.*
 import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
 import com.marzec.cheatday.ApiPath as CheatApiPath
 import com.marzec.fiteo.ApiPath as FiteoApiPath
 import com.marzec.todo.ApiPath as TodoApiPath
@@ -193,7 +200,14 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
         this.client.request(uri) {
             this.method = method
             headers.forEach { this.headers.append(it.key, it.value) }
-            dto?.let { setBodyJson(it) }
+            dto?.let {
+                if (dto is Map<*, *>) {
+                    val stringDto = json.encodeToJsonElement(AnySerializer, dto)
+                    setBodyJson(stringDto)
+                } else {
+                    setBodyJson(it)
+                }
+            }
             authToken?.let { header(Headers.AUTHORIZATION, it) }
         }.let { response ->
             if (response.status != status) {
@@ -430,4 +444,56 @@ fun List<TaskDto>.flatMapTaskDto(tasks: MutableList<TaskDto> = mutableListOf()):
         it.subTasks.flatMapTaskDto(tasks)
     }
     return tasks
+}
+
+object AnySerializer : KSerializer<Any> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Any")
+
+    override fun serialize(encoder: Encoder, value: Any) {
+        val jsonEncoder = encoder as JsonEncoder
+        val jsonElement = serializeAny(value)
+        jsonEncoder.encodeJsonElement(jsonElement)
+    }
+
+    private fun serializeAny(value: Any?): JsonElement = when (value) {
+        null -> JsonNull
+        is Map<*, *> -> {
+            val mapContents = value.entries.associate { mapEntry ->
+                mapEntry.key.toString() to serializeAny(mapEntry.value)
+            }
+            JsonObject(mapContents)
+        }
+        is List<*> -> {
+            val arrayContents = value.map { listEntry -> serializeAny(listEntry) }
+            JsonArray(arrayContents)
+        }
+        is Number -> JsonPrimitive(value)
+        is Boolean -> JsonPrimitive(value)
+        is String -> JsonPrimitive(value)
+        else -> {
+            val contents = value::class.memberProperties.associate { property ->
+                property.name to serializeAny(property.getter.call(value))
+            }
+            JsonObject(contents)
+        }
+    }
+
+
+
+    override fun deserialize(decoder: Decoder): Any {
+        val jsonDecoder = decoder as JsonDecoder
+        val element = jsonDecoder.decodeJsonElement()
+
+        return deserializeJsonElement(element)
+    }
+
+    private fun deserializeJsonElement(element: JsonElement): Any = when (element) {
+        is JsonObject -> {
+            element.mapValues { deserializeJsonElement(it.value) }
+        }
+        is JsonArray -> {
+            element.map { deserializeJsonElement(it) }
+        }
+        is JsonPrimitive -> element.toString()
+    }
 }

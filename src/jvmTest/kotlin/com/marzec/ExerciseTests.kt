@@ -4,13 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
+import com.marzec.fiteo.model.dto.NullableFieldDto
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.encodeToJsonElement
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -57,11 +52,11 @@ class ExerciseTests {
         testPatchEndpoint(
             uri = ApiPath.EXERCISE.replace("{${Api.Args.ARG_ID}}", "8"),
             dto = mapOf(
-                "name" to JsonPrimitive("updatedName"),
-                "animationUrl" to JsonObject(mapOf("value" to JsonPrimitive("updatedAnimationUrl"))),
-                "category" to Json.encodeToJsonElement(listOf(categoryTwoDto)),
-                "neededEquipment" to JsonPrimitive(null as String?),
-                "videoUrl" to JsonPrimitive(null as String?),
+                "name" to "updatedName",
+                "animationUrl" to NullableFieldDto("updatedAnimationUrl"),
+                "category" to listOf(categoryTwoDto),
+                "neededEquipment" to null as String?,
+                "videoUrl" to null as String?,
             ),
             status = HttpStatusCode.OK,
             responseDto = exerciseDto.copy(
