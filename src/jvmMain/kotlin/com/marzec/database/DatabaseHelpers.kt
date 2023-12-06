@@ -19,7 +19,7 @@ inline fun <reified ENTITY : IntEntityWithUser> IntEntityWithUserClass<ENTITY>.f
 ): ENTITY = find { table.id eq id and (withUserTable.userId eq userId) }.firstOrNull()
     ?: throw NoSuchElementException("No ${ENTITY::class.simpleName} result with id: $id for user with id: $userId")
 
-inline fun <reified ENTITY : Entity<String>> EntityClass<String, ENTITY>.findByIdOrThrow(id: String): ENTITY =
+inline fun <ID: Comparable<ID>, reified ENTITY : Entity<ID>> EntityClass<ID, ENTITY>.findByIdOrThrow(id: ID): ENTITY =
     findById(id) ?: throw NoSuchElementException("No ${ENTITY::class.simpleName} result with id: $id")
 
 fun <T> List<T>.toSized(): SizedCollection<T> = SizedCollection(this)

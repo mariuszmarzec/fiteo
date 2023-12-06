@@ -8,6 +8,8 @@ import com.marzec.cheatday.WeightsRepository
 import com.marzec.core.TimeProvider
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
+import com.marzec.core.repository.CommonRepositoryImpl
+import com.marzec.database.CategoryEntity
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.data.InitialDataLoaderImpl
@@ -170,7 +172,9 @@ val MainModule = module {
         )
     }
 
-    factory<CategoriesRepository> { params -> CategoriesRepositoryImpl(get { params }) }
+    factory<CategoriesRepository> { params ->
+        CategoriesRepositoryImpl(CommonRepositoryImpl(CategoryEntity.Companion, get { params }))
+    }
 
     factory { params -> CheatDayController(get { params }) }
 
