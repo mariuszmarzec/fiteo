@@ -9,6 +9,7 @@ import com.marzec.cheatday.domain.Weight
 import com.marzec.core.entity.WithUserEntity
 import com.marzec.core.entity.WithUserEntityClass
 import com.marzec.core.repository.CommonWithUserRepository
+import com.marzec.core.repository.CommonWithUserRepositoryImpl
 import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.extensions.update
@@ -20,9 +21,9 @@ import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.selectAll
 
 class WeightsRepositoryImpl(
-    private val repository: CommonWithUserRepository<Weight, CreateWeight, UpdateWeight>,
     private val database: Database
-) : WeightsRepository, CommonWithUserRepository<Weight, CreateWeight, UpdateWeight> by repository {
+) : CommonWithUserRepositoryImpl<Weight, CreateWeight, UpdateWeight, WeightEntity>(WeightEntity, database),
+    WeightsRepository {
 
     override fun getAll(userId: Int): List<Weight> {
         return database.dbCall {

@@ -185,7 +185,6 @@ val MainModule = module {
 
     factory<WeightsRepository> { params ->
         WeightsRepositoryImpl(
-            CommonWithUserRepositoryImpl(WeightEntity.Companion, get { params }),
             get { params }
         )
     }
