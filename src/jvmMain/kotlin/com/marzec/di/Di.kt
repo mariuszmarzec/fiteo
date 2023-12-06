@@ -5,10 +5,13 @@ import com.marzec.fiteo.api.ControllerImpl
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
+import com.marzec.cheatday.db.WeightEntity
 import com.marzec.core.TimeProvider
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
 import com.marzec.core.repository.CommonRepositoryImpl
+import com.marzec.core.repository.CommonWithUserRepository
+import com.marzec.core.repository.CommonWithUserRepositoryImpl
 import com.marzec.database.CategoryEntity
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.data.InitialDataLoader
@@ -180,7 +183,12 @@ val MainModule = module {
 
     factory { params -> CheatDayService(get { params }) }
 
-    factory<WeightsRepository> { params -> WeightsRepositoryImpl(get { params }) }
+    factory<WeightsRepository> { params ->
+        WeightsRepositoryImpl(
+            CommonWithUserRepositoryImpl(WeightEntity.Companion, get { params }),
+            get { params }
+        )
+    }
 
     factory { params -> ToDoApiController(get { params }, get { params }) }
 

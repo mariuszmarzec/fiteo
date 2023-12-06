@@ -18,6 +18,8 @@ fun Weight.toDto() = WeightDto(
         date.formatDate()
 )
 
+data class CreateWeight(val weight: Float, val date: LocalDateTime)
+
 data class UpdateWeight(
         val value: Float?,
         val date: String?
