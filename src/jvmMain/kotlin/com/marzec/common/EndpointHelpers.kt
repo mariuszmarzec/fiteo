@@ -39,14 +39,7 @@ inline fun <reified T : Any> Route.getByIdEndpoint(
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
     get(path) {
-        val httpRequest = HttpRequest(
-            data = Unit,
-            parameters = mapOf(
-                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
-            ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
-            queries = call.request.queryParameters.toMap()
-        )
+        val httpRequest = receiveHttpRequest(Unit)
         dispatch(apiFunRef(httpRequest))
     }
 }
@@ -67,14 +60,7 @@ inline fun <reified T : Any> Route.deleteByIdEndpoint(
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
     delete(path) {
-        val httpRequest = HttpRequest(
-            data = Unit,
-            parameters = mapOf(
-                Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID]
-            ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
-            queries = call.request.queryParameters.toMap()
-        )
+        val httpRequest = receiveHttpRequest(Unit)
         dispatch(apiFunRef(httpRequest))
     }
 }
@@ -84,14 +70,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
     apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
 ) {
     patch(path) {
-        val dto = call.receive<REQUEST>()
-        val id = call.parameters[Api.Args.ARG_ID]
-        val httpRequest = HttpRequest(
-            data = dto,
-            parameters = mapOf(Api.Args.ARG_ID to id),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
-            queries = call.request.queryParameters.toMap()
-        )
+        val httpRequest = receiveHttpRequest<REQUEST>()
         dispatch(apiFunRef(httpRequest))
     }
 }
@@ -101,16 +80,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
     apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
 ) {
     post(path) {
-        val dto = call.receive<REQUEST>()
-        val id = call.parameters[Api.Args.ARG_ID]
-        val httpRequest = HttpRequest(
-            data = dto,
-            parameters = mapOf(
-                Api.Args.ARG_ID to id,
-            ),
-            sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
-            queries = call.request.queryParameters.toMap()
-        )
+        val httpRequest = receiveHttpRequest<REQUEST>()
         dispatch(apiFunRef(httpRequest))
     }
 }
@@ -120,11 +90,22 @@ inline fun <reified T : Any> Route.getBySessionEndpoint(
     apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
 ) {
     get(path) {
-        val id = call.principal<UserPrincipal>()?.id
-        val httpRequest = createHttpRequest(id)
+        val httpRequest = receiveHttpRequest(Unit)
         dispatch(apiFunRef(httpRequest))
     }
 }
+
+suspend inline fun <reified REQUEST : Any> PipelineContext<Unit, ApplicationCall>.receiveHttpRequest() =
+    receiveHttpRequest(call.receive<REQUEST>())
+
+inline fun <reified REQUEST : Any> PipelineContext<Unit, ApplicationCall>.receiveHttpRequest(dto: REQUEST) = HttpRequest(
+    data = dto,
+    parameters = mapOf(
+        Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
+    ),
+    sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
+    queries = call.request.queryParameters.toMap()
+)
 
 fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
     data = Unit,
