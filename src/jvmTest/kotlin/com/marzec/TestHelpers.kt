@@ -177,7 +177,10 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     dto = dto,
     headers = headers,
     status = status,
-    responseDtoCheck = { assertThat(it).isEqualTo(responseDto) },
+    responseDtoCheck = {
+        println(it)
+        println(responseDto)
+        assertThat(it).isEqualTo(responseDto) },
     authorize = authorize,
     runRequestsBefore = runRequestsBefore,
     runRequestsAfter = runRequestsAfter
@@ -213,7 +216,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
             if (response.status != status) {
                 error("Error occurred: " + json.decodeFromString<ErrorDto>(response.bodyAsText()).reason)
             }
-            val responseBody = response.bodyAsText()?.let { json.decodeFromString<RESPONSE>(it) }
+            val responseBody = response.bodyAsText().let { json.decodeFromString<RESPONSE>(it) }
             responseDtoCheck(responseBody)
             assertThat(response.status).isEqualTo(status)
             runRequestsAfter()

@@ -80,6 +80,7 @@ data class CreateTrainingTemplate(
 )
 
 data class CreateTrainingTemplatePart(
+    val id: Int? = null,
     val name: String,
     val pinnedExerciseId: Int?,
     val categoryIds: List<String>,
@@ -97,6 +98,7 @@ data class CreateTrainingTemplateDto(
 
 @Serializable
 data class CreateTrainingTemplatePartDto(
+    val id: Int? = null,
     val name: String,
     val pinnedExerciseId: Int? = null,
     val categoryIds: List<String>,
@@ -112,6 +114,7 @@ fun CreateTrainingTemplateDto.toDomain() = CreateTrainingTemplate(
 )
 
 fun CreateTrainingTemplatePartDto.toDomain() = CreateTrainingTemplatePart(
+    id = id,
     name = name,
     pinnedExerciseId = pinnedExerciseId,
     categoryIds = categoryIds,

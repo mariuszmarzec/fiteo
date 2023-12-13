@@ -7,6 +7,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.SortOrder
 
 object TrainingTemplateTable : IntIdTable("training_templates") {
 
@@ -26,7 +27,7 @@ class TrainingTemplateEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     fun toDomain() = TrainingTemplate(
         id = id.value,
         name = name,
-        exercises = parts.map { it.toDomain() },
+        exercises = parts.orderBy(TrainingTemplatePartTable.ordinalNumber to SortOrder.ASC).map { it.toDomain() },
         availableEquipment = availableEquipment.map { it.toDomain() }
     )
 
@@ -57,6 +58,7 @@ object TrainingTemplatePartTable : IntIdTable("training_parts") {
     private const val NAME_LENGTH = 300
     val name = varchar("name", NAME_LENGTH)
     val pinnedExercise = reference("pinned_exercise_id", ExerciseTable, onDelete = ReferenceOption.NO_ACTION).nullable()
+    val ordinalNumber = integer("ordinal_number")
 }
 
 class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
@@ -65,6 +67,9 @@ class TrainingTemplatePartEntity(id: EntityID<Int>) : IntEntity(id) {
     var categories by CategoryEntity via TrainingTemplatePartToCategoriesTable
     var excludedExercises by ExerciseEntity via TrainingTemplatePartToExcludedExercisesTable
     var excludedEquipment by EquipmentEntity via TrainingTemplatePartToExcludedEquipmentTable
+    var ordinalNumber by TrainingTemplatePartTable.ordinalNumber
+
+    val trainingTemplate by TrainingTemplateEntity via TrainingTemplateToTrainingTemplatePartTable
 
     fun toDomain() = TrainingTemplatePart(
         id = id.value,

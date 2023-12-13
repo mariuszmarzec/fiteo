@@ -327,12 +327,14 @@ fun stubCreateTrainingTemplateDto(
 )
 
 fun stubCreateTrainingTemplatePartDto(
+    id: Int? = null,
     name: String,
     pinnedExerciseId: Int? = null,
     categoryIds: List<String> = emptyList(),
     excludedExercisesIds: List<Int> = emptyList(),
     excludedEquipmentIds: List<String> = emptyList()
 ) = CreateTrainingTemplatePartDto(
+    id = id,
     name = name,
     pinnedExerciseId = pinnedExerciseId,
     categoryIds = categoryIds,

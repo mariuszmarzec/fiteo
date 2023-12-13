@@ -64,6 +64,7 @@ class TrainingTemplateTests {
         name = "trainingTemplateUpdated",
         exercises = listOf(
             stubCreateTrainingTemplatePartDto(
+                id = 1,
                 name = "part_two",
                 pinnedExerciseId = null,
                 categoryIds = listOf("2"),
@@ -86,7 +87,7 @@ class TrainingTemplateTests {
         name = "trainingTemplateUpdated",
         exercises = listOf(
             stubTrainingTemplatePartDto(
-                id = 3,
+                id = 1,
                 name = "part_two",
                 pinnedExercise = null,
                 categories = listOf(categoryTwoDto),
@@ -94,7 +95,7 @@ class TrainingTemplateTests {
                 excludedEquipment = listOf(equipmentTwoDto)
             ),
             stubTrainingTemplatePartDto(
-                id = 4,
+                id = 3,
                 name = "part_three",
                 pinnedExercise = exerciseCategoryOneEquipmentThree.toDto(),
                 categories = listOf(categoryOneDto),
