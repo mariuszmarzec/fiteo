@@ -10,6 +10,7 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.javatime.datetime
 
 object TrainingsTable : IntIdTable("trainings") {
@@ -36,7 +37,9 @@ class TrainingEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
         templateId = template.id.value,
         createDateInMillis = createDateInMillis.toKotlinLocalDateTime(),
         finishDateInMillis = finishDateInMillis.toKotlinLocalDateTime(),
-        exercisesWithProgress = exercises.map { it.toDomain(id.value) },
+        exercisesWithProgress = exercises
+            .orderBy(TrainingExerciseWithProgressTable.ordinalNumber to SortOrder.ASC)
+            .map { it.toDomain(id.value) },
     )
 
     companion object : IntEntityClass<TrainingEntity>(TrainingsTable)
@@ -52,6 +55,7 @@ object TrainingExerciseWithProgressTable : IntIdTable("exercise_with_progress") 
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
     val templateId = integer("template_part_id").nullable()
     val name = varchar("name", 255)
+    val ordinalNumber = integer("ordinal_number")
 }
 
 class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
@@ -59,11 +63,13 @@ class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(
     var series by SeriesEntity via ExerciseToSeries
     var templatePartId by TrainingExerciseWithProgressTable.templateId
     var name by TrainingExerciseWithProgressTable.name
+    var ordinalNumber by TrainingExerciseWithProgressTable.ordinalNumber
     override var user by UserEntity referencedOn TrainingExerciseWithProgressTable.userId
 
     fun toDomain(
         trainingId: Int
     ) = TrainingExerciseWithProgress(
+        id = id.value,
         exercise = exercise.toDomain(),
         series = series.map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) },
         templatePart = templatePartId?.let { TrainingTemplatePartEntity.findById(it) }?.toDomain(),

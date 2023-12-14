@@ -1,15 +1,6 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.database.ExerciseEntity
-import com.marzec.database.SeriesEntity
-import com.marzec.database.TrainingEntity
-import com.marzec.database.TrainingExerciseWithProgressEntity
-import com.marzec.database.TrainingTemplateEntity
-import com.marzec.database.TrainingsTable
-import com.marzec.database.UserEntity
-import com.marzec.database.dbCall
-import com.marzec.database.findByIdOrThrow
-import com.marzec.database.toSized
+import com.marzec.database.*
 import com.marzec.fiteo.model.domain.UpdateTraining
 import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.Series
@@ -67,14 +58,11 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             }
         }
 
-        val exercises: List<TrainingExerciseWithProgressEntity> = training.exercisesWithProgress.map {
-            createTrainingWithExercises(userEntity, it)
-        }
+        val newExercises = createOrUpdateTrainingExercises(training, userEntity)
+        removePartsIfNotPresentInNewOnes(newExercises, trainingEntity)
 
         database.dbCall {
-            if (exercises.isNotEmpty()) {
-                trainingEntity.exercises = exercises.toSized()
-            }
+            trainingEntity.exercises = newExercises.toSized()
             trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
         }
 
@@ -83,28 +71,58 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         }
     }
 
+    private fun removePartsIfNotPresentInNewOnes(
+        newExercises: List<TrainingExerciseWithProgressEntity>,
+        trainingEntity: TrainingEntity
+    ) {
+        val newPartsIds = newExercises.map { it.id.value }
+        val partsToRemove = trainingEntity.exercises.filterNot { it.id.value in newPartsIds }
+        partsToRemove.forEach { it.delete() }
+    }
+
+    private fun createOrUpdateTrainingExercises(
+        training: UpdateTraining,
+        userEntity: UserEntity
+    ) = training.exercisesWithProgress.mapIndexed { index, exercise ->
+        exercise.id?.let {
+            TrainingExerciseWithProgressEntity.findById(it)?.apply {
+                updateTraining(index, userEntity, exercise)
+            }
+        } ?: createTrainingWithExercises(index, userEntity, exercise)
+    }
+
     private fun createTrainingWithExercises(
+        ordinalNumber: Int,
         userEntity: UserEntity,
         createPart: UpdateTrainingExerciseWithProgress
     ): TrainingExerciseWithProgressEntity {
-        val series = createPart.series.map {
-            createSeries(userEntity, it)
-        }
-
         val progressEntity = database.dbCall {
             TrainingExerciseWithProgressEntity.new {
                 this.user = userEntity
-                this.exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
-                this.templatePartId = createPart.trainingPartId
-                this.name = createPart.name
             }
         }
+        return progressEntity.apply { updateTraining(ordinalNumber, userEntity, createPart) }
+    }
+
+    private fun TrainingExerciseWithProgressEntity.updateTraining(
+        ordinalNumber: Int,
+        userEntity: UserEntity,
+        createPart: UpdateTrainingExerciseWithProgress
+    ) {
+        val newSeries = createPart.series.map {
+            createSeries(userEntity, it)
+        }
+
+        exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
+        templatePartId = createPart.trainingPartId
+        name = createPart.name
+        this.ordinalNumber = ordinalNumber
+
         database.dbCall {
-            if (series.isNotEmpty()) {
-                progressEntity.series = series.toSized()
+            if (newSeries.isNotEmpty()) {
+                series = newSeries.toSized()
             }
         }
-        return progressEntity
     }
 
     private fun createSeries(userEntity: UserEntity, series: Series): SeriesEntity {

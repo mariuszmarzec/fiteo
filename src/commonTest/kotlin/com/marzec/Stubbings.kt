@@ -385,11 +385,13 @@ fun stubTraining(
 )
 
 fun stubTrainingExerciseWithProgressDto(
+    id: Int = 0,
     exercise: ExerciseDto = stubExerciseDto(),
     series: List<SeriesDto> = emptyList(),
     templatePartId: Int? = null,
     name: String
 ) = TrainingExerciseWithProgressDto(
+    id = id,
     exercise = exercise,
     series = series,
     templatePartId = templatePartId,
@@ -463,11 +465,13 @@ fun stubUpdateTrainingDto(
 )
 
 fun stubUpdateTrainingExerciseWithProgressDto(
+    id: Int? = null,
     exerciseId: Int = 0,
     series: List<SeriesDto> = emptyList(),
     trainingPartId: Int? = null,
     name: String
 ) = UpdateTrainingExerciseWithProgressDto(
+    id = id,
     exerciseId = exerciseId,
     series = series,
     trainingPartId = trainingPartId,

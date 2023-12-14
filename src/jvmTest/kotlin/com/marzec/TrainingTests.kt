@@ -70,6 +70,7 @@ class TrainingTests {
     private val updateDto = stubUpdateTrainingDto(
         exercisesWithProgress = listOf(
             stubUpdateTrainingExerciseWithProgressDto(
+                id = 1,
                 exerciseId = 1,
                 series = listOf(
                     stubSeriesDto(
@@ -103,6 +104,7 @@ class TrainingTests {
         templateId = 1,
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
+                id = 1,
                 templatePartId = 1,
                 name = "part_one",
                 exercise = exerciseCategoryOneEquipment0ne.toDto(),
@@ -116,6 +118,7 @@ class TrainingTests {
                 )
             ),
             stubTrainingExerciseWithProgressDto(
+                id = 3,
                 templatePartId = 2,
                 name = "part_updated",
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),

@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 data class TrainingExerciseWithProgress(
+    val id: Int,
     val exercise: Exercise,
     val series: List<Series>,
     val templatePart: TrainingTemplatePart?,
@@ -25,6 +26,7 @@ data class Series(
 
 @Serializable
 data class TrainingExerciseWithProgressDto(
+    val id: Int,
     val exercise: ExerciseDto,
     val series: List<SeriesDto>,
     val templatePartId: Int?,
@@ -44,6 +46,7 @@ data class SeriesDto(
 )
 
 fun TrainingExerciseWithProgress.toDto() = TrainingExerciseWithProgressDto(
+    id = id,
     exercise = exercise.toDto(),
     series = series.map { it.toDto() },
     templatePartId = templatePart?.id,

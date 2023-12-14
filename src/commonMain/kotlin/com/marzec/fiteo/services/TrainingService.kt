@@ -67,6 +67,7 @@ class TrainingServiceImpl(
                     ?: trainingPart.pinnedExercise
                     ?: throw NoSuchElementException("No exercise for training part with: ${trainingPart.id}")
                 UpdateTrainingExerciseWithProgress(
+                    id = null,
                     exerciseId = exercise.id,
                     series = emptyList(),
                     trainingPartId = trainingPart.id,
