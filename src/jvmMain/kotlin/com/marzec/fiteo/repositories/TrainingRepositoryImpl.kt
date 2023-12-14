@@ -118,11 +118,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         name = createPart.name
         this.ordinalNumber = ordinalNumber
 
-        database.dbCall {
-            if (newSeries.isNotEmpty()) {
-                series = newSeries.toSized()
-            }
-        }
+        series = newSeries.toSized()
     }
 
     private fun createSeries(userEntity: UserEntity, series: Series): SeriesEntity {
