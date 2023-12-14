@@ -55,11 +55,13 @@ class TrainingTests {
         templateId = 1,
         exercisesWithProgress = listOf(
             stubTrainingExerciseWithProgressDto(
+                id = 1,
                 exercise = exerciseCategoryOneEquipment0ne.toDto(),
                 templatePartId = 1,
                 name = "part_one"
             ),
             stubTrainingExerciseWithProgressDto(
+                id = 2,
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),
                 templatePartId = 2,
                 name = "part_two"
@@ -136,6 +138,93 @@ class TrainingTests {
         )
     )
 
+    private val updateWithExistedSeriesDto = stubUpdateTrainingDto(
+        exercisesWithProgress = listOf(
+            stubUpdateTrainingExerciseWithProgressDto(
+                id = 1,
+                exerciseId = 1,
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                ),
+                trainingPartId = 1,
+                name = "part_one",
+            ),
+            stubUpdateTrainingExerciseWithProgressDto(
+                exerciseId = 4,
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 2,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 10,
+                        note = "note"
+                    ),
+                    stubSeriesDto(
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 12,
+                        note = "note_new_series"
+                    )
+                ),
+                trainingPartId = 2,
+                name = "part_updated_again"
+            )
+        )
+    )
+
+    private val updatedTrainingWithExistedSeries = stubTraining(
+        id = 1,
+        templateId = 1,
+        exercisesWithProgress = listOf(
+            stubTrainingExerciseWithProgressDto(
+                id = 1,
+                templatePartId = 1,
+                name = "part_one",
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                )
+            ),
+            stubTrainingExerciseWithProgressDto(
+                id = 3,
+                templatePartId = 2,
+                name = "part_updated_again",
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 2,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 10,
+                        note = "note"
+                    ),
+                    stubSeriesDto(
+                        seriesId = 3,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 12,
+                        note = "note_new_series"
+                    )
+                )
+            )
+        )
+    )
+
+
     @Test
     fun createTraining() {
         testPostEndpoint(
@@ -195,7 +284,11 @@ class TrainingTests {
                 trainingDto.copy(
                     id = 2,
                     createDateInMillis = dateTime4,
-                    finishDateInMillis = dateTime4
+                    finishDateInMillis = dateTime4,
+                    exercisesWithProgress = listOf(
+                        trainingDto.exercisesWithProgress.first().copy(id = 3),
+                        trainingDto.exercisesWithProgress[1].copy(id = 4)
+                    )
                 ),
                 trainingDto
             ),
@@ -240,6 +333,26 @@ class TrainingTests {
                 CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 putTemplate(createTrainingTemplateDto)
                 createTraining(1)
+            },
+            runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))
+            }
+        )
+    }
+
+    @Test
+    fun updateTraining_withoutSeriesRecreation() {
+        testPatchEndpoint(
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = updateWithExistedSeriesDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTrainingWithExistedSeries,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                runPatchEndpoint(id = "1", endpointUrl = ApiPath.TRAINING, dto = updateDto)
             },
             runRequestsAfter = {
                 assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))

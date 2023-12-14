@@ -49,7 +49,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         }
     }
 
-    override fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training {
+    override fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training = database.dbCall {
         val userEntity = database.dbCall { UserEntity.findByIdOrThrow(userId) }
 
         val trainingEntity = database.dbCall {
@@ -58,17 +58,13 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             }
         }
 
-        val newExercises = createOrUpdateTrainingExercises(training, userEntity)
+        val newExercises = createOrUpdateTrainingExercises(trainingEntity, training, userEntity)
         removePartsIfNotPresentInNewOnes(newExercises, trainingEntity)
 
-        database.dbCall {
-            trainingEntity.exercises = newExercises.toSized()
-            trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
-        }
+        trainingEntity.exercises = newExercises.toSized()
+        trainingEntity.finishDateInMillis = training.finishDateInMillis.toJavaLocalDateTime()
 
-        return database.dbCall {
-            trainingEntity.toDomain()
-        }
+        trainingEntity.toDomain()
     }
 
     private fun removePartsIfNotPresentInNewOnes(
@@ -81,11 +77,15 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
     }
 
     private fun createOrUpdateTrainingExercises(
+        trainingEntity: TrainingEntity,
         training: UpdateTraining,
         userEntity: UserEntity
     ) = training.exercisesWithProgress.mapIndexed { index, exercise ->
-        exercise.id?.let {
-            TrainingExerciseWithProgressEntity.findById(it)?.apply {
+        exercise.id?.let { id ->
+            TrainingExerciseWithProgressEntity.findById(id)?.apply {
+                if (this.training.first().id.value != trainingEntity.id.value) {
+                    throw IllegalAccessException("Part with $id belongs to different training")
+                }
                 updateTraining(index, userEntity, exercise)
             }
         } ?: createTrainingWithExercises(index, userEntity, exercise)
@@ -99,6 +99,9 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         val progressEntity = database.dbCall {
             TrainingExerciseWithProgressEntity.new {
                 this.user = userEntity
+                name = createPart.name
+                this.ordinalNumber = ordinalNumber
+                exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
             }
         }
         return progressEntity.apply { updateTraining(ordinalNumber, userEntity, createPart) }

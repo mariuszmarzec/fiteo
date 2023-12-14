@@ -38,7 +38,7 @@ class TrainingEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
         createDateInMillis = createDateInMillis.toKotlinLocalDateTime(),
         finishDateInMillis = finishDateInMillis.toKotlinLocalDateTime(),
         exercisesWithProgress = exercises
-            .orderBy(TrainingExerciseWithProgressTable.ordinalNumber to SortOrder.ASC)
+            .sortedBy { it.ordinalNumber }
             .map { it.toDomain(id.value) },
     )
 
@@ -65,6 +65,8 @@ class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(
     var name by TrainingExerciseWithProgressTable.name
     var ordinalNumber by TrainingExerciseWithProgressTable.ordinalNumber
     override var user by UserEntity referencedOn TrainingExerciseWithProgressTable.userId
+
+    val training by TrainingEntity via TrainingToExercisesTable
 
     fun toDomain(
         trainingId: Int
