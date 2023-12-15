@@ -177,10 +177,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     dto = dto,
     headers = headers,
     status = status,
-    responseDtoCheck = {
-        println(it)
-        println(responseDto)
-        assertThat(it).isEqualTo(responseDto) },
+    responseDtoCheck = { assertThat(it).isEqualTo(responseDto) },
     authorize = authorize,
     runRequestsBefore = runRequestsBefore,
     runRequestsAfter = runRequestsAfter

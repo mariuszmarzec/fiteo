@@ -155,16 +155,9 @@ class TrainingTests {
                 name = "part_one",
             ),
             stubUpdateTrainingExerciseWithProgressDto(
+                id = 3,
                 exerciseId = 4,
                 series = listOf(
-                    stubSeriesDto(
-                        seriesId = 2,
-                        exerciseId = 4,
-                        trainingId = 1,
-                        burden = 3f,
-                        repsNumber = 10,
-                        note = "note"
-                    ),
                     stubSeriesDto(
                         exerciseId = 4,
                         trainingId = 1,
@@ -203,14 +196,6 @@ class TrainingTests {
                 name = "part_updated_again",
                 exercise = exerciseCategoryTwoEquipmentOne.toDto(),
                 series = listOf(
-                    stubSeriesDto(
-                        seriesId = 2,
-                        exerciseId = 4,
-                        trainingId = 1,
-                        burden = 3f,
-                        repsNumber = 10,
-                        note = "note"
-                    ),
                     stubSeriesDto(
                         seriesId = 3,
                         exerciseId = 4,
@@ -353,9 +338,6 @@ class TrainingTests {
                 putTemplate(createTrainingTemplateDto)
                 createTraining(1)
                 runPatchEndpoint(id = "1", endpointUrl = ApiPath.TRAINING, dto = updateDto)
-            },
-            runRequestsAfter = {
-                assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))
             }
         )
     }

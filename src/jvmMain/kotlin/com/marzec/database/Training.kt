@@ -73,7 +73,9 @@ class TrainingExerciseWithProgressEntity(id: EntityID<Int>) : IntEntityWithUser(
     ) = TrainingExerciseWithProgress(
         id = id.value,
         exercise = exercise.toDomain(),
-        series = series.map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) },
+        series = series
+            .sortedBy { it.ordinalNumber }
+            .map { it.toDomain(exerciseId = exercise.id.value, trainingId = trainingId) },
         templatePart = templatePartId?.let { TrainingTemplatePartEntity.findById(it) }?.toDomain(),
         name = name
     )
@@ -93,6 +95,7 @@ object SeriesTable : IntIdTable("series") {
     val repsNumber = integer("reps_number").nullable()
     val note = text("note")
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
+    val ordinalNumber = integer("ordinal_number")
 }
 
 class SeriesEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
@@ -101,6 +104,7 @@ class SeriesEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var timeInMillis by SeriesTable.timeInMillis
     var repsNumber by SeriesTable.repsNumber
     var note by SeriesTable.note
+    var ordinalNumber by SeriesTable.ordinalNumber
 
     override var user by UserEntity referencedOn SeriesTable.userId
 

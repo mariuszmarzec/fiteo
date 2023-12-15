@@ -6,10 +6,7 @@ import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.Series
 import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 
 class TrainingRepositoryImpl(private val database: Database) : TrainingRepository {
 
@@ -112,28 +109,53 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
         userEntity: UserEntity,
         createPart: UpdateTrainingExerciseWithProgress
     ) {
-        val newSeries = createPart.series.map {
-            createSeries(userEntity, it)
-        }
+        val newSeries = createSeries(createPart, userEntity)
 
         exercise = ExerciseEntity.findByIdOrThrow(createPart.exerciseId)
         templatePartId = createPart.trainingPartId
         name = createPart.name
         this.ordinalNumber = ordinalNumber
 
+        removeSeriesIfNotPresentInNewOnes(newSeries, series)
         series = newSeries.toSized()
     }
 
-    private fun createSeries(userEntity: UserEntity, series: Series): SeriesEntity {
-        return database.dbCall {
+    private fun createSeries(
+        createPart: UpdateTrainingExerciseWithProgress,
+        userEntity: UserEntity
+    ) = createPart.series.mapIndexed { index, series ->
+        SeriesEntity.findById(series.seriesId)?.apply {
+            updateSeriesEntity(series, index, userEntity)
+        } ?: createSeries(index, userEntity, series)
+    }
+
+    private fun createSeries(ordinalNumber: Int, userEntity: UserEntity, series: Series): SeriesEntity =
+        database.dbCall {
             SeriesEntity.new {
-                date = series.date.toJavaLocalDateTime()
-                burden = series.burden
-                timeInMillis = series.timeInMillis
-                repsNumber = series.repsNumber
-                note = series.note
-                user = userEntity
+                updateSeriesEntity(series, ordinalNumber, userEntity)
             }
         }
+
+    private fun removeSeriesIfNotPresentInNewOnes(
+        newSeries: List<SeriesEntity>,
+        oldSeries: SizedIterable<SeriesEntity>
+    ) {
+        val newPartsIds = newSeries.map { it.id.value }
+        val seriesToRemove = oldSeries.filterNot { it.id.value in newPartsIds }
+        seriesToRemove.forEach { it.delete() }
+    }
+
+    private fun SeriesEntity.updateSeriesEntity(
+        series: Series,
+        ordinalNumber: Int,
+        userEntity: UserEntity
+    ) {
+        date = series.date.toJavaLocalDateTime()
+        burden = series.burden
+        timeInMillis = series.timeInMillis
+        repsNumber = series.repsNumber
+        note = series.note
+        this.ordinalNumber = ordinalNumber
+        user = userEntity
     }
 }
