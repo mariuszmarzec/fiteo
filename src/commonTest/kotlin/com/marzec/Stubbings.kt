@@ -89,14 +89,14 @@ val exerciseCategoryThreeEquipmentThree = stubExercise(
 
 val categories = listOf(
     categoryOne,
-    categoryTwo,
-    categoryThree
+    categoryThree,
+    categoryTwo
 )
 
 val equipment = listOf(
     equipmentOne,
-    equipmentTwo,
-    equipmentThree
+    equipmentThree,
+    equipmentTwo
 )
 
 val exercises = listOf(

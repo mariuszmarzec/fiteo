@@ -176,7 +176,10 @@ val MainModule = module {
     }
 
     factory<CategoriesRepository> { params ->
-        CategoriesRepositoryImpl(CommonRepositoryImpl(CategoryEntity.Companion, get { params }))
+        CategoriesRepositoryImpl(
+            database = get { params },
+            repository = CommonRepositoryImpl(CategoryEntity.Companion, get { params })
+        )
     }
 
     factory { params -> CheatDayController(get { params }) }

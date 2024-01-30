@@ -7,11 +7,12 @@ import com.marzec.database.findByIdOrThrow
 import com.marzec.fiteo.model.domain.Equipment
 import com.marzec.fiteo.model.domain.UpdateEquipment
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 
 class EquipmentRepositoryImpl(private val database: Database) : EquipmentRepository {
     override fun getAll(): List<Equipment> = database.dbCall {
-        EquipmentEntity.all().map { it.toDomain() }
+        EquipmentEntity.all().orderBy(EquipmentTable.name to SortOrder.ASC).map { it.toDomain() }
     }
 
     override fun getById(id: String): Equipment = database.dbCall {
