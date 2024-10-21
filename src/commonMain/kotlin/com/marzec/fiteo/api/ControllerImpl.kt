@@ -1,6 +1,11 @@
 package com.marzec.fiteo.api
 
 import com.marzec.Api
+import com.marzec.core.model.domain.toDto
+import com.marzec.core.model.domain.toUpdateFeatureToggle
+import com.marzec.core.model.dto.FeatureToggleDto
+import com.marzec.core.model.dto.NewFeatureToggleDto
+import com.marzec.core.model.dto.toDomain
 import com.marzec.extensions.*
 import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.model.domain.*
@@ -16,6 +21,7 @@ import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.AuthenticationService
 import com.marzec.fiteo.services.ExercisesService
+import com.marzec.fiteo.services.FeatureTogglesService
 import com.marzec.fiteo.services.TrainingService
 import kotlinx.serialization.json.JsonElement
 
@@ -23,6 +29,7 @@ class ControllerImpl(
     private val exercisesService: ExercisesService,
     private val authenticationService: AuthenticationService,
     private val trainingService: TrainingService,
+    private val featureTogglesService: FeatureTogglesService,
     private val initialDataLoader: InitialDataLoader
 ) : Controller {
     override fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
@@ -199,4 +206,27 @@ class ControllerImpl(
     override fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit> = serviceCall {
         initialDataLoader.forceLoadData()
     }
+
+    override fun getFeatureToggles(request: HttpRequest<Unit>): HttpResponse<List<FeatureToggleDto>> =
+        serviceCall { featureTogglesService.getFeatureToggles().map { it.toDto() } }
+
+    override fun getFeatureToggle(request: HttpRequest<Unit>): HttpResponse<FeatureToggleDto> = serviceCall {
+        featureTogglesService.getFeatureToggle(
+            id = request.getIntIdOrThrow(),
+        ).toDto()
+    }
+
+    override fun deleteFeatureToggle(request: HttpRequest<Unit>): HttpResponse<FeatureToggleDto> =
+        serviceCall { featureTogglesService.deleteFeatureToggle(request.getIntIdOrThrow()).toDto() }
+
+    override fun createFeatureToggle(request: HttpRequest<NewFeatureToggleDto>): HttpResponse<FeatureToggleDto> =
+        serviceCall { featureTogglesService.createFeatureToggle(request.data.toDomain()).toDto() }
+
+    override fun updateFeatureToggle(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<FeatureToggleDto> =
+        serviceCall {
+            featureTogglesService.updateFeatureToggle(
+                id = request.getIntIdOrThrow(),
+                update = request.data.toUpdateFeatureToggle()
+            ).toDto()
+        }
 }

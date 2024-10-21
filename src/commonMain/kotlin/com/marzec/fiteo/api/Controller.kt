@@ -1,5 +1,8 @@
 package com.marzec.fiteo.api
 
+import com.marzec.core.model.domain.NewFeatureToggle
+import com.marzec.core.model.dto.FeatureToggleDto
+import com.marzec.core.model.dto.NewFeatureToggleDto
 import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.CategoryDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
@@ -44,4 +47,9 @@ interface Controller {
     fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun updateTraining(request: HttpRequest<UpdateTrainingDto>): HttpResponse<TrainingDto>
     fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit>
+    fun getFeatureToggles(request: HttpRequest<Unit>): HttpResponse<List<FeatureToggleDto>>
+    fun getFeatureToggle(request: HttpRequest<Unit>): HttpResponse<FeatureToggleDto>
+    fun deleteFeatureToggle(request: HttpRequest<Unit>): HttpResponse<FeatureToggleDto>
+    fun createFeatureToggle(request: HttpRequest<NewFeatureToggleDto>): HttpResponse<FeatureToggleDto>
+    fun updateFeatureToggle(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<FeatureToggleDto>
 }

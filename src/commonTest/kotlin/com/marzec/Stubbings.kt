@@ -4,8 +4,28 @@ import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.core.Uuid
 import com.marzec.core.currentTime
-import com.marzec.fiteo.model.domain.*
-import com.marzec.fiteo.model.dto.*
+import com.marzec.core.model.domain.FeatureToggle
+import com.marzec.core.model.dto.NewFeatureToggleDto
+import com.marzec.fiteo.model.domain.Category
+import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
+import com.marzec.fiteo.model.domain.CreateTrainingTemplatePartDto
+import com.marzec.fiteo.model.domain.Equipment
+import com.marzec.fiteo.model.domain.Exercise
+import com.marzec.fiteo.model.domain.SeriesDto
+import com.marzec.fiteo.model.domain.TrainingDto
+import com.marzec.fiteo.model.domain.TrainingExerciseWithProgressDto
+import com.marzec.fiteo.model.domain.TrainingTemplate
+import com.marzec.fiteo.model.domain.TrainingTemplateDto
+import com.marzec.fiteo.model.domain.TrainingTemplatePart
+import com.marzec.fiteo.model.domain.TrainingTemplatePartDto
+import com.marzec.fiteo.model.domain.UpdateTrainingDto
+import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgressDto
+import com.marzec.fiteo.model.domain.toDto
+import com.marzec.fiteo.model.dto.CategoryDto
+import com.marzec.fiteo.model.dto.EquipmentDto
+import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTask
 import com.marzec.todo.model.CreateTaskDto
@@ -513,3 +533,13 @@ val schedulerMonthlyDto = SchedulerDto(
     repeatInEveryPeriod = 1,
     type = Scheduler.Monthly::class.simpleName.toString(),
 )
+
+val featureToggleOne = FeatureToggle(1, "featureToggleOne", "100")
+val featureToggleTwo = FeatureToggle(2, "featureToggleTwo", "true")
+val featureToggleThree = FeatureToggle(3, "featureToggleThree", "false")
+
+val featureToggles = listOf(featureToggleOne, featureToggleTwo, featureToggleThree)
+
+val newFeatureToggle = NewFeatureToggleDto("featureToggleOne", "100")
+
+fun FeatureToggle.toCreate() = NewFeatureToggleDto(name, value)

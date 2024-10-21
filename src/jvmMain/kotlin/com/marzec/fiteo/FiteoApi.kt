@@ -47,6 +47,12 @@ fun Route.fiteoApi(di: Di, api: Controller) {
     updateCategory(api)
     deleteCategory(api)
 
+    featureToggles(api)
+    featureToggle(api)
+    createFeatureToggle(api)
+    updateFeatureToggle(api)
+    deleteFeatureToggle(api)
+
     if (di.authToken == Api.Auth.TEST) {
         loadForceData(api)
     }
@@ -112,6 +118,16 @@ fun Route.createCategory(api: Controller) = postEndpoint(ApiPath.CATEGORIES, api
 fun Route.updateCategory(api: Controller) = updateByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::updateCategory)
 
 fun Route.deleteCategory(api: Controller) = deleteByIdEndpoint(ApiPath.CATEGORY_BY_ID, api::deleteCategory)
+
+fun Route.featureToggles(api: Controller) = getAllEndpoint(ApiPath.FEATURE_TOGGLES, api::getFeatureToggles)
+
+fun Route.featureToggle(api: Controller) = getByIdEndpoint(ApiPath.FEATURE_TOGGLE_BY_ID, api::getFeatureToggle)
+
+fun Route.createFeatureToggle(api: Controller) = postEndpoint(ApiPath.FEATURE_TOGGLES, api::createFeatureToggle)
+
+fun Route.updateFeatureToggle(api: Controller) = updateByIdEndpoint(ApiPath.FEATURE_TOGGLE_BY_ID, api::updateFeatureToggle)
+
+fun Route.deleteFeatureToggle(api: Controller) = deleteByIdEndpoint(ApiPath.FEATURE_TOGGLE_BY_ID, api::deleteFeatureToggle)
 
 fun Route.loadForceData(api: Controller) {
     get(ApiPath.LOAD_DATA) {

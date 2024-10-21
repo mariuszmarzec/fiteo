@@ -1,13 +1,13 @@
 package com.marzec.fiteo.repositories
 
 import com.marzec.core.repository.CommonRepository
-import com.marzec.database.*
+import com.marzec.database.CategoryEntity
+import com.marzec.database.CategoryTable
+import com.marzec.database.dbCall
 import com.marzec.fiteo.model.domain.Category
 import com.marzec.fiteo.model.domain.UpdateCategory
-import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
-import com.marzec.extensions.update as updateExt
 
 class CategoriesRepositoryImpl(
     private val database: Database,
@@ -20,3 +20,4 @@ class CategoriesRepositoryImpl(
             .map { it.toDomain() }
     }
 }
+

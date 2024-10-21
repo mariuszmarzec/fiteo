@@ -23,6 +23,7 @@ object ApiPath {
 
     const val CATEGORIES = "$API_ROOT/categories"
     const val CATEGORY_BY_ID = "$API_ROOT/categories/{${Api.Args.ARG_ID}}"
+
     const val EQUIPMENT = "$API_ROOT/equipment"
     const val EQUIPMENT_BY_ID = "$API_ROOT/equipment/{${Api.Args.ARG_ID}}"
 
@@ -32,6 +33,9 @@ object ApiPath {
 
     const val TRAINING = "$API_ROOT/trainings/{${Api.Args.ARG_ID}}"
     const val TRAININGS = "$API_ROOT/trainings"
+
+    const val FEATURE_TOGGLES = "$API_ROOT/feature_toggles"
+    const val FEATURE_TOGGLE_BY_ID = "$API_ROOT/feature_toggles/{${Api.Args.ARG_ID}}"
 
     const val REGISTRATION = "$API_ROOT/registration"
     const val LOGIN = "$API_ROOT/login"

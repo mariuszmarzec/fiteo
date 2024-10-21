@@ -13,6 +13,7 @@ import com.marzec.core.repository.CommonRepositoryImpl
 import com.marzec.core.repository.CommonWithUserRepository
 import com.marzec.core.repository.CommonWithUserRepositoryImpl
 import com.marzec.database.CategoryEntity
+import com.marzec.database.FeatureToggleEntity
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.data.InitialDataLoaderImpl
@@ -34,6 +35,8 @@ import com.marzec.fiteo.repositories.EquipmentRepository
 import com.marzec.fiteo.repositories.EquipmentRepositoryImpl
 import com.marzec.fiteo.repositories.ExercisesRepository
 import com.marzec.fiteo.repositories.ExercisesRepositoryImpl
+import com.marzec.fiteo.repositories.FeatureTogglesRepository
+import com.marzec.fiteo.repositories.FeatureTogglesRepositoryImpl
 import com.marzec.fiteo.repositories.TrainingRepository
 import com.marzec.fiteo.repositories.TrainingRepositoryImpl
 import com.marzec.fiteo.repositories.TrainingTemplateRepository
@@ -41,6 +44,8 @@ import com.marzec.fiteo.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.fiteo.repositories.UserRepository
 import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.repositories.WeightsRepositoryImpl
+import com.marzec.fiteo.services.FeatureTogglesService
+import com.marzec.fiteo.services.FeatureTogglesServiceImpl
 import com.marzec.todo.TaskConstraints
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.TodoService
@@ -153,6 +158,7 @@ val MainModule = module {
             get { params },
             get { params },
             get { params },
+            get { params },
             get { params }
         )
     }
@@ -162,6 +168,8 @@ val MainModule = module {
     factory<ResourceFileReader> { ResourceFileReaderImpl() }
 
     factory<AuthenticationService> { params -> AuthenticationServiceImpl(get { params }) }
+
+    factory<FeatureTogglesService> { params -> FeatureTogglesServiceImpl(get { params }) }
 
     factory<UserRepository> { params -> UserRepositoryImpl(get { params }) }
 
@@ -179,6 +187,13 @@ val MainModule = module {
         CategoriesRepositoryImpl(
             database = get { params },
             repository = CommonRepositoryImpl(CategoryEntity.Companion, get { params })
+        )
+    }
+
+    factory<FeatureTogglesRepository> { params ->
+        FeatureTogglesRepositoryImpl(
+            database = get { params },
+            repository = CommonRepositoryImpl(FeatureToggleEntity, get { params })
         )
     }
 
