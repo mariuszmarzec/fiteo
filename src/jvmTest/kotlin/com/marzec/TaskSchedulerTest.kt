@@ -16,7 +16,9 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.GlobalContext
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
 
 class TaskSchedulerTest {
 
@@ -67,6 +69,24 @@ class TaskSchedulerTest {
                     minute = 20,
                     startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
                     lastDate = null,
+                    repeatCount = 3,
+                    repeatInEveryPeriod = 2,
+                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+                )
+            )
+        )
+    )
+    val scheduledWeeklyTasksWithLastDay = mapOf(
+        user to listOf(
+            stubTask(
+                id = 1,
+                description = "1",
+                subTasks = listOf(subTask),
+                scheduler = Scheduler.Weekly(
+                    hour = 14,
+                    minute = 20,
+                    startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                    lastDate = LocalDateTime.of(2021, 6, 16, 0, 0).toKotlinLocalDateTime(),
                     repeatCount = 3,
                     repeatInEveryPeriod = 2,
                     daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
@@ -271,6 +291,18 @@ class TaskSchedulerTest {
     fun `create if scheduled weekly and today is in 2 week from start date`() {
         CurrentTimeUtil.setOtherTime(2, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
+
+        dispatcher.dispatch()
+
+        verify {
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+        }
+    }
+
+    @Test
+    fun `create if scheduled weekly per 2 weeks and today is in 4 week from start date`() {
+        CurrentTimeUtil.setOtherTime(18, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(scheduledWeeklyTasksWithLastDay)
 
         dispatcher.dispatch()
 

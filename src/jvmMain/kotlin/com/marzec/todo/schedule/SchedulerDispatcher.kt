@@ -15,10 +15,11 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.slf4j.LoggerFactory
+import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.YearMonth
-import kotlin.math.ceil
+import kotlin.math.floor
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
@@ -97,28 +98,58 @@ class SchedulerDispatcher(
 
     private fun Scheduler.Weekly.shouldBeCreated(): Boolean {
         val today = currentTime().toJavaLocalDateTime()
-        val firstDate = startDate.toJavaLocalDateTime()
+        val startDate = startDate.toJavaLocalDateTime()
             .withHour(hour)
             .withMinute(minute)
-        val maxDate = repeatCount.takeIf { it > 0 }
-            ?.let { firstDate.plusDays(it.dec() * WEEK_DAYS_COUNT * repeatInEveryPeriod.toLong()) }
-        val firstDateLocal = firstDate.toLocalDate()
         val todayLocalDate = today.toLocalDate()
 
         if (daysOfWeek.isNotEmpty() && today.dayOfWeek !in daysOfWeek) {
             return false
         }
-        val isLessOrEqualMaxDate = maxDate?.let { today <= it } != false
-        if (firstDateLocal <= todayLocalDate && isLessOrEqualMaxDate) {
-            if (ceil(Period.between(firstDateLocal, todayLocalDate).days / WEEK_DAYS_COUNT.toFloat()).toInt().dec()
-                    .mod(repeatInEveryPeriod) == 0
-            ) {
+        val firstPeriodDate = startDate
+            .findFirstDate { it.dayOfWeek in daysOfWeek }
+            ?.findFirstDate(
+                mutate = { it.plusDays(-1) },
+                predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
+            )
+            ?.toLocalDate()
+
+        if (firstPeriodDate == null) {
+            return false
+        }
+
+        if (firstPeriodDate <= todayLocalDate) {
+            val daysBetween = Period.between(firstPeriodDate, todayLocalDate).days
+            val weeksBetween = floor(daysBetween / WEEK_DAYS_COUNT.toFloat()).toInt()
+
+            val isRightPeriod = weeksBetween.mod(repeatInEveryPeriod) == 0
+            val isInCountLimit = repeatCount.takeIf { it > 0 }?.let { maxCount ->
+                weeksBetween / repeatInEveryPeriod.toFloat() <= maxCount
+            } ?: true
+
+            if (isRightPeriod && isInCountLimit) {
                 val creationTime = today.withHour(hour).withMinute(minute)
                 return isInStartWindow(creationTime)
             }
         }
         return false
     }
+
+    private fun LocalDateTime.findFirstDate(
+        maxDate: LocalDateTime = currentTime().toJavaLocalDateTime().plusMonths(3),
+        mutate: (LocalDateTime) -> LocalDateTime = { it.plusDays(1) },
+        predicate: (LocalDateTime) -> Boolean
+    ): LocalDateTime? =
+        if (predicate(this)) {
+            this
+        } else {
+            val nextDate = mutate(this)
+            if (nextDate <= maxDate) {
+                nextDate.findFirstDate(maxDate, mutate, predicate)
+            } else {
+                null
+            }
+        }
 
     private fun isInStartWindow(creationTime: LocalDateTime): Boolean {
         val normalisedCreationTime = creationTime.minusHours(timeZoneOffsetHours)
