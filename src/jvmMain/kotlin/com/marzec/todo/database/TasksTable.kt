@@ -84,6 +84,7 @@ fun Column<String>.transformStringSchedulerNullable() = transform(
 data class SchedulerEntity(
     val hour: Int,
     val minute: Int,
+    val creationDate: String?,
     val startDate: String,
     val lastDate: String?,
     val daysOfWeek: List<Int>,
@@ -104,6 +105,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         highestPriorityAsDefault = highestPriorityAsDefault,
@@ -112,6 +114,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
@@ -120,7 +123,10 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         highestPriorityAsDefault = highestPriorityAsDefault,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
-        hour = hour, minute = minute, startDate = startDate.toLocalDateTime(),
+        hour = hour,
+        minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
+        startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         dayOfMonth = dayOfMonth,
         repeatInEveryPeriod = repeatInEveryPeriod,
@@ -134,6 +140,7 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
     is Scheduler.OneShot -> SchedulerEntity(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = emptyList(),
@@ -149,6 +156,7 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
     is Scheduler.Weekly -> SchedulerEntity(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = daysOfWeek.map { it.isoDayNumber },
@@ -163,6 +171,7 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
     is Scheduler.Monthly -> SchedulerEntity(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = emptyList(),

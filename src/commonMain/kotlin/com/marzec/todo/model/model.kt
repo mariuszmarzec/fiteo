@@ -30,6 +30,7 @@ data class Task(
 sealed class Scheduler(
     open val hour: Int,
     open val minute: Int,
+    open val creationDate: LocalDateTime?,
     open val startDate: LocalDateTime,
     open val lastDate: LocalDateTime?,
     open val repeatCount: Int = DEFAULT_REPEAT_COUNT,
@@ -39,6 +40,7 @@ sealed class Scheduler(
     data class OneShot(
         override val hour: Int,
         override val minute: Int,
+        override val creationDate: LocalDateTime?,
         override val startDate: LocalDateTime,
         override val lastDate: LocalDateTime?,
         override val repeatCount: Int = DEFAULT_REPEAT_COUNT,
@@ -46,12 +48,20 @@ sealed class Scheduler(
         override val highestPriorityAsDefault: Boolean = HIGHEST_PRIORITY_AS_DEFAULT,
         val removeScheduled: Boolean = REMOVE_SCHEDULED
     ) : Scheduler(
-        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod, highestPriorityAsDefault
+        hour = hour,
+        minute = minute,
+        creationDate = creationDate,
+        startDate = startDate,
+        lastDate = lastDate,
+        repeatCount = repeatCount,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        highestPriorityAsDefault = highestPriorityAsDefault
     )
 
     data class Weekly(
         override val hour: Int,
         override val minute: Int,
+        override val creationDate: LocalDateTime?,
         override val startDate: LocalDateTime,
         val daysOfWeek: List<DayOfWeek>,
         override val lastDate: LocalDateTime?,
@@ -59,12 +69,20 @@ sealed class Scheduler(
         override val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD,
         override val highestPriorityAsDefault: Boolean = HIGHEST_PRIORITY_AS_DEFAULT
     ) : Scheduler(
-        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod, highestPriorityAsDefault
+        hour = hour,
+        minute = minute,
+        creationDate = creationDate,
+        startDate = startDate,
+        lastDate = lastDate,
+        repeatCount = repeatCount,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        highestPriorityAsDefault = highestPriorityAsDefault
     )
 
     data class Monthly(
         override val hour: Int,
         override val minute: Int,
+        override val creationDate: LocalDateTime?,
         override val startDate: LocalDateTime,
         val dayOfMonth: Int,
         override val lastDate: LocalDateTime?,
@@ -72,7 +90,14 @@ sealed class Scheduler(
         override val repeatInEveryPeriod: Int = DEFAULT_REPEAT_IN_EVERY_PERIOD,
         override val highestPriorityAsDefault: Boolean = HIGHEST_PRIORITY_AS_DEFAULT
     ) : Scheduler(
-        hour, minute, startDate, lastDate, repeatCount, repeatInEveryPeriod, highestPriorityAsDefault
+        hour = hour,
+        minute = minute,
+        creationDate = creationDate,
+        startDate = startDate,
+        lastDate = lastDate,
+        repeatCount = repeatCount,
+        repeatInEveryPeriod = repeatInEveryPeriod,
+        highestPriorityAsDefault = highestPriorityAsDefault
     )
 
     fun updateLastDate(lastDate: LocalDateTime) = when (this) {
@@ -93,6 +118,7 @@ sealed class Scheduler(
 data class SchedulerDto(
     val hour: Int,
     val minute: Int,
+    val creationDate: String?,
     val startDate: String,
     val lastDate: String? = null,
     val daysOfWeek: List<Int>,
@@ -122,6 +148,7 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         highestPriorityAsDefault = highestPriorityAsDefault,
@@ -130,6 +157,7 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
@@ -138,7 +166,10 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
         highestPriorityAsDefault = highestPriorityAsDefault
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
-        hour = hour, minute = minute, startDate = startDate.toLocalDateTime(),
+        hour = hour,
+        minute = minute,
+        creationDate = creationDate?.toLocalDateTime(),
+        startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         dayOfMonth = dayOfMonth,
         repeatInEveryPeriod = repeatInEveryPeriod,
@@ -172,6 +203,7 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
     is Scheduler.OneShot -> SchedulerDto(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = emptyList(),
@@ -184,6 +216,7 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
     is Scheduler.Weekly -> SchedulerDto(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = daysOfWeek.map { it.isoDayNumber },
@@ -196,6 +229,7 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
     is Scheduler.Monthly -> SchedulerDto(
         hour = hour,
         minute = minute,
+        creationDate = creationDate?.formatDate(),
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = emptyList(),

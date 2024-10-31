@@ -37,6 +37,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.isoDayNumber
 import kotlinx.serialization.json.Json
 
+val creationTime = "2021-05-15T00:00:00"
 val dateTime = "2021-05-16T00:00:00"
 val dateTime2 = "2021-05-17T07:20:30"
 val dateTime3 = "2021-05-18T07:20:30"
@@ -501,6 +502,7 @@ fun stubUpdateTrainingExerciseWithProgressDto(
 val schedulerOneShotDto = SchedulerDto(
     hour = 7,
     minute = 0,
+    creationDate = creationTime,
     startDate = dateTime,
     lastDate = dateTime,
     daysOfWeek = emptyList(),
@@ -513,6 +515,7 @@ val schedulerOneShotDto = SchedulerDto(
 val schedulerWeeklyDto = SchedulerDto(
     hour = 12,
     minute = 0,
+    creationDate = creationTime,
     startDate = dateTime,
     lastDate = dateTime,
     daysOfWeek = listOf(DayOfWeek.MONDAY.isoDayNumber, DayOfWeek.FRIDAY.isoDayNumber),
@@ -525,6 +528,7 @@ val schedulerWeeklyDto = SchedulerDto(
 val schedulerMonthlyDto = SchedulerDto(
     hour = 14,
     minute = 30,
+    creationDate = creationTime,
     startDate = dateTime,
     lastDate = dateTime,
     daysOfWeek = emptyList(),

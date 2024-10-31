@@ -16,9 +16,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.GlobalContext
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Period
 
 class TaskSchedulerTest {
 
@@ -33,6 +31,7 @@ class TaskSchedulerTest {
                 scheduler = Scheduler.OneShot(
                     hour = 14,
                     minute = 20,
+                    creationDate = null,
                     LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
                     lastDate = null,
                     repeatCount = -1,
@@ -44,19 +43,13 @@ class TaskSchedulerTest {
     val monthlyScheduler = Scheduler.Monthly(
         hour = 14,
         minute = 20,
+        creationDate = null,
         startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
         lastDate = null,
         repeatCount = 3,
         repeatInEveryPeriod = 2,
         dayOfMonth = 20
     )
-    val monthlyTask = stubTask(
-        id = 1,
-        description = "1",
-        subTasks = listOf(subTask),
-        scheduler = monthlyScheduler
-    )
-    val scheduledMonthlyTasks = taskMap(monthlyTask)
 
     val scheduledWeeklyTasks = mapOf(
         user to listOf(
@@ -67,6 +60,7 @@ class TaskSchedulerTest {
                 scheduler = Scheduler.Weekly(
                     hour = 14,
                     minute = 20,
+                    creationDate = null,
                     startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
                     lastDate = null,
                     repeatCount = 3,
@@ -85,6 +79,7 @@ class TaskSchedulerTest {
                 scheduler = Scheduler.Weekly(
                     hour = 14,
                     minute = 20,
+                    creationDate = null,
                     startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
                     lastDate = LocalDateTime.of(2021, 6, 16, 0, 0).toKotlinLocalDateTime(),
                     repeatCount = 3,
@@ -103,6 +98,7 @@ class TaskSchedulerTest {
                 scheduler = Scheduler.Weekly(
                     hour = 7,
                     minute = 0,
+                    creationDate = null,
                     startDate = LocalDateTime.of(2022, 5, 12, 0, 0).toKotlinLocalDateTime(),
                     lastDate = null,
                     repeatCount = -1,
@@ -121,6 +117,7 @@ class TaskSchedulerTest {
                 scheduler = Scheduler.Weekly(
                     hour = 7,
                     minute = 0,
+                    creationDate = null,
                     startDate = LocalDateTime.of(2022, 5, 12, 0, 0).toKotlinLocalDateTime(),
                     lastDate = LocalDateTime.of(2022, 5, 19, 0, 0).toKotlinLocalDateTime(),
                     repeatCount = -1,
@@ -176,7 +173,7 @@ class TaskSchedulerTest {
     @Test
     fun `run creation if scheduled monthly`() {
         CurrentTimeUtil.setOtherTime(20, 5, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        val dispatcher = schedulerDispatcher(monthlyScheduler)
 
         dispatcher.dispatch()
 
@@ -190,7 +187,18 @@ class TaskSchedulerTest {
         // In november is winter time, one hour backward
         CurrentTimeUtil.setOtherTime(30, 11, 2021, 15, 30)
         val dispatcher =
-            schedulerDispatcher(taskMap(monthlyTask.copy(scheduler = monthlyScheduler.copy(repeatCount = 4, dayOfMonth = 30))))
+            schedulerDispatcher(
+                mapOf(
+                    user to listOf(
+                        stubTask(
+                            id = 1,
+                            description = "1",
+                            subTasks = listOf(subTask),
+                            scheduler = monthlyScheduler
+                        ).copy(scheduler = monthlyScheduler.copy(repeatCount = 4, dayOfMonth = 30))
+                    )
+                )
+            )
 
         dispatcher.dispatch()
 
@@ -205,16 +213,23 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(9, 8, 2022, 8, 13)
         val dispatcher =
             schedulerDispatcher(
-                taskMap(
-                    monthlyTask.copy(
-                        scheduler = monthlyScheduler.copy(
-                            hour = 8,
-                            minute = 0,
-                            startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
-                            lastDate = null,
-                            repeatCount = -1,
-                            repeatInEveryPeriod = 1,
-                            dayOfMonth = 30
+                mapOf(
+                    user to listOf(
+                        stubTask(
+                            id = 1,
+                            description = "1",
+                            subTasks = listOf(subTask),
+                            scheduler = monthlyScheduler
+                        ).copy(
+                            scheduler = monthlyScheduler.copy(
+                                hour = 8,
+                                minute = 0,
+                                startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+                                lastDate = null,
+                                repeatCount = -1,
+                                repeatInEveryPeriod = 1,
+                                dayOfMonth = 30
+                            )
                         )
                     )
                 )
@@ -230,7 +245,7 @@ class TaskSchedulerTest {
     @Test
     fun `do not create if scheduled monthly and month not in step`() {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        val dispatcher = schedulerDispatcher(monthlyScheduler)
 
         dispatcher.dispatch()
 
@@ -242,7 +257,7 @@ class TaskSchedulerTest {
     @Test
     fun `do not create if scheduled monthly and wrong day, but good hour`() {
         CurrentTimeUtil.setOtherTime(21, 5, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        val dispatcher = schedulerDispatcher(monthlyScheduler)
 
         dispatcher.dispatch()
 
@@ -254,7 +269,8 @@ class TaskSchedulerTest {
     @Test
     fun `do not create if scheduled monthly and not proper time`() {
         CurrentTimeUtil.setOtherTime(21, 6, 2021, 14, 30)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        val scheduler = monthlyScheduler
+        val dispatcher = schedulerDispatcher(scheduler)
 
         dispatcher.dispatch()
 
@@ -266,7 +282,7 @@ class TaskSchedulerTest {
     @Test
     fun `do not create if scheduled monthly and wrong hour`() {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 55)
-        val dispatcher = schedulerDispatcher(scheduledMonthlyTasks)
+        val dispatcher = schedulerDispatcher(monthlyScheduler)
 
         dispatcher.dispatch()
 
@@ -399,9 +415,17 @@ class TaskSchedulerTest {
         timeZoneOffsetHours = 2
     )
 
-    private fun taskMap(task: Task) = mapOf(
-        user to listOf(
-            task
+    private fun schedulerDispatcher(scheduler: Scheduler) = schedulerDispatcher(
+        mapOf(
+            user to listOf(
+                stubTask(
+                    id = 1,
+                    description = "1",
+                    subTasks = listOf(subTask),
+                    scheduler = scheduler
+                )
+            )
         )
     )
+
 }
