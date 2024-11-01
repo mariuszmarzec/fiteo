@@ -30,7 +30,7 @@ data class Task(
 sealed class Scheduler(
     open val hour: Int,
     open val minute: Int,
-    open val creationDate: LocalDateTime?,
+    open val creationDate: LocalDateTime? = null,
     open val startDate: LocalDateTime,
     open val lastDate: LocalDateTime?,
     open val repeatCount: Int = DEFAULT_REPEAT_COUNT,
