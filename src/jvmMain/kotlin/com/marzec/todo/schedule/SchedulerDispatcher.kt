@@ -20,7 +20,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.YearMonth
-import kotlin.math.floor
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
@@ -29,6 +28,8 @@ class SchedulerDispatcher(
     private val timeZoneOffsetHours: Long
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    private val creationTimeFeatureEnabled = true
 
     fun dispatch() {
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
@@ -79,16 +80,15 @@ class SchedulerDispatcher(
         }
 
         return shouldCreate(
-            calcFirstPeriodDate = { startDate: LocalDateTime ->
+            calcFirstPeriodDate = { startDate: LocalDate ->
                 val realDayOfMonth =
                     if (dayOfMonth > startDate.lastDayOfTheMonth()) startDate.lastDayOfTheMonth() else dayOfMonth
                 val startedInNextMonth = startDate.dayOfMonth > realDayOfMonth
                 startDate.withDayOfMonth(realDayOfMonth)
                     .let { if (startedInNextMonth) it.plusMonths(1) else it }
-                    .toLocalDate()
             },
-            calcPeriodsBetween = { firstPeriodDate, todayLocalDate ->
-                Period.between(firstPeriodDate, todayLocalDate.plusDays(1)).months
+            calcPeriodNumber = { firstPeriodDate, todayLocalDate ->
+                Period.between(firstPeriodDate.plusDays(-1), todayLocalDate).months.inc()
             }
         )
     }
@@ -100,40 +100,54 @@ class SchedulerDispatcher(
         }
 
         return shouldCreate(
-            calcFirstPeriodDate = { startDate: LocalDateTime ->
+            calcFirstPeriodDate = { startDate: LocalDate ->
                 startDate.findFirstDate { it.dayOfWeek in daysOfWeek }
                     ?.findFirstDate(
                         mutate = { it.plusDays(-1) },
                         predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
-                    )?.toLocalDate()
+                    )
             },
-            calcPeriodsBetween = { firstPeriodDate, todayLocalDate ->
-                val daysBetween = Period.between(firstPeriodDate, todayLocalDate).days
-                floor(daysBetween / WEEK_DAYS_COUNT.toFloat()).toInt()
+            calcPeriodNumber = { firstPeriodDate, todayLocalDate ->
+                val firstPeriodDayOfToday = todayLocalDate.findFirstDate(
+                    mutate = { it.plusDays(-1) },
+                    predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
+                )
+                println("firstPeriodDate $firstPeriodDate")
+                println("firstPeriodDayOfToday $firstPeriodDayOfToday")
+                val daysBetween = Period.between(firstPeriodDate, firstPeriodDayOfToday).days
+                daysBetween / WEEK_DAYS_COUNT + 1
             }
         )
     }
 
     private fun Scheduler.shouldCreate(
-        calcFirstPeriodDate: (startDate: LocalDateTime) -> LocalDate?,
-        calcPeriodsBetween: (firstPeriodDate: LocalDate, todayLocalDate: LocalDate) -> Int
+        calcFirstPeriodDate: (startDate: LocalDate) -> LocalDate?,
+        calcPeriodNumber: (firstPeriodDate: LocalDate, todayLocalDate: LocalDate) -> Int
     ): Boolean {
         val today = currentTime().toJavaLocalDateTime()
-        val startDate = startDate.toJavaLocalDateTime()
-            .withHour(hour)
-            .withMinute(minute)
+        val creationDate = creationDate?.toJavaLocalDateTime()?.takeIf { creationTimeFeatureEnabled } ?: LocalDateTime.MIN
+        val startDateWithHour = startDate.toJavaLocalDateTime().withHour(hour).withMinute(minute)
+        val startDate = if (creationDate > startDateWithHour) {
+            if (creationDate.toLocalDate() == startDateWithHour.toLocalDate()) {
+                creationDate.plusDays(1)
+            } else {
+                creationDate
+            }
+        } else {
+            startDateWithHour
+        }.toLocalDate()
         val todayLocalDate = today.toLocalDate()
 
         val firstPeriodDate = calcFirstPeriodDate(startDate) ?: return false
 
         if (firstPeriodDate <= todayLocalDate) {
-            val periodsBetween = calcPeriodsBetween(firstPeriodDate, todayLocalDate)
+            val periodNumber = calcPeriodNumber(firstPeriodDate, todayLocalDate)
 
-            val isRightPeriod = periodsBetween.mod(repeatInEveryPeriod) == 0
+            val isRightPeriod = (periodNumber - 1).mod(repeatInEveryPeriod) == 0
             val isInCountLimit = repeatCount.takeIf { it > 0 }?.let { maxCount ->
-                periodsBetween / repeatInEveryPeriod.toFloat() <= maxCount
+                (periodNumber - 1) / repeatInEveryPeriod.toFloat() + 1 <= maxCount
             } ?: true
-            println("periodsBetween $periodsBetween")
+            println("periodsBetween $periodNumber")
             println("repeatInEveryPeriod $repeatInEveryPeriod")
             println("isRightPeriod $isRightPeriod")
             println("isInCountLimit $isInCountLimit")
@@ -146,11 +160,11 @@ class SchedulerDispatcher(
         return false
     }
 
-    private fun LocalDateTime.findFirstDate(
-        maxDate: LocalDateTime = currentTime().toJavaLocalDateTime().plusMonths(3),
-        mutate: (LocalDateTime) -> LocalDateTime = { it.plusDays(1) },
-        predicate: (LocalDateTime) -> Boolean
-    ): LocalDateTime? =
+    private fun LocalDate.findFirstDate(
+        maxDate: LocalDate = currentTime().toJavaLocalDateTime().toLocalDate().plusMonths(3),
+        mutate: (LocalDate) -> LocalDate = { it.plusDays(1) },
+        predicate: (LocalDate) -> Boolean
+    ): LocalDate? =
         if (predicate(this)) {
             this
         } else {
@@ -202,6 +216,9 @@ fun runTodoSchedulerDispatcher(vararg dis: Di) {
     }
 }
 
-private fun LocalDateTime.lastDayOfTheMonth() = YearMonth.of(year, month).atEndOfMonth().dayOfMonth
+private fun LocalDate.lastDayOfTheMonth() = YearMonth.of(year, month).atEndOfMonth().dayOfMonth
 
-private fun LocalDateTime.targetDayOfMonth(targetDayOfMonth: Int) = if (targetDayOfMonth > this.lastDayOfTheMonth()) lastDayOfTheMonth() else targetDayOfMonth
+private fun LocalDateTime.targetDayOfMonth(targetDayOfMonth: Int): Int {
+    val lastDayOfTheMonth = this.toLocalDate().lastDayOfTheMonth()
+    return if (targetDayOfMonth > lastDayOfTheMonth) lastDayOfTheMonth else targetDayOfMonth
+}

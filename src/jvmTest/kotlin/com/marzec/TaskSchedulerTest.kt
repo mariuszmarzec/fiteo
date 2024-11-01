@@ -51,22 +51,24 @@ class TaskSchedulerTest {
         dayOfMonth = 20
     )
 
+    val weeklyScheduler = Scheduler.Weekly(
+        hour = 14,
+        minute = 20,
+        creationDate = null,
+        startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
+        lastDate = null,
+        repeatCount = 3,
+        repeatInEveryPeriod = 2,
+        daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+    )
+
     val scheduledWeeklyTasks = mapOf(
         user to listOf(
             stubTask(
                 id = 1,
                 description = "1",
                 subTasks = listOf(subTask),
-                scheduler = Scheduler.Weekly(
-                    hour = 14,
-                    minute = 20,
-                    creationDate = null,
-                    startDate = LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
-                    lastDate = null,
-                    repeatCount = 3,
-                    repeatInEveryPeriod = 2,
-                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
-                )
+                scheduler = weeklyScheduler
             )
         )
     )
@@ -177,9 +179,22 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-        }
+        verifyCreated()
+    }
+
+    @Test
+    fun `run creation if scheduled monthly with creation time`() {
+        verifyDispatcher(
+            monthlyScheduler.copy(
+                creationDate = LocalDateTime.of(2021, 5, 16, 15, 0).toKotlinLocalDateTime(),
+                dayOfMonth = 16
+            ),
+            day = 16,
+            month = 10,
+            year = 2021,
+            hour = 14,
+            minute = 30
+        )
     }
 
     @Test
@@ -202,9 +217,7 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-        }
+        verifyCreated()
     }
 
     @Test
@@ -298,8 +311,25 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+        verifyCreated()
+    }
+
+    @Test
+    fun `if creation time higher than start date, begin from next period, success case`() {
+        CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
+        val dispatcher = schedulerDispatcher(weeklyScheduler.copy(
+            creationDate = LocalDateTime.of(2021, 5, 16, 17, 0,0).toKotlinLocalDateTime(),
+            daysOfWeek = listOf(DayOfWeek.SUNDAY)
+        ))
+
+        dispatcher.dispatch()
+
+        verifyCreated()
+    }
+
+    private fun verifyNotCreated() {
+        verify(inverse = true) {
+            service.copyTask(any(), any(), any())
         }
     }
 
@@ -310,9 +340,7 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
-        verify {
-            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-        }
+        verifyCreated()
     }
 
     @Test
@@ -322,6 +350,10 @@ class TaskSchedulerTest {
 
         dispatcher.dispatch()
 
+        verifyCreated()
+    }
+
+    private fun verifyCreated() {
         verify {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
@@ -405,6 +437,26 @@ class TaskSchedulerTest {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
+
+    private fun verifyDispatcher(
+        scheduler: Scheduler,
+        day: Int,
+        month: Int,
+        year: Int,
+        hour: Int,
+        minute: Int,
+        falseCase: Boolean = false
+    ) {
+        CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
+        val dispatcher = schedulerDispatcher(scheduler)
+
+        dispatcher.dispatch()
+
+        verify(inverse = falseCase) {
+            service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+        }
+    }
+
 
     private fun schedulerDispatcher(scheduledTasks: Map<User, List<Task>>): SchedulerDispatcher = SchedulerDispatcher(
         todoRepository = repository.apply {
