@@ -84,7 +84,7 @@ fun Column<String>.transformStringSchedulerNullable() = transform(
 data class SchedulerEntity(
     val hour: Int,
     val minute: Int,
-    val creationDate: String?,
+    val creationDate: String? = null,
     val startDate: String,
     val lastDate: String?,
     val daysOfWeek: List<Int>,
