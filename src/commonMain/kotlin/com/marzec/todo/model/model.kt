@@ -118,7 +118,7 @@ sealed class Scheduler(
 data class SchedulerDto(
     val hour: Int,
     val minute: Int,
-    val creationDate: String?,
+    val creationDate: String? = null,
     val startDate: String,
     val lastDate: String? = null,
     val daysOfWeek: List<Int>,
