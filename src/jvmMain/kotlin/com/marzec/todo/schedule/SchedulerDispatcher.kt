@@ -112,8 +112,6 @@ class SchedulerDispatcher(
                     mutate = { it.plusDays(-1) },
                     predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
                 )
-                println("firstPeriodDate $firstPeriodDate")
-                println("firstPeriodDayOfToday $firstPeriodDayOfToday")
                 val daysBetween = Period.between(firstPeriodDate, firstPeriodDayOfToday).days
                 daysBetween / WEEK_DAYS_COUNT + 1
             }
@@ -147,10 +145,6 @@ class SchedulerDispatcher(
             val isInCountLimit = repeatCount.takeIf { it > 0 }?.let { maxCount ->
                 (periodNumber - 1) / repeatInEveryPeriod.toFloat() + 1 <= maxCount
             } ?: true
-            println("periodsBetween $periodNumber")
-            println("repeatInEveryPeriod $repeatInEveryPeriod")
-            println("isRightPeriod $isRightPeriod")
-            println("isInCountLimit $isInCountLimit")
 
             if (isRightPeriod && isInCountLimit) {
                 val creationTime = today.withHour(hour).withMinute(minute)
