@@ -97,6 +97,22 @@ fun runTodoSchedulerDispatcher(vararg dis: Di) {
     }
 }
 
+private fun LocalDate.findFirstDate(
+    maxDate: LocalDate = currentTime().toJavaLocalDateTime().toLocalDate().plusMonths(3),
+    mutate: (LocalDate) -> LocalDate = { it.plusDays(1) },
+    predicate: (LocalDate) -> Boolean
+): LocalDate? =
+    if (predicate(this)) {
+        this
+    } else {
+        val nextDate = mutate(this)
+        if (nextDate <= maxDate) {
+            nextDate.findFirstDate(maxDate, mutate, predicate)
+        } else {
+            null
+        }
+    }
+
 private fun LocalDate.lastDayOfTheMonth() = YearMonth.of(year, month).atEndOfMonth().dayOfMonth
 
 private fun LocalDateTime.targetDayOfMonth(targetDayOfMonth: Int): Int {
@@ -204,23 +220,6 @@ private class SchedulerChecker(
         }
         return false
     }
-
-    private fun LocalDate.findFirstDate(
-        maxDate: LocalDate = currentTime().toJavaLocalDateTime().toLocalDate().plusMonths(3),
-        mutate: (LocalDate) -> LocalDate = { it.plusDays(1) },
-        predicate: (LocalDate) -> Boolean
-    ): LocalDate? =
-        if (predicate(this)) {
-            this
-        } else {
-            val nextDate = mutate(this)
-            if (nextDate <= maxDate) {
-                nextDate.findFirstDate(maxDate, mutate, predicate)
-            } else {
-                null
-            }
-        }
-
 
     companion object {
         private const val WEEK_DAYS_COUNT = 7
