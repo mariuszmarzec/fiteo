@@ -29,6 +29,10 @@ class SchedulerDispatcher(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    init {
+        logger.info("Scheduler dispatcher started ${currentTime().toJavaLocalDateTime().minusHours(timeZoneOffsetHours)}")
+    }
+
     private val creationTimeFeatureEnabled = true
 
     private val isInStartWindow: Scheduler.(creationTime: LocalDateTime, today: LocalDateTime) -> Boolean =
