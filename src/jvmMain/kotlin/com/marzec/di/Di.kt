@@ -71,8 +71,8 @@ const val SECONDS_IN_MINUTE = 60L
 const val HOURS_IN_DAY = 24
 const val DAYS_IN_MONTH = 31
 private const val EXPIRATION_MONTHS_COUNT = 3
-private const val SCHEDULER_INTERVAL_IN_MIN = 15
-private const val TIME_ZONE_OFFSET_HOURS = 2L
+private const val SCHEDULER_INTERVAL_IN_MIN = 3
+private const val TIME_ZONE_OFFSET_HOURS = -2L
 
 class Di(
     private val database: Database,
