@@ -10,6 +10,7 @@ import com.marzec.common.createHttpRequest
 import com.marzec.common.dispatch
 import com.marzec.common.getBySessionEndpoint
 import com.marzec.common.postEndpoint
+import com.marzec.core.CurrentTimeUtil
 import com.marzec.core.currentMillis
 import com.marzec.database.DbSettings
 import com.marzec.database.UserPrincipal
@@ -71,7 +72,10 @@ import javax.crypto.spec.SecretKeySpec
 private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
 
-fun main(args: Array<String>) = EngineMain.main(args)
+fun main(args: Array<String>) {
+    CurrentTimeUtil.init(TimeZone.getTimeZone("GMT+2"))
+    EngineMain.main(args)
+}
 
 @Suppress("unused")
 fun Application.module() {
