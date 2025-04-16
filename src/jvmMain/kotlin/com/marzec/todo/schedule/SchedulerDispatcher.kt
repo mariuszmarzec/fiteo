@@ -38,7 +38,7 @@ class SchedulerDispatcher(
 
     private val isInStartWindow: Scheduler.(creationTime: LocalDateTime, today: LocalDateTime) -> Boolean =
         { creationTime: LocalDateTime, today: LocalDateTime ->
-            val normalisedCreationTime = creationTime.plusHours(timeZoneOffsetHours)
+            val normalisedCreationTime = creationTime.minusHours(timeZoneOffsetHours)
 
             val intervalEndTime = today.plusHours(timeZoneOffsetHours)
             val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)

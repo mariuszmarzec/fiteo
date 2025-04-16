@@ -24,7 +24,7 @@ object CurrentTimeUtil {
     }
 }
 
-actual fun currentTime(): kotlinx.datetime.LocalDateTime = LocalDateTime.now().toKotlinLocalDateTime()
+actual fun currentTime(): kotlinx.datetime.LocalDateTime = LocalDateTime.now(CurrentTimeUtil.clock).toKotlinLocalDateTime()
 
 actual fun currentMillis(): Long =
-    LocalDateTime.now().toInstant(OffsetDateTime.now().offset).toEpochMilli()
+    LocalDateTime.now(CurrentTimeUtil.clock).toInstant(OffsetDateTime.now().offset).toEpochMilli()
