@@ -40,7 +40,7 @@ class SchedulerDispatcher(
         { creationTime: LocalDateTime, today: LocalDateTime ->
             val normalisedCreationTime = creationTime.plusHours(timeZoneOffsetHours)
 
-            val intervalEndTime = today
+            val intervalEndTime = today.plusHours(timeZoneOffsetHours)
             val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
             logger.info("---------------------------------- CHECK")
             logger.info("normalisedCreationTime ${normalisedCreationTime.format(DateTimeFormatter.ISO_DATE_TIME)}")
