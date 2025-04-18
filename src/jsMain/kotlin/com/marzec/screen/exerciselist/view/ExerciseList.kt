@@ -15,7 +15,7 @@ import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
-import js.core.jso
+import js.objects.jso
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.w3c.dom.url.URLSearchParams
 import react.FC

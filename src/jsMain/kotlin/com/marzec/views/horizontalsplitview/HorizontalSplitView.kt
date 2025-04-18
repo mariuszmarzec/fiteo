@@ -5,7 +5,6 @@ import com.marzec.views.base.ReactRendererDelegate
 import com.marzec.views.base.Renderer
 import com.marzec.views.base.RendererDelegate
 import com.marzec.views.base.ViewItem
-import emotion.react.css
 import react.ChildrenBuilder
 import react.create
 import react.dom.html.ReactHTML.div
@@ -31,24 +30,25 @@ class HorizontalSplitDelegate : ReactRendererDelegate() {
         item as HorizontalSplitView
         renderer as ReactRenderer
         div {
-            css {
-                height = 100.pct
-                width = 100.pct
-                display = Display.flex
-            }
-            div {
-                css {
-                    width = item.leftPercentageWidth.pct
-                }
-                renderer.render(item.leftColumnItems, this)
-            }
-
-            div {
-                css {
-                    width = item.rightPercentageWidth.pct
-                }
-                renderer.render(item.rightColumnItems, this)
-            }
+            // TODO KOTLIN WRAPPERS
+//            css {
+//                height = 100.pct
+//                width = 100.pct
+//                display = Display.flex
+//            }
+//            div {
+//                css {
+//                    width = item.leftPercentageWidth.pct
+//                }
+//                renderer.render(item.leftColumnItems, this)
+//            }
+//
+//            div {
+//                css {
+//                    width = item.rightPercentageWidth.pct
+//                }
+//                renderer.render(item.rightColumnItems, this)
+//            }
         }
 
     }

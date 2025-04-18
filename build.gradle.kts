@@ -62,7 +62,6 @@ version = "1.0.0"
 kotlin {
 
     jvm {
-        withJava()
         tasks.test {
             useJUnitPlatform()
             testLogging {
@@ -94,7 +93,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
-                implementation("io.mockk:mockk-common:${Dependency.mockk_version}")
             }
         }
         val jvmMain by getting {
@@ -124,7 +122,6 @@ kotlin {
                 implementation("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
 
                 implementation("io.mockk:mockk:${Dependency.mockk_version}")
-
             }
         }
         val jvmTest by getting {
@@ -133,7 +130,7 @@ kotlin {
                 implementation(kotlin("test-junit"))
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
                 implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
-                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
+//                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
@@ -154,11 +151,10 @@ kotlin {
                 implementation("io.ktor:ktor-client-json-js:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-client-serialization-js:${Dependency.ktor_version}")
 
-                implementation(platform("org.jetbrains.kotlin-wrappers:kotlin-wrappers-bom:${Dependency.kotlinWrappersVersion}"))
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion")
+                implementation(kotlinWrappers.js)
+                implementation(kotlinWrappers.react)
+                implementation(kotlinWrappers.reactDom)
+                implementation(kotlinWrappers.reactRouter)
             }
         }
     }
@@ -269,8 +265,8 @@ tasks.jacocoTestReport {
         .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
 
     reports {
-        xml.isEnabled = true
-        html.isEnabled = true
+        xml.required.set(true)
+        html.required.set(true)
     }
 }
 

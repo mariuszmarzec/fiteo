@@ -16,7 +16,9 @@ fun <T> useStateFlow(flow: Flow<T>, default: T): T {
         val job = flow.onEach {
             setState(it)
         }.launchIn(GlobalScope)
-        cleanup { job.cancel() }
+        // TODO KOTLIN WRAPPERS
+
+//        cleanup { job.cancel() }
     }
 
     return state
