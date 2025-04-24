@@ -97,9 +97,9 @@ class ControllerImpl(
         exercisesService.deleteExercise(id = request.getIntOrThrow(Api.Args.ARG_ID)).toDto()
     }
 
-    override fun postLogin(request: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto> = serviceCall {
-        val email = request.data?.email.orEmpty()
-        val password = request.data?.password.orEmpty()
+    override fun postLogin(request: HttpRequest<LoginRequestDto>): HttpResponse<UserDto> = serviceCall {
+        val email = request.data.email.orEmpty()
+        val password = request.data.password.orEmpty()
         authenticationService.checkPassword(email, password).toDto()
     }
 

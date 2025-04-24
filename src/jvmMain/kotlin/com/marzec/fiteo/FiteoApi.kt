@@ -131,6 +131,6 @@ fun Route.deleteFeatureToggle(api: Controller) = deleteByIdEndpoint(ApiPath.FEAT
 
 fun Route.loadForceData(api: Controller) {
     get(ApiPath.LOAD_DATA) {
-        dispatch(api.forceLoadData(HttpRequest(Unit)))
+        respond(api.forceLoadData(HttpRequest(Unit)))
     }
 }

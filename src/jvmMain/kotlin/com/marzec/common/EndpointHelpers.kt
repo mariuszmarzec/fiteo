@@ -11,16 +11,12 @@ import io.ktor.server.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.get
-import io.ktor.server.routing.patch
-import io.ktor.server.routing.post
+import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KFunction1
 
-suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.dispatch(response: HttpResponse<T>) {
+suspend inline fun <reified T : Any> RoutingContext.respond(response: HttpResponse<T>) {
     when (response) {
         is HttpResponse.Success -> {
             response.headers.forEach { (header, value) ->
@@ -40,7 +36,7 @@ inline fun <reified T : Any> Route.getByIdEndpoint(
 ) {
     get(path) {
         val httpRequest = receiveHttpRequest(Unit)
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
@@ -51,7 +47,7 @@ inline fun <reified T : Any> Route.getAllEndpoint(
     get(path) {
         (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
         val httpRequest = createHttpRequest(call.principal<UserPrincipal>()?.id)
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
@@ -61,7 +57,7 @@ inline fun <reified T : Any> Route.deleteByIdEndpoint(
 ) {
     delete(path) {
         val httpRequest = receiveHttpRequest(Unit)
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
@@ -71,7 +67,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpo
 ) {
     patch(path) {
         val httpRequest = receiveHttpRequest<REQUEST>()
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
@@ -81,7 +77,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
 ) {
     post(path) {
         val httpRequest = receiveHttpRequest<REQUEST>()
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
@@ -91,14 +87,14 @@ inline fun <reified T : Any> Route.getBySessionEndpoint(
 ) {
     get(path) {
         val httpRequest = receiveHttpRequest(Unit)
-        dispatch(apiFunRef(httpRequest))
+        respond(apiFunRef(httpRequest))
     }
 }
 
-suspend inline fun <reified REQUEST : Any> PipelineContext<Unit, ApplicationCall>.receiveHttpRequest() =
+suspend inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest() =
     receiveHttpRequest(call.receive<REQUEST>())
 
-inline fun <reified REQUEST : Any> PipelineContext<Unit, ApplicationCall>.receiveHttpRequest(dto: REQUEST) = HttpRequest(
+inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest(dto: REQUEST) = HttpRequest(
     data = dto,
     parameters = mapOf(
         Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],

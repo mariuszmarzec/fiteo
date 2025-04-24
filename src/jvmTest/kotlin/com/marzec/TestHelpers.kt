@@ -100,6 +100,9 @@ fun <T> withMockTestApplication(
     diModules = MainModule.plus(module { mockConfiguration() })
 
     testApplication {
+        application {
+            module()
+        }
         test()
     }
 
@@ -118,7 +121,7 @@ inline fun <reified T : Any> assertThatJson(actual: String?): Subject {
 
 inline fun <reified T> HttpRequestBuilder.setBodyJson(dto: T) {
     header("Content-Type", "application/json")
-    val jsonString = (dto as? String)?.let { it } ?: json.encodeToString(dto)
+    val jsonString = (dto as? String) ?: json.encodeToString(dto)
     setBody(jsonString)
 }
 
@@ -197,7 +200,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     withDefaultMockTestApplication {
         authToken = authorize()
         runRequestsBefore()
-        this.client.request(uri) {
+        client.request(uri) {
             this.method = method
             headers.forEach { this.headers.append(it.key, it.value) }
             dto?.let {

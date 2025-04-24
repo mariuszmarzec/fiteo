@@ -7,16 +7,16 @@ import com.marzec.Api.Headers
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
-import com.marzec.common.dispatch
 import com.marzec.common.getBySessionEndpoint
 import com.marzec.common.postEndpoint
+import com.marzec.common.receiveHttpRequest
+import com.marzec.common.respond
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.core.currentMillis
 import com.marzec.database.DbSettings
 import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
-import com.marzec.di.MainModule
 import com.marzec.di.diModules
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.api.Controller
@@ -31,26 +31,14 @@ import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.schedule.runTodoSchedulerDispatcher
 import com.marzec.todo.todoApi
-import io.ktor.server.application.Application
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
-import io.ktor.serialization.kotlinx.json.json
+import com.mysql.cj.log.Log
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receiveOrNull
-import io.ktor.server.request.uri
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import io.ktor.server.routing.routing
-import io.ktor.server.http.content.resource
-import io.ktor.server.http.content.static
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -59,7 +47,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.ktor.plugin.Koin
@@ -79,6 +69,9 @@ fun main(args: Array<String>) {
 
 @Suppress("unused")
 fun Application.module() {
+    val job = SupervisorJob()
+    val scope = CoroutineScope(coroutineContext + job)
+
     val di = Di(DbSettings.database, Auth.NAME)
     val testDi = Di(DbSettings.testDatabase, Auth.TEST)
 
@@ -86,8 +79,12 @@ fun Application.module() {
         di.dataSource.loadData()
         testDi.dataSource.loadData()
 
-        clearSessionsInPeriod(di, testDi)
-        runTodoSchedulerDispatcher(di, testDi)
+        clearSessionsInPeriod(scope, di, testDi)
+        runTodoSchedulerDispatcher(scope, di, testDi)
+    }
+
+    monitor.subscribe(ApplicationStopped) {
+        job.cancel()
     }
 
     configuration(di)
@@ -113,11 +110,11 @@ fun Application.module() {
     }
 }
 
-private fun clearSessionsInPeriod(di: Di, testDi: Di) {
+private fun clearSessionsInPeriod(scope: CoroutineScope, di: Di, testDi: Di) {
     val repository = di.cachedSessionsRepository
     val testRepository = testDi.cachedSessionsRepository
     val period = di.sessionExpirationTime
-    GlobalScope.launch {
+    scope.launch {
         while (true) {
             repository.clearOldSessions()
             testRepository.clearOldSessions()
@@ -243,8 +240,8 @@ fun Route.register(api: Controller) = postEndpoint(ApiPath.REGISTRATION, api::po
 
 fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
-        val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
-        val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
+        val loginRequestDto = receiveHttpRequest<LoginRequestDto>()
+        val httpResponse = api.postLogin(loginRequestDto)
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
                 call.sessions.set(
@@ -254,14 +251,14 @@ fun Route.login(api: Controller) {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentMillis()))
             }
         }
-        dispatch(httpResponse)
+         respond(httpResponse)
     }
 }
 
 private fun Route.loginBearer(api: Controller) {
     post(ApiPath.LOGIN_BEARER) {
-        val loginRequestDto = call.receiveOrNull<LoginRequestDto>()
-        val httpResponse = api.postLogin(HttpRequest(loginRequestDto))
+        val loginRequestDto = receiveHttpRequest<LoginRequestDto>()
+        val httpResponse = api.postLogin(loginRequestDto)
         if (httpResponse is HttpResponse.Success<UserDto>) {
             val secret = "secret"
             val issuer = "http://0.0.0.0:8080/"
@@ -274,7 +271,7 @@ private fun Route.loginBearer(api: Controller) {
                 .sign(Algorithm.HMAC256(secret))
             call.response.headers.append(Headers.AUTHORIZATION, "Bearer $token")
         }
-        dispatch(httpResponse)
+         respond(httpResponse)
     }
 }
 
@@ -285,7 +282,7 @@ fun Route.logout() {
         } else {
             call.sessions.clear<UserSession>()
         }
-        dispatch(HttpResponse.Success(Unit))
+        respond(HttpResponse.Success(Unit))
     }
 }
 

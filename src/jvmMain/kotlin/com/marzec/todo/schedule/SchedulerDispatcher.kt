@@ -9,6 +9,7 @@ import com.marzec.todo.TodoService
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -95,13 +96,14 @@ private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateT
     )
 }
 
-fun runTodoSchedulerDispatcher(vararg dis: Di) {
+fun runTodoSchedulerDispatcher(scope: CoroutineScope, vararg dis: Di) {
     dis.forEach { di ->
         val schedulerDispatcher = di.schedulerDispatcher
-        GlobalScope.launch {
+        val dispatcherInterval = di.schedulerDispatcherInterval
+        scope.launch {
             while (true) {
                 schedulerDispatcher.dispatch()
-                delay(di.schedulerDispatcherInterval)
+                delay(dispatcherInterval)
             }
         }
     }

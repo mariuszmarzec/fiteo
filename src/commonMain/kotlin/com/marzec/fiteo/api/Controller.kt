@@ -31,7 +31,7 @@ interface Controller {
     fun deleteEquipment(request: HttpRequest<Unit>): HttpResponse<EquipmentDto>
     fun createEquipment(request: HttpRequest<EquipmentDto>): HttpResponse<EquipmentDto>
     fun updateEquipment(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<EquipmentDto>
-    fun postLogin(request: HttpRequest<LoginRequestDto?>): HttpResponse<UserDto>
+    fun postLogin(request: HttpRequest<LoginRequestDto>): HttpResponse<UserDto>
     fun getUser(request: HttpRequest<Unit>): HttpResponse<UserDto>
     fun getUsers(request: HttpRequest<Unit>): HttpResponse<List<UserDto>>
     fun postRegister(request: HttpRequest<RegisterRequestDto>): HttpResponse<UserDto>

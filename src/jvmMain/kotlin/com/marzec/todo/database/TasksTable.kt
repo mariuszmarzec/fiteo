@@ -74,8 +74,8 @@ object TaskToSubtasksTable : IntIdTable("tasks_to_subtasks") {
 }
 
 fun Column<String>.transformStringSchedulerNullable() = transform(
-    toColumn = { scheduler -> scheduler?.toEntity()?.let { Json.encodeToString(it) }.orEmpty() },
-    toReal = { value ->
+    unwrap = { scheduler -> scheduler?.toEntity()?.let { Json.encodeToString(it) }.orEmpty() },
+    wrap = { value ->
         value.takeIf { it.isNotEmpty() }?.let { Json.decodeFromString<SchedulerEntity>(it) }?.toDomain()
     }
 )

@@ -81,6 +81,6 @@ object ExercisesToEquipment : IntIdTable("exercises_to_equipment") {
 }
 
 fun Column<String?>.transformStringListNullable() = transform(
-    toColumn = { list -> list?.let { Json.encodeToString(list) } },
-    toReal = { value -> value?.let { Json.decodeFromString<List<String>>(it) } }
+    unwrap = { list -> list?.let { Json.encodeToString(list) } },
+    wrap = { value -> value?.let { Json.decodeFromString<List<String>>(it) } }
 )
