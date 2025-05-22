@@ -1,5 +1,6 @@
 package com.marzec.todo.schedule
 
+import com.marzec.core.currentMillis
 import com.marzec.core.currentTime
 import com.marzec.di.Di
 import com.marzec.di.MILLISECONDS_IN_SECOND
@@ -55,9 +56,9 @@ class SchedulerDispatcher(
     private val schedulerChecker = SchedulerChecker(isInStartWindow, creationTimeFeatureEnabled)
 
     fun dispatch() {
+        val today = currentTime().toJavaLocalDateTime()
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
-                val today = currentTime().toJavaLocalDateTime()
                 if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
                     todoService.copyTask(
                         userId = user.id,
@@ -102,8 +103,11 @@ fun runTodoSchedulerDispatcher(scope: CoroutineScope, vararg dis: Di) {
         val dispatcherInterval = di.schedulerDispatcherInterval
         scope.launch {
             while (true) {
+                val startTime = currentMillis()
                 schedulerDispatcher.dispatch()
-                delay(dispatcherInterval)
+                val endTime = currentMillis()
+                val duration = endTime - startTime
+                delay(dispatcherInterval - duration)
             }
         }
     }
