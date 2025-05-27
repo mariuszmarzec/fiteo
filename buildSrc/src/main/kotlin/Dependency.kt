@@ -6,7 +6,7 @@ object Dependency {
     val sl4j_version = "1.7.36"
     val logback_version = "1.2.11"
     val exposed_version = "0.60.0"
-    val buildkonfig_version = "0.7.0"
+    val buildkonfig_version = "0.17.1"
     val flyway_version = "8.5.13"
     val mysql_connector_version = "8.0.29"
     val serialization_version = "1.8.1"
