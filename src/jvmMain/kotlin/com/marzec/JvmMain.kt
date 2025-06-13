@@ -18,6 +18,7 @@ import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.diModules
+import com.marzec.events.Event
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.fiteoApi
@@ -25,13 +26,11 @@ import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.UserDto
-import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.schedule.runTodoSchedulerDispatcher
 import com.marzec.todo.todoApi
-import com.mysql.cj.log.Log
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -47,10 +46,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import io.ktor.server.sse.*
+import io.ktor.sse.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.KoinApplicationStarted
@@ -106,6 +108,7 @@ fun Application.module() {
             cheatDayApi(di, cheatDayApi)
             todoApi(di, todoController)
             fiteoApi(di, api)
+            sse(di)
         }
     }
 }
@@ -156,6 +159,8 @@ fun Application.configuration(di: Di) {
             json = di.json
         )
     }
+
+    install(SSE)
 }
 
 private fun Application.sessions(di: Di, testDi: Di) {
@@ -251,7 +256,7 @@ fun Route.login(api: Controller) {
                 call.sessions.set(Headers.AUTHORIZATION, UserSession(httpResponse.data.id, currentMillis()))
             }
         }
-         respond(httpResponse)
+        respond(httpResponse)
     }
 }
 
@@ -271,7 +276,25 @@ private fun Route.loginBearer(api: Controller) {
                 .sign(Algorithm.HMAC256(secret))
             call.response.headers.append(Headers.AUTHORIZATION, "Bearer $token")
         }
-         respond(httpResponse)
+        respond(httpResponse)
+    }
+}
+
+fun Route.sse(di: Di) {
+    authenticate(di.authToken) {
+        sse {
+            try {
+                val userId = call.principal<UserPrincipal>()?.id ?: throw IllegalArgumentException("User is not logged")
+                di.eventBus
+                    .events
+                    .filterIsInstance<Event.UpdateEvent>()
+                    .filter { it.userId == userId }.collect {
+                        send(ServerSentEvent(data = "UPDATE"))
+                    }
+            } catch (t: Throwable) {
+                di.logger.error(t.message)
+            }
+        }
     }
 }
 

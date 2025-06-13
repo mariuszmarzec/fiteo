@@ -3,6 +3,7 @@ package com.marzec
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.di.SECONDS_IN_MINUTE
+import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
@@ -464,7 +465,8 @@ class TaskSchedulerTest {
         },
         todoService = service,
         schedulerDispatcherInterval = 15 * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND,
-        timeZoneOffsetHours = 2
+        timeZoneOffsetHours = 2,
+        eventBus = EventBus()
     )
 
     private fun schedulerDispatcher(scheduler: Scheduler) = schedulerDispatcher(

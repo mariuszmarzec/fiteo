@@ -4,6 +4,8 @@ import com.marzec.core.currentMillis
 import com.marzec.core.currentTime
 import com.marzec.di.Di
 import com.marzec.di.MILLISECONDS_IN_SECOND
+import com.marzec.events.Event
+import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
@@ -28,7 +30,8 @@ class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
     private val todoService: TodoService,
     private val schedulerDispatcherInterval: Long,
-    private val timeZoneOffsetHours: Long
+    private val timeZoneOffsetHours: Long,
+    private val eventBus: EventBus
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -76,6 +79,7 @@ class SchedulerDispatcher(
                     } else {
                         updateLastDate(user.id, task)
                     }
+                    eventBus.send(Event.UpdateEvent(user.id))
                 } else {
                     logger.debug("TASK ${task.id} not added by scheduler")
                 }

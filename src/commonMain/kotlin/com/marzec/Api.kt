@@ -12,6 +12,7 @@ object Api {
     object Headers {
         const val AUTHORIZATION = "Authorization"
         const val AUTHORIZATION_TEST = "Authorization-Test"
+        const val DEVICE_ID = "Device-Id"
     }
 
     object Auth {

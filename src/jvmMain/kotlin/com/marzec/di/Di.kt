@@ -14,6 +14,7 @@ import com.marzec.core.repository.CommonWithUserRepository
 import com.marzec.core.repository.CommonWithUserRepositoryImpl
 import com.marzec.database.CategoryEntity
 import com.marzec.database.FeatureToggleEntity
+import com.marzec.events.EventBus
 import com.marzec.fiteo.data.ExerciseFileMapper
 import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.data.InitialDataLoaderImpl
@@ -60,6 +61,8 @@ import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 const val NAME_SESSION_EXPIRATION_TIME = "SessionExpirationTime"
 const val NAME_SCHEDULER_DISPATCHER_INTERVAL = "SchedulerDispatcherInterval"
@@ -93,6 +96,12 @@ class Di(
     val schedulerDispatcherInterval by inject<Long>(qualifier = named(NAME_SCHEDULER_DISPATCHER_INTERVAL)) {
         parametersOf(database, authToken)
     }
+    val eventBus by inject<EventBus> {
+        parametersOf(database, authToken)
+    }
+    val logger by inject<Logger> {
+        parametersOf(database, authToken)
+    }
 }
 
 val MainModule = module {
@@ -124,6 +133,10 @@ val MainModule = module {
     single(qualifier = named(NAME_TIME_ZONE_OFFSET_HOURS)) {
         TIME_ZONE_OFFSET_HOURS
     }
+
+    single { EventBus() }
+
+    single { LoggerFactory.getLogger("ApplicationLogger") }
 
     single { params -> ExerciseFileMapper(get { params }) }
 
@@ -223,6 +236,7 @@ val MainModule = module {
             todoService = get { params },
             schedulerDispatcherInterval = get(named(NAME_SCHEDULER_DISPATCHER_INTERVAL)),
             timeZoneOffsetHours = get(named(NAME_TIME_ZONE_OFFSET_HOURS)),
+            eventBus = get { params }
         )
     }
 }
