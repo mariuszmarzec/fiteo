@@ -282,7 +282,7 @@ private fun Route.loginBearer(api: Controller) {
 
 fun Route.sse(di: Di) {
     authenticate(di.authToken) {
-        sse {
+        sse("/sse") {
             try {
                 val userId = call.principal<UserPrincipal>()?.id ?: throw IllegalArgumentException("User is not logged")
                 di.eventBus
