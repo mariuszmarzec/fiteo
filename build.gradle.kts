@@ -133,6 +133,7 @@ kotlin {
                 implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
 //                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
                 implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")

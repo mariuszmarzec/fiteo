@@ -11,6 +11,7 @@ import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.schedule.SchedulerDispatcher
 import io.mockk.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.junit.After
 import org.junit.Before
@@ -146,7 +147,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify {
             service.copyTask(user.id, 1, copyPriority = false, copyScheduler = false)
@@ -158,7 +159,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 36)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) { service.copyTask(any(), any()) }
     }
@@ -168,7 +169,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 19)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) { service.copyTask(any(), any()) }
     }
@@ -178,7 +179,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(20, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -216,7 +217,7 @@ class TaskSchedulerTest {
                 )
             )
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -249,7 +250,7 @@ class TaskSchedulerTest {
                 )
             )
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(exactly = 0) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -261,7 +262,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -273,7 +274,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(21, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -286,7 +287,7 @@ class TaskSchedulerTest {
         val scheduler = monthlyScheduler
         val dispatcher = schedulerDispatcher(scheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -298,7 +299,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 55)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -310,7 +311,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(19, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -323,7 +324,7 @@ class TaskSchedulerTest {
             daysOfWeek = listOf(DayOfWeek.SUNDAY)
         ))
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -339,7 +340,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(2, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -349,7 +350,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(18, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasksWithLastDay)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verifyCreated()
     }
@@ -432,7 +433,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
         val dispatcher = schedulerDispatcher(scheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -451,7 +452,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
         val dispatcher = schedulerDispatcher(scheduler)
 
-        dispatcher.dispatch()
+        runBlocking { dispatcher.dispatch() }
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)

@@ -10,8 +10,8 @@ class EventBus {
     val events: SharedFlow<Event>
         get() = _events
 
-    fun send(event: Event) {
-        _events.tryEmit(event)
+    suspend fun send(event: Event) {
+        _events.emit(event)
     }
 }
 

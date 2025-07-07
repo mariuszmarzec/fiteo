@@ -58,7 +58,7 @@ class SchedulerDispatcher(
 
     private val schedulerChecker = SchedulerChecker(isInStartWindow, creationTimeFeatureEnabled)
 
-    fun dispatch() {
+    suspend fun dispatch() {
         val today = currentTime().toJavaLocalDateTime()
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
