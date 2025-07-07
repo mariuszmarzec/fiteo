@@ -11,7 +11,7 @@ import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.schedule.SchedulerDispatcher
 import io.mockk.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.junit.After
 import org.junit.Before
@@ -143,11 +143,11 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `run creation if scheduled for one shot`() {
+    fun `run creation if scheduled for one shot`() = runTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify {
             service.copyTask(user.id, 1, copyPriority = false, copyScheduler = false)
@@ -155,37 +155,37 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create one shot if scheduled too early`() {
+    fun `do not create one shot if scheduled too early`() = runTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 36)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) { service.copyTask(any(), any()) }
     }
 
     @Test
-    fun `do not create one shot if scheduled too late`() {
+    fun `do not create one shot if scheduled too late`() = runTest {
         CurrentTimeUtil.setOtherTime(16, 5, 2021, 14, 19)
         val dispatcher = schedulerDispatcher(scheduledOneShotTasks)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) { service.copyTask(any(), any()) }
     }
 
     @Test
-    fun `run creation if scheduled monthly`() {
+    fun `run creation if scheduled monthly`() = runTest {
         CurrentTimeUtil.setOtherTime(20, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
 
     @Test
-    fun `run creation if scheduled monthly with creation time`() {
+    fun `run creation if scheduled monthly with creation time`() = runTest {
         verifyDispatcher(
             monthlyScheduler.copy(
                 creationDate = LocalDateTime.of(2021, 5, 16, 15, 0).toKotlinLocalDateTime(),
@@ -200,7 +200,7 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `run creation if scheduled monthly for last date`() {
+    fun `run creation if scheduled monthly for last date`() = runTest {
         // In november is winter time, one hour backward
         CurrentTimeUtil.setOtherTime(30, 11, 2021, 15, 30)
         val dispatcher =
@@ -217,13 +217,13 @@ class TaskSchedulerTest {
                 )
             )
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
 
     @Test
-    fun `run creation if scheduled monthly for last date - case 2`() {
+    fun `run creation if scheduled monthly for last date - case 2`() = runTest {
         // In november is winter time, one hour backward
         CurrentTimeUtil.setOtherTime(9, 8, 2022, 8, 13)
         val dispatcher =
@@ -250,7 +250,7 @@ class TaskSchedulerTest {
                 )
             )
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(exactly = 0) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -258,11 +258,11 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled monthly and month not in step`() {
+    fun `do not create if scheduled monthly and month not in step`() = runTest {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -270,11 +270,11 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled monthly and wrong day, but good hour`() {
+    fun `do not create if scheduled monthly and wrong day, but good hour`() = runTest {
         CurrentTimeUtil.setOtherTime(21, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -282,12 +282,12 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled monthly and not proper time`() {
+    fun `do not create if scheduled monthly and not proper time`() = runTest {
         CurrentTimeUtil.setOtherTime(21, 6, 2021, 14, 30)
         val scheduler = monthlyScheduler
         val dispatcher = schedulerDispatcher(scheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -295,11 +295,11 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled monthly and wrong hour`() {
+    fun `do not create if scheduled monthly and wrong hour`() = runTest {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 55)
         val dispatcher = schedulerDispatcher(monthlyScheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = true) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
@@ -307,24 +307,24 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `create if scheduled weekly`() {
+    fun `create if scheduled weekly`() = runTest {
         CurrentTimeUtil.setOtherTime(19, 5, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
 
     @Test
-    fun `if creation time higher than start date, begin from next period, success case`() {
+    fun `if creation time higher than start date, begin from next period, success case`() = runTest {
         CurrentTimeUtil.setOtherTime(20, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(weeklyScheduler.copy(
             creationDate = LocalDateTime.of(2021, 5, 16, 17, 0,0).toKotlinLocalDateTime(),
             daysOfWeek = listOf(DayOfWeek.SUNDAY)
         ))
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
@@ -336,21 +336,21 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `create if scheduled weekly and today is in 2 week from start date`() {
+    fun `create if scheduled weekly and today is in 2 week from start date`() = runTest {
         CurrentTimeUtil.setOtherTime(2, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasks)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
 
     @Test
-    fun `create if scheduled weekly per 2 weeks and today is in 4 week from start date`() {
+    fun `create if scheduled weekly per 2 weeks and today is in 4 week from start date`() = runTest {
         CurrentTimeUtil.setOtherTime(18, 6, 2021, 14, 30)
         val dispatcher = schedulerDispatcher(scheduledWeeklyTasksWithLastDay)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verifyCreated()
     }
@@ -362,13 +362,13 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `do not create if scheduled weekly but wrong hour`() {
+    fun `do not create if scheduled weekly but wrong hour`() = runTest {
         verifyDispatcher(scheduledWeeklyTasks, 19, 5, 2021, 14, 55, true)
     }
 
 
     @Test
-    fun `do not create if scheduled weekly but day out of range`() {
+    fun `do not create if scheduled weekly but day out of range`() = runTest {
         verifyDispatcher(
             scheduler = scheduledWeeklyTasks,
             day = 27,
@@ -381,7 +381,7 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `create if scheduled weekly, 30 may case`() {
+    fun `create if scheduled weekly, 30 may case`() = runTest {
         verifyDispatcher(
             scheduler = scheduledWeeklyTasks2,
             day = 30,
@@ -393,7 +393,7 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `create if scheduled weekly, 27 may case`() {
+    fun `create if scheduled weekly, 27 may case`() = runTest {
         verifyDispatcher(
             scheduler = scheduledWeeklyTasks3,
             day = 27,
@@ -405,7 +405,7 @@ class TaskSchedulerTest {
     }
 
     @Test
-    fun `create if scheduled weekly, 31 may case`() {
+    fun `create if scheduled weekly, 31 may case`() = runTest {
         verifyDispatcher(
             scheduler = scheduledWeeklyTasks2,
             day = 31,
@@ -421,7 +421,7 @@ class TaskSchedulerTest {
         GlobalContext.stopKoin()
     }
 
-    private fun verifyDispatcher(
+    private suspend fun verifyDispatcher(
         scheduler: Map<User, List<Task>>,
         day: Int,
         month: Int,
@@ -433,14 +433,14 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
         val dispatcher = schedulerDispatcher(scheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
         }
     }
 
-    private fun verifyDispatcher(
+    private suspend fun verifyDispatcher(
         scheduler: Scheduler,
         day: Int,
         month: Int,
@@ -452,7 +452,7 @@ class TaskSchedulerTest {
         CurrentTimeUtil.setOtherTime(day, month, year, hour, minute)
         val dispatcher = schedulerDispatcher(scheduler)
 
-        runBlocking { dispatcher.dispatch() }
+        dispatcher.dispatch()
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
