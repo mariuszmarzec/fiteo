@@ -300,10 +300,10 @@ fun Route.sse(di: Di) {
                             send(ServerSentEvent(data = "UPDATE"))
                         }
                 }
-                send(ServerSentEvent("keep-alive"))
 
             } catch (t: Throwable) {
                 di.logger.error(t.message)
+                throw t
             } finally {
                 keepAliveJob.cancel()
             }
