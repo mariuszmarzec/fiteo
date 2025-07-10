@@ -283,16 +283,29 @@ private fun Route.loginBearer(api: Controller) {
 fun Route.sse(di: Di) {
     authenticate(di.authToken) {
         sse("/sse") {
+            val keepAliveJob = launch {
+                val keepAliveInterval = 30_000L
+                while (true) {
+                    send(ServerSentEvent("keep-alive"))
+                    delay(keepAliveInterval)
+                }
+            }
             try {
                 val userId = call.principal<UserPrincipal>()?.id ?: throw IllegalArgumentException("User is not logged")
-                di.eventBus
-                    .events
-                    .filterIsInstance<Event.UpdateEvent>()
-                    .filter { it.userId == userId }.collect {
-                        send(ServerSentEvent(data = "UPDATE"))
-                    }
+                launch {
+                    di.eventBus
+                        .events
+                        .filterIsInstance<Event.UpdateEvent>()
+                        .filter { it.userId == userId }.collect {
+                            send(ServerSentEvent(data = "UPDATE"))
+                        }
+                }
+                send(ServerSentEvent("keep-alive"))
+
             } catch (t: Throwable) {
                 di.logger.error(t.message)
+            } finally {
+                keepAliveJob.cancel()
             }
         }
     }

@@ -66,10 +66,11 @@ class SseTest {
 
                     }
                 }
-                delay(200)
+                val min = 60 * 1000L
+                delay(3 * min)
                 eventBus.send(Event.UpdateEvent(1))
 
-                withTimeout(2000) {
+                withTimeout(5 * min) {
                     while (events.isEmpty()) {
                         delay(100)
                     }
@@ -77,7 +78,8 @@ class SseTest {
 
                 job.cancelAndJoin()
             }
-            assertEquals(listOf(ServerSentEvent("UPDATE")), events)
+            println(events)
+            assertEquals(listOf(ServerSentEvent("UPDATE")), events.filterNot { it.data == "keep-alive" })
         }
         server.stop()
     }
