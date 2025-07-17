@@ -176,14 +176,7 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("fatJ
 
 tasks.getByName("build").dependsOn("fatJar")
 
-tasks.register<Copy>("copyJsToResources") {
-    dependsOn("jsBrowserProductionWebpack")
-    from("$buildDir/kotlin-webpack/js/productionExecutable/fiteo.js")
-    into("$buildDir/processedResources/jvm/main")
-}
-
 tasks.register<JavaExec>("runJvm") {
-    dependsOn("copyJsToResources")
     group = "application"
     description = "Runs the JVM application"
 
