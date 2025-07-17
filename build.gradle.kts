@@ -174,6 +174,21 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("fatJ
 
 tasks.getByName("build").dependsOn("fatJar")
 
+tasks.register<JavaExec>("runJvm") {
+    group = "application"
+    description = "Runs the JVM application"
+
+    mainClass.set("com.marzec.JvmMainKt")
+
+    val jvmTarget = kotlin.targets.getByName("jvm")
+    val jvmMain = jvmTarget.compilations.getByName("main")
+
+    val runtimeDeps = jvmMain.runtimeDependencyFiles ?: files()
+    val outputDirs = jvmMain.output.allOutputs
+
+    classpath = runtimeDeps + outputDirs
+}
+
 tasks {
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions {
