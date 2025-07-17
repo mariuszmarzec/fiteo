@@ -13,12 +13,9 @@ fun <T> useStateFlow(flow: Flow<T>, default: T): T {
     val (state, setState) = useState(default)
 
     useEffect(Unit) {
-        val job = flow.onEach {
+        flow.collect {
             setState(it)
-        }.launchIn(GlobalScope)
-        // TODO KOTLIN WRAPPERS
-
-//        cleanup { job.cancel() }
+        }
     }
 
     return state

@@ -14,6 +14,5 @@ object Dependency {
     val mockk_version = "1.14.0"
     val koin_version = "4.0.4"
     val koin_ktor_version = "4.0.4"
-    val kotlinWrappersVersion = "2025.4.12"
     val truth_version = "1.1.3"
 }
