@@ -7,6 +7,8 @@ import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.dom.html.ReactHTML.label
 import react.useState
+import web.dom.ElementId
+import web.html.checkbox
 
 val Checkbox = FC<CheckboxProps> { props ->
 //    val (state, _) = useState(props.state)
@@ -18,7 +20,7 @@ val Checkbox = FC<CheckboxProps> { props ->
         input {
             type = web.html.InputType.checkbox
             checked = state.isChecked
-            id = state.id
+            id = ElementId(state.id)
             value = state.label
             onChange = {
                 props.onCheckedChange()
@@ -27,7 +29,7 @@ val Checkbox = FC<CheckboxProps> { props ->
     }
     label {
         +state.label
-        htmlFor = state.id
+        htmlFor = ElementId(state.id)
     }
 }
 

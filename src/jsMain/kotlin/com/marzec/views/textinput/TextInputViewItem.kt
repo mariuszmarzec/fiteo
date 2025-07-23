@@ -7,6 +7,7 @@ import com.marzec.views.base.ViewItem
 import react.ChildrenBuilder
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
+import web.html.text
 
 data class TextInputViewItem(
     override val id: String,

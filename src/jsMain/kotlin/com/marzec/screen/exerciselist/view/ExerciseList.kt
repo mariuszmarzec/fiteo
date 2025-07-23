@@ -15,7 +15,7 @@ import com.marzec.views.exerciserowview.ExerciseDelegate
 import com.marzec.views.horizontalsplitview.HorizontalSplitDelegate
 import com.marzec.views.loading.LoadingDelegate
 import com.marzec.views.textinput.TextInputDelegate
-import js.objects.jso
+import js.objects.unsafeJso
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.w3c.dom.url.URLSearchParams
 import react.FC
@@ -63,7 +63,7 @@ val ExerciseList = FC {
         console.log(newPath)
 
         if (currentPath != newPath) {
-            navigate(newPath, jso { replace = false })
+            navigate(newPath, unsafeJso { replace = false })
         }
     }
 
