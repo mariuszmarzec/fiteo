@@ -191,12 +191,11 @@ tasks.getByName<Jar>("jvmJar") {
 tasks.getByName<JavaExec>("run") {
     dependsOn("jvmJar")
 
-    // Dodaj runtime classpath z kompilacji JVM
     val jvmTarget = kotlin.targets.getByName("jvm")
     val jvmMain = jvmTarget.compilations.getByName("main")
 
     classpath = files(tasks["jvmJar"].outputs.files) +
-            jvmMain.runtimeDependencyFiles +
+            jvmMain.runtimeDependencyFiles!! +
             jvmMain.output.allOutputs
 }
 
