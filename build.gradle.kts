@@ -170,22 +170,34 @@ kotlin {
 }
 
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
-tasks.getByName<Jar>("jvmJar") {
-    duplicatesStrategy = DuplicatesStrategy.INHERIT
+tasks.named<Jar>("jvmJar") {
+    archiveBaseName.set("fiteo")
+    archiveVersion.set("1.0.0")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest {
+        attributes["Main-Class"] = "com.marzec.JvmMainKt"
+    }
+
+    // --- Leniva konfiguracja webpacka i zależności
     doFirst {
-        manifest {
-            attributes["Main-Class"] = "com.marzec.JvmMainKt"
+        val runtimeClasspath = configurations.getByName("jvmRuntimeClasspath")
+        from(runtimeClasspath.map { if (it.isDirectory) it else zipTree(it) })
+
+        val taskName = if (project.hasProperty("isProduction")) {
+            "jsBrowserProductionWebpack"
+        } else {
+            "jsBrowserDevelopmentWebpack"
         }
-        from(configurations.getByName("runtimeClasspath").map { if (it.isDirectory) it else zipTree(it) })
+
+        val webpackTask = tasks.named<KotlinWebpack>(taskName).get()
+        from(File(webpackTask.outputDirectory.get().asFile, webpackTask.mainOutputFileName.get()))
     }
-    val taskName = if (project.hasProperty("isProduction")) {
-        "jsBrowserProductionWebpack"
-    } else {
-        "jsBrowserDevelopmentWebpack"
-    }
-    val webpackTask = tasks.getByName<KotlinWebpack>(taskName)
-    dependsOn(webpackTask) // make sure JS gets compiled first
-    from(File(webpackTask.outputDirectory.get().asFile, webpackTask.mainOutputFileName.get())) // bring output file along into the JAR
+
+    dependsOn(
+        if (project.hasProperty("isProduction")) "jsBrowserProductionWebpack"
+        else "jsBrowserDevelopmentWebpack"
+    )
 }
 
 tasks.getByName<JavaExec>("run") {
