@@ -11,7 +11,6 @@ import web.dom.ElementId
 import web.html.checkbox
 
 val Checkbox = FC<CheckboxProps> { props ->
-//    val (state, _) = useState(props.state)
     val state = props.state
 
     console.log("state: ${state.label} ${state.isChecked}")
