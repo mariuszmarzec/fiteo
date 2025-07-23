@@ -179,7 +179,6 @@ tasks.named<Jar>("jvmJar") {
         attributes["Main-Class"] = "com.marzec.JvmMainKt"
     }
 
-    // --- Leniva konfiguracja webpacka i zależności
     doFirst {
         val runtimeClasspath = configurations.getByName("jvmRuntimeClasspath")
         from(runtimeClasspath.map { if (it.isDirectory) it else zipTree(it) })
