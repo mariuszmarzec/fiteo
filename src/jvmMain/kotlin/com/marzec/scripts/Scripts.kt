@@ -44,7 +44,7 @@ fun Application.scripts() {
                                     body { font-family: Arial, sans-serif; margin: 20px; }
                                     button { 
                                     
-                                    width: 300px; height: 150px; font-size: 24px; font-weight: bold; padding: 10px 20px; margin: 5px; cursor: pointer; }
+                                    width: 300px; height: 150px; font-size: 30px; font-weight: bold; padding: 10px 20px; margin: 5px; cursor: pointer; }
                                     #output { margin-top: 20px; padding: 15px; border: 1px solid #ccc; white-space: pre-wrap; background-color: #f9f9f9; }
                                 """)
                             }
