@@ -14,7 +14,7 @@ import kotlinx.html.*
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
 
-fun AuthenticationConfig.basicAuthConfig() {
+fun AuthenticationConfig.scriptsBasicAuthConfig() {
     basic("auth-basic") {
         realm = "Wybór i uruchomienie skryptu"
         validate { credentials ->
@@ -42,7 +42,9 @@ fun Application.scripts() {
                             unsafe {
                                 raw("""
                                     body { font-family: Arial, sans-serif; margin: 20px; }
-                                    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+                                    button { 
+                                    
+                                    width: 300px; height: 150px; font-size: 24px; font-weight: bold; padding: 10px 20px; margin: 5px; cursor: pointer; }
                                     #output { margin-top: 20px; padding: 15px; border: 1px solid #ccc; white-space: pre-wrap; background-color: #f9f9f9; }
                                 """)
                             }
