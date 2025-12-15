@@ -27,6 +27,7 @@ import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpResponse
+import com.marzec.scripts.basicAuthConfig
 import com.marzec.scripts.scripts
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
@@ -214,6 +215,8 @@ private fun Application.sessions(di: Di, testDi: Di) {
                 UserPrincipal(user.id, user.email)
             }
         }
+
+        basicAuthConfig()
     }
 }
 

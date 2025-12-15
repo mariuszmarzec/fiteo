@@ -14,21 +14,20 @@ import kotlinx.html.*
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
 
-fun Application.scripts() {
-    // 1. Konfiguracja Basic Auth (JAK W POPRZEDNIEJ ODPOWIEDZI)
-    install(Authentication) {
-        basic("auth-basic") {
-            realm = "Wybór i uruchomienie skryptu"
-            validate { credentials ->
-                if (credentials.name == "admin" && credentials.password == "Kalka123!") {
-                    UserIdPrincipal(credentials.name)
-                } else {
-                    null
-                }
+fun AuthenticationConfig.basicAuthConfig() {
+    basic("auth-basic") {
+        realm = "Wybór i uruchomienie skryptu"
+        validate { credentials ->
+            if (credentials.name == "admin" && credentials.password == "Kalka123!") {
+                UserIdPrincipal(credentials.name)
+            } else {
+                null
             }
         }
     }
+}
 
+fun Application.scripts() {
     routing {
         // Wszystkie poniższe trasy są zabezpieczone!
         authenticate("auth-basic") {
