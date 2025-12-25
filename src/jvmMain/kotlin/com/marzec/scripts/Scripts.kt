@@ -10,7 +10,6 @@ import kotlinx.html.*
 
 // Generated with AI
 
-// Ścieżki do Twoich skryptów
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
 
@@ -29,16 +28,13 @@ fun AuthenticationConfig.scriptsBasicAuthConfig() {
 
 fun Application.scripts() {
     routing {
-        // Wszystkie poniższe trasy są zabezpieczone!
         authenticate("auth-basic") {
 
-            // --- A. Endpoint do serwowania interfejsu (HTML) ---
             get("/scripts") {
                 call.respondHtml(HttpStatusCode.OK) {
                     head {
                         title { +"Wybór Skryptu Pythona" }
                         style {
-                            // Podstawowe CSS, żeby to jakoś wyglądało
                             unsafe {
                                 raw("""
                                     body { font-family: Arial, sans-serif; margin: 20px; }
@@ -53,14 +49,12 @@ fun Application.scripts() {
                     body {
                         h1 { +"Panel Wyboru Skryptu" }
 
-                        // Przycisk dla Skryptu A
                         button(classes = "script-button") {
                             id = "btn-a"
                             onClick = "runScript('/api/run_A')"
                             +"Generuj listę zakupów"
                         }
 
-                        // Przycisk dla Skryptu B
                         button(classes = "script-button") {
                             id = "btn-b"
                             onClick = "runScript('/api/run_B')"
@@ -71,7 +65,6 @@ fun Application.scripts() {
                         pre { id = "output" } // Tutaj wstawimy wynik
 
                         script {
-                            // Prosty kod JavaScript do obsługi kliknięcia i wyświetlania wyniku
                             unsafe {
                                 raw("""
                                     async function runScript(endpoint) {
@@ -106,7 +99,6 @@ fun Application.scripts() {
                 }
             }
 
-            // --- B. Endpoint do uruchomienia Skryptu A ---
             get("/api/run_A") {
                 val result = executePythonScript(SCRIPT_A_PATH)
                 if (result.isSuccess) {
@@ -116,7 +108,6 @@ fun Application.scripts() {
                 }
             }
 
-            // --- C. Endpoint do uruchomienia Skryptu B ---
             get("/api/run_B") {
                 val result = executePythonScript(SCRIPT_B_PATH)
                 if (result.isSuccess) {
@@ -129,12 +120,9 @@ fun Application.scripts() {
     }
 }
 
-// --- Funkcje pomocnicze ---
 
-// Klasa do zwracania wyniku (output + status)
 data class ScriptExecutionResult(val output: String, val isSuccess: Boolean)
 
-// Funkcja uruchamiająca skrypt Pythona (wyodrębniona dla czystości kodu)
 fun executePythonScript(scriptPath: String): ScriptExecutionResult {
     val pythonExecutable = "python3"
 
