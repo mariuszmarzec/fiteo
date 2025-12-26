@@ -167,7 +167,8 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         highestPriorityAsDefault = highestPriorityAsDefault,
-        removeScheduled = removeScheduled
+        removeScheduled = removeScheduled,
+        showNotification = showNotification,
     )
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
@@ -178,7 +179,8 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
         daysOfWeek = daysOfWeek.map { DayOfWeek(it) },
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
-        highestPriorityAsDefault = highestPriorityAsDefault
+        highestPriorityAsDefault = highestPriorityAsDefault,
+        showNotification = showNotification,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
         hour = hour,
@@ -189,14 +191,16 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
         dayOfMonth = dayOfMonth,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
-        highestPriorityAsDefault = highestPriorityAsDefault
+        highestPriorityAsDefault = highestPriorityAsDefault,
+        showNotification = showNotification,
     )
     else -> throw IllegalArgumentException("Unknown type of scheduler")
 }
 
 private fun Scheduler.optionsToMap(): Map<String, String>? =
     listOfNotNull(
-        takeIfNotDefault(Scheduler::highestPriorityAsDefault, Scheduler.HIGHEST_PRIORITY_AS_DEFAULT)
+        takeIfNotDefault(Scheduler::highestPriorityAsDefault, Scheduler.HIGHEST_PRIORITY_AS_DEFAULT),
+        takeIfNotDefault(Scheduler::removeScheduled, Scheduler.REMOVE_SCHEDULED),
     ).toMap()
         .takeIf { it.isNotEmpty() }
 
