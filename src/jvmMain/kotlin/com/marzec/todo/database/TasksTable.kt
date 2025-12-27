@@ -101,6 +101,9 @@ val SchedulerEntity.highestPriorityAsDefault: Boolean
 val SchedulerEntity.removeScheduled: Boolean
     get() = getRemoveScheduled(options)
 
+val SchedulerEntity.showNotification: Boolean
+    get() = getRemoveScheduled(options)
+
 fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
         hour = hour,
@@ -109,7 +112,8 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         startDate = startDate.toLocalDateTime(),
         lastDate = lastDate?.toLocalDateTime(),
         highestPriorityAsDefault = highestPriorityAsDefault,
-        removeScheduled = removeScheduled
+        removeScheduled = removeScheduled,
+        showNotification = showNotification,
     )
     Scheduler.Weekly::class.simpleName -> Scheduler.Weekly(
         hour = hour,
@@ -121,6 +125,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
         highestPriorityAsDefault = highestPriorityAsDefault,
+        showNotification = showNotification,
     )
     Scheduler.Monthly::class.simpleName -> Scheduler.Monthly(
         hour = hour,
@@ -132,6 +137,7 @@ fun SchedulerEntity.toDomain(): Scheduler = when (type) {
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
         highestPriorityAsDefault = highestPriorityAsDefault,
+        showNotification = showNotification,
     )
     else -> throw IllegalArgumentException("Unknown type of scheduler")
 }

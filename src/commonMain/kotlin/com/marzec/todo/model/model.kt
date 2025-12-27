@@ -200,7 +200,7 @@ fun SchedulerDto.toDomain(): Scheduler = when (type) {
 private fun Scheduler.optionsToMap(): Map<String, String>? =
     listOfNotNull(
         takeIfNotDefault(Scheduler::highestPriorityAsDefault, Scheduler.HIGHEST_PRIORITY_AS_DEFAULT),
-        takeIfNotDefault(Scheduler::removeScheduled, Scheduler.REMOVE_SCHEDULED),
+        takeIfNotDefault(Scheduler::showNotification, Scheduler.REMOVE_SCHEDULED),
     ).toMap()
         .takeIf { it.isNotEmpty() }
 
@@ -208,6 +208,7 @@ private fun Scheduler.OneShot.optionsToMap(): Map<String, String>? =
     listOfNotNull(
         takeIfNotDefault(Scheduler::highestPriorityAsDefault, Scheduler.HIGHEST_PRIORITY_AS_DEFAULT),
         takeIfNotDefault(Scheduler.OneShot::removeScheduled, Scheduler.REMOVE_SCHEDULED),
+        takeIfNotDefault(Scheduler::showNotification, Scheduler.REMOVE_SCHEDULED),
     ).toMap()
         .takeIf { it.isNotEmpty() }
 
