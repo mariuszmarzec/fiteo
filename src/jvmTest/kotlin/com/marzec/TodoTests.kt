@@ -75,7 +75,8 @@ class TodoTests {
         val schedulerDto = schedulerOneShotDto.copy(
             options = mapOf(
                 "highestPriorityAsDefault" to "true",
-                "removeScheduled" to "true"
+                "removeScheduled" to "true",
+                "showNotification" to "true"
             )
         )
         testPostEndpoint(

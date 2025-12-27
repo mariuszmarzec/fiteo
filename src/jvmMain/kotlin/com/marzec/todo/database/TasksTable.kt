@@ -150,7 +150,8 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         type = this::class.simpleName.orEmpty(),
         options = mapOf(
             Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
-            Scheduler.OneShot::removeScheduled.name to removeScheduled.toString()
+            Scheduler.OneShot::removeScheduled.name to removeScheduled.toString(),
+            Scheduler::showNotification.name to showNotification.toString(),
         )
     )
     is Scheduler.Weekly -> SchedulerEntity(
@@ -166,6 +167,7 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         type = this::class.simpleName.orEmpty(),
         options = mapOf(
             Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
+            Scheduler::showNotification.name to showNotification.toString(),
         )
     )
     is Scheduler.Monthly -> SchedulerEntity(
@@ -181,6 +183,7 @@ fun Scheduler.toEntity(): SchedulerEntity = when (this) {
         type = this::class.simpleName.orEmpty(),
         options = mapOf(
             Scheduler::highestPriorityAsDefault.name to highestPriorityAsDefault.toString(),
+            Scheduler::showNotification.name to showNotification.toString(),
         )
 
     )
