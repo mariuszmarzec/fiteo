@@ -140,4 +140,4 @@ fun Route.loadForceData(api: Controller) {
 
 fun Route.addFcmToken(api: Controller) = postEndpoint(ApiPath.FCM_TOKEN, api::addFcmToken)
 
-fun Route.deleteFcmToken(api: Controller) = deleteByIdEndpoint(ApiPath.FCM_TOKEN + "/{fcm_token}", api::deleteFcmToken)
+fun Route.deleteFcmToken(api: Controller) = deleteByIdEndpoint(ApiPath.DELETE_FCM_TOKEN, api::deleteFcmToken)

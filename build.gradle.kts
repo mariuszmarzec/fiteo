@@ -308,3 +308,9 @@ detekt {
 
     config = files("config/detekt/detekt.yml")
 }
+
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.guava:listenablefuture") {
+        select("com.google.guava:guava:0") // 0 selects the version of Guava explicitly requested in dependencies
+    }
+}

@@ -1,10 +1,10 @@
 package com.marzec
 
-import com.google.common.truth.Truth.assertThat
+import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.dto.CreateFcmTokenDto
 import com.marzec.fiteo.model.dto.FcmTokenDto
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
@@ -19,7 +19,7 @@ class FcmTokenTest {
 
     private val fcmTokenDto = FcmTokenDto(
         id = 1,
-        userId = 1,
+        userId = 2,
         fcmToken = "test_token_123",
         platform = "android",
         updatedAt = "2021-05-16T00:00:00"
@@ -34,7 +34,7 @@ class FcmTokenTest {
             responseDto = fcmTokenDto,
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
-                com.marzec.core.CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
             }
         )
     }
@@ -47,7 +47,7 @@ class FcmTokenTest {
             responseDto = Unit,
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
-                com.marzec.core.CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
                 addFcmToken(createFcmTokenDto)
             }
         )

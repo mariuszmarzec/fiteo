@@ -1,10 +1,12 @@
 package com.marzec.fiteo.repositories
 
+import com.marzec.core.currentTime
 import com.marzec.database.FcmTokenEntity
 import com.marzec.database.FcmTokenTable
 import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.fiteo.model.domain.FcmToken
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
@@ -23,14 +25,14 @@ class FcmTokenRepositoryImpl(private val database: Database) : FcmTokenRepositor
         if (existingToken != null) {
             existingToken.user = UserEntity[userId]
             existingToken.platform = platform
-            existingToken.updatedAt = LocalDateTime.now()
+            existingToken.updatedAt = currentTime().toJavaLocalDateTime()
             existingToken.toDomain()
         } else {
             FcmTokenEntity.new {
                 this.user = UserEntity[userId]
                 this.fcmToken = fcmToken
                 this.platform = platform
-                this.updatedAt = LocalDateTime.now()
+                this.updatedAt = currentTime().toJavaLocalDateTime()
             }.toDomain()
         }
     }

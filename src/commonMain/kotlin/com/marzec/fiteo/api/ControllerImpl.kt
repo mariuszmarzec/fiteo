@@ -245,7 +245,7 @@ class ControllerImpl(
     override fun deleteFcmToken(request: HttpRequest<Unit>): HttpResponse<Unit> = serviceCall {
         fcmService.deleteToken(
             userId = request.userIdOrThrow(),
-            fcmToken = request.parameters["fcm_token"] ?: throw IllegalArgumentException("fcm_token is required")
+            fcmToken = request.getStringIdOrThrow()
         )
     }
 }

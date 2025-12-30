@@ -45,4 +45,5 @@ object ApiPath {
     const val LOAD_DATA = "$API_ROOT/force-load"
     
     const val FCM_TOKEN = "$API_ROOT/fcm-token"
+    const val DELETE_FCM_TOKEN = "$FCM_TOKEN/{${Api.Args.ARG_ID}}"
 }
