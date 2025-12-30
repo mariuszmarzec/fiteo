@@ -48,6 +48,8 @@ val dbTestUser = configurationProperties.getProperty("database.testUser")
 val dbTestPassword = configurationProperties.getProperty("database.testPassword")
 val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
 
+val firebaseServiceAccountProd = configurationProperties.getProperty("firebaseServiceAccount.prod")
+val firebaseServiceAccountTest = configurationProperties.getProperty("firebaseServiceAccount.test")
 
 val projectPackageName = "com.marzec.fiteo"
 
@@ -128,6 +130,7 @@ kotlin {
                 implementation("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
 
                 implementation("io.mockk:mockk:${Dependency.mockk_version}")
+                implementation("com.google.firebase:firebase-admin:${Dependency.firebase_admin_version}")
             }
         }
         val jvmTest by getting {
@@ -251,6 +254,9 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_USER", dbTestUser)
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_PASSWORD", dbTestPassword)
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
+
+        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT_PROD", firebaseServiceAccountProd)
+        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT_TEST", firebaseServiceAccountTest)
     }
 }
 

@@ -43,4 +43,6 @@ object ApiPath {
     const val LOGOUT = "$API_ROOT/logout"
 
     const val LOAD_DATA = "$API_ROOT/force-load"
+    
+    const val FCM_TOKEN = "$API_ROOT/fcm-token"
 }

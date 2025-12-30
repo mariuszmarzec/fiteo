@@ -6,8 +6,10 @@ import com.marzec.core.model.dto.NewFeatureToggleDto
 import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.CategoryDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
+import com.marzec.fiteo.model.dto.CreateFcmTokenDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.FcmTokenDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
@@ -52,4 +54,6 @@ interface Controller {
     fun deleteFeatureToggle(request: HttpRequest<Unit>): HttpResponse<FeatureToggleDto>
     fun createFeatureToggle(request: HttpRequest<NewFeatureToggleDto>): HttpResponse<FeatureToggleDto>
     fun updateFeatureToggle(request: HttpRequest<Map<String, JsonElement?>>): HttpResponse<FeatureToggleDto>
+    fun addFcmToken(request: HttpRequest<CreateFcmTokenDto>): HttpResponse<FcmTokenDto>
+    fun deleteFcmToken(request: HttpRequest<Unit>): HttpResponse<Unit>
 }

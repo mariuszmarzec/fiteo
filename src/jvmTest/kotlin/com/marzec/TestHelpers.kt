@@ -441,6 +441,10 @@ suspend fun ApplicationTestBuilder.markAsDone(taskId: Int) {
     patchWithAuth<UpdateTaskDto, Unit>(TodoApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "$taskId"), dto)
 }
 
+suspend fun ApplicationTestBuilder.addFcmToken(dto: CreateFcmTokenDto) {
+    postWithAuth<CreateFcmTokenDto, Unit>(ApiPath.FCM_TOKEN, dto)
+}
+
 fun List<TaskDto>.flatMapTaskDto(tasks: MutableList<TaskDto> = mutableListOf()): List<TaskDto> {
     forEach {
         tasks.add(it)

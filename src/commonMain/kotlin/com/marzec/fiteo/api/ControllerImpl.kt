@@ -11,8 +11,10 @@ import com.marzec.fiteo.data.InitialDataLoader
 import com.marzec.fiteo.model.domain.*
 import com.marzec.fiteo.model.dto.CategoryDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
+import com.marzec.fiteo.model.dto.CreateFcmTokenDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.ExerciseDto
+import com.marzec.fiteo.model.dto.FcmTokenDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
@@ -21,6 +23,7 @@ import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.AuthenticationService
 import com.marzec.fiteo.services.ExercisesService
+import com.marzec.fiteo.services.FcmService
 import com.marzec.fiteo.services.FeatureTogglesService
 import com.marzec.fiteo.services.TrainingService
 import kotlinx.serialization.json.JsonElement
@@ -30,6 +33,7 @@ class ControllerImpl(
     private val authenticationService: AuthenticationService,
     private val trainingService: TrainingService,
     private val featureTogglesService: FeatureTogglesService,
+    private val fcmService: FcmService,
     private val initialDataLoader: InitialDataLoader
 ) : Controller {
     override fun getCategories(request: HttpRequest<Unit>): HttpResponse<List<CategoryDto>> =
@@ -229,4 +233,19 @@ class ControllerImpl(
                 update = request.data.toUpdateFeatureToggle()
             ).toDto()
         }
+
+    override fun addFcmToken(request: HttpRequest<CreateFcmTokenDto>): HttpResponse<FcmTokenDto> = serviceCall {
+        fcmService.addToken(
+            userId = request.userIdOrThrow(),
+            fcmToken = request.data.fcmToken,
+            platform = request.data.platform
+        ).toDto()
+    }
+
+    override fun deleteFcmToken(request: HttpRequest<Unit>): HttpResponse<Unit> = serviceCall {
+        fcmService.deleteToken(
+            userId = request.userIdOrThrow(),
+            fcmToken = request.parameters["fcm_token"] ?: throw IllegalArgumentException("fcm_token is required")
+        )
+    }
 }

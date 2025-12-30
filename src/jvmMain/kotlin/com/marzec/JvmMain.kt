@@ -234,7 +234,7 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
 
     authenticate(di.authToken) {
         user(api)
-        logout()
+        logout(di)
     }
 
     if (di.authToken == Auth.NAME) {
@@ -315,8 +315,12 @@ fun Route.sse(di: Di) {
     }
 }
 
-fun Route.logout() {
+fun Route.logout(di: Di) {
     get(ApiPath.LOGOUT) {
+        val userId = call.principal<UserPrincipal>()?.id
+        if (userId != null) {
+            di.fcmService.deleteTokensForUser(userId)
+        }
         if (call.request.uri.contains("test/")) {
             call.sessions.clear<TestUserSession>()
         } else {

@@ -15,4 +15,5 @@ object Dependency {
     val koin_version = "4.0.4"
     val koin_ktor_version = "4.0.4"
     val truth_version = "1.1.3"
+    val firebase_admin_version = "9.2.0"
 }

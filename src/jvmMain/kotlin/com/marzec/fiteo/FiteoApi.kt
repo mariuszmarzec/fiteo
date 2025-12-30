@@ -26,6 +26,9 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         getTrainings(api)
         removeTraining(api)
         updateTraining(api)
+
+        addFcmToken(api)
+        deleteFcmToken(api)
     }
     exercises(api)
     putExercise(api)
@@ -134,3 +137,7 @@ fun Route.loadForceData(api: Controller) {
         respond(api.forceLoadData(HttpRequest(Unit)))
     }
 }
+
+fun Route.addFcmToken(api: Controller) = postEndpoint(ApiPath.FCM_TOKEN, api::addFcmToken)
+
+fun Route.deleteFcmToken(api: Controller) = deleteByIdEndpoint(ApiPath.FCM_TOKEN + "/{fcm_token}", api::deleteFcmToken)

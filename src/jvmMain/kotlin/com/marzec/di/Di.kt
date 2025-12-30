@@ -45,6 +45,10 @@ import com.marzec.fiteo.repositories.TrainingTemplateRepositoryImpl
 import com.marzec.fiteo.repositories.UserRepository
 import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.repositories.WeightsRepositoryImpl
+import com.marzec.fiteo.repositories.FcmTokenRepository
+import com.marzec.fiteo.repositories.FcmTokenRepositoryImpl
+import com.marzec.fiteo.services.FcmService
+import com.marzec.fiteo.services.FcmServiceImpl
 import com.marzec.fiteo.services.FeatureTogglesService
 import com.marzec.fiteo.services.FeatureTogglesServiceImpl
 import com.marzec.todo.TaskConstraints
@@ -102,6 +106,7 @@ class Di(
     val logger by inject<Logger> {
         parametersOf(database, authToken)
     }
+    val fcmService by inject<FcmService> { parametersOf(database, authToken) }
 }
 
 val MainModule = module {
@@ -172,6 +177,7 @@ val MainModule = module {
             get { params },
             get { params },
             get { params },
+            get { params },
             get { params }
         )
     }
@@ -236,9 +242,13 @@ val MainModule = module {
             todoService = get { params },
             schedulerDispatcherInterval = get(named(NAME_SCHEDULER_DISPATCHER_INTERVAL)),
             timeZoneOffsetHours = get(named(NAME_TIME_ZONE_OFFSET_HOURS)),
-            eventBus = get { params }
+            eventBus = get { params },
+            fcmService = get { params }
         )
     }
+
+    factory<FcmTokenRepository> { params -> FcmTokenRepositoryImpl(get { params }) }
+    factory<FcmService> { params -> FcmServiceImpl(get { params }, get { params }) }
 }
 
 var diModules = listOf(MainModule)

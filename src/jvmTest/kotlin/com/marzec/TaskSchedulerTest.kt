@@ -5,6 +5,7 @@ import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.di.SECONDS_IN_MINUTE
 import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.User
+import com.marzec.fiteo.services.FcmService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
 import com.marzec.todo.model.Scheduler
@@ -133,6 +134,7 @@ class TaskSchedulerTest {
     )
     val repository = mockk<TodoRepository>()
     val service = mockk<TodoService>()
+    val fcmService = mockk<FcmService>(relaxed = true)
 
     @Before
     fun setUp() {
@@ -151,6 +153,7 @@ class TaskSchedulerTest {
 
         verify {
             service.copyTask(user.id, 1, copyPriority = false, copyScheduler = false)
+            fcmService.sendPushNotification(user.id, any())
         }
     }
 
@@ -358,6 +361,7 @@ class TaskSchedulerTest {
     private fun verifyCreated() {
         verify {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+            fcmService.sendPushNotification(user.id, any())
         }
     }
 
@@ -437,6 +441,7 @@ class TaskSchedulerTest {
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+            fcmService.sendPushNotification(user.id, any())
         }
     }
 
@@ -456,6 +461,7 @@ class TaskSchedulerTest {
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
+            fcmService.sendPushNotification(user.id, any())
         }
     }
 
@@ -467,7 +473,8 @@ class TaskSchedulerTest {
         todoService = service,
         schedulerDispatcherInterval = 15 * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND,
         timeZoneOffsetHours = 2,
-        eventBus = EventBus()
+        eventBus = EventBus(),
+        fcmService = fcmService
     )
 
     private fun schedulerDispatcher(scheduler: Scheduler) = schedulerDispatcher(

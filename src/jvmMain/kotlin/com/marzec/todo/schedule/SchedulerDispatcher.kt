@@ -7,11 +7,13 @@ import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.events.Event
 import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.NullableField
+import com.marzec.fiteo.services.FcmService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
+import com.marzec.todo.model.toDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -31,7 +33,8 @@ class SchedulerDispatcher(
     private val todoService: TodoService,
     private val schedulerDispatcherInterval: Long,
     private val timeZoneOffsetHours: Long,
-    private val eventBus: EventBus
+    private val eventBus: EventBus,
+    private val fcmService: FcmService
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -63,7 +66,7 @@ class SchedulerDispatcher(
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
                 if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
-                    todoService.copyTask(
+                    val newTask = todoService.copyTask(
                         userId = user.id,
                         id = task.id,
                         copyPriority = false,
@@ -80,6 +83,11 @@ class SchedulerDispatcher(
                         updateLastDate(user.id, task)
                     }
                     eventBus.send(Event.UpdateEvent(user.id))
+
+                    // Send push notification if enabled
+                    // Assuming there's a way to check if notification should be sent,
+                    // but for now sending for all scheduled tasks as requested
+                    fcmService.sendPushNotification(user.id, newTask.toDto())
                 } else {
                     logger.debug("TASK ${task.id} not added by scheduler")
                 }
