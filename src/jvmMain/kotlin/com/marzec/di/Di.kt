@@ -106,7 +106,7 @@ class Di(
     val logger by inject<Logger> {
         parametersOf(database, authToken)
     }
-    val fcmService by inject<FcmService> { parametersOf(database, authToken) }
+    val fcmService by inject<FcmService> { parametersOf(database) }
 }
 
 val MainModule = module {
@@ -248,7 +248,7 @@ val MainModule = module {
     }
 
     factory<FcmTokenRepository> { params -> FcmTokenRepositoryImpl(get { params }) }
-    factory<FcmService> { params -> FcmServiceImpl(get { params }, get { params }) }
+    factory<FcmService> { params -> FcmServiceImpl(get { params }) }
 }
 
 var diModules = listOf(MainModule)

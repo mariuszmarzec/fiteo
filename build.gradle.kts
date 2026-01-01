@@ -48,8 +48,7 @@ val dbTestUser = configurationProperties.getProperty("database.testUser")
 val dbTestPassword = configurationProperties.getProperty("database.testPassword")
 val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
 
-val firebaseServiceAccountProd = configurationProperties.getProperty("firebaseServiceAccount.prod")
-val firebaseServiceAccountTest = configurationProperties.getProperty("firebaseServiceAccount.test")
+val firebaseServiceAccount = configurationProperties.getProperty("firebaseServiceAccount")
 
 val projectPackageName = "com.marzec.fiteo"
 
@@ -255,8 +254,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_PASSWORD", dbTestPassword)
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
-        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT_PROD", firebaseServiceAccountProd)
-        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT_TEST", firebaseServiceAccountTest)
+        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
     }
 }
 

@@ -5,7 +5,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
-import com.marzec.Api
 import com.marzec.fiteo.FiteoConfig
 import com.marzec.fiteo.model.domain.FcmToken
 import com.marzec.fiteo.repositories.FcmTokenRepository
@@ -16,19 +15,14 @@ import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 
 class FcmServiceImpl(
-    private val fcmTokenRepository: FcmTokenRepository,
-    private val authToken: String
+    private val fcmTokenRepository: FcmTokenRepository
 ) : FcmService {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     init {
         try {
-            val serviceAccountPath = if (authToken == Api.Auth.TEST) {
-                FiteoConfig.FIREBASE_SERVICE_ACCOUNT_TEST
-            } else {
-                FiteoConfig.FIREBASE_SERVICE_ACCOUNT_PROD
-            }
+            val serviceAccountPath = FiteoConfig.FIREBASE_SERVICE_ACCOUNT
             
             if (!serviceAccountPath.isNullOrBlank()) {
                 val serviceAccount = FileInputStream(serviceAccountPath)
@@ -41,7 +35,7 @@ class FcmServiceImpl(
                     logger.info("Firebase initialized successfully with config: $serviceAccountPath")
                 }
             } else {
-                logger.warn("Firebase service account path is empty for auth token: $authToken")
+                logger.warn("Firebase service account path is empty")
             }
         } catch (e: Exception) {
             logger.error("Failed to initialize Firebase: ${e.message}")
