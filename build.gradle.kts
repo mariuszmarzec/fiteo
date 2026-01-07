@@ -180,6 +180,9 @@ tasks.named<Jar>("jvmJar") {
     manifest {
         attributes["Main-Class"] = "com.marzec.JvmMainKt"
     }
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 
     doFirst {
         val runtimeClasspath = configurations.getByName("jvmRuntimeClasspath")
@@ -206,6 +209,7 @@ tasks.getByName<JavaExec>("run") {
 
     val jvmTarget = kotlin.targets.getByName("jvm")
     val jvmMain = jvmTarget.compilations.getByName("main")
+    mainClass.set("com.marzec.JvmMainKt")
 
     classpath = files(tasks["jvmJar"].outputs.files) +
             jvmMain.runtimeDependencyFiles!! +
