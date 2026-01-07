@@ -7,6 +7,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.http.*
 import kotlinx.html.*
+import org.koin.logger.SLF4JLogger
+import org.slf4j.LoggerFactory
 
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
@@ -50,10 +52,12 @@ fun Application.scripts() {
                         h1 { +"Panel Wyboru Skryptu" }
 
                         div(classes = "date-container") {
-                            label { +"Data od: "; htmlFor = "date-from" }
+                            // --- POPRAWKA TUTAJ: Najpierw atrybut htmlFor, potem tekst ---
+                            label { htmlFor = "date-from"; +"Data od: " }
                             input(type = InputType.date, classes = "date-input") { id = "date-from" }
 
-                            label { +" Data do: "; htmlFor = "date-to" }
+                            // --- POPRAWKA TUTAJ: Najpierw atrybut htmlFor, potem tekst ---
+                            label { htmlFor = "date-to"; +" Data do: " }
                             input(type = InputType.date, classes = "date-input") { id = "date-to" }
 
                             button(classes = "clear-btn") {
@@ -113,7 +117,7 @@ fun Application.scripts() {
 
                                             const text = await response.text();
                                             
-                                            // POPRAWKA TUTAJ: Używamy standardowego łączenia stringów w JS
+                                            // POPRAWKA JS: Używamy standardowego łączenia stringów
                                             if (response.ok) {
                                                 outputElement.textContent = "SUKCES (Kod " + response.status + "):\n" + text;
                                                 outputElement.style.backgroundColor = '#e6ffe6';
@@ -133,7 +137,6 @@ fun Application.scripts() {
                     }
                 }
             }
-
             // ... reszta endpointów /api/run_A i /api/run_B bez zmian ...
             get("/api/run_A") {
                 val dateFrom = call.request.queryParameters["dateFrom"]
