@@ -52,10 +52,10 @@ fun Application.scripts() {
                         div(classes = "date-container") {
                             label { +"Data od: "; htmlFor = "date-from" }
                             input(type = InputType.date, classes = "date-input") { id = "date-from" }
-                            
+
                             label { +" Data do: "; htmlFor = "date-to" }
                             input(type = InputType.date, classes = "date-input") { id = "date-to" }
-                            
+
                             button(classes = "clear-btn") {
                                 onClick = "clearDates()"
                                 +"Wyczyść daty"
@@ -113,11 +113,12 @@ fun Application.scripts() {
 
                                             const text = await response.text();
                                             
+                                            // POPRAWKA TUTAJ: Używamy standardowego łączenia stringów w JS
                                             if (response.ok) {
-                                                outputElement.textContent = "SUKCES (Kod ${'$'}{response.status}):\n" + text;
+                                                outputElement.textContent = "SUKCES (Kod " + response.status + "):\n" + text;
                                                 outputElement.style.backgroundColor = '#e6ffe6';
                                             } else {
-                                                outputElement.textContent = "BŁĄD (Kod ${'$'}{response.status}):\n" + text;
+                                                outputElement.textContent = "BŁĄD (Kod " + response.status + "):\n" + text;
                                                 outputElement.style.backgroundColor = '#ffe6e6';
                                             }
 
@@ -133,6 +134,7 @@ fun Application.scripts() {
                 }
             }
 
+            // ... reszta endpointów /api/run_A i /api/run_B bez zmian ...
             get("/api/run_A") {
                 val dateFrom = call.request.queryParameters["dateFrom"]
                 val dateTo = call.request.queryParameters["dateTo"]
