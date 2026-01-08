@@ -77,7 +77,7 @@ class FcmServiceImpl(
                 logger.info("Successfully sent message: $response to token: ${token.fcmToken}")
             } catch (e: Exception) {
                 logger.error("Error sending message to token ${token.fcmToken}: ${e.message}")
-                // Optionally remove invalid tokens here
+                fcmTokenRepository.deleteToken(userId, token.fcmToken)
             }
         }
     }
