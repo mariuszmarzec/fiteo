@@ -4,7 +4,9 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingException
 import com.google.firebase.messaging.Message
+import com.google.firebase.messaging.MessagingErrorCode
 import com.marzec.fiteo.FiteoConfig
 import com.marzec.fiteo.model.domain.FcmToken
 import com.marzec.fiteo.repositories.FcmTokenRepository
@@ -76,8 +78,12 @@ class FcmServiceImpl(
                 val response = FirebaseMessaging.getInstance().send(message)
                 logger.info("Successfully sent message: $response to token: ${token.fcmToken}")
             } catch (e: Exception) {
+                if (e is FirebaseMessagingException) {
+                    if (e.messagingErrorCode == MessagingErrorCode.UNREGISTERED) {
+                        fcmTokenRepository.deleteToken(userId, token.fcmToken)
+                    }
+                }
                 logger.error("Error sending message to token ${token.fcmToken}: ${e.message}")
-                fcmTokenRepository.deleteToken(userId, token.fcmToken)
             }
         }
     }
