@@ -87,7 +87,9 @@ class SchedulerDispatcher(
                     // Send push notification if enabled
                     // Assuming there's a way to check if notification should be sent,
                     // but for now sending for all scheduled tasks as requested
-                    fcmService.sendPushNotification(user.id, newTask.toDto())
+                    if (task.scheduler.showNotification) {
+                        fcmService.sendPushNotification(user.id, newTask.toDto())
+                    }
                 } else {
                     logger.debug("TASK ${task.id} not added by scheduler")
                 }
