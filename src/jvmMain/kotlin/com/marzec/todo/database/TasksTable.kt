@@ -13,6 +13,7 @@ import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.getHighestPriorityAsDefault
 import com.marzec.todo.model.getRemoveScheduled
+import com.marzec.todo.model.getShowNotification
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toJavaLocalDateTime
@@ -102,7 +103,7 @@ val SchedulerEntity.removeScheduled: Boolean
     get() = getRemoveScheduled(options)
 
 val SchedulerEntity.showNotification: Boolean
-    get() = getRemoveScheduled(options)
+    get() = getShowNotification(options)
 
 fun SchedulerEntity.toDomain(): Scheduler = when (type) {
     Scheduler.OneShot::class.simpleName -> Scheduler.OneShot(
