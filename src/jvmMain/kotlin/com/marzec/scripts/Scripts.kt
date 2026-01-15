@@ -1,14 +1,30 @@
 package com.marzec.scripts
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.html.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.http.*
-import kotlinx.html.*
-import org.koin.logger.SLF4JLogger
-import org.slf4j.LoggerFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.html.InputType
+import kotlinx.html.body
+import kotlinx.html.br
+import kotlinx.html.button
+import kotlinx.html.div
+import kotlinx.html.h1
+import kotlinx.html.h2
+import kotlinx.html.head
+import kotlinx.html.id
+import kotlinx.html.input
+import kotlinx.html.label
+import kotlinx.html.onClick
+import kotlinx.html.pre
+import kotlinx.html.script
+import kotlinx.html.style
+import kotlinx.html.title
+import kotlinx.html.unsafe
 
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
@@ -177,25 +193,28 @@ fun Application.scripts() {
 
 data class ScriptExecutionResult(val output: String, val isSuccess: Boolean)
 
-fun executePythonScript(scriptPath: String, args: List<String> = emptyList()): ScriptExecutionResult {
-    val pythonExecutable = "python3"
-    val command = mutableListOf(pythonExecutable, scriptPath)
-    command.addAll(args)
+suspend fun executePythonScript(scriptPath: String, args: List<String> = emptyList()): ScriptExecutionResult {
+    return withContext(Dispatchers.IO) {
+        val pythonExecutable = "python3"
+        val command = mutableListOf(pythonExecutable, scriptPath)
+        command.addAll(args)
 
-    return try {
-        val process = ProcessBuilder(command)
-            .redirectErrorStream(true)
-            .start()
+        try {
+            val process = ProcessBuilder(command)
+                .redirectErrorStream(true)
+                .start()
 
-        val exitCode = process.waitFor()
-        val output = process.inputStream.bufferedReader().use { it.readText() }
+            val exitCode = process.waitFor()
 
-        if (exitCode == 0) {
-            ScriptExecutionResult(output, true)
-        } else {
-            ScriptExecutionResult("BŁĄD SKRYPTU (Kod $exitCode):\n$output", false)
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+
+            if (exitCode == 0) {
+                ScriptExecutionResult(output, true)
+            } else {
+                ScriptExecutionResult("BŁĄD SKRYPTU (Kod $exitCode):\n$output", false)
+            }
+        } catch (e: Exception) {
+            ScriptExecutionResult("KRYTYCZNY BŁĄD SYSTEMU: ${e.message}", false)
         }
-    } catch (e: Exception) {
-        ScriptExecutionResult("KRYTYCZNY BŁĄD SYSTEMU: ${e.message}", false)
     }
 }
