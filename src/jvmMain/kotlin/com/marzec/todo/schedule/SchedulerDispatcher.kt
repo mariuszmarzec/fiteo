@@ -46,7 +46,7 @@ class SchedulerDispatcher(
 
     private val isInStartWindow: Scheduler.(creationTime: LocalDateTime, today: LocalDateTime) -> Boolean =
         { creationTime: LocalDateTime, today: LocalDateTime ->
-            val normalisedCreationTime = creationTime.minusHours(timeZoneOffsetHours)
+            val normalisedCreationTime = creationTime
 
             val intervalEndTime = today
             val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
@@ -104,7 +104,6 @@ class SchedulerDispatcher(
 
 private fun Task.toUpdateWithCurrentLastDate(timeZoneOffsetHours: Long): UpdateTask {
     val lastDate = currentTime().toJavaLocalDateTime()
-        .plusHours(timeZoneOffsetHours)
         .toKotlinLocalDateTime()
     return UpdateTask(
         scheduler = NullableField(scheduler?.updateLastDate(lastDate)),

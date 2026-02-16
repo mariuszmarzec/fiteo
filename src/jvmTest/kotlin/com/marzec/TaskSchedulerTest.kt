@@ -20,6 +20,7 @@ import org.junit.Test
 import org.koin.core.context.GlobalContext
 import java.time.DayOfWeek
 import java.time.LocalDateTime
+import java.util.TimeZone
 
 class TaskSchedulerTest {
 
@@ -38,7 +39,8 @@ class TaskSchedulerTest {
                     LocalDateTime.of(2021, 5, 16, 0, 0).toKotlinLocalDateTime(),
                     lastDate = null,
                     repeatCount = -1,
-                    repeatInEveryPeriod = 1
+                    repeatInEveryPeriod = 1,
+                    showNotification = true
                 )
             )
         )
@@ -51,7 +53,8 @@ class TaskSchedulerTest {
         lastDate = null,
         repeatCount = 3,
         repeatInEveryPeriod = 2,
-        dayOfMonth = 20
+        dayOfMonth = 20,
+        showNotification = true
     )
 
     val weeklyScheduler = Scheduler.Weekly(
@@ -62,7 +65,8 @@ class TaskSchedulerTest {
         lastDate = null,
         repeatCount = 3,
         repeatInEveryPeriod = 2,
-        daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+        daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+        showNotification = true
     )
 
     val scheduledWeeklyTasks = mapOf(
@@ -89,7 +93,8 @@ class TaskSchedulerTest {
                     lastDate = LocalDateTime.of(2021, 6, 16, 0, 0).toKotlinLocalDateTime(),
                     repeatCount = 3,
                     repeatInEveryPeriod = 2,
-                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+                    daysOfWeek = listOf(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+                    showNotification = true
                 )
             )
         )
@@ -108,7 +113,8 @@ class TaskSchedulerTest {
                     lastDate = null,
                     repeatCount = -1,
                     repeatInEveryPeriod = 1,
-                    daysOfWeek = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY)
+                    daysOfWeek = listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY),
+                    showNotification = true
                 )
             )
         )
@@ -127,7 +133,8 @@ class TaskSchedulerTest {
                     lastDate = LocalDateTime.of(2022, 5, 19, 0, 0).toKotlinLocalDateTime(),
                     repeatCount = -1,
                     repeatInEveryPeriod = 1,
-                    daysOfWeek = listOf(DayOfWeek.FRIDAY)
+                    daysOfWeek = listOf(DayOfWeek.FRIDAY),
+                    showNotification = true
                 )
             )
         )
@@ -138,6 +145,7 @@ class TaskSchedulerTest {
 
     @Before
     fun setUp() {
+        CurrentTimeUtil.init(TimeZone.getTimeZone("Europe/Warsaw"))
         every { service.copyTask(userId = any(), id = any(), copyPriority = false, copyScheduler = false) } answers {
             stubTask(id = secondArg<Int>().toInt())
         }
@@ -205,7 +213,7 @@ class TaskSchedulerTest {
     @Test
     fun `run creation if scheduled monthly for last date`() = runTest {
         // In november is winter time, one hour backward
-        CurrentTimeUtil.setOtherTime(30, 11, 2021, 15, 30)
+        CurrentTimeUtil.setOtherTime(30, 11, 2021, 14, 30)
         val dispatcher =
             schedulerDispatcher(
                 mapOf(
