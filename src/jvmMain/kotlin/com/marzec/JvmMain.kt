@@ -67,7 +67,7 @@ private const val PRIORITY = 10.0
 private const val MINIMUM_SIZE: Long = 1024
 
 fun main(args: Array<String>) {
-    CurrentTimeUtil.init(TimeZone.getTimeZone("GMT+2"))
+    CurrentTimeUtil.init(TimeZone.getTimeZone("Europe/Warsaw"))
     EngineMain.main(args)
 }
 

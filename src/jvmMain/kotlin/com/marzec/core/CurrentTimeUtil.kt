@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 import kotlinx.datetime.LocalDateTime as KotlinLocalDateTime
 
@@ -15,7 +16,7 @@ object CurrentTimeUtil {
 
     fun init(timeZone: TimeZone = TimeZone.getTimeZone("UTC")) {
         TimeZone.setDefault(timeZone)
-        clock = Clock.systemDefaultZone()
+        clock = Clock.system(timeZone.toZoneId())
     }
 
     fun setOtherTime(day: Int, month: Int, year: Int) {
@@ -24,11 +25,11 @@ object CurrentTimeUtil {
     }
 
     fun setOtherTime(day: Int, month: Int, year: Int, hour: Int, minute: Int) {
-        val instant = LocalDateTime.of(year, month, day, hour, minute).toInstant(ZoneOffset.ofHours(4))
+        val instant = ZonedDateTime.of(year, month, day, hour, minute, 0, 0, ZoneId.systemDefault()).toInstant()
         clock = Clock.fixed(instant, ZoneId.systemDefault())
     }
 }
 
-actual fun currentTime(): KotlinLocalDateTime = LocalDateTime.now(CurrentTimeUtil.clock).toKotlinLocalDateTime()
+actual fun currentTime(): KotlinLocalDateTime = ZonedDateTime.now(CurrentTimeUtil.clock).toLocalDateTime().toKotlinLocalDateTime()
 
 actual fun currentMillis(): Long = CurrentTimeUtil.clock.millis()
