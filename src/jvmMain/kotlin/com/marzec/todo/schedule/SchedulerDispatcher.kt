@@ -15,7 +15,6 @@ import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
 import com.marzec.todo.model.toDto
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
@@ -26,7 +25,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 
 class SchedulerDispatcher(
     private val todoRepository: TodoRepository,
@@ -50,11 +48,6 @@ class SchedulerDispatcher(
 
             val intervalEndTime = today
             val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
-            logger.info("---------------------------------- CHECK")
-            logger.info("normalisedCreationTime ${normalisedCreationTime.format(DateTimeFormatter.ISO_DATE_TIME)}")
-            logger.info("intervalStartTime ${intervalStartTime.format(DateTimeFormatter.ISO_DATE_TIME)}")
-            logger.info("intervalEndTime ${intervalEndTime.format(DateTimeFormatter.ISO_DATE_TIME)}")
-            logger.info("---------------------------------- END")
 
             intervalStartTime <= normalisedCreationTime && normalisedCreationTime <= intervalEndTime
         }
