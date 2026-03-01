@@ -15,6 +15,8 @@ import com.marzec.todo.model.Task
 import com.marzec.todo.model.UpdateTask
 import com.marzec.todo.model.toDto
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
@@ -35,6 +37,8 @@ class SchedulerDispatcher(
     private val fcmService: FcmService
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(100))
 
     init {
         logger.info("Scheduler dispatcher started ${currentTime().toJavaLocalDateTime().plusHours(timeZoneOffsetHours)}")
@@ -58,33 +62,33 @@ class SchedulerDispatcher(
         val today = currentTime().toJavaLocalDateTime()
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
-                if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
-                    val newTask = todoService.copyTask(
-                        userId = user.id,
-                        id = task.id,
-                        copyPriority = false,
-                        copyScheduler = false,
-                        highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
-                    )
-                    if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
-                        todoService.removeTask(
+                coroutineScope.launch {
+                    if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
+                        val newTask = todoService.copyTask(
                             userId = user.id,
-                            taskId = task.id,
-                            removeWithSubtasks = true
+                            id = task.id,
+                            copyPriority = false,
+                            copyScheduler = false,
+                            highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
                         )
-                    } else {
-                        updateLastDate(user.id, task)
-                    }
-                    eventBus.send(Event.UpdateEvent(user.id))
+                        if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
+                            todoService.removeTask(
+                                userId = user.id,
+                                taskId = task.id,
+                                removeWithSubtasks = true
+                            )
+                        } else {
+                            updateLastDate(user.id, task)
+                        }
+                        eventBus.send(Event.UpdateEvent(user.id))
 
-                    // Send push notification if enabled
-                    // Assuming there's a way to check if notification should be sent,
-                    // but for now sending for all scheduled tasks as requested
-                    if (task.scheduler.showNotification) {
-                        fcmService.sendPushNotification(user.id, newTask.toDto())
+                        // Send push notification if enabled
+                        if (task.scheduler.showNotification) {
+                            fcmService.sendPushNotification(user.id, newTask.toDto())
+                        }
+                    } else {
+                        logger.debug("TASK \\${task.id} not added by scheduler")
                     }
-                } else {
-                    logger.debug("TASK ${task.id} not added by scheduler")
                 }
             }
         }
