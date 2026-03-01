@@ -54,7 +54,7 @@ object TrainingExerciseWithProgressTable : IntIdTable("exercise_with_progress") 
     val exerciseId = reference("exercise_id", ExerciseTable, onDelete = ReferenceOption.NO_ACTION)
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
     val templateId = integer("template_part_id").nullable()
-    val name = varchar("name", 255)
+    val name = varchar("exercise_name", 300)
     val ordinalNumber = integer("ordinal_number")
 }
 
@@ -89,7 +89,7 @@ object ExerciseToSeries : IntIdTable("exercise_to_series") {
 }
 
 object SeriesTable : IntIdTable("series") {
-    val date = datetime("date").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
+    val date = datetime("create_date_in_millis").apply { defaultValueFun = { currentTime().toJavaLocalDateTime() } }
     val burden = float("burden").nullable()
     val timeInMillis = long("time_in_millis").nullable()
     val repsNumber = integer("reps_number").nullable()

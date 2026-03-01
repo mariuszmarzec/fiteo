@@ -13,7 +13,7 @@ object TrainingTemplateTable : IntIdTable("training_templates") {
 
     private const val NAME_LENGTH = 300
 
-    val name = varchar("name", NAME_LENGTH)
+    val name = varchar("training_template_name", NAME_LENGTH)
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -56,7 +56,7 @@ object TrainingTemplateToTrainingTemplatePartTable : IntIdTable("training_templa
 
 object TrainingTemplatePartTable : IntIdTable("training_parts") {
     private const val NAME_LENGTH = 300
-    val name = varchar("name", NAME_LENGTH)
+    val name = varchar("training_part_name", NAME_LENGTH)
     val pinnedExercise = reference("pinned_exercise_id", ExerciseTable, onDelete = ReferenceOption.NO_ACTION).nullable()
     val ordinalNumber = integer("ordinal_number")
 }

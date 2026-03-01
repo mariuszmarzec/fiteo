@@ -12,7 +12,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Column
 
 object ExerciseTable : IntIdTable("exercises") {
-    val name = varchar("name", length = 300)
+    val name = varchar("exercise_name", length = 300)
     val animationImageName = varchar("animation_image_name", length = 1000).nullable()
     val animationUrl = varchar("animation_url", length = 1000).nullable()
     val videoUrl = varchar("video_url", length = 1000).nullable()
