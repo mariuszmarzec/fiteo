@@ -15,10 +15,8 @@ object FeatureToggleTable : IdTable<Int>("feature_toggles") {
     private const val NAME_LENGTH = 100
 
     override val id: Column<EntityID<Int>> = integer("id").entityId().autoIncrement()
-
-    val name = varchar("name", NAME_LENGTH)
-    val value = varchar("value", NAME_LENGTH)
-
+    val name = varchar("feature_toggle_name", NAME_LENGTH)
+    val value = varchar("feature_toggle_value", NAME_LENGTH)
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }
 }
 

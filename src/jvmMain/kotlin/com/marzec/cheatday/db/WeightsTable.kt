@@ -20,8 +20,8 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.datetime
 
 object WeightsTable : IntIdWithUserTable("weights") {
-    val value = float("value")
-    val date = datetime("date")
+    val value = float("weight_value")
+    val date = datetime("weight_date")
     override val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 

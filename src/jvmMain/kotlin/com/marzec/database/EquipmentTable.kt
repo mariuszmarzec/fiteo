@@ -14,7 +14,7 @@ object EquipmentTable : IdTable<String>("equipment") {
 
     override val id: Column<EntityID<String>> = varchar("id", ID_LENGTH).entityId()
 
-    val name = varchar("name", NAME_LENGTH)
+    val name = varchar("equipment_name", NAME_LENGTH)
 
     override val primaryKey by lazy { super.primaryKey ?: PrimaryKey(id) }
 }
