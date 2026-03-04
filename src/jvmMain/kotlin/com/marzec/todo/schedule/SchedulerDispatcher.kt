@@ -53,12 +53,12 @@ class SchedulerDispatcher(
             val intervalEndTime = today
             val intervalStartTime = intervalEndTime.minusSeconds(schedulerDispatcherInterval / MILLISECONDS_IN_SECOND)
 
-            intervalStartTime <= normalisedCreationTime && normalisedCreationTime <= intervalEndTime
+            intervalStartTime < normalisedCreationTime && normalisedCreationTime <= intervalEndTime
         }
 
     private val schedulerChecker = SchedulerChecker(isInStartWindow, creationTimeFeatureEnabled)
 
-    suspend fun dispatch() {
+    fun dispatch() {
         val today = currentTime().toJavaLocalDateTime()
         todoRepository.getScheduledTasks().forEach { (user, tasks) ->
             tasks.forEach { task ->
@@ -117,7 +117,9 @@ fun runTodoSchedulerDispatcher(scope: CoroutineScope, vararg dis: Di) {
                 schedulerDispatcher.dispatch()
                 val endTime = currentMillis()
                 val duration = endTime - startTime
-                delay(dispatcherInterval - duration)
+                if (duration < dispatcherInterval) {
+                    delay(dispatcherInterval - duration)
+                }
             }
         }
     }
@@ -241,6 +243,9 @@ private class SchedulerChecker(
 
             if (isRightPeriod && isInCountLimit) {
                 val creationTime = today.withHour(hour).withMinute(minute)
+                if (lastDate != null && lastDate!!.toJavaLocalDateTime() >= creationTime) {
+                    return false
+                }
                 return isInStartWindow(creationTime, today)
             }
         }
