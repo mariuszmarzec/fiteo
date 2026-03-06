@@ -51,7 +51,7 @@ suspend fun ApplicationTestBuilder.defStringLambda(): String? = null
 fun setupDb() {
     DbSettings.dbEndpoint = "jdbc:mysql://localhost:3306/fiteo_test_database?createDatabaseIfNotExist=TRUE"
     DbSettings.dbUser = "root"
-    DbSettings.dbPassword = ""
+    DbSettings.dbPassword = "1234"
 
     val flyway = Flyway.configure().dataSource(DbSettings.dbEndpoint, DbSettings.dbUser, DbSettings.dbPassword).load();
 

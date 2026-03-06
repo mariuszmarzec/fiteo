@@ -16,11 +16,14 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD:
+          MYSQL_ROOT_PASSWORD: 1245
+          MYSQL_DATABASE: fiteo_test_database
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: password
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -p"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -ppassword"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -39,7 +42,7 @@ jobs:
       - name: Wait for MySQL
         run: |
           for i in {1..30}; do
-            if mysqladmin ping -h 127.0.0.1 -p --silent; then
+            if mysqladmin ping -h 127.0.0.1 -u root -ppassword --silent; then
               echo "MySQL is ready"
               break
             fi
