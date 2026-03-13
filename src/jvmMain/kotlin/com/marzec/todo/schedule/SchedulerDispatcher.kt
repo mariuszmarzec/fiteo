@@ -41,7 +41,11 @@ class SchedulerDispatcher(
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(100))
 
     init {
-        logger.info("Scheduler dispatcher started ${currentTime().toJavaLocalDateTime().plusHours(timeZoneOffsetHours)}")
+        logger.info(
+            "Scheduler dispatcher started ${
+                currentTime().toJavaLocalDateTime().plusHours(timeZoneOffsetHours)
+            }"
+        )
     }
 
     private val creationTimeFeatureEnabled = true
@@ -59,38 +63,42 @@ class SchedulerDispatcher(
     private val schedulerChecker = SchedulerChecker(isInStartWindow, creationTimeFeatureEnabled)
 
     fun dispatch() {
-        val today = currentTime().toJavaLocalDateTime()
-        todoRepository.getScheduledTasks().forEach { (user, tasks) ->
-            tasks.forEach { task ->
-                coroutineScope.launch {
-                    if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
-                        val newTask = todoService.copyTask(
-                            userId = user.id,
-                            id = task.id,
-                            copyPriority = false,
-                            copyScheduler = false,
-                            highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
-                        )
-                        if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
-                            todoService.removeTask(
+        try {
+            val today = currentTime().toJavaLocalDateTime()
+            todoRepository.getScheduledTasks().forEach { (user, tasks) ->
+                tasks.forEach { task ->
+                    coroutineScope.launch {
+                        if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
+                            val newTask = todoService.copyTask(
                                 userId = user.id,
-                                taskId = task.id,
-                                removeWithSubtasks = true
+                                id = task.id,
+                                copyPriority = false,
+                                copyScheduler = false,
+                                highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
                             )
-                        } else {
-                            updateLastDate(user.id, task)
-                        }
-                        eventBus.send(Event.UpdateEvent(user.id))
+                            if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
+                                todoService.removeTask(
+                                    userId = user.id,
+                                    taskId = task.id,
+                                    removeWithSubtasks = true
+                                )
+                            } else {
+                                updateLastDate(user.id, task)
+                            }
+                            eventBus.send(Event.UpdateEvent(user.id))
 
-                        // Send push notification if enabled
-                        if (task.scheduler.showNotification) {
-                            fcmService.sendPushNotification(user.id, newTask.toDto())
+                            // Send push notification if enabled
+                            if (task.scheduler.showNotification) {
+                                fcmService.sendPushNotification(user.id, newTask.toDto())
+                            }
+                        } else {
+                            logger.debug("TASK \\${task.id} not added by scheduler")
                         }
-                    } else {
-                        logger.debug("TASK \\${task.id} not added by scheduler")
                     }
                 }
             }
+        } catch (e: Exception) {
+            logger.error("Error in scheduler dispatcher", e)
         }
     }
 
