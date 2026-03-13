@@ -67,6 +67,7 @@ class TodoService(
         priority = priority.takeIf { copyPriority },
         highestPriorityAsDefault = highestPriorityAsDefault,
         scheduler = scheduler.takeIf { copyScheduler },
-        isToDo = isToDo
+        isToDo = isToDo,
+        expirationDate = expirationDate
     )
 }

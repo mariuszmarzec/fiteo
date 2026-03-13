@@ -11,6 +11,7 @@ import com.marzec.extensions.listOf
 import com.marzec.extensions.update
 import com.marzec.extensions.updateNullable
 import com.marzec.extensions.updateByNullable
+import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.model.domain.User
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
@@ -48,6 +49,18 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             }.filter { it.value.isNotEmpty() }
     }
 
+    override fun getTasksWithExpirationDate(): Map<User, List<Task>> = database.dbCall {
+        TasksTable.selectAll().toList()
+            .groupBy { it[TasksTable.userId] }
+            .mapKeys { key ->
+                UserEntity.findByIdOrThrow(key.key.value).toDomain()
+            }.mapValues { entry ->
+                entry.value.map {
+                    TaskEntity.wrapRow(it).toDomain()
+                }.filter { it.expirationDate != null }
+            }.filter { it.value.isNotEmpty() }
+    }
+
     override fun addTask(userId: Int, task: CreateTask): Task {
 
         val parentTask = task.parentTaskId?.let { database.dbCall { TaskEntity.findByIdOrThrow(it) } }
@@ -60,6 +73,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                 isToDo = true
                 priority = taskPriority
                 scheduler = task.scheduler
+                expirationDate = task.expirationDate?.toJavaLocalDateTime()
                 isToDo = task.isToDo
                 user = UserEntity.findByIdOrThrow(userId)
             }
@@ -93,7 +107,9 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             update(this::isToDo, task.isToDo)
             update(this::modifiedTime, currentTime().toJavaLocalDateTime())
             updateNullable(this::scheduler, task.scheduler)
-
+            task.expirationDate?.let { field ->
+                updateNullable(this::expirationDate, NullableField(field.value?.toJavaLocalDateTime()))
+            }
         }.toDomain()
     }
 

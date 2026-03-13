@@ -24,7 +24,8 @@ data class Task(
     val subTasks: List<Task>,
     val isToDo: Boolean,
     val priority: Int,
-    val scheduler: Scheduler?
+    val scheduler: Scheduler?,
+    val expirationDate: LocalDateTime? = null
 )
 
 sealed class Scheduler(
@@ -270,7 +271,8 @@ fun Task.toDto(): TaskDto = TaskDto(
     subTasks = subTasks.map { it.toDto() },
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler?.toDto()
+    scheduler = scheduler?.toDto(),
+    expirationDate = expirationDate?.formatDate()
 )
 
 fun TaskDto.toDomain(): Task = Task(
@@ -282,7 +284,8 @@ fun TaskDto.toDomain(): Task = Task(
     subTasks = subTasks.map { it.toDomain() },
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler?.toDomain()
+    scheduler = scheduler?.toDomain(),
+    expirationDate = expirationDate?.let { LocalDateTime.parse(it) }
 )
 
 data class CreateTask(
@@ -291,7 +294,8 @@ data class CreateTask(
     val priority: Int?,
     val highestPriorityAsDefault: Boolean,
     val scheduler: Scheduler?,
-    val isToDo: Boolean = true
+    val isToDo: Boolean = true,
+    val expirationDate: LocalDateTime? = null
 )
 
 @Serializable
@@ -301,7 +305,8 @@ data class CreateTaskDto(
     val priority: Int? = null,
     val highestPriorityAsDefault: Boolean? = null,
     val scheduler: SchedulerDto? = null,
-    val isToDo: Boolean? = null
+    val isToDo: Boolean? = null,
+    val expirationDate: String? = null
 )
 
 fun CreateTaskDto.toDomain() = CreateTask(
@@ -310,7 +315,8 @@ fun CreateTaskDto.toDomain() = CreateTask(
     priority = priority,
     highestPriorityAsDefault = highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT,
     scheduler = scheduler?.toDomain(),
-    isToDo = isToDo ?: IS_TO_DO_DEFAULT
+    isToDo = isToDo ?: IS_TO_DO_DEFAULT,
+    expirationDate = expirationDate?.let { LocalDateTime.parse(it) }
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
@@ -318,7 +324,8 @@ fun CreateTask.toDto() = CreateTaskDto(
     parentTaskId = parentTaskId,
     priority = priority,
     scheduler = scheduler?.toDto(),
-    isToDo = isToDo
+    isToDo = isToDo,
+    expirationDate = expirationDate?.formatDate()
 )
 
 data class UpdateTask(
@@ -326,7 +333,8 @@ data class UpdateTask(
     val parentTaskId: NullableField<Int>? = null,
     val priority: Int? = null,
     val isToDo: Boolean? = null,
-    val scheduler: NullableField<Scheduler>? = null
+    val scheduler: NullableField<Scheduler>? = null,
+    val expirationDate: NullableField<LocalDateTime>? = null
 )
 
 @Serializable
@@ -335,7 +343,8 @@ data class UpdateTaskDto(
     val parentTaskId: NullableFieldDto<Int>? = null,
     val priority: Int? = null,
     val isToDo: Boolean? = null,
-    val scheduler: NullableFieldDto<SchedulerDto>? = null
+    val scheduler: NullableFieldDto<SchedulerDto>? = null,
+    val expirationDate: NullableFieldDto<String>? = null
 )
 
 @Serializable
@@ -349,5 +358,6 @@ fun UpdateTaskDto.toDomain() = UpdateTask(
     parentTaskId = parentTaskId?.toDomain(),
     priority = priority,
     isToDo = isToDo,
-    scheduler = scheduler?.toDomain { it?.toDomain() }
+    scheduler = scheduler?.toDomain { it?.toDomain() },
+    expirationDate = expirationDate?.toDomain { it?.let { d -> LocalDateTime.parse(d) } }
 )

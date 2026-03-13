@@ -32,6 +32,7 @@ import com.marzec.scripts.scripts
 import com.marzec.sessions.DatabaseSessionStorage
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.schedule.runTodoSchedulerDispatcher
+import com.marzec.todo.schedule.runTaskExpirationDispatcher
 import com.marzec.todo.todoApi
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -85,6 +86,7 @@ fun Application.module() {
 
         clearSessionsInPeriod(scope, di, testDi)
         runTodoSchedulerDispatcher(scope, di, testDi)
+        runTaskExpirationDispatcher(scope, di, testDi)
     }
 
     monitor.subscribe(ApplicationStopped) {

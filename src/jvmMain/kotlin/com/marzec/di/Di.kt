@@ -57,6 +57,7 @@ import com.marzec.todo.TodoService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.repositories.TodoRepositoryImpl
 import com.marzec.todo.schedule.SchedulerDispatcher
+import com.marzec.todo.schedule.TaskExpirationDispatcher
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
@@ -94,6 +95,7 @@ class Di(
     val cheatDayController by inject<CheatDayController> { parametersOf(database, authToken) }
     val todoController by inject<ToDoApiController> { parametersOf(database, authToken) }
     val schedulerDispatcher by inject<SchedulerDispatcher> { parametersOf(database, authToken) }
+    val taskExpirationDispatcher by inject<TaskExpirationDispatcher> { parametersOf(database, authToken) }
     val sessionExpirationTime by inject<Long>(qualifier = named(NAME_SESSION_EXPIRATION_TIME)) {
         parametersOf(database, authToken)
     }
@@ -244,6 +246,13 @@ val MainModule = module {
             timeZoneOffsetHours = get(named(NAME_TIME_ZONE_OFFSET_HOURS)),
             eventBus = get { params },
             fcmService = get { params }
+        )
+    }
+
+    factory<TaskExpirationDispatcher> { params ->
+        TaskExpirationDispatcher(
+            todoRepository = get { params },
+            todoService = get { params }
         )
     }
 

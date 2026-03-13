@@ -13,6 +13,8 @@ interface TodoRepository {
 
     fun getScheduledTasks(): Map<User, List<Task>>
 
+    fun getTasksWithExpirationDate(): Map<User, List<Task>>
+
     fun addTask(userId: Int, task: CreateTask): Task
 
     fun updateTask(userId: Int, taskId: Int, task: UpdateTask): Task

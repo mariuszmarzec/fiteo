@@ -37,6 +37,7 @@ object TasksTable : IntIdWithUserTable("todo_tasks") {
     val isToDo = bool("is_to_do")
     val priority = integer("priority")
     val scheduler = text("scheduler")
+    val expirationDate = datetime("expiration_date").nullable()
     override val userId: Column<EntityID<Int>> = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
 }
 
@@ -48,6 +49,7 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var isToDo by TasksTable.isToDo
     var priority by TasksTable.priority
     var scheduler by TasksTable.scheduler.transformStringSchedulerNullable()
+    var expirationDate by TasksTable.expirationDate
     var parents by TaskEntity.via(TaskToSubtasksTable.child, TaskToSubtasksTable.parent)
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
     override var user by UserEntity referencedOn TasksTable.userId
@@ -62,7 +64,8 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
             subTasks = subtasks.toList().map { it.toDomain() }.sortTasks(),
             isToDo = isToDo,
             priority = priority,
-            scheduler = scheduler
+            scheduler = scheduler,
+            expirationDate = expirationDate?.toKotlinLocalDateTime()
         )
     }
 
