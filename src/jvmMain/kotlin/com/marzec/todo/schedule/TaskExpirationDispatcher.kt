@@ -48,7 +48,7 @@ class TaskExpirationDispatcher(
 fun runTaskExpirationDispatcher(scope: CoroutineScope, vararg dis: Di) {
     dis.forEach { di ->
         val expirationDispatcher = di.taskExpirationDispatcher
-        val dispatcherInterval = di.schedulerDispatcherInterval
+        val dispatcherInterval = di.expirationTaskDispatcherInterval
         scope.launch {
             while (true) {
                 val startTime = currentMillis()

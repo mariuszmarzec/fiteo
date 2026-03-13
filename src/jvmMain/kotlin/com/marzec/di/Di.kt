@@ -71,6 +71,7 @@ import org.slf4j.LoggerFactory
 
 const val NAME_SESSION_EXPIRATION_TIME = "SessionExpirationTime"
 const val NAME_SCHEDULER_DISPATCHER_INTERVAL = "SchedulerDispatcherInterval"
+const val NAME_TASK_EXPIRATION_DISPATCHER_INTERVAL = "ExpirationTaskDispatcherInterval"
 const val NAME_TIME_ZONE_OFFSET_HOURS = "TimeZoneOffsetHours"
 
 const val MILLISECONDS_IN_SECOND = 1000
@@ -80,6 +81,7 @@ const val HOURS_IN_DAY = 24
 const val DAYS_IN_MONTH = 31
 private const val EXPIRATION_MONTHS_COUNT = 12
 private const val SCHEDULER_INTERVAL_IN_MIN = 3
+private const val EXPIRATION_TASK_INTERVAL_IN_MIN = 1
 private const val TIME_ZONE_OFFSET_HOURS = 0L
 
 class Di(
@@ -100,6 +102,9 @@ class Di(
         parametersOf(database, authToken)
     }
     val schedulerDispatcherInterval by inject<Long>(qualifier = named(NAME_SCHEDULER_DISPATCHER_INTERVAL)) {
+        parametersOf(database, authToken)
+    }
+    val expirationTaskDispatcherInterval by inject<Long>(qualifier = named(NAME_TASK_EXPIRATION_DISPATCHER_INTERVAL)) {
         parametersOf(database, authToken)
     }
     val eventBus by inject<EventBus> {
@@ -135,6 +140,10 @@ val MainModule = module {
 
     single(qualifier = named(NAME_SCHEDULER_DISPATCHER_INTERVAL)) {
         SCHEDULER_INTERVAL_IN_MIN * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND
+    }
+
+    single(qualifier = named(NAME_TASK_EXPIRATION_DISPATCHER_INTERVAL)) {
+        EXPIRATION_TASK_INTERVAL_IN_MIN * SECONDS_IN_HOUR * MILLISECONDS_IN_SECOND
     }
 
     single(qualifier = named(NAME_TIME_ZONE_OFFSET_HOURS)) {

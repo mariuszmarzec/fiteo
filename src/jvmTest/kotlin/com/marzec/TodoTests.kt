@@ -54,6 +54,24 @@ class TodoTests {
     }
 
     @Test
+    fun addTask_withExpirationDate() {
+        val dto = createTaskDto.copy(expirationDate = "2021-05-18T00:00:00")
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = dto,
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(expirationDate = "2021-05-18T00:00:00"),
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(listOf(taskDto.copy(expirationDate = "2021-05-18T00:00:00")))
+            }
+        )
+    }
+
+    @Test
     fun addTask_scheduledOneShot() {
         testPostEndpoint(
             uri = ApiPath.ADD_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
@@ -459,6 +477,34 @@ class TodoTests {
                             priority = 10,
                             isToDo = false,
                             scheduler = schedulerWeeklyDto
+                        )
+                    )
+                )
+            }
+        )
+    }
+
+    @Test
+    fun updateTask_withExpirationDate() {
+        testPatchEndpoint(
+            uri = ApiPath.UPDATE_TASK.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = UpdateTaskDto(
+                expirationDate = NullableFieldDto("2021-05-20T00:00:00")
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(
+                expirationDate = "2021-05-20T00:00:00"
+            ),
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+            },
+            runRequestsAfter = {
+                assertThat(getTasks()).isEqualTo(
+                    listOf(
+                        taskDto.copy(
+                            expirationDate = "2021-05-20T00:00:00"
                         )
                     )
                 )

@@ -264,12 +264,14 @@ fun stubCreateTaskDto(
     description: String = "",
     parentTaskId: Int? = null,
     priority: Int = 0,
-    scheduler: SchedulerDto? = null
+    scheduler: SchedulerDto? = null,
+    expirationDate: String? = null
 ) = CreateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
-    scheduler = scheduler
+    scheduler = scheduler,
+    expirationDate = expirationDate
 )
 
 fun stubCreateTask(
@@ -277,13 +279,15 @@ fun stubCreateTask(
     parentTaskId: Int? = null,
     priority: Int? = null,
     scheduler: Scheduler? = null,
-    highestPriorityAsDefault: Boolean = false
+    highestPriorityAsDefault: Boolean = false,
+    expirationDate: LocalDateTime? = null
 ) = CreateTask(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
     scheduler = scheduler,
-    highestPriorityAsDefault = highestPriorityAsDefault
+    highestPriorityAsDefault = highestPriorityAsDefault,
+    expirationDate = expirationDate
 )
 
 val taskDto = stubTaskDto(
@@ -300,7 +304,8 @@ fun stubTaskDto(
     subTasks: List<TaskDto> = emptyList(),
     isToDo: Boolean = true,
     priority: Int = 0,
-    scheduler: SchedulerDto? = null
+    scheduler: SchedulerDto? = null,
+    expirationDate: String? = null
 ) = TaskDto(
     id = id,
     description = description,
@@ -310,7 +315,8 @@ fun stubTaskDto(
     subTasks = subTasks,
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler
+    scheduler = scheduler,
+    expirationDate = expirationDate
 )
 
 fun stubTask(
@@ -322,7 +328,8 @@ fun stubTask(
     subTasks: List<Task> = emptyList(),
     isToDo: Boolean = true,
     priority: Int = 0,
-    scheduler: Scheduler? = null
+    scheduler: Scheduler? = null,
+    expirationDate: LocalDateTime? = null
 ) = Task(
     id = id,
     description = description,
@@ -332,7 +339,8 @@ fun stubTask(
     subTasks = subTasks,
     isToDo = isToDo,
     priority = priority,
-    scheduler = scheduler
+    scheduler = scheduler,
+    expirationDate = expirationDate
 )
 
 fun stubCreateTrainingTemplateDto(
