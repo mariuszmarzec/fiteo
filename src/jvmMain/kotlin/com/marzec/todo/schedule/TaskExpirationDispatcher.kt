@@ -26,21 +26,25 @@ class TaskExpirationDispatcher(
     }
 
     fun dispatch() {
-        val today = currentTime().toJavaLocalDateTime()
-        todoRepository.getTasksWithExpirationDate().forEach { (user, tasks) ->
-            tasks.forEach { task ->
-                coroutineScope.launch {
-                    val expirationDate = task.expirationDate?.toJavaLocalDateTime()
-                    if (expirationDate != null && expirationDate.isBefore(today)) {
-                        todoService.removeTask(
-                            userId = user.id,
-                            taskId = task.id,
-                            removeWithSubtasks = true
-                        )
-                        logger.info("Removed expired task: \${task.id} for user: \${user.id}")
+        try {
+            val today = currentTime().toJavaLocalDateTime()
+            todoRepository.getTasksWithExpirationDate().forEach { (user, tasks) ->
+                tasks.forEach { task ->
+                    coroutineScope.launch {
+                        val expirationDate = task.expirationDate?.toJavaLocalDateTime()
+                        if (expirationDate != null && expirationDate.isBefore(today)) {
+                            todoService.removeTask(
+                                userId = user.id,
+                                taskId = task.id,
+                                removeWithSubtasks = true
+                            )
+                            logger.info("Removed expired task: \${task.id} for user: \${user.id}")
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            logger.error("Error in task expiration dispatcher", e)
         }
     }
 }
