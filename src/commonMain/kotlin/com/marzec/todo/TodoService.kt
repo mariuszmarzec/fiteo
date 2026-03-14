@@ -68,6 +68,7 @@ class TodoService(
         highestPriorityAsDefault = highestPriorityAsDefault,
         scheduler = scheduler.takeIf { copyScheduler },
         isToDo = isToDo,
-        expirationDate = expirationDate
+        expirationDate = expirationDate,
+        shares = emptyList()
     )
 }

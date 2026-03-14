@@ -11,6 +11,7 @@ import com.marzec.extensions.formatDate
 import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
+import com.marzec.todo.model.TaskShare
 import com.marzec.todo.model.getHighestPriorityAsDefault
 import com.marzec.todo.model.getRemoveScheduled
 import com.marzec.todo.model.getShowNotification
@@ -54,9 +55,10 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     var subtasks by TaskEntity.via(TaskToSubtasksTable.parent, TaskToSubtasksTable.child)
     override var user by UserEntity referencedOn TasksTable.userId
 
-    fun toDomain(): Task {
+    fun toDomain(shares: List<TaskShare> = emptyList()): Task {
         return Task(
             id = id.value,
+            ownerId = user.id.value,
             description = description,
             addedTime = addedTime.toKotlinLocalDateTime(),
             modifiedTime = modifiedTime.toKotlinLocalDateTime(),
@@ -65,7 +67,8 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
             isToDo = isToDo,
             priority = priority,
             scheduler = scheduler,
-            expirationDate = expirationDate?.toKotlinLocalDateTime()
+            expirationDate = expirationDate?.toKotlinLocalDateTime(),
+            shares = shares
         )
     }
 

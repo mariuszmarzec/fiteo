@@ -32,6 +32,8 @@ import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.Task
+import com.marzec.todo.model.TaskShare
+import com.marzec.todo.model.TaskShareDto
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.isoDayNumber
@@ -265,13 +267,15 @@ fun stubCreateTaskDto(
     parentTaskId: Int? = null,
     priority: Int = 0,
     scheduler: SchedulerDto? = null,
-    expirationDate: String? = null
+    expirationDate: String? = null,
+    shares: List<TaskShareDto> = emptyList()
 ) = CreateTaskDto(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
     scheduler = scheduler,
-    expirationDate = expirationDate
+    expirationDate = expirationDate,
+    shares = shares
 )
 
 fun stubCreateTask(
@@ -280,14 +284,16 @@ fun stubCreateTask(
     priority: Int? = null,
     scheduler: Scheduler? = null,
     highestPriorityAsDefault: Boolean = false,
-    expirationDate: LocalDateTime? = null
+    expirationDate: LocalDateTime? = null,
+    shares: List<TaskShare> = emptyList()
 ) = CreateTask(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
     scheduler = scheduler,
     highestPriorityAsDefault = highestPriorityAsDefault,
-    expirationDate = expirationDate
+    expirationDate = expirationDate,
+    shares = shares
 )
 
 val taskDto = stubTaskDto(
@@ -297,6 +303,7 @@ val taskDto = stubTaskDto(
 
 fun stubTaskDto(
     id: Int = 1,
+    ownerId: Int = 1,
     description: String = "",
     addedTime: String = dateTime,
     modifiedTime: String = dateTime,
@@ -305,9 +312,11 @@ fun stubTaskDto(
     isToDo: Boolean = true,
     priority: Int = 0,
     scheduler: SchedulerDto? = null,
-    expirationDate: String? = null
+    expirationDate: String? = null,
+    shares: List<TaskShareDto> = emptyList()
 ) = TaskDto(
     id = id,
+    ownerId = ownerId,
     description = description,
     addedTime = addedTime,
     modifiedTime = modifiedTime,
@@ -316,11 +325,13 @@ fun stubTaskDto(
     isToDo = isToDo,
     priority = priority,
     scheduler = scheduler,
-    expirationDate = expirationDate
+    expirationDate = expirationDate,
+    shares = shares
 )
 
 fun stubTask(
     id: Int = 1,
+    ownerId: Int = 1,
     description: String = "",
     addedTime: LocalDateTime = currentTime(),
     modifiedTime: LocalDateTime = currentTime(),
@@ -329,9 +340,11 @@ fun stubTask(
     isToDo: Boolean = true,
     priority: Int = 0,
     scheduler: Scheduler? = null,
-    expirationDate: LocalDateTime? = null
+    expirationDate: LocalDateTime? = null,
+    shares: List<TaskShare> = emptyList()
 ) = Task(
     id = id,
+    ownerId = ownerId,
     description = description,
     addedTime = addedTime,
     modifiedTime = modifiedTime,
@@ -340,7 +353,8 @@ fun stubTask(
     isToDo = isToDo,
     priority = priority,
     scheduler = scheduler,
-    expirationDate = expirationDate
+    expirationDate = expirationDate,
+    shares = shares
 )
 
 fun stubCreateTrainingTemplateDto(

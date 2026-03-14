@@ -1,11 +1,13 @@
 package com.marzec.todo.dto
 
 import com.marzec.todo.model.SchedulerDto
+import com.marzec.todo.model.TaskShareDto
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class TaskDto(
     val id: Int,
+    val ownerId: Int,
     val description: String,
     val addedTime: String,
     val modifiedTime: String,
@@ -14,5 +16,6 @@ data class TaskDto(
     val isToDo: Boolean,
     val priority: Int,
     val scheduler: SchedulerDto? = null,
-    val expirationDate: String? = null
+    val expirationDate: String? = null,
+    val shares: List<TaskShareDto>
 )

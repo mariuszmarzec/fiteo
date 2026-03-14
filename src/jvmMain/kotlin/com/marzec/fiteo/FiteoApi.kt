@@ -15,6 +15,7 @@ import io.ktor.server.routing.get
 
 fun Route.fiteoApi(di: Di, api: Controller) {
     authenticate(di.authToken) {
+        users(api)
         templates(api)
         template(api)
         putTemplate(api)
@@ -60,6 +61,8 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         loadForceData(api)
     }
 }
+
+fun Route.users(api: Controller) = getAllEndpoint(ApiPath.USERS, api::getUsers)
 
 fun Route.createTraining(api: Controller) = postEndpoint(ApiPath.TRAININGS, api::createTraining)
 

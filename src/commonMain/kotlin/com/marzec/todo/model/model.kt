@@ -17,6 +17,7 @@ import kotlin.reflect.KProperty1
 
 data class Task(
     val id: Int,
+    val ownerId: Int,
     val description: String,
     val addedTime: LocalDateTime,
     val modifiedTime: LocalDateTime,
@@ -25,7 +26,8 @@ data class Task(
     val isToDo: Boolean,
     val priority: Int,
     val scheduler: Scheduler?,
-    val expirationDate: LocalDateTime? = null
+    val expirationDate: LocalDateTime? = null,
+    val shares: List<TaskShare>
 )
 
 sealed class Scheduler(
@@ -254,7 +256,7 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
         startDate = startDate.formatDate(),
         lastDate = lastDate?.formatDate(),
         daysOfWeek = emptyList(),
-        dayOfMonth = dayOfMonth,
+        dayOfMonth = 0,
         repeatInEveryPeriod = repeatInEveryPeriod,
         repeatCount = repeatCount,
         type = this::class.simpleName.orEmpty(),
@@ -264,6 +266,7 @@ fun Scheduler.toDto(): SchedulerDto = when (this) {
 
 fun Task.toDto(): TaskDto = TaskDto(
     id = id,
+    ownerId = ownerId,
     description = description,
     addedTime = addedTime.formatDate(),
     modifiedTime = modifiedTime.formatDate(),
@@ -272,11 +275,13 @@ fun Task.toDto(): TaskDto = TaskDto(
     isToDo = isToDo,
     priority = priority,
     scheduler = scheduler?.toDto(),
-    expirationDate = expirationDate?.formatDate()
+    expirationDate = expirationDate?.formatDate(),
+    shares = shares.map { it.toDto() }
 )
 
 fun TaskDto.toDomain(): Task = Task(
     id = id,
+    ownerId = ownerId,
     description = description,
     addedTime = LocalDateTime.parse(addedTime),
     modifiedTime = LocalDateTime.parse(modifiedTime),
@@ -285,7 +290,14 @@ fun TaskDto.toDomain(): Task = Task(
     isToDo = isToDo,
     priority = priority,
     scheduler = scheduler?.toDomain(),
-    expirationDate = expirationDate?.let { LocalDateTime.parse(it) }
+    expirationDate = expirationDate?.let { LocalDateTime.parse(it) },
+    shares = shares.map {
+        TaskShare(
+            userId = it.userId.toInt(),
+            permission = SharePermission.valueOf(it.permission.uppercase()),
+            removed = false
+        )
+    }
 )
 
 data class CreateTask(
@@ -295,7 +307,8 @@ data class CreateTask(
     val highestPriorityAsDefault: Boolean,
     val scheduler: Scheduler?,
     val isToDo: Boolean = true,
-    val expirationDate: LocalDateTime? = null
+    val expirationDate: LocalDateTime? = null,
+    val shares: List<TaskShare>
 )
 
 @Serializable
@@ -306,17 +319,25 @@ data class CreateTaskDto(
     val highestPriorityAsDefault: Boolean? = null,
     val scheduler: SchedulerDto? = null,
     val isToDo: Boolean? = null,
-    val expirationDate: String? = null
+    val expirationDate: String? = null,
+    val shares: List<TaskShareDto>? = null
 )
 
-fun CreateTaskDto.toDomain() = CreateTask(
+fun CreateTaskDto.toDomain(): CreateTask = CreateTask(
     description = description,
     parentTaskId = parentTaskId,
     priority = priority,
     highestPriorityAsDefault = highestPriorityAsDefault ?: HIGHEST_PRIORITY_AS_DEFAULT,
     scheduler = scheduler?.toDomain(),
     isToDo = isToDo ?: IS_TO_DO_DEFAULT,
-    expirationDate = expirationDate?.let { LocalDateTime.parse(it) }
+    expirationDate = expirationDate?.let { LocalDateTime.parse(it) },
+    shares = shares?.map {
+        TaskShare(
+            userId = it.userId.toInt(),
+            permission = SharePermission.valueOf(it.permission.uppercase()),
+            removed = false
+        )
+    } ?: emptyList()
 )
 
 fun CreateTask.toDto() = CreateTaskDto(
@@ -325,7 +346,8 @@ fun CreateTask.toDto() = CreateTaskDto(
     priority = priority,
     scheduler = scheduler?.toDto(),
     isToDo = isToDo,
-    expirationDate = expirationDate?.formatDate()
+    expirationDate = expirationDate?.formatDate(),
+    shares = shares.map { it.toDto() }
 )
 
 data class UpdateTask(
@@ -334,7 +356,8 @@ data class UpdateTask(
     val priority: Int? = null,
     val isToDo: Boolean? = null,
     val scheduler: NullableField<Scheduler>? = null,
-    val expirationDate: NullableField<LocalDateTime>? = null
+    val expirationDate: NullableField<LocalDateTime>? = null,
+    val shares: List<TaskShare>? = null
 )
 
 @Serializable
@@ -344,7 +367,8 @@ data class UpdateTaskDto(
     val priority: Int? = null,
     val isToDo: Boolean? = null,
     val scheduler: NullableFieldDto<SchedulerDto>? = null,
-    val expirationDate: NullableFieldDto<String>? = null
+    val expirationDate: NullableFieldDto<String>? = null,
+    val shares: List<UpdateTaskShareDto>? = null
 )
 
 @Serializable
@@ -359,5 +383,6 @@ fun UpdateTaskDto.toDomain() = UpdateTask(
     priority = priority,
     isToDo = isToDo,
     scheduler = scheduler?.toDomain { it?.toDomain() },
-    expirationDate = expirationDate?.toDomain { it?.let { d -> LocalDateTime.parse(d) } }
+    expirationDate = expirationDate?.toDomain { it?.let { d -> LocalDateTime.parse(d) } },
+    shares = shares?.map { it.toDomain() }
 )
