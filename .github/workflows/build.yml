@@ -64,6 +64,7 @@ jobs:
           database.user=admin
           database.password=password
           database.database=fiteo_database
+          firebaseServiceAccount=
             EOF
 
       - name: Run JVM tests
