@@ -70,9 +70,8 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             }.filter { it.value.isNotEmpty() }
     }
 
-    override fun addTask(userId: Int, task: CreateTask): Task {
-
-        val parentTask = task.parentTaskId?.let { database.dbCall { TaskEntity.findByIdOrThrow(it) } }
+    override fun addTask(userId: Int, task: CreateTask): Task = database.dbCall {
+        val parentTask = task.parentTaskId?.let { TaskEntity.findByIdOrThrow(it) }
 
         if (parentTask != null && parentTask.user.id.value != userId) {
             val shares = getShares(parentTask.id.value)
@@ -82,24 +81,20 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             }
         }
 
-        val taskPriority = calcPriority(task, parentTask)
+        val taskPriority = task.priority ?: calcPriority(task, parentTask)
 
-        val taskEntity = database.dbCall {
-            TaskEntity.new {
-                description = task.description
-                isToDo = true
-                priority = taskPriority
-                scheduler = task.scheduler
-                expirationDate = task.expirationDate?.toJavaLocalDateTime()
-                isToDo = task.isToDo
-                user = UserEntity.findByIdOrThrow(userId)
-            }
+        val taskEntity = TaskEntity.new {
+            description = task.description
+            isToDo = true
+            priority = taskPriority
+            scheduler = task.scheduler
+            expirationDate = task.expirationDate?.toJavaLocalDateTime()
+            isToDo = task.isToDo
+            user = UserEntity.findByIdOrThrow(userId)
         }
         addShares(taskEntity.id.value, userId, task.shares)
-        return database.dbCall {
-            taskEntity.parents = parentTask?.listOf().orEmpty().toSized()
-            taskEntity.toDomain(getShares(taskEntity.id.value))
-        }
+        taskEntity.parents = parentTask?.listOf().orEmpty().toSized()
+        taskEntity.toDomain(getShares(taskEntity.id.value))
     }
 
     override fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>) = database.dbCall {
@@ -143,12 +138,11 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                     updateNullable(this::expirationDate, NullableField(field.value?.toJavaLocalDateTime()))
                 }
             }
-            task.shares?.let { updateShares(taskId, ownerId, it, currentShares) }
+            task.shares?.let { updateShares(taskId, ownerId, it) }
         } else {
             val share = currentShares.find { it.userId == userId }
-                ?: throw NoSuchElementException("Task not found")
 
-            if (share.permission == SharePermission.EDITOR_AND_VIEWER) {
+            if (share?.permission == SharePermission.EDITOR_AND_VIEWER) {
                 taskEntity.apply {
                     update(this::description, task.description)
                     updateByNullable(this::parents, task.parentTaskId) {
@@ -163,11 +157,15 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                     }
                 }
             }
-
+            
             task.shares?.filter { it.removed }?.forEach { unshare ->
                 if (unshare.userId == userId) {
                     removeShare(taskId, unshare.userId)
                 }
+            }
+            
+            if (share == null && taskEntity.user.id.value != userId) {
+                throw NoSuchElementException("Task not found")
             }
         }
         taskEntity.toDomain(getShares(taskId))
@@ -176,15 +174,12 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
     private fun updateShares(
         taskId: Int,
         ownerId: Int,
-        sharesToUpdate: List<TaskShare>,
-        currentShares: List<TaskShare>
+        sharesToUpdate: List<TaskShare>
     ) {
-        val sharesToRemove = sharesToUpdate.filter { it.removed }
-        val sharesToAdd = sharesToUpdate.filter { !it.removed }
-
-        sharesToRemove.forEach { share ->
+        sharesToUpdate.forEach { share ->
             removeShare(taskId, share.userId)
         }
+        val sharesToAdd = sharesToUpdate.filter { !it.removed }
         addShares(taskId, ownerId, sharesToAdd)
     }
 
@@ -248,15 +243,13 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
     private fun calcPriority(
         task: CreateTask,
         parentTask: TaskEntity?
-    ) = task.priority ?: database.dbCall {
-        when {
-            parentTask != null -> {
-                parentTask.subtasks.toList().takeIf { it.isNotEmpty() }
-                    ?.calcPriority(task.highestPriorityAsDefault)
-                    .ifNull(parentTask.priority)
-            }
-            else -> TaskEntity.all().toList().calcPriority(task.highestPriorityAsDefault) ?: 0
+    ) = when {
+        parentTask != null -> {
+            parentTask.subtasks.toList().takeIf { it.isNotEmpty() }
+                ?.calcPriority(task.highestPriorityAsDefault)
+                .ifNull(parentTask.priority)
         }
+        else -> TaskEntity.all().toList().calcPriority(task.highestPriorityAsDefault) ?: 0
     }
 
     private fun List<TaskEntity>.calcPriority(highestPriorityAsDefault: Boolean) = if (highestPriorityAsDefault) {

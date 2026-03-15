@@ -303,7 +303,7 @@ val taskDto = stubTaskDto(
 
 fun stubTaskDto(
     id: Int = 1,
-    ownerId: Int = 1,
+    ownerId: Int = 2,
     description: String = "",
     addedTime: String = dateTime,
     modifiedTime: String = dateTime,
