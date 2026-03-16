@@ -134,7 +134,7 @@ class TaskSharingTests {
             dto = UpdateTaskDto(
                 description = "updated by viewer"
             ),
-            status = HttpStatusCode.NotFound,
+            status = HttpStatusCode.InternalServerError,
             responseDto = ErrorDto("Action not permitted due to lack of editor permission"),
             authorize = {
                 register(user1Register)

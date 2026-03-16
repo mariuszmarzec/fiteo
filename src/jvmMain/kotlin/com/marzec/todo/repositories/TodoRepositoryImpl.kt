@@ -77,7 +77,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             val shares = getShares(parentTask.id.value)
             val share = shares.find { it.userId == userId }
             if (share?.permission != SharePermission.EDITOR_AND_VIEWER) {
-                throw NoSuchElementException("No permission to add subtask")
+                throw NoSuchElementException("Action not permitted due to lack of editor permission")
             }
         }
 
@@ -104,7 +104,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                 val shares = getShares(id)
                 val share = shares.find { it.userId == userId }
                 if (share?.permission != SharePermission.EDITOR_AND_VIEWER) {
-                    throw NoSuchElementException("Task not found or no permission")
+                    throw NoSuchElementException("Action not permitted due to lack of editor permission")
                 }
             }
             taskEntity.isToDo = isToDo
@@ -156,6 +156,8 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                         updateNullable(this::expirationDate, NullableField(field.value?.toJavaLocalDateTime()))
                     }
                 }
+            } else if (share != null && task.shares?.filter { it.removed }?.any { it.userId == userId } != true) {
+                throw NoSuchElementException("Action not permitted due to lack of editor permission")
             }
             
             task.shares?.filter { it.removed }?.forEach { unshare ->
@@ -215,7 +217,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
             val shares = getShares(taskId)
             val share = shares.find { it.userId == userId }
             if (share?.permission != SharePermission.EDITOR_AND_VIEWER) {
-                throw NoSuchElementException("Task not found or no permission to delete")
+                throw NoSuchElementException("Action not permitted due to lack of editor permission")
             }
         }
 
