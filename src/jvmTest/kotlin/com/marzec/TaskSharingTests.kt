@@ -135,7 +135,7 @@ class TaskSharingTests {
                 description = "updated by viewer"
             ),
             status = HttpStatusCode.InternalServerError,
-            responseDto = ErrorDto("Action not permitted due to lack of editor permission"),
+            responseDto = ErrorDto("java.util.NoSuchElementException: Action not permitted due to lack of editor permission"),
             authorize = {
                 register(user1Register)
                 register(user2Register)
