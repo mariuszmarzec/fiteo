@@ -11,14 +11,12 @@ data class TaskShareDto(
 @Serializable
 data class UpdateTaskShareDto(
     val userId: String,
-    val permission: String,
-    val removed: Boolean = false
+    val permission: String
 )
 
 data class TaskShare(
     val userId: Int,
-    val permission: SharePermission,
-    val removed: Boolean = false
+    val permission: SharePermission
 )
 
 enum class SharePermission {
@@ -27,8 +25,7 @@ enum class SharePermission {
 
 fun UpdateTaskShareDto.toDomain() = TaskShare(
     userId = userId.toInt(),
-    permission = SharePermission.valueOf(permission.uppercase()),
-    removed = removed
+    permission = SharePermission.valueOf(permission.uppercase())
 )
 
 fun TaskShare.toDto() = TaskShareDto(

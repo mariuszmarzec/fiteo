@@ -38,6 +38,8 @@ class TodoService(
     fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>): List<Task> =
         repository.markAsToDo(userId, isToDo, taskIds).run { repository.getTasks(userId) }
 
+    fun leaveShare(userId: Int, taskId: Int): Task = repository.leaveShare(userId, taskId)
+
     private fun createTaskCopy(
         userId: Int,
         task: Task,

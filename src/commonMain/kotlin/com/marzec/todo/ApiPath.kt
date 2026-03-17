@@ -19,5 +19,6 @@ object ApiPath {
     const val DELETE_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}"
 
     const val MARK_AS_TO_DO = "$API_ROOT/tasks/mark-as-to-do"
+    const val LEAVE_SHARE = "$API_ROOT/tasks/leave-share"
     const val COPY_TASK = "$API_ROOT/tasks/{${Api.Args.ARG_ID}}/copy"
 }

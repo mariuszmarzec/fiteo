@@ -22,4 +22,6 @@ interface TodoRepository {
     fun removeTask(userId: Int, taskId: Int, removeWithSubtasks: Boolean): Task
 
     fun markAsToDo(userId: Int, isToDo: Boolean, taskIds: List<Int>)
+
+    fun leaveShare(userId: Int, taskId: Int): Task
 }

@@ -294,8 +294,7 @@ fun TaskDto.toDomain(): Task = Task(
     shares = shares.map {
         TaskShare(
             userId = it.userId.toInt(),
-            permission = SharePermission.valueOf(it.permission.uppercase()),
-            removed = false
+            permission = SharePermission.valueOf(it.permission.uppercase())
         )
     }
 )
@@ -334,8 +333,7 @@ fun CreateTaskDto.toDomain(): CreateTask = CreateTask(
     shares = shares?.map {
         TaskShare(
             userId = it.userId.toInt(),
-            permission = SharePermission.valueOf(it.permission.uppercase()),
-            removed = false
+            permission = SharePermission.valueOf(it.permission.uppercase())
         )
     } ?: emptyList()
 )
@@ -375,6 +373,11 @@ data class UpdateTaskDto(
 data class MarkAsToDoDto(
     val isToDo: Boolean,
     val taskIds: List<Int>,
+)
+
+@Serializable
+data class LeaveShareDto(
+    val id: Int
 )
 
 fun UpdateTaskDto.toDomain() = UpdateTask(

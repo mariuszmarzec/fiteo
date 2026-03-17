@@ -65,6 +65,13 @@ class ToDoApiController(
             taskIds = request.data.taskIds
         ).map { it.toDto() }
     }
+
+    fun leaveShare(request: HttpRequest<LeaveShareDto>): HttpResponse<TaskDto> = serviceCall {
+        service.leaveShare(
+            userId = request.userIdOrThrow(),
+            taskId = request.data.id,
+        ).toDto()
+    }
 }
 
 private fun <T> HttpRequest<T>.removeWithSubtasks(): Boolean =

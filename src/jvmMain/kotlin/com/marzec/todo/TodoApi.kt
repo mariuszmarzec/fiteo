@@ -13,6 +13,7 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
         addTask(todoController)
         updateTask(todoController)
         removeTask(todoController)
+        leaveShare(todoController)
     }
 }
 
@@ -30,3 +31,5 @@ fun Route.copyTask(api: ToDoApiController) = getByIdEndpoint(ApiPath.COPY_TASK, 
 fun Route.addTask(api: ToDoApiController) = postEndpoint(ApiPath.ADD_TASK, api::addTask)
 
 fun Route.markAsToDo(api: ToDoApiController) = postEndpoint(ApiPath.MARK_AS_TO_DO, api::markAsToDo)
+
+fun Route.leaveShare(api: ToDoApiController) = postEndpoint(ApiPath.LEAVE_SHARE, api::leaveShare)

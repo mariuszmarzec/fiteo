@@ -156,20 +156,16 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
                         updateNullable(this::expirationDate, NullableField(field.value?.toJavaLocalDateTime()))
                     }
                 }
-            } else if (share != null && task.shares?.filter { it.removed }?.any { it.userId == userId } != true) {
+            } else {
                 throw NoSuchElementException("Action not permitted due to lack of editor permission")
             }
-            
-            task.shares?.filter { it.removed }?.forEach { unshare ->
-                if (unshare.userId == userId) {
-                    removeShare(taskId, unshare.userId)
-                }
-            }
-            
-            if (share == null && taskEntity.user.id.value != userId) {
-                throw NoSuchElementException("Task not found")
-            }
         }
+        taskEntity.toDomain(getShares(taskId))
+    }
+
+    override fun leaveShare(userId: Int, taskId: Int): Task = database.dbCall {
+        val taskEntity = TaskEntity.findByIdOrThrow(taskId)
+        removeShare(taskId, userId)
         taskEntity.toDomain(getShares(taskId))
     }
 
@@ -178,11 +174,11 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         ownerId: Int,
         sharesToUpdate: List<TaskShare>
     ) {
-        sharesToUpdate.forEach { share ->
+        val currentShares = getShares(taskId)
+        currentShares.forEach { share ->
             removeShare(taskId, share.userId)
         }
-        val sharesToAdd = sharesToUpdate.filter { !it.removed }
-        addShares(taskId, ownerId, sharesToAdd)
+        addShares(taskId, ownerId, sharesToUpdate)
     }
 
     private fun removeShare(taskId: Int, userId: Int) {
@@ -204,8 +200,7 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
         return TaskSharesTable.selectAll().where { TaskSharesTable.taskId.eq(taskId) }.map {
             TaskShare(
                 userId = it[TaskSharesTable.userId].value,
-                permission = SharePermission.valueOf(it[TaskSharesTable.permission].uppercase()),
-                removed = false
+                permission = SharePermission.valueOf(it[TaskSharesTable.permission].uppercase())
             )
         }
     }

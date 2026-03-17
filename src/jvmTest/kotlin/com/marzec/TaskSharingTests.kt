@@ -5,6 +5,7 @@ import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.todo.ApiPath
+import com.marzec.todo.model.LeaveShareDto
 import com.marzec.todo.model.TaskShareDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.todo.model.UpdateTaskShareDto
@@ -55,7 +56,7 @@ class TaskSharingTests {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{id}", "1"),
             dto = UpdateTaskDto(
-                shares = listOf(UpdateTaskShareDto("3", "EDITOR_AND_VIEWER", false))
+                shares = listOf(UpdateTaskShareDto("3", "EDITOR_AND_VIEWER"))
             ),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 1, ownerId = 2, shares = listOf(TaskShareDto("3", "EDITOR_AND_VIEWER"))),
@@ -77,11 +78,9 @@ class TaskSharingTests {
     
     @Test
     fun updateTask_userUnshares() {
-        testPatchEndpoint(
-            uri = ApiPath.UPDATE_TASK.replace("{id}", "1"),
-            dto = UpdateTaskDto(
-                shares = listOf(UpdateTaskShareDto("3", "VIEWER", true))
-            ),
+        testPostEndpoint(
+            uri = ApiPath.LEAVE_SHARE,
+            dto = LeaveShareDto(1),
             status = HttpStatusCode.OK,
             responseDto = taskDto.copy(id = 1, ownerId = 2, shares = emptyList()),
             authorize = {
