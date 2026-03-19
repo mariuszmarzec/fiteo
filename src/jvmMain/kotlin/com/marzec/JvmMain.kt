@@ -241,7 +241,7 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
 
     if (di.authToken == Auth.NAME) {
         loginBearer(api)
-        authenticate(Auth.BEARER) {
+        authenticate(di.authToken) {
             users(api)
         }
     }
