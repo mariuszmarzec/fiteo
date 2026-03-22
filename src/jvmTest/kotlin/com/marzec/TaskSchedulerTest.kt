@@ -161,7 +161,7 @@ class TaskSchedulerTest {
 
         verify {
             service.copyTask(user.id, 1, copyPriority = false, copyScheduler = false)
-            fcmService.sendPushNotification(user.id, any())
+            fcmService.sendPushNotification(user.id, any(), any())
         }
     }
 
@@ -369,7 +369,7 @@ class TaskSchedulerTest {
     private fun verifyCreated() {
         verify {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-            fcmService.sendPushNotification(user.id, any())
+            fcmService.sendPushNotification(user.id, any(), any())
         }
     }
 
@@ -449,7 +449,7 @@ class TaskSchedulerTest {
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-            fcmService.sendPushNotification(user.id, any())
+            fcmService.sendPushNotification(user.id, any(), any())
         }
     }
 
@@ -469,7 +469,7 @@ class TaskSchedulerTest {
 
         verify(inverse = falseCase) {
             service.copyTask(userId = user.id, id = 1, copyPriority = false, copyScheduler = false)
-            fcmService.sendPushNotification(user.id, any())
+            fcmService.sendPushNotification(user.id, any(), any())
         }
     }
 

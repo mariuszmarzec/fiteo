@@ -2,6 +2,7 @@ package com.marzec
 
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.model.domain.User
+import com.marzec.fiteo.services.FcmService
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
 import com.marzec.todo.schedule.TaskExpirationDispatcher
@@ -28,6 +29,7 @@ class TaskExpirationDispatcherTest {
 
     val repository = mockk<TodoRepository>()
     val service = mockk<TodoService>()
+    val fcmService = mockk<FcmService>(relaxed = true)
 
     @Before
     fun setUp() {
@@ -42,7 +44,7 @@ class TaskExpirationDispatcherTest {
             user to listOf(taskWithExpiration, taskWithoutExpiration)
         )
 
-        val dispatcher = TaskExpirationDispatcher(repository, service)
+        val dispatcher = TaskExpirationDispatcher(repository, service, fcmService)
         dispatcher.dispatch()
 
         verify(timeout = 1000) { service.removeTask(user.id, taskWithExpiration.id, removeWithSubtasks = true) }
