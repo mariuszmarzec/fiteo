@@ -12,6 +12,8 @@ import com.marzec.extensions.updateByNullable
 import com.marzec.extensions.updateNullable
 import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.model.domain.User
+import com.marzec.fiteo.services.FcmService
+import com.marzec.fiteo.services.NotificationType
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.database.TaskEntity
 import com.marzec.todo.database.TaskSharesTable
@@ -22,11 +24,15 @@ import com.marzec.todo.model.SharePermission
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.TaskShare
 import com.marzec.todo.model.UpdateTask
+import com.marzec.todo.model.toDto
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
-class TodoRepositoryImpl(private val database: Database) : TodoRepository {
+class TodoRepositoryImpl(
+    private val database: Database,
+    private val fcmService: FcmService,
+) : TodoRepository {
 
     override fun getTasks(userId: Int): List<Task> = database.dbCall {
         val tasksFromShares = TaskSharesTable.innerJoin(TasksTable)
@@ -218,7 +224,22 @@ class TodoRepositoryImpl(private val database: Database) : TodoRepository {
 
         val task = taskEntity.toDomain(getShares(taskId))
         removeInternal(taskEntity, userId, removeWithSubtasks)
+        sendNotificationIfNeeded(task, userId, task)
         task
+    }
+
+    private fun sendNotificationIfNeeded(
+        removedTask: Task,
+        userId: Int,
+        task: Task
+    ) {
+        if (removedTask.scheduler?.showNotification == true) {
+            val removedTaskDto = removedTask.toDto()
+            fcmService.sendPushNotification(userId, removedTaskDto, NotificationType.TASK_REMOVED)
+            task.shares.forEach { share ->
+                fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
+            }
+        }
     }
 
     private fun removeInternal(taskEntity: TaskEntity, userId: Int, removeWithSubtasks: Boolean) {

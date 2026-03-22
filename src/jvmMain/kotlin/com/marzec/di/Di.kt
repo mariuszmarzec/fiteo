@@ -241,7 +241,7 @@ val MainModule = module {
 
     factory { params -> TodoService(get { params }) }
 
-    factory<TodoRepository> { params -> TodoRepositoryImpl(get { params }) }
+    factory<TodoRepository> { params -> TodoRepositoryImpl(get { params }, get { params }) }
 
     factory<TrainingRepository> { params -> TrainingRepositoryImpl(get { params }) }
 

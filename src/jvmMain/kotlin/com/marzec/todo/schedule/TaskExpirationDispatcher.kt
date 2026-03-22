@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory
 class TaskExpirationDispatcher(
     private val todoRepository: TodoRepository,
     private val todoService: TodoService,
-    private val fcmService: FcmService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -39,33 +38,18 @@ class TaskExpirationDispatcher(
                     coroutineScope.launch {
                         val expirationDate = task.expirationDate?.toJavaLocalDateTime()
                         if (expirationDate != null && expirationDate.isBefore(today)) {
-                            val removedTask = todoService.removeTask(
+                            todoService.removeTask(
                                 userId = user.id,
                                 taskId = task.id,
                                 removeWithSubtasks = true
                             )
                             logger.info("Removed expired task: \${task.id} for user: \${user.id}")
-                            sendNotificationIfNeeded(removedTask, user, task)
                         }
                     }
                 }
             }
         } catch (e: Exception) {
             logger.error("Error in task expiration dispatcher", e)
-        }
-    }
-
-    private fun sendNotificationIfNeeded(
-        removedTask: Task,
-        user: User,
-        task: Task
-    ) {
-        if (removedTask.scheduler?.showNotification == true) {
-            val removedTaskDto = removedTask.toDto()
-            fcmService.sendPushNotification(user.id, removedTaskDto, NotificationType.TASK_REMOVED)
-            task.shares.forEach { share ->
-                fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
-            }
         }
     }
 }
