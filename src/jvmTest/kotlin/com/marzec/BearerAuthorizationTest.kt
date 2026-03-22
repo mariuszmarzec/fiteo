@@ -28,8 +28,8 @@ class BearerAuthorizationTest {
         testGetEndpoint(
             ApiPath.USERS,
             HttpStatusCode.OK,
-            listOf(user),
-            authorize = ApplicationTestBuilder::loginBearer
+            listOf(user, UserDto(id=2, email="test@mail.com")),
+            authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
 

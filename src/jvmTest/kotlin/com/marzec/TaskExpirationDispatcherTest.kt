@@ -44,7 +44,7 @@ class TaskExpirationDispatcherTest {
             user to listOf(taskWithExpiration, taskWithoutExpiration)
         )
 
-        val dispatcher = TaskExpirationDispatcher(repository, service, fcmService)
+        val dispatcher = TaskExpirationDispatcher(repository, service)
         dispatcher.dispatch()
 
         verify(timeout = 1000) { service.removeTask(user.id, taskWithExpiration.id, removeWithSubtasks = true) }
