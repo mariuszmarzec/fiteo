@@ -3,8 +3,13 @@ package com.marzec.todo.schedule
 import com.marzec.core.currentMillis
 import com.marzec.core.currentTime
 import com.marzec.di.Di
+import com.marzec.fiteo.model.domain.User
+import com.marzec.fiteo.services.FcmService
+import com.marzec.fiteo.services.NotificationType
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
+import com.marzec.todo.model.Task
+import com.marzec.todo.model.toDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +20,8 @@ import org.slf4j.LoggerFactory
 
 class TaskExpirationDispatcher(
     private val todoRepository: TodoRepository,
-    private val todoService: TodoService
+    private val todoService: TodoService,
+    private val fcmService: FcmService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -33,18 +39,33 @@ class TaskExpirationDispatcher(
                     coroutineScope.launch {
                         val expirationDate = task.expirationDate?.toJavaLocalDateTime()
                         if (expirationDate != null && expirationDate.isBefore(today)) {
-                            todoService.removeTask(
+                            val removedTask = todoService.removeTask(
                                 userId = user.id,
                                 taskId = task.id,
                                 removeWithSubtasks = true
                             )
                             logger.info("Removed expired task: \${task.id} for user: \${user.id}")
+                            sendNotificationIfNeeded(removedTask, user, task)
                         }
                     }
                 }
             }
         } catch (e: Exception) {
             logger.error("Error in task expiration dispatcher", e)
+        }
+    }
+
+    private fun sendNotificationIfNeeded(
+        removedTask: Task,
+        user: User,
+        task: Task
+    ) {
+        if (removedTask.scheduler?.showNotification == true) {
+            val removedTaskDto = removedTask.toDto()
+            fcmService.sendPushNotification(user.id, removedTaskDto, NotificationType.TASK_REMOVED)
+            task.shares.forEach { share ->
+                fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
+            }
         }
     }
 }

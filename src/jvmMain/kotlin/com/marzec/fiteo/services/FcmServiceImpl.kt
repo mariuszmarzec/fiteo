@@ -56,7 +56,7 @@ class FcmServiceImpl(
         fcmTokenRepository.deleteTokensForUser(userId)
     }
 
-    override fun sendPushNotification(userId: Int, taskDto: TaskDto) {
+    override fun sendPushNotification(userId: Int, taskDto: TaskDto, type: NotificationType) {
         val tokens = fcmTokenRepository.getTokensForUser(userId)
         if (tokens.isEmpty()) {
             logger.info("No FCM tokens found for user $userId")
@@ -64,7 +64,7 @@ class FcmServiceImpl(
         }
 
         val payload = mapOf(
-            "type" to "TASK_SCHEDULED",
+            "type" to type.toString(),
             "data" to Json.encodeToString(taskDto)
         )
 

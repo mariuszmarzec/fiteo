@@ -8,5 +8,9 @@ interface FcmService {
     fun addToken(userId: Int, fcmToken: String, platform: String?): FcmToken
     fun deleteToken(userId: Int, fcmToken: String)
     fun deleteTokensForUser(userId: Int)
-    fun sendPushNotification(userId: Int, taskDto: TaskDto)
+    fun sendPushNotification(userId: Int, taskDto: TaskDto, type: NotificationType)
+}
+
+enum class NotificationType{
+    TASK_SCHEDULED, TASK_REMOVED
 }

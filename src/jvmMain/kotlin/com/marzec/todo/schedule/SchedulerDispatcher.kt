@@ -8,6 +8,7 @@ import com.marzec.events.Event
 import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.services.FcmService
+import com.marzec.fiteo.services.NotificationType
 import com.marzec.todo.TodoRepository
 import com.marzec.todo.TodoService
 import com.marzec.todo.model.Scheduler
@@ -89,7 +90,11 @@ class SchedulerDispatcher(
 
                             // Send push notification if enabled
                             if (task.scheduler.showNotification) {
-                                fcmService.sendPushNotification(user.id, newTask.toDto())
+                                val newTaskDto = newTask.toDto()
+                                fcmService.sendPushNotification(user.id, newTaskDto, NotificationType.TASK_SCHEDULED)
+                                task.shares.forEach { share ->
+                                    fcmService.sendPushNotification(share.userId, newTaskDto, NotificationType.TASK_SCHEDULED)
+                                }
                             }
                         } else {
                             logger.debug("TASK \\${task.id} not added by scheduler")
