@@ -227,8 +227,18 @@ class TodoRepositoryImpl(
         val taskEntity = TaskEntity.findByIdOrThrow(taskId)
         
         if (taskEntity.user.id.value != userId) {
-            val shares = getShares(taskId)
-            val share = shares.find { it.userId == userId }
+            var share = getShares(taskId).find { it.userId == userId }
+            if (share?.permission != SharePermission.EDITOR_AND_VIEWER && !taskEntity.parents.empty()) {
+                var rootTask = taskEntity
+                while (!rootTask.parents.empty()) {
+                    rootTask = rootTask.parents.first()
+                }
+                val rootShares = getShares(rootTask.id.value)
+                val rootShare = rootShares.find { it.userId == userId }
+                if (rootShare != null) {
+                    share = rootShare
+                }
+            }
             if (share?.permission != SharePermission.EDITOR_AND_VIEWER) {
                 throw NoSuchElementException("Action not permitted due to lack of editor permission")
             }

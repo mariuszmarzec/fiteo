@@ -171,6 +171,32 @@ class TaskSharingTests {
         )
     }
 
+    @Test
+    fun removeTask_editorOfRootTaskRemovesTask() {
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_TASK.replace("{id}", "2") + "?removeWithSubtasks=true",
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 2, ownerId = 2, parentTaskId = 1, description = "subtask"),
+            authorize = {
+                register(user1Register)
+                register(user2Register)
+                login(user1Login)
+            },
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto)
+                addTask(createTaskDto.copy(description = "subtask", parentTaskId = 1))
+                updateTask("1", UpdateTaskDto(shares = listOf(UpdateTaskShareDto("3", "EDITOR_AND_VIEWER"))))
+                authToken = login(user2Login)
+            },
+            runRequestsAfter = {
+                val tasks = getTasks()
+                assertThat(tasks.size).isEqualTo(1)
+                assertThat(tasks[0].subTasks).isEmpty()
+            }
+        )
+    }
+
     @After
     fun tearDown() {
         GlobalContext.stopKoin()
