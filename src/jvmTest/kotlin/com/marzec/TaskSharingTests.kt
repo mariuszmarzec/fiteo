@@ -148,6 +148,29 @@ class TaskSharingTests {
         )
     }
 
+    @Test
+    fun updateTask_editorOfRootTaskUpdatesChildTask() {
+        testPatchEndpoint(
+            uri = ApiPath.UPDATE_TASK.replace("{id}", "2"),
+            dto = UpdateTaskDto(
+                description = "updated by editor child"
+            ),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 2, ownerId = 2, description = "updated by editor child", parentTaskId = 1),
+            authorize = {
+                register(user1Register)
+                register(user2Register)
+                login(user1Login)
+            },
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto.copy(shares = listOf(TaskShareDto("3", "EDITOR_AND_VIEWER"))))
+                addTask(createTaskDto.copy(parentTaskId = 1))
+                authToken = login(user2Login)
+            }
+        )
+    }
+
     @After
     fun tearDown() {
         GlobalContext.stopKoin()

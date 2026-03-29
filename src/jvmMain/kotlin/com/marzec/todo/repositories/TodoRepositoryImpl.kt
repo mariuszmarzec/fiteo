@@ -146,7 +146,19 @@ class TodoRepositoryImpl(
             }
             task.shares?.let { updateShares(taskId, ownerId, it) }
         } else {
-            val share = currentShares.find { it.userId == userId }
+            var share = currentShares.find { it.userId == userId }
+
+            if (share?.permission != SharePermission.EDITOR_AND_VIEWER && !taskEntity.parents.empty()) {
+                var rootTask = taskEntity
+                while (!rootTask.parents.empty()) {
+                    rootTask = rootTask.parents.first()
+                }
+                val rootShares = getShares(rootTask.id.value)
+                val rootShare = rootShares.find { it.userId == userId }
+                if (rootShare != null) {
+                    share = rootShare
+                }
+            }
 
             if (share?.permission == SharePermission.EDITOR_AND_VIEWER) {
                 taskEntity.apply {
