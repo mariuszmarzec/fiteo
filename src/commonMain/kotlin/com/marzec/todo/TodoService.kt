@@ -71,6 +71,6 @@ class TodoService(
         scheduler = scheduler.takeIf { copyScheduler },
         isToDo = isToDo,
         expirationDate = expirationDate,
-        shares = emptyList()
+        shares = shares,
     )
 }
