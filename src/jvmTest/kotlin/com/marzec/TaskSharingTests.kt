@@ -197,6 +197,32 @@ class TaskSharingTests {
         )
     }
 
+    @Test
+    fun removeSharedTask() {
+        testDeleteEndpoint(
+            uri = ApiPath.DELETE_TASK.replace("{id}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 1, ownerId = 2, shares = listOf(TaskShareDto("3", "VIEWER"))),
+            authorize = {
+                register(user1Register)
+                register(user2Register)
+                login(user1Login)
+            },
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                addTask(createTaskDto.copy(shares = listOf(TaskShareDto("3", "VIEWER"))))
+            },
+            runRequestsAfter = {
+                val tasksUser1 = getTasks()
+                assertThat(tasksUser1).isEmpty()
+
+                authToken = login(user2Login)
+                val tasksUser2 = getTasks()
+                assertThat(tasksUser2).isEmpty()
+            }
+        )
+    }
+
     @After
     fun tearDown() {
         GlobalContext.stopKoin()

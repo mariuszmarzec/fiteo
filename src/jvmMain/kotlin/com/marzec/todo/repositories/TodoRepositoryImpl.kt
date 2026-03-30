@@ -277,7 +277,8 @@ class TodoRepositoryImpl(
                 subtasks.forEach { it.parents = parentTask }
             }
         }
-        taskEntity.delete() // Changed from deleteIfBelongsToUserOrThrow since we check permissions above
+        TaskSharesTable.deleteWhere { TaskSharesTable.taskId.eq(taskEntity.id) }
+        taskEntity.delete()
     }
 
     private fun calcPriority(
