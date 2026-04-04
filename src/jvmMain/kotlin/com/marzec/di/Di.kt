@@ -81,7 +81,7 @@ const val HOURS_IN_DAY = 24
 const val DAYS_IN_MONTH = 31
 private const val EXPIRATION_MONTHS_COUNT = 12
 private const val SCHEDULER_INTERVAL_IN_MIN = 3
-private const val EXPIRATION_TASK_INTERVAL_IN_MIN = 1
+private const val EXPIRATION_TASK_INTERVAL_IN_MIN = 3
 private const val TIME_ZONE_OFFSET_HOURS = 0L
 
 class Di(
