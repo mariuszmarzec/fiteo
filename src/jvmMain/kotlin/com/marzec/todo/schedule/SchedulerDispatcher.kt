@@ -96,8 +96,6 @@ class SchedulerDispatcher(
                                     fcmService.sendPushNotification(share.userId, newTaskDto, NotificationType.TASK_SCHEDULED)
                                 }
                             }
-                        } else {
-                            logger.debug("TASK \\${task.id} not added by scheduler")
                         }
                     }
                 }
