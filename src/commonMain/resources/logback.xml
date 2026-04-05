@@ -1,20 +1,14 @@
 <configuration>
 
+    <!-- FILE -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/fiteo.log</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- dzienna rotacja + numer -->
             <fileNamePattern>logs/fiteo.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-
-            <!-- max rozmiar jednego pliku -->
-            <maxFileSize>500MB</maxFileSize>
-
-            <!-- ile dni trzymać -->
+            <maxFileSize>100MB</maxFileSize>
             <maxHistory>7</maxHistory>
-
-            <!-- opcjonalnie: limit całości -->
-            <totalSizeCap>5GB</totalSizeCap>
+            <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
 
         <encoder>
@@ -22,11 +16,30 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <!-- ASYNC -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>10000</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
         <appender-ref ref="FILE"/>
+    </appender>
+
+    <!-- ROOT -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_FILE"/>
     </root>
 
-    <logger name="org.eclipse.jetty" level="WARN"/>
+    <!-- KTOR -->
+    <logger name="io.ktor" level="INFO"/>
+    <logger name="io.ktor.server" level="INFO"/>
+
+    <!-- Netty (jeśli używasz) -->
     <logger name="io.netty" level="WARN"/>
+
+    <!-- EXPOSED (ważne!) -->
+    <logger name="org.jetbrains.exposed" level="WARN"/>
+
+    <!-- SQL (często spam) -->
+    <logger name="Exposed" level="WARN"/>
 
 </configuration>
