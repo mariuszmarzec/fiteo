@@ -56,6 +56,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.koin.ktor.plugin.Koin
 import org.koin.ktor.plugin.KoinApplicationStarted
@@ -289,29 +291,39 @@ private fun Route.loginBearer(api: Controller) {
 fun Route.sse(di: Di) {
     authenticate(di.authToken) {
         sse("/sse") {
+            val userId = call.principal<UserPrincipal>()?.id
+                ?: throw IllegalArgumentException("User is not logged")
+
             val keepAliveJob = launch {
-                val keepAliveInterval = 30_000L
-                while (true) {
-                    send(ServerSentEvent("keep-alive"))
-                    delay(keepAliveInterval)
+                val interval = 15_000L
+                while (isActive) {
+                    try {
+                        send(ServerSentEvent(comments = "keep-alive"))
+                    } catch (_: Exception) {
+                        break
+                    }
+                    delay(interval)
                 }
             }
-            try {
-                val userId = call.principal<UserPrincipal>()?.id ?: throw IllegalArgumentException("User is not logged")
-                launch {
-                    di.eventBus
-                        .events
+
+            val eventsJob = launch {
+                try {
+                    di.eventBus.events
                         .filterIsInstance<Event.UpdateEvent>()
-                        .filter { it.userId == userId }.collect {
+                        .filter { it.userId == userId }
+                        .collect {
                             send(ServerSentEvent(data = "UPDATE"))
                         }
+                } catch (_: Exception) {
+                    // client disconnected
                 }
+            }
 
-            } catch (t: Throwable) {
-                di.logger.error(t.message)
-                throw t
+            try {
+                joinAll(keepAliveJob, eventsJob)
             } finally {
                 keepAliveJob.cancel()
+                eventsJob.cancel()
             }
         }
     }
