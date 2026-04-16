@@ -14,26 +14,21 @@ import io.ktor.http.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.sse.*
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.koin.dsl.module
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
-
 
 class SseTest {
 
     @Test
-    @Ignore("SSE broken, hanging")
     fun sse() = runBlocking {
         val eventBus = EventBus()
-        if (true) {
-            setupDb()
-        }
+        setupDb()
         diModules = MainModule.plus(module {
             defaultMockConfiguration()
             single { eventBus }
@@ -42,46 +37,32 @@ class SseTest {
         val client = HttpClient {
             install(SSE)
         }
-        client.apply {
 
-            val events = mutableListOf<ServerSentEvent>()
+        val dto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")
 
-            val dto = LoginRequestDto(email = "mariusz.marzec00@gmail.com", password = "password")
+        val authToken = client.request("http://localhost:8081" + ApiPath.LOGIN) {
+            this.method = HttpMethod.Post
+            setBodyJson(dto)
+        }.headers[Headers.AUTHORIZATION]!!
 
-            val authToken = client.request("http://localhost:8081" + ApiPath.LOGIN) {
-                this.method = HttpMethod.Post
-                setBodyJson(dto)
-            }.headers[Headers.AUTHORIZATION]!!
-            runBlocking {
-                val job = launch {
-                    client.config {
-                        install(SSE)
-                    }.sse(
-                        "http://localhost:8081/sse",
-                        request = {
-                            header(Headers.AUTHORIZATION, authToken)
-                        }
-                    ) {
-                        incoming.collect { event ->
-                            events.add(event)
-                        }
-
+        withTimeout(10_000) {
+            val sseJob = launch {
+                client.sse(
+                    "http://localhost:8081/sse",
+                    request = {
+                        header(Headers.AUTHORIZATION, authToken)
                     }
+                ) {
+                    val event = incoming.first { it.data == "UPDATE" }
+                    assertEquals("UPDATE", event.data)
                 }
-                val min = 60 * 1000L
-                delay(3 * min)
-                eventBus.send(Event.UpdateEvent(1))
-
-                withTimeout(5 * min) {
-                    while (events.isEmpty()) {
-                        delay(100)
-                    }
-                }
-
-                job.cancelAndJoin()
             }
-            println(events)
-            assertEquals(listOf(ServerSentEvent("UPDATE")), events.filterNot { it.data == "keep-alive" })
+
+            delay(1000)
+
+            eventBus.send(Event.UpdateEvent(1))
+
+            sseJob.join()
         }
         server.stop()
     }
