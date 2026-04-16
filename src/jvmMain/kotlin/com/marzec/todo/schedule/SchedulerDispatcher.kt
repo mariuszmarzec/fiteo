@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.slf4j.LoggerFactory
@@ -199,14 +200,15 @@ private class SchedulerChecker(
     }
 
     private fun Scheduler.Weekly.shouldBeCreated(today: LocalDateTime): Boolean {
-        if (daysOfWeek.isNotEmpty() && today.dayOfWeek !in daysOfWeek) {
+        val daysOfWeekInJava = daysOfWeek.map { DayOfWeek.of(it.isoDayNumber) }
+        if (daysOfWeekInJava.isNotEmpty() && today.dayOfWeek !in daysOfWeekInJava) {
             return false
         }
 
         return shouldCreate(
             today,
             calcFirstPeriodDate = { startDate: LocalDate ->
-                startDate.findFirstDate { it.dayOfWeek in daysOfWeek }
+                startDate.findFirstDate { it.dayOfWeek in daysOfWeekInJava }
                     ?.findFirstDate(
                         mutate = { it.plusDays(-1) },
                         predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
@@ -216,7 +218,7 @@ private class SchedulerChecker(
                 val firstPeriodDayOfToday = todayLocalDate.findFirstDate(
                     mutate = { it.plusDays(-1) },
                     predicate = { it.dayOfWeek == DayOfWeek.MONDAY }
-                )
+                ) ?: todayLocalDate
                 val daysBetween = Period.between(firstPeriodDate, firstPeriodDayOfToday).days
                 daysBetween / WEEK_DAYS_COUNT + 1
             }

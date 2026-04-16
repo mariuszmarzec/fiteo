@@ -8,9 +8,9 @@ import com.marzec.database.dbCall
 import com.marzec.fiteo.model.domain.FcmToken
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import java.time.LocalDateTime
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 
 class FcmTokenRepositoryImpl(private val database: Database) : FcmTokenRepository {
 

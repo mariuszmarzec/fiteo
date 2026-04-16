@@ -5,9 +5,9 @@ import com.marzec.core.entity.CommonEntityClass
 import com.marzec.extensions.update
 import com.marzec.fiteo.model.domain.Category
 import com.marzec.fiteo.model.domain.UpdateCategory
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.Column
 
 object CategoryTable : IdTable<String>("categories") {
 

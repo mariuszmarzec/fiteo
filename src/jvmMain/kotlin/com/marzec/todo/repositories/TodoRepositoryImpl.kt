@@ -5,11 +5,7 @@ import com.marzec.database.UserEntity
 import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.database.toSized
-import com.marzec.extensions.ifNull
-import com.marzec.extensions.listOf
-import com.marzec.extensions.update
-import com.marzec.extensions.updateByNullable
-import com.marzec.extensions.updateNullable
+import com.marzec.extensions.*
 import com.marzec.fiteo.model.domain.NullableField
 import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.services.FcmService
@@ -19,15 +15,16 @@ import com.marzec.todo.database.TaskEntity
 import com.marzec.todo.database.TaskSharesTable
 import com.marzec.todo.database.TasksTable
 import com.marzec.todo.extensions.sortTasks
-import com.marzec.todo.model.CreateTask
-import com.marzec.todo.model.SharePermission
-import com.marzec.todo.model.Task
-import com.marzec.todo.model.TaskShare
-import com.marzec.todo.model.UpdateTask
-import com.marzec.todo.model.toDto
+import com.marzec.todo.model.*
 import kotlinx.datetime.toJavaLocalDateTime
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.emptySized
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class TodoRepositoryImpl(
     private val database: Database,

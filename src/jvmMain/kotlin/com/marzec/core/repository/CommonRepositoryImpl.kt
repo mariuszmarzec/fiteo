@@ -3,7 +3,7 @@ package com.marzec.core.repository
 import com.marzec.core.entity.CommonEntity
 import com.marzec.core.entity.CommonEntityClass
 import com.marzec.database.dbCall
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 
 open class CommonRepositoryImpl<ID: Comparable<ID>, DOMAIN, CREATE, UPDATE, ENTITY : CommonEntity<ID, DOMAIN>>(
     private val entity: CommonEntityClass<ID, DOMAIN, CREATE, UPDATE, ENTITY>,

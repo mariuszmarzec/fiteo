@@ -60,7 +60,7 @@ import com.marzec.todo.schedule.SchedulerDispatcher
 import com.marzec.todo.schedule.TaskExpirationDispatcher
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf

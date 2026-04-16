@@ -1,7 +1,7 @@
 package com.marzec.todo.database
 
 import com.marzec.database.UserTable
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object TaskSharesTable : Table("task_share") {
     val taskId = reference("task_id", TasksTable)

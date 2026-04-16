@@ -6,7 +6,12 @@ import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.Series
 import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SizedIterable
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class TrainingRepositoryImpl(private val database: Database) : TrainingRepository {
 

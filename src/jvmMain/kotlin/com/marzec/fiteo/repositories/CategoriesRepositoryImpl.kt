@@ -6,8 +6,8 @@ import com.marzec.database.CategoryTable
 import com.marzec.database.dbCall
 import com.marzec.fiteo.model.domain.Category
 import com.marzec.fiteo.model.domain.UpdateCategory
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.SortOrder
 
 class CategoriesRepositoryImpl(
     private val database: Database,

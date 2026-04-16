@@ -1,21 +1,15 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.database.CategoryEntity
-import com.marzec.database.CategoryTable
-import com.marzec.database.EquipmentEntity
-import com.marzec.database.EquipmentTable
-import com.marzec.database.ExerciseEntity
-import com.marzec.database.dbCall
-import com.marzec.database.findByIdOrThrow
+import com.marzec.database.*
 import com.marzec.extensions.update
 import com.marzec.extensions.updateNullable
 import com.marzec.fiteo.model.domain.CreateExercise
 import com.marzec.fiteo.model.domain.Exercise
 import com.marzec.fiteo.model.domain.UpdateExercise
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SizedCollection
-import org.jetbrains.exposed.sql.emptySized
-import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SizedCollection
+import org.jetbrains.exposed.v1.jdbc.emptySized
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 
 class ExercisesRepositoryImpl(private val database: Database) : ExercisesRepository {
 

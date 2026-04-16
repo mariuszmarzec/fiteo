@@ -6,9 +6,9 @@ import com.marzec.core.model.domain.FeatureToggle
 import com.marzec.core.model.domain.NewFeatureToggle
 import com.marzec.core.model.domain.UpdateFeatureToggle
 import com.marzec.extensions.update
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.Column
 
 object FeatureToggleTable : IdTable<Int>("feature_toggles") {
 

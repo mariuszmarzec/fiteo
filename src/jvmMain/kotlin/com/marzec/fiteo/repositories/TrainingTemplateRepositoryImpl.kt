@@ -4,8 +4,12 @@ import com.marzec.database.*
 import com.marzec.fiteo.model.domain.CreateTrainingTemplate
 import com.marzec.fiteo.model.domain.CreateTrainingTemplatePart
 import com.marzec.fiteo.model.domain.TrainingTemplate
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 class TrainingTemplateRepositoryImpl(private val database: Database) : TrainingTemplateRepository {
 

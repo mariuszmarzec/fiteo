@@ -1,7 +1,7 @@
 package com.marzec.database
 
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 
 abstract class IntEntityWithUser(id: EntityID<Int>) : IntEntity(id) {
 

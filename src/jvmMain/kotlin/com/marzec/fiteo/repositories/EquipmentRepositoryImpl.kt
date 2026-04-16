@@ -6,9 +6,9 @@ import com.marzec.database.dbCall
 import com.marzec.database.findByIdOrThrow
 import com.marzec.fiteo.model.domain.Equipment
 import com.marzec.fiteo.model.domain.UpdateEquipment
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.jdbc.insert
 
 class EquipmentRepositoryImpl(private val database: Database) : EquipmentRepository {
     override fun getAll(): List<Equipment> = database.dbCall {

@@ -4,7 +4,8 @@ import com.marzec.database.UserEntity
 import com.marzec.database.UserTable
 import com.marzec.database.dbCall
 import com.marzec.fiteo.model.domain.User
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.Database
 
 class UserRepositoryImpl(private val database: Database) : UserRepository {
 

@@ -18,7 +18,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.GlobalContext
-import java.time.DayOfWeek
+import kotlinx.datetime.DayOfWeek
 import java.time.LocalDateTime
 import java.util.TimeZone
 
