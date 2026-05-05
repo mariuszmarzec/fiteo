@@ -252,12 +252,10 @@ class TodoRepositoryImpl(
         userId: Int,
         task: Task
     ) {
-        if (removedTask.scheduler?.showNotification == true) {
-            val removedTaskDto = removedTask.toDto()
-            fcmService.sendPushNotification(userId, removedTaskDto, NotificationType.TASK_REMOVED)
-            task.shares.forEach { share ->
-                fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
-            }
+        val removedTaskDto = removedTask.toDto()
+        fcmService.sendPushNotification(userId, removedTaskDto, NotificationType.TASK_REMOVED)
+        task.shares.forEach { share ->
+            fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
         }
     }
 
