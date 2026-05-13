@@ -7,6 +7,7 @@ import com.marzec.di.MILLISECONDS_IN_SECOND
 import com.marzec.events.Event
 import com.marzec.events.EventBus
 import com.marzec.fiteo.model.domain.NullableField
+import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.services.FcmService
 import com.marzec.fiteo.services.NotificationType
 import com.marzec.todo.TodoRepository
@@ -70,39 +71,65 @@ class SchedulerDispatcher(
             todoRepository.getScheduledTasks().forEach { (user, tasks) ->
                 tasks.forEach { task ->
                     coroutineScope.launch {
-                        if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
-                            val newTask = todoService.copyTask(
-                                userId = user.id,
-                                id = task.id,
-                                copyPriority = false,
-                                copyScheduler = false,
-                                highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
-                            )
-                            if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
-                                todoService.removeTask(
+                        try {
+                            if (task.scheduler != null && schedulerChecker.shouldBeCreated(task.scheduler, today)) {
+                                val newTask = todoService.copyTask(
                                     userId = user.id,
-                                    taskId = task.id,
-                                    removeWithSubtasks = true
+                                    id = task.id,
+                                    copyPriority = false,
+                                    copyScheduler = false,
+                                    highestPriorityAsDefault = task.scheduler.highestPriorityAsDefault
                                 )
-                            } else {
-                                updateLastDate(user.id, task)
-                            }
-                            eventBus.send(Event.UpdateEvent(user.id))
+                                if ((task.scheduler as? Scheduler.OneShot)?.removeScheduled == true) {
+                                    todoService.removeTask(
+                                        userId = user.id,
+                                        taskId = task.id,
+                                        removeWithSubtasks = true
+                                    )
+                                } else {
+                                    updateLastDate(user.id, task)
+                                }
+                                eventBus.send(Event.UpdateEvent(user.id))
 
-                            // Send push notification if enabled
-                            if (task.scheduler.showNotification) {
-                                val newTaskDto = newTask.toDto()
-                                fcmService.sendPushNotification(user.id, newTaskDto, NotificationType.TASK_SCHEDULED)
-                                task.shares.forEach { share ->
-                                    fcmService.sendPushNotification(share.userId, newTaskDto, NotificationType.TASK_SCHEDULED)
+                                // Send push notification if enabled
+                                if (task.scheduler.showNotification) {
+                                    sendNotifications(newTask, user, task)
                                 }
                             }
+                        } catch (e: Exception) {
+                            logger.error("Error processing scheduled task with id ${task.id} for user ${user.id}", e)
                         }
                     }
                 }
             }
         } catch (e: Exception) {
             logger.error("Error in scheduler dispatcher", e)
+        }
+    }
+
+    private fun sendNotifications(
+        newTask: Task,
+        user: User,
+        task: Task
+    ) {
+        coroutineScope.launch {
+            try {
+                val newTaskDto = newTask.toDto()
+                fcmService.sendPushNotification(
+                    user.id,
+                    newTaskDto,
+                    NotificationType.TASK_SCHEDULED
+                )
+                task.shares.forEach { share ->
+                    fcmService.sendPushNotification(
+                        share.userId,
+                        newTaskDto,
+                        NotificationType.TASK_SCHEDULED
+                    )
+                }
+            } catch (e: Exception) {
+                logger.error("Error sending notifications for task with id ${task.id} for user ${user.id}", e)
+            }
         }
     }
 
