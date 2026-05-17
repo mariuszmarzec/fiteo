@@ -39,6 +39,7 @@ object DbSettings {
     )
 }
 
-fun<T> Database.dbCall(statement: Transaction.() -> T) = transaction(this) {
+fun<T> Database.dbCall(retryCount: Int = 1, statement: Transaction.() -> T) = transaction(this) {
+    maxAttempts = retryCount
     statement()
 }

@@ -41,7 +41,7 @@ class SchedulerDispatcher(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(100))
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(1))
 
     init {
         logger.info(

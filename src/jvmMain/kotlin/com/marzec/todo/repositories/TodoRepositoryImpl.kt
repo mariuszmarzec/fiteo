@@ -73,7 +73,7 @@ class TodoRepositoryImpl(
             }.filter { it.value.isNotEmpty() }
     }
 
-    override fun addTask(userId: Int, task: CreateTask): Task = database.dbCall {
+    override fun addTask(userId: Int, task: CreateTask): Task = database.dbCall(retryCount = 3) {
         val parentTask = task.parentTaskId?.let { TaskEntity.findByIdOrThrow(it) }
 
         if (parentTask != null && parentTask.user.id.value != userId) {
