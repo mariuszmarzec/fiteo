@@ -119,6 +119,8 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-swagger:${Dependency.ktor_version}")
                 implementation("org.slf4j:slf4j-api:${Dependency.sl4j_version}")
                 implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")
 
@@ -167,6 +169,20 @@ kotlin {
                 implementation(kotlinWrappers.emotion.css)
                 implementation(kotlinWrappers.emotion.styled)
             }
+        }
+    }
+}
+
+tasks.register("exportOpenApiSpec") {
+    group = "documentation"
+    description = "Exports the committed openapi.yaml snapshot to the repository root"
+    doLast {
+        val spec = layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml")
+        if (spec.asFile.exists()) {
+            spec.asFile.copyTo(layout.projectDirectory.file("openapi.yaml").asFile, overwrite = true)
+            println("openapi.yaml snapshot exported to repository root")
+        } else {
+            throw GradleException("src/jvmMain/resources/openapi.yaml not found")
         }
     }
 }

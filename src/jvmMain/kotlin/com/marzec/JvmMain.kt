@@ -39,15 +39,19 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
+import io.ktor.openapi.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.compression.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
+import io.ktor.server.plugins.openapi.*
+import io.ktor.server.plugins.swagger.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.routing.openapi.*
 import io.ktor.server.sessions.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
@@ -100,6 +104,19 @@ fun Application.module() {
     scripts()
     routing {
 
+        openAPI(path = "openapi") {
+            info = OpenApiInfo("Fiteo API", "1.0")
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+            }
+        }
+        swaggerUI(path = "swagger") {
+            info = OpenApiInfo("Fiteo API", "1.0")
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+            }
+        }
+
         static {
             resource("/", "index.html")
             resource("/fiteo.js", "fiteo.js")
@@ -117,6 +134,30 @@ fun Application.module() {
             sse(di)
         }
     }
+}
+
+private fun Route.manulExcludedFromOpenApi(): Boolean {
+    val path = buildString {
+        var r: Route? = this@manulExcludedFromOpenApi
+        while (r != null) {
+            when (val selector = r.selector) {
+                is PathSegmentConstantRouteSelector -> insert(0, "/" + selector.value)
+                is PathSegmentParameterRouteSelector -> insert(0, "/{" + selector.name + "}")
+                is PathSegmentOptionalParameterRouteSelector -> insert(0, "/{" + selector.name + "?}")
+                is PathSegmentWildcardRouteSelector -> insert(0, "/*")
+                is PathSegmentTailcardRouteSelector -> insert(0, "/{" + selector.name + "}")
+                else -> Unit
+            }
+            r = r.parent
+        }
+    }
+    return path.startsWith("/test") ||
+        path.startsWith("/scripts") ||
+        path == "/" ||
+        path.startsWith("/fiteo.js") ||
+        generateSequence(this@manulExcludedFromOpenApi) { it.parent }
+            // static content routes use a package-private TailcardSelector in Ktor 3.5.2
+            .any { it.selector?.let { s -> s::class.simpleName } == "TailcardSelector" }
 }
 
 private fun clearSessionsInPeriod(scope: CoroutineScope, di: Di, testDi: Di) {

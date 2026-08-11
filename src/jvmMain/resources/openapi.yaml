@@ -1,0 +1,175 @@
+openapi: 3.0.1
+info:
+  title: Fiteo API
+  description: API of the Fiteo application (committed snapshot, generated from routing).
+  version: 1.0.0
+servers:
+  - url: http://0.0.0.0:8080/
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    sessionAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+    basicAuth:
+      type: http
+      scheme: basic
+paths:
+  /api/fiteo/1/registration:
+    post:
+      summary: Register a new user
+      operationId: register
+      responses:
+        '200':
+          description: User registered successfully
+  /api/fiteo/1/login:
+    post:
+      summary: Log in an existing user
+      operationId: login
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Logged in, session cookie set
+  /api/fiteo/1/login-bearer:
+    post:
+      summary: Log in and receive a bearer token
+      operationId: loginBearer
+      responses:
+        '200':
+          description: Logged in, bearer token returned in Authorization header
+  /api/fiteo/1/logout:
+    get:
+      summary: Log out the current user
+      operationId: logout
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Logged out
+  /api/fiteo/1/user:
+    get:
+      summary: Get the current user
+      operationId: getUser
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Current user data
+  /api/fiteo/1/users:
+    get:
+      summary: Get all users
+      operationId: getUsers
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of users
+  /api/todo/1/tasks:
+    get:
+      summary: Get all tasks
+      operationId: getTasks
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of tasks
+    post:
+      summary: Add a task
+      operationId: addTask
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Task added
+  /api/todo/1/tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    put:
+      summary: Update a task
+      operationId: updateTask
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Task updated
+    delete:
+      summary: Delete a task
+      operationId: deleteTask
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Task deleted
+  /api/todo/1/tasks/mark-as-to-do:
+    post:
+      summary: Mark a task as to-do
+      operationId: markAsToDo
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Task marked
+  /api/todo/1/tasks/leave-share:
+    post:
+      summary: Leave a shared task
+      operationId: leaveShare
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Left the shared task
+  /api/todo/1/tasks/{id}/copy:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      summary: Copy a task
+      operationId: copyTask
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Task copied
+  /scripts:
+    get:
+      summary: Scripts panel (basic auth)
+      operationId: scripts
+      security:
+        - basicAuth: []
+      responses:
+        '200':
+          description: Scripts panel HTML
+  /sse:
+    get:
+      summary: Server-sent events stream for the current user
+      operationId: sse
+      security:
+        - bearerAuth: []
+        - sessionAuth: []
+      responses:
+        '200':
+          description: SSE stream
