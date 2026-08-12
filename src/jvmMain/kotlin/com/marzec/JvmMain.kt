@@ -146,18 +146,18 @@ private fun Route.manulExcludedFromOpenApi(): Boolean {
                 is PathSegmentOptionalParameterRouteSelector -> insert(0, "/{" + selector.name + "?}")
                 is PathSegmentWildcardRouteSelector -> insert(0, "/*")
                 is PathSegmentTailcardRouteSelector -> insert(0, "/{" + selector.name + "}")
+                is TrailingSlashRouteSelector -> insert(0, "/")
                 else -> Unit
             }
             r = r.parent
         }
     }
-    return path.startsWith("/test") ||
-        path.startsWith("/scripts") ||
-        path == "/" ||
+    // static content (index.html, fiteo.js) and the scripts panel are mounted outside the API
+    // routing; exclude them by resolved path so the OpenAPI spec only contains API routes
+    return path == "/" ||
         path.startsWith("/fiteo.js") ||
-        generateSequence(this@manulExcludedFromOpenApi) { it.parent }
-            // static content routes use a package-private TailcardSelector in Ktor 3.5.2
-            .any { it.selector?.let { s -> s::class.simpleName } == "TailcardSelector" }
+        path.startsWith("/scripts") ||
+        path.startsWith("/test")
 }
 
 private fun clearSessionsInPeriod(scope: CoroutineScope, di: Di, testDi: Di) {
