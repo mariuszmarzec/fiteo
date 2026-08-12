@@ -26,8 +26,9 @@ import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.unsafe
 
-val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
-val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
+val SCRIPTS_DIR = "/root/shoppingListGenerator"
+val SCRIPT_A_PATH = "$SCRIPTS_DIR/vitalia.py"
+val SCRIPT_B_PATH = "$SCRIPTS_DIR/clean_listonic.py"
 
 fun AuthenticationConfig.scriptsBasicAuthConfig() {
     basic("auth-basic") {
