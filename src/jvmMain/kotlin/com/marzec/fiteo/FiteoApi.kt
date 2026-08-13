@@ -64,15 +64,39 @@ fun Route.fiteoApi(di: Di, api: Controller) {
 
 fun Route.users(api: Controller) = getAllEndpoint(ApiPath.USERS, api::getUsers)
 
-fun Route.createTraining(api: Controller) = postEndpoint(ApiPath.TRAININGS, api::createTraining)
+fun Route.createTraining(api: Controller) = postEndpoint(ApiPath.TRAININGS, api::createTraining) {
+    describe {
+        request {
+            body<TrainingRequestDto>()
+        }
+        response {
+            body<TrainingResponseDto>()
+        }
+    }
+}
 
-fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining)
+fun Route.getTraining(api: Controller) = getByIdEndpoint(ApiPath.TRAINING, api::getTraining) {
+    describe {
+        response {
+            body<TrainingResponseDto>()
+        }
+    }
+}
 
 fun Route.getTrainings(api: Controller) = getAllEndpoint(ApiPath.TRAININGS, api::getTrainings)
 
 fun Route.removeTraining(api: Controller) = deleteByIdEndpoint(ApiPath.TRAINING, api::removeTraining)
 
-fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING, api::updateTraining)
+fun Route.updateTraining(api: Controller) = updateByIdEndpoint(ApiPath.TRAINING, api::updateTraining) {
+    describe {
+        request {
+            body<TrainingRequestDto>()
+        }
+        response {
+            body<TrainingResponseDto>()
+        }
+    }
+}
 
 fun Route.templates(api: Controller) = getAllEndpoint(ApiPath.TRAINING_TEMPLATES, api::getTrainingTemplates)
 

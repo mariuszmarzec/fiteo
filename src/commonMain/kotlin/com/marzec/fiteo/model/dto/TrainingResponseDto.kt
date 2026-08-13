@@ -7,10 +7,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
-value class ExerciseDto(
+value class TrainingResponseDto(
     val id: Long,
     val name: String,
-    val category: String,
-    val equipment: String,
+    val exercises: List<ExerciseDto>,
     val date: LocalDateTime
 )
