@@ -36,3 +36,6 @@ To run locally fire `application:run` task. To build fat jar with all dependenci
 Test uses hardcoded database working on localhost. You can use mysql bundled in xampp for instance.
 To run all tests use `verification:jvmTest` task. 
 To generate test coverage report use `verification:jacocoTestReport`.
+
+# Api documentation
+Api documentation is under [this doc](API_DOCUMENTATION.md)
