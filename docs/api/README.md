@@ -21,3 +21,7 @@
 - [Copy task](tasks_copy.md)
 - [Mark tasks as ToDo](tasks_mark_as_todo.md)
 - [Leave shared task](tasks_leave_share.md)
+
+## OpenAPI
+
+- [Compile-time OpenAPI and Swagger UI](openapi.md)
