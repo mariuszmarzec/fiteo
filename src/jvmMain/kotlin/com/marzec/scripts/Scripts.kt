@@ -28,6 +28,7 @@ import kotlinx.html.unsafe
 
 val SCRIPT_A_PATH = "/root/gists/c9e375096f15fec5aa3419e6534b9374/vitalia.py"
 val SCRIPT_B_PATH = "/root/gists/ecc444e68c45b7d7575e9d9bd8143b21/clean_listonic.py"
+val SCRIPT_C_PATH = "/root/gists/median_list.py"
 
 fun AuthenticationConfig.scriptsBasicAuthConfig() {
     basic("auth-basic") {
@@ -93,6 +94,12 @@ fun Application.scripts() {
                             id = "btn-b"
                             onClick = "runScript('/api/run_B')"
                             +"Wyczyść listę zakupów"
+                        }
+
+                        button(classes = "script-button") {
+                            id = "btn-c"
+                            onClick = "runScript('/api/run_C')"
+                            +"Generuj listę zakupów na podstawie mediany"
                         }
 
                         h2 { +"Wynik Skryptu:" }
@@ -181,6 +188,15 @@ fun Application.scripts() {
 
             get("/api/run_B") {
                 val result = executePythonScript(SCRIPT_B_PATH)
+                if (result.isSuccess) {
+                    call.respondText(result.output, status = HttpStatusCode.OK)
+                } else {
+                    call.respondText(result.output, status = HttpStatusCode.InternalServerError)
+                }
+            }
+
+            get("/api/run_C") {
+                val result = executePythonScript(SCRIPT_C_PATH)
                 if (result.isSuccess) {
                     call.respondText(result.output, status = HttpStatusCode.OK)
                 } else {
