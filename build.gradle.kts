@@ -193,10 +193,17 @@ tasks.named("jvmProcessResources") {
     doLast {
         val generatedSpec = file("build/processedResources/jvm/main/openapi.yaml")
         val targetSpec = file("openapi.yaml")
-        
+
         if (generatedSpec.exists()) {
             generatedSpec.copyTo(targetSpec, overwrite = true)
             println("Automatically copied openapi.yaml to repository root")
+            // Replace server URL if configured
+            if (openapiServerUrl != null && openapiServerUrl.isNotBlank()) {
+                val content = targetSpec.readText()
+                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \"${openapiServerUrl}\"")
+                targetSpec.writeText(updated)
+                println("Replaced OpenAPI server URL with ${openapiServerUrl}")
+            }
         }
     }
 }
