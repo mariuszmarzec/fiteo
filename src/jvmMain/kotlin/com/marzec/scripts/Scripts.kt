@@ -56,8 +56,8 @@ fun Application.scripts() {
                             unsafe {
                                 raw("""
                                     body { font-family: Arial, sans-serif; margin: 20px; }
-                                    button { 
-                                    width: 300px; height: 150px; font-size: 30px; font-weight: bold; padding: 10px 20px; margin: 5px; cursor: pointer; }
+                                    .button-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+                                    .script-button { display: inline-flex; align-items: center; justify-content: center; width: 300px; height: 150px; font-size: 30px; font-weight: bold; padding: 10px 20px; margin: 0; box-sizing: border-box; vertical-align: middle; }
                                     #output { margin-top: 20px; padding: 15px; border: 1px solid #ccc; white-space: pre-wrap; background-color: #f9f9f9; }
                                     .date-container { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; display: inline-block; }
                                     .date-input { font-size: 18px; padding: 5px; margin: 5px; }
@@ -85,23 +85,25 @@ fun Application.scripts() {
                         }
                         br {}
 
-                        button(classes = "script-button") {
-                            id = "btn-a"
-                            onClick = "runScriptA()"
-                            +"Generuj listę zakupów"
-                        }
+                        div(classes = "button-row") {
+                            button(classes = "script-button") {
+                                id = "btn-a"
+                                onClick = "runScriptA()"
+                                +"Generuj listę zakupów"
+                            }
 
-                        button(classes = "script-button") {
-                            id = "btn-b"
-                            onClick = "runScript('/api/run_B')"
-                            +"Wyczyść listę zakupów"
-                        }
+                            button(classes = "script-button") {
+                                id = "btn-b"
+                                onClick = "runScript('/api/run_B')"
+                                +"Wyczyść listę zakupów"
+                            }
 
-                        // New button for median list generation
-                        button(classes = "script-button") {
-                            id = "btn-median"
-                            onClick = "runScript('/api/run_median')"
-                            +"Generuj listę na podstawie mediany"
+                            // New button for median list generation
+                            button(classes = "script-button") {
+                                id = "btn-median"
+                                onClick = "runScript('/api/run_median')"
+                                +"Generuj listę na podstawie mediany"
+                            }
                         }
 
                         h2 { +"Wynik Skryptu:" }
