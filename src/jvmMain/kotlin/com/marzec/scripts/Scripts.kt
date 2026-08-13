@@ -29,6 +29,7 @@ import kotlinx.html.unsafe
 val SCRIPTS_DIR = "/root/shoppingListGenerator"
 val SCRIPT_A_PATH = "$SCRIPTS_DIR/vitalia.py"
 val SCRIPT_B_PATH = "$SCRIPTS_DIR/clean_listonic.py"
+val SCRIPT_MEDIAN_PATH = "$SCRIPTS_DIR/median_list.py"
 
 fun AuthenticationConfig.scriptsBasicAuthConfig() {
     basic("auth-basic") {
@@ -94,6 +95,13 @@ fun Application.scripts() {
                             id = "btn-b"
                             onClick = "runScript('/api/run_B')"
                             +"Wyczyść listę zakupów"
+                        }
+
+                        // New button for median list generation
+                        button(classes = "script-button") {
+                            id = "btn-median"
+                            onClick = "runScript('/api/run_median')"
+                            +"Generuj listę na podstawie mediany"
                         }
 
                         h2 { +"Wynik Skryptu:" }
@@ -182,6 +190,16 @@ fun Application.scripts() {
 
             get("/api/run_B") {
                 val result = executePythonScript(SCRIPT_B_PATH)
+                if (result.isSuccess) {
+                    call.respondText(result.output, status = HttpStatusCode.OK)
+                } else {
+                    call.respondText(result.output, status = HttpStatusCode.InternalServerError)
+                }
+            }
+
+            // Endpoint for median list generation script
+            get("/api/run_median") {
+                val result = executePythonScript(SCRIPT_MEDIAN_PATH)
                 if (result.isSuccess) {
                     call.respondText(result.output, status = HttpStatusCode.OK)
                 } else {
