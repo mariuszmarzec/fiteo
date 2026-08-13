@@ -38,4 +38,4 @@ To run all tests use `verification:jvmTest` task.
 To generate test coverage report use `verification:jacocoTestReport`.
 
 # Api documentation
-Api documentation is under [this doc](API_DOCUMENTATION.md)
+Api documentation is under [this doc](docs/api/README.md)
