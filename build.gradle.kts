@@ -188,6 +188,19 @@ tasks.register("exportOpenApiSpec") {
     }
 }
 
+// Automatically copy generated OpenAPI spec to repository root during build
+tasks.named("jvmProcessResources") {
+    doLast {
+        val generatedSpec = file("build/processedResources/jvm/main/openapi.yaml")
+        val targetSpec = file("openapi.yaml")
+        
+        if (generatedSpec.exists()) {
+            generatedSpec.copyTo(targetSpec, overwrite = true)
+            println("Automatically copied openapi.yaml to repository root")
+        }
+    }
+}
+
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
 tasks.named<Jar>("jvmJar") {
     archiveBaseName.set("fiteo")
