@@ -51,6 +51,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
+import io.ktor.server.plugins.openapi.openAPI
+import io.ktor.server.plugins.swagger.swaggerUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -116,6 +118,9 @@ fun Application.module() {
             fiteoApi(di, api)
             sse(di)
         }
+
+        openAPI("/openapi", "openapi.yaml")
+        swaggerUI("/swagger", "openapi.yaml")
     }
 }
 
