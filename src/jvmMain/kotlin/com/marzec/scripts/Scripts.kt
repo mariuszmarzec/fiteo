@@ -106,6 +106,13 @@ fun Application.scripts() {
                             }
                         }
 
+                        div(classes = "button-row") {
+                            label {
+                                input(type = InputType.checkBox, classes = "date-input") { id = "only-todo" }
+                                +" only-todo"
+                            }
+                        }
+
                         h2 { +"Wynik Skryptu:" }
                         pre { id = "output" }
 
@@ -120,16 +127,21 @@ fun Application.scripts() {
                                     function runScriptA() {
                                         const dateFrom = document.getElementById('date-from').value;
                                         const dateTo = document.getElementById('date-to').value;
-                                        
+
                                         let url = '/api/run_A';
                                         const params = [];
                                         if (dateFrom) params.push('dateFrom=' + dateFrom);
                                         if (dateTo) params.push('dateTo=' + dateTo);
-                                        
+
                                         if (params.length > 0) {
                                             url += '?' + params.join('&');
                                         }
-                                        
+
+                                        const onlyTodo = document.getElementById('only-todo').checked;
+                                        if (onlyTodo) {
+                                            url += (url.includes('?') ? '&' : '?') + 'onlyTodo=true';
+                                        }
+
                                         runScript(url);
                                     }
 
@@ -168,6 +180,7 @@ fun Application.scripts() {
             get("/api/run_A") {
                 val dateFrom = call.request.queryParameters["dateFrom"]
                 val dateTo = call.request.queryParameters["dateTo"]
+                val onlyTodo = call.request.queryParameters["onlyTodo"]
                 val args = mutableListOf<String>()
 
                 fun convertDate(date: String): String {
