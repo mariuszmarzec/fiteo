@@ -51,10 +51,10 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
+import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.plugins.openapi.openAPI
-import io.ktor.server.plugins.openapi.OpenApiInfo
-import io.ktor.server.plugins.openapi.OpenApiDocSource
 import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.PathSegmentConstantRouteSelector
 import io.ktor.server.routing.PathSegmentParameterRouteSelector
 import io.ktor.server.routing.PathSegmentOptionalParameterRouteSelector
