@@ -285,7 +285,6 @@ tasks.jacocoTestReport {
         )
     }
 
-
     classDirectories.setFrom(files(classFiles))
     sourceDirectories.setFrom(files(coverageSourceDirs))
 

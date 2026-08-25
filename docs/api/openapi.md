@@ -2,9 +2,11 @@
 
 This document explains how to ensure that request and response schemas are generated for the API and what to do when Ktor cannot infer them.
 
-## 1. Make sure request and response schemas are generated
+## 3. Make sure request and response schemas are generated
 
 Ktor can infer OpenAPI schemas from the types used in `call.receive<T>()` and `call.respond(...)`.
+
+For example:
 
 ```kotlin
 @Serializable
@@ -22,7 +24,9 @@ data class UserResponse(
 
 post("/users") {
     val request = call.receive<CreateUserRequest>()
+
     val user = createUser(request)
+
     call.respond<UserResponse>(user)
 }
 ```
@@ -54,9 +58,11 @@ components:
           type: string
 ```
 
-## 2. If request/response schemas are missing
+## If request/response schemas are missing
 
-First make sure **code inference** is enabled in the Ktor OpenAPI configuration:
+First make sure:
+
+1. `codeInferenceEnabled = true` is enabled:
 
 ```kotlin
 ktor {
@@ -68,31 +74,40 @@ ktor {
 }
 ```
 
-### Ensure your DTOs are explicitly typed and serializable
+2. Your DTOs are explicitly typed:
 
 ```kotlin
 call.receive<CreateUserRequest>()
+```
+
+and preferably:
+
+```kotlin
 call.respond<UserResponse>(response)
 ```
 
-Prefer using the typed `respond` overload rather than the generic `call.respond(response)`.
+instead of relying on an untyped value:
 
-Make sure the DTO classes are annotated with `@Serializable`.
+```kotlin
+call.respond(response)
+```
+
+3. DTOs are serializable:
 
 ```kotlin
 @Serializable
 data class UserResponse(...)
 ```
 
-### Add the OpenAPI routing dependency
+4. `ktor-server-routing-openapi` is present:
 
 ```kotlin
 implementation("io.ktor:ktor-server-routing-openapi:<ktor-version>")
 ```
 
-## 3. When Ktor still cannot infer the schema
+## If Ktor still cannot infer the schema
 
-You can explicitly describe the request/response in the route using the `describe` DSL:
+You can explicitly describe the request/response in the route:
 
 ```kotlin
 post("/users") {
@@ -107,11 +122,11 @@ post("/users") {
 }
 ```
 
-The exact API for explicit descriptions depends on the Ktor version, so prefer compiler inference first and add explicit OpenAPI metadata only where inference is insufficient.
+The exact API for explicit descriptions depends on the Ktor version, so **prefer compiler inference first** and add explicit OpenAPI metadata only where inference is insufficient.
 
-## 4. Summary workflow
+In practice, the recommended approach is:
 
-```
+```text
 DTO
  ↓
 @Serializable
@@ -124,4 +139,4 @@ Ktor compiler inference
 OpenAPI schema
 ```
 
-Following this approach avoids manually maintaining schemas and keeps the OpenAPI documentation synchronized with the Kotlin types.
+This avoids manually maintaining schemas and keeps the OpenAPI documentation synchronized with the Kotlin types.
