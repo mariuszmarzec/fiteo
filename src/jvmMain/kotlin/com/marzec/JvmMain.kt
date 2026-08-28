@@ -51,6 +51,16 @@ import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
+import io.ktor.server.plugins.openapi.openAPI
+import io.ktor.openapi.OpenApiInfo
+import io.ktor.server.routing.openapi.OpenApiDocSource
+import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.routing.PathSegmentConstantRouteSelector
+import io.ktor.server.routing.PathSegmentParameterRouteSelector
+import io.ktor.server.routing.PathSegmentOptionalParameterRouteSelector
+import io.ktor.server.routing.PathSegmentWildcardRouteSelector
+import io.ktor.server.routing.PathSegmentTailcardRouteSelector
+import io.ktor.server.routing.TrailingSlashRouteSelector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -116,6 +126,21 @@ fun Application.module() {
             fiteoApi(di, api)
             sse(di)
         }
+
+        // OpenAPI and Swagger UI endpoints with route filtering.
+        // Exclude test routes, scripts panel and static assets while keeping SSE.
+        openAPI(path = "openapi") {
+            info = OpenApiInfo("Fiteo API", "1.0")
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+            }
+        }
+        swaggerUI(path = "swagger") {
+            info = OpenApiInfo("Fiteo API", "1.0")
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+            }
+        }
     }
 }
 
@@ -130,6 +155,34 @@ private fun clearSessionsInPeriod(scope: CoroutineScope, di: Di, testDi: Di) {
             delay(period)
         }
     }
+}
+
+/**
+ * Determines whether a [Route] should be excluded from the generated OpenAPI spec.
+ * Excludes root static resources, the client script, the scripts panel, and any test routes.
+ * Keeps the /sse endpoint intact.
+ */
+private fun Route.manulExcludedFromOpenApi(): Boolean {
+    val path = buildString {
+        var r: Route? = this@manulExcludedFromOpenApi
+        while (r != null) {
+            when (val selector = r.selector) {
+                is PathSegmentConstantRouteSelector -> insert(0, "/" + selector.value)
+                is PathSegmentParameterRouteSelector -> insert(0, "/{" + selector.name + "}")
+                is PathSegmentOptionalParameterRouteSelector -> insert(0, "/{" + selector.name + "?}")
+                is PathSegmentWildcardRouteSelector -> insert(0, "/*")
+                is PathSegmentTailcardRouteSelector -> insert(0, "/{" + selector.name + "}")
+                is TrailingSlashRouteSelector -> insert(0, "/")
+                else -> Unit
+            }
+            r = r.parent
+        }
+    }
+    // Exclude static index, client script, scripts panel and any test routes.
+    return path == "/" ||
+        path.startsWith("/fiteo.js") ||
+        path.startsWith("/scripts") ||
+        path.startsWith("/test")
 }
 
 fun Application.configuration(di: Di) {
