@@ -5,6 +5,7 @@ import com.marzec.fiteo.services.NotificationType
 import com.marzec.todo.model.SharePermission
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.TaskShare
+import com.marzec.todo.model.toDto
 import io.mockk.mockk
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -23,7 +24,7 @@ class TodoRepositoryImplTest {
     }
 
     @Test
-    fun `removeTask_shouldHaveNotificationLogicForSharee()`() {
+    fun `removeTask_shouldHaveNotificationLogicForSharee`() {
         // Test verifies the refactored method signature and conditional logic
         // When a sharee (userId != ownerId) removes a task, sendNotificationIfNeeded is called
         val ownerId = 1
@@ -51,7 +52,7 @@ class TodoRepositoryImplTest {
     }
 
     @Test
-    fun `sendNotificationIfNeeded_shouldTakeOnlyRemovedTaskParam()`() {
+    fun `sendNotificationIfNeeded_shouldTakeOnlyRemovedTaskParam`() {
         // This test verifies the refactored method signature
         // The method now only takes removedTask param (not userId and task)
         val removedTask = Task(

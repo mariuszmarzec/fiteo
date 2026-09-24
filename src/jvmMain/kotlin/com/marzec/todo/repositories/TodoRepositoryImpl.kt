@@ -243,9 +243,7 @@ class TodoRepositoryImpl(
 
         val task = taskEntity.toDomain(getShares(taskId))
         removeInternal(taskEntity, userId, removeWithSubtasks)
-        if (userId != task.ownerId) {
-            sendNotificationIfNeeded(task)
-        }
+        sendNotificationIfNeeded(task)
         task
     }
 
