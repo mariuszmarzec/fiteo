@@ -243,18 +243,16 @@ class TodoRepositoryImpl(
 
         val task = taskEntity.toDomain(getShares(taskId))
         removeInternal(taskEntity, userId, removeWithSubtasks)
-        sendNotificationIfNeeded(task, userId, task)
+        sendNotificationIfNeeded(task)
         task
     }
 
     private fun sendNotificationIfNeeded(
-        removedTask: Task,
-        userId: Int,
-        task: Task
+        removedTask: Task
     ) {
         val removedTaskDto = removedTask.toDto()
-        fcmService.sendPushNotification(userId, removedTaskDto, NotificationType.TASK_REMOVED)
-        task.shares.forEach { share ->
+        fcmService.sendPushNotification(removedTask.ownerId, removedTaskDto, NotificationType.TASK_REMOVED)
+        removedTask.shares.forEach { share ->
             fcmService.sendPushNotification(share.userId, removedTaskDto, NotificationType.TASK_REMOVED)
         }
     }
