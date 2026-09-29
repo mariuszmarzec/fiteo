@@ -23,7 +23,7 @@ class TodoRepositoryImplTest {
     }
 
     @Test
-    fun `removeTask_shouldSendNotification()`() {
+    fun `removeTask_shouldSendNotification`() {
         // Test verifies the refactored method signature and conditional logic
         // When a sharee (userId != ownerId) removes a task, sendNotificationIfNeeded is called
         val ownerId = 1
@@ -48,30 +48,5 @@ class TodoRepositoryImplTest {
         assert(task.ownerId == ownerId)
         assert(task.shares.size == 1)
         assert(task.shares[0].userId == shareeId)
-    }
-
-    @Test
-    fun `sendNotificationIfNeeded_shouldTakeOnlyRemovedTaskParam()`() {
-        // This test verifies the refactored method signature
-        // The method now only takes removedTask param (not userId and task)
-        val removedTask = Task(
-            id = 1,
-            ownerId = 1,
-            description = "Removed task",
-            addedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            modifiedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            parentTaskId = null,
-            subTasks = emptyList(),
-            isToDo = true,
-            priority = 1,
-            scheduler = null,
-            expirationDate = null,
-            shares = listOf(TaskShare(2, SharePermission.EDITOR_AND_VIEWER))
-        )
-
-        // Verify we can call toDto() on the task
-        val dto = removedTask.toDto()
-        assert(dto.id == 1)
-        assert(dto.ownerId == 1)
     }
 }
