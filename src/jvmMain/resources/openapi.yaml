@@ -1,0 +1,1029 @@
+openapi: 3.0.3
+info:
+  title: Fiteo API
+  version: 1.0.0
+  description: API for the Fiteo fitness tracking application
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /:
+    get:
+      summary: Index page
+      responses:
+        '200':
+          description: HTML index page
+
+  /fiteo/categories:
+    get:
+      summary: Get all categories
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDto'
+
+  /fiteo/categories/{id}:
+    get:
+      summary: Get a category by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+    delete:
+      summary: Delete a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+
+  /fiteo/categories/create:
+    post:
+      summary: Create a new category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+      responses:
+        '201':
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+
+  /fiteo/categories/update:
+    put:
+      summary: Update a category
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategory'
+      responses:
+        '200':
+          description: Updated category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDto'
+
+  /fiteo/equipment:
+    get:
+      summary: Get all equipment
+      responses:
+        '200':
+          description: List of equipment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EquipmentDto'
+
+  /fiteo/equipment/{id}:
+    get:
+      summary: Get equipment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Equipment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentDto'
+    delete:
+      summary: Delete equipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentDto'
+
+  /fiteo/equipment/create:
+    post:
+      summary: Create new equipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentDto'
+      responses:
+        '201':
+          description: Created equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentDto'
+
+  /fiteo/equipment/update:
+    put:
+      summary: Update equipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEquipment'
+      responses:
+        '200':
+          description: Updated equipment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentDto'
+
+  /fiteo/exercises:
+    get:
+      summary: Get all exercises
+      responses:
+        '200':
+          description: List of exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExerciseDto'
+
+  /fiteo/exercise/{id}:
+    get:
+      summary: Get an exercise by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Exercise details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDto'
+    delete:
+      summary: Delete an exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted exercise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDto'
+
+  /fiteo/exercise/create:
+    post:
+      summary: Create a new exercise
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExerciseDto'
+      responses:
+        '201':
+          description: Created exercise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDto'
+
+  /fiteo/exercise/update:
+    put:
+      summary: Update an exercise
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExerciseDto'
+      responses:
+        '200':
+          description: Updated exercise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExerciseDto'
+
+  /fiteo/users:
+    get:
+      summary: Get all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+
+  /fiteo/login:
+    post:
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /fiteo/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequestDto'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /fiteo/user:
+    get:
+      summary: Get current user
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /fiteo/feature-toggle:
+    get:
+      summary: List all feature toggles
+      responses:
+        '200':
+          description: List of feature toggles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeatureToggleDto'
+
+  /fiteo/feature-toggle/{id}:
+    get:
+      summary: Get a feature toggle by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Feature toggle details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureToggleDto'
+    delete:
+      summary: Delete a feature toggle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted feature toggle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureToggleDto'
+
+  /fiteo/feature-toggle/create:
+    post:
+      summary: Create a new feature toggle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewFeatureToggleDto'
+      responses:
+        '201':
+          description: Created feature toggle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureToggleDto'
+
+  /fiteo/feature-toggle/update:
+    put:
+      summary: Update a feature toggle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeatureToggle'
+      responses:
+        '200':
+          description: Updated feature toggle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureToggleDto'
+
+  /fiteo/fcm-token:
+    post:
+      summary: Add an FCM token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFcmTokenDto'
+      responses:
+        '201':
+          description: Token added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FcmTokenDto'
+    delete:
+      summary: Delete an FCM token
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted successfully
+
+  /fiteo/training-templates:
+    get:
+      summary: List all training templates
+      responses:
+        '200':
+          description: List of training templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingTemplateDto'
+
+  /fiteo/training-templates/{id}:
+    get:
+      summary: Get a training template by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Training template details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingTemplateDto'
+    delete:
+      summary: Delete a training template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted training template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingTemplateDto'
+
+  /fiteo/training-templates/create:
+    post:
+      summary: Create a new training template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingTemplateDto'
+      responses:
+        '201':
+          description: Created training template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingTemplateDto'
+
+  /fiteo/training-templates/update:
+    put:
+      summary: Update a training template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingTemplateDto'
+      responses:
+        '200':
+          description: Updated training template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingTemplateDto'
+
+  /fiteo/trainings:
+    get:
+      summary: List all trainings
+      responses:
+        '200':
+          description: List of trainings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingDto'
+
+  /fiteo/trainings/{id}:
+    get:
+      summary: Get a training by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Training details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDto'
+    delete:
+      summary: Delete a training
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted training
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDto'
+
+  /fiteo/trainings/create:
+    post:
+      summary: Create a new training
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTrainingDto'
+      responses:
+        '201':
+          description: Created training
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDto'
+
+  /fiteo/trainings/update:
+    put:
+      summary: Update a training
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrainingDto'
+      responses:
+        '200':
+          description: Updated training
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingDto'
+
+components:
+  schemas:
+    CategoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    EquipmentDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    ExerciseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        animationImageName:
+          type: string
+          nullable: true
+        animationUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+        category:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDto'
+        imagesNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+        imagesUrls:
+          type: array
+          items:
+            type: string
+          nullable: true
+        descriptionsToImages:
+          type: array
+          items:
+            type: string
+          nullable: true
+        imagesMistakesUrls:
+          type: array
+          items:
+            type: string
+          nullable: true
+        imagesMistakesNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+        descriptionsToMistakes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        muscles:
+          type: array
+          items:
+            type: string
+          nullable: true
+        musclesName:
+          type: array
+          items:
+            type: string
+          nullable: true
+        neededEquipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentDto'
+        thumbnailName:
+          type: string
+          nullable: true
+        thumbnailUrl:
+          type: string
+          nullable: true
+
+    CreateExerciseDto:
+      type: object
+      properties:
+        name:
+          type: string
+        animationUrl:
+          type: string
+          nullable: true
+        videoUrl:
+          type: string
+          nullable: true
+        category:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDto'
+        neededEquipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentDto'
+        thumbnailUrl:
+          type: string
+          nullable: true
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        email:
+          type: string
+
+    FeatureToggleDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        value:
+          type: string
+
+    NewFeatureToggleDto:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+
+    UpdateFeatureToggle:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+
+    FcmTokenDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        userId:
+          type: integer
+          format: int32
+        fcmToken:
+          type: string
+        platform:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+
+    CreateFcmTokenDto:
+      type: object
+      properties:
+        fcmToken:
+          type: string
+        platform:
+          type: string
+          nullable: true
+
+    LoginRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+
+    RegisterRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        repeatedPassword:
+          type: string
+
+    UpdateCategory:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+
+    UpdateEquipment:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+
+    TrainingTemplateDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingTemplatePartDto'
+        availableEquipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentDto'
+
+    TrainingTemplatePartDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        pinnedExercise:
+          $ref: '#/components/schemas/ExerciseDto'
+          nullable: true
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDto'
+        excludedExercises:
+          type: array
+          items:
+            type: integer
+        excludedEquipment:
+          type: array
+          items:
+            $ref: '#/components/schemas/EquipmentDto'
+
+    CreateTrainingTemplateDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateTrainingTemplatePartDto'
+        availableEquipmentIds:
+          type: array
+          items:
+            type: string
+
+    CreateTrainingTemplatePartDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          nullable: true
+        name:
+          type: string
+        pinnedExerciseId:
+          type: integer
+          format: int32
+          nullable: true
+        categoryIds:
+          type: array
+          items:
+            type: string
+        excludedExercisesIds:
+          type: array
+          items:
+            type: integer
+        excludedEquipmentIds:
+          type: array
+          items:
+            type: string
+
+    TrainingDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        templateId:
+          type: integer
+          format: int32
+        createDateInMillis:
+          type: string
+        finishDateInMillis:
+          type: string
+        exercisesWithProgress:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingExerciseWithProgressDto'
+
+    TrainingExerciseWithProgressDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          nullable: true
+        exerciseId:
+          type: integer
+          format: int32
+        exercise:
+          $ref: '#/components/schemas/ExerciseDto'
+          nullable: true
+        trainingPartId:
+          type: integer
+          format: int32
+          nullable: true
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeriesDto'
+        name:
+          type: string
+
+    SeriesDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          nullable: true
+        reps:
+          type: integer
+          format: int32
+        weight:
+          type: number
+          format: double
+        trainingExerciseWithProgressId:
+          type: integer
+          format: int32
+          nullable: true
+
+    CreateTrainingDto:
+      type: object
+      properties:
+        templateTrainingId:
+          type: integer
+          format: int32
+
+    UpdateTrainingDto:
+      type: object
+      properties:
+        finishDateInMillis:
+          type: string
+        exercisesWithProgress:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpdateTrainingExerciseWithProgressDto'
+
+    UpdateTrainingExerciseWithProgressDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          nullable: true
+        exerciseId:
+          type: integer
+          format: int32
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeriesDto'
+        trainingPartId:
+          type: integer
+          format: int32
+          nullable: true
+        name:
+          type: string
+
+    ErrorDto:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+
+    ExercisesFileDto:
+      type: object
+      properties:
+        exercises:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExerciseDto'
+
+    NullableFieldDto:
+      type: object
+      properties:
+        value:
+          type: string
+          nullable: true
