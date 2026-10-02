@@ -1,81 +1,82 @@
 package com.marzec.todo.repositories
 
-import com.marzec.database.dbCall
+import com.marzec.database.DbSettings
 import com.marzec.fiteo.services.FcmService
 import com.marzec.fiteo.services.NotificationType
+import com.marzec.todo.database.TaskSharesTable
+import com.marzec.todo.database.TasksTable
 import com.marzec.todo.model.SharePermission
-import com.marzec.todo.model.Task
 import com.marzec.todo.model.TaskShare
 import com.marzec.todo.model.toDto
+import com.marzec.database.UserTable
+import com.marzec.todo.database.TaskToSubtasksTable
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Before
 import org.junit.Test
 
 class TodoRepositoryImplTest {
 
-    private val database = mockk<Database>(relaxed = true)
+    private val database = Database.connect(
+        url = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL",
+        driver = "org.h2.Driver"
+    )
     private val fcmService = mockk<FcmService>(relaxed = true)
     private lateinit var repository: TodoRepositoryImpl
 
     @Before
     fun setUp() {
+        transaction(database) {
+            SchemaUtils.create(UserTable, TasksTable, TaskToSubtasksTable, TaskSharesTable)
+            UserTable.insert {
+                it[UserTable.id] = 1
+                it[UserTable.email] = "owner@test.com"
+                it[UserTable.password] = "password"
+            }
+            UserTable.insert {
+                it[UserTable.id] = 2
+                it[UserTable.email] = "sharee@test.com"
+                it[UserTable.password] = "password"
+            }
+            TasksTable.insert {
+                it[TasksTable.id] = 10
+                it[TasksTable.description] = "Test task"
+                it[TasksTable.addedTime] = LocalDateTime(2021, 5, 16, 0, 0).toJavaLocalDateTime()
+                it[TasksTable.modifiedTime] = LocalDateTime(2021, 5, 16, 0, 0).toJavaLocalDateTime()
+                it[TasksTable.isToDo] = true
+                it[TasksTable.priority] = 1
+                it[TasksTable.scheduler] = ""
+                it[TasksTable.userId] = 1
+            }
+            TaskSharesTable.insert {
+                it[TaskSharesTable.taskId] = 10
+                it[TaskSharesTable.userId] = 2
+                it[TaskSharesTable.ownerId] = 1
+                it[TaskSharesTable.permission] = "EDITOR_AND_VIEWER"
+            }
+        }
         repository = TodoRepositoryImpl(database, fcmService)
     }
 
     @Test
     fun `removeTask_shouldSendNotification()`() {
-        // Test verifies the refactored method signature and conditional logic
-        // When a sharee (userId != ownerId) removes a task, sendNotificationIfNeeded is called
-        val ownerId = 1
         val shareeId = 2
+        val taskId = 10
 
-        val task = Task(
-            id = 10,
-            ownerId = ownerId,
-            description = "Test task",
-            addedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            modifiedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            parentTaskId = null,
-            subTasks = emptyList(),
-            isToDo = true,
-            priority = 1,
-            scheduler = null,
-            expirationDate = null,
-            shares = listOf(TaskShare(shareeId, SharePermission.EDITOR_AND_VIEWER))
-        )
+        val removedTask = repository.removeTask(shareeId, taskId, removeWithSubtasks = false)
 
-        // Verify task structure is correct
-        assert(task.ownerId == ownerId)
-        assert(task.shares.size == 1)
-        assert(task.shares[0].userId == shareeId)
-    }
-
-    @Test
-    fun `sendNotificationIfNeeded_shouldTakeOnlyRemovedTaskParam()`() {
-        // This test verifies the refactored method signature
-        // The method now only takes removedTask param (not userId and task)
-        val removedTask = Task(
-            id = 1,
-            ownerId = 1,
-            description = "Removed task",
-            addedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            modifiedTime = LocalDateTime(2021, 5, 16, 0, 0),
-            parentTaskId = null,
-            subTasks = emptyList(),
-            isToDo = true,
-            priority = 1,
-            scheduler = null,
-            expirationDate = null,
-            shares = listOf(TaskShare(2, SharePermission.EDITOR_AND_VIEWER))
-        )
-
-        // Verify we can call toDto() on the task
-        val dto = removedTask.toDto()
-        assert(dto.id == 1)
-        assert(dto.ownerId == 1)
+        verify(exactly = 1) {
+            fcmService.sendPushNotification(removedTask.ownerId, removedTask.toDto(), NotificationType.TASK_REMOVED)
+        }
+        verify(exactly = 1) {
+            fcmService.sendPushNotification(shareeId, removedTask.toDto(), NotificationType.TASK_REMOVED)
+        }
     }
 }
