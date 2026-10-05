@@ -2,6 +2,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmTest
 import java.util.Properties
 
 buildscript {
@@ -28,7 +29,6 @@ plugins {
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
-    jacoco
 }
 
 val configurationProperties: Properties = Properties()
@@ -73,12 +73,6 @@ kotlin {
             jvmTarget = JvmTarget.fromTarget("17")
         }
 
-        tasks.test {
-            useJUnitPlatform()
-            testLogging {
-                events("passed", "skipped", "failed")
-            }
-        }
     }
     js {
         browser {
@@ -181,6 +175,15 @@ kotlin {
     }
 }
 
+
+
+tasks.named<KotlinJvmTest>("jvmTest") {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+}
+
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
 tasks.named<Jar>("jvmJar") {
     archiveBaseName.set("fiteo")
@@ -246,41 +249,6 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
-    }
-}
-
-tasks.jacocoTestReport {
-
-    val coverageSourceDirs = fileTree(
-        baseDir = project.projectDir
-    ) {
-        include(
-            "**/src/commonMain/**",
-            "**/src/jvmMain/**"
-        )
-    }
-
-    val classFiles = fileTree(
-        baseDir = buildDir
-    ) {
-        include(
-            "**/*.class"
-        )
-        exclude(
-            "**/org/jacoco/**",
-            "**/test/com/**"
-        )
-    }
-
-    classDirectories.setFrom(files(classFiles))
-    sourceDirectories.setFrom(files(coverageSourceDirs))
-
-    executionData
-        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
     }
 }
 
