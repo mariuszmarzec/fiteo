@@ -68,17 +68,6 @@ group = projectPackageName
 version = "1.0.0"
 
 
-// Enable Ktor's OpenAPI compiler extension without applying the deployment-oriented Ktor Gradle plugin.
-// This project is Kotlin Multiplatform and still uses Gradle's application plugin for its JVM entrypoint.
-tasks.withType<KotlinCompilationTask<*>>().configureEach {
-    compilerOptions.freeCompilerArgs.addAll(
-        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiEnabled=true",
-        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiCodeInference=true",
-        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiOnlyCommented=false"
-    )
-}
-
-
 kotlin {
 
 
@@ -194,6 +183,17 @@ kotlin {
                 implementation(kotlinWrappers.emotion.css)
                 implementation(kotlinWrappers.emotion.styled)
             }
+        }
+    }
+
+        // The Ktor OpenAPI compiler extension is only needed for the JVM server source set.
+        // Configure the compilation through the KMP DSL so task creation order does not matter.
+        compilations.getByName("main").compileTaskProvider.configure {
+            compilerOptions.freeCompilerArgs.addAll(
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiEnabled=true",
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiCodeInference=true",
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiOnlyCommented=false"
+            )
         }
     }
 }
