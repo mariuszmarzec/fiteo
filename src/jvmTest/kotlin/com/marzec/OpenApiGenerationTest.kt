@@ -11,7 +11,6 @@ import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import org.junit.jupiter.api.Tag
 import java.io.File
 
 class OpenApiGenerationTest {
@@ -50,17 +49,6 @@ class OpenApiGenerationTest {
             val committed = File("src/jvmMain/resources/openapi.yaml").readText()
 
             assertThat(committed).isEqualTo(generated)
-        }
-    }
-
-    @Test
-    @Tag("openapi-generator")
-    fun generateOpenApiSnapshot() {
-        withDefaultMockTestApplication {
-            startApplication()
-
-            val generated = application.generateOpenApiSnapshot(ContentType.parse("application/yaml"))
-            File("src/jvmMain/resources/openapi.yaml").writeText(generated)
         }
     }
 }
