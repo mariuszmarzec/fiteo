@@ -52,6 +52,7 @@ import io.ktor.server.sessions.*
 import io.ktor.server.sse.*
 import io.ktor.sse.*
 import io.ktor.server.plugins.openapi.openAPI
+import io.ktor.openapi.OpenApiDoc
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.plugins.swagger.swaggerUI
@@ -131,15 +132,11 @@ fun Application.module() {
         // Exclude test routes, scripts panel and static assets while keeping SSE.
         openAPI(path = "openapi") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
-                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
-            }
+            source = openApiDocSource(ContentType.Application.Json)
         }
         swaggerUI(path = "swagger") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
-                routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
-            }
+            source = openApiDocSource(ContentType.Application.Json)
         }
     }
 }
@@ -183,6 +180,23 @@ private fun Route.manulExcludedFromOpenApi(): Boolean {
         path.startsWith("/fiteo.js") ||
         path.startsWith("/scripts") ||
         path.startsWith("/test")
+}
+
+internal fun openApiDocSource(contentType: ContentType): OpenApiDocSource.Routing {
+    return OpenApiDocSource.Routing(contentType) {
+        routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+    }
+}
+
+internal fun Application.generateOpenApiSnapshot(contentType: ContentType): String {
+    val defaults = OpenApiDoc(
+        info = OpenApiInfo("Fiteo API", "1.0")
+    )
+
+    return openApiDocSource(contentType)
+        .read(this, defaults)
+        ?.content
+        ?: error("OpenAPI source returned no document")
 }
 
 fun Application.configuration(di: Di) {
