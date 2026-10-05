@@ -13,6 +13,7 @@ buildscript {
     }
 
     dependencies {
+    add("kotlinCompilerPluginClasspath", "io.ktor:ktor-compiler-plugin:${Dependency.ktor_version}")
         classpath("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
         classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
@@ -74,19 +75,9 @@ tasks.withType<KotlinCompilationTask<*>>().configureEach {
     )
 }
 
-ktor {
-    openApi {
-        enabled = true
-        codeInferenceEnabled = true
-        onlyCommented = false
-    }
-}
 
 kotlin {
 
-    dependencies {
-        add("kotlinCompilerPluginClasspath", "io.ktor:ktor-compiler-plugin:${Dependency.ktor_version}")
-    }
 
     jvm {
         compilerOptions {
