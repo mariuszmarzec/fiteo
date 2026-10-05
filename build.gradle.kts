@@ -249,6 +249,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
+        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl ?: "")
     }
 }
 
