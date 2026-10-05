@@ -2,7 +2,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.jetbrains.kotlin.gradle.tasks.KotlinJvmTest
+import org.gradle.api.tasks.testing.Test
 import java.util.Properties
 
 buildscript {
@@ -177,7 +177,7 @@ kotlin {
 
 
 
-tasks.named<KotlinJvmTest>("jvmTest") {
+tasks.named<Test>("jvmTest") {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
