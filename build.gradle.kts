@@ -233,7 +233,7 @@ tasks.named("jvmProcessResources") {
 
             if (openapiServerUrl != null && openapiServerUrl.isNotBlank()) {
                 val content = targetSpec.readText()
-                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \" + openapiServerUrl + \"")
+                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \"" + openapiServerUrl + "\"")
                 targetSpec.writeText(updated)
                 println("Replaced OpenAPI server URL with " + openapiServerUrl)
             }
