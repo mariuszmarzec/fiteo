@@ -69,18 +69,3 @@ jobs:
 
       - name: Run JVM tests
         run: ./gradlew jvmTest
-
-
-      # Temporary proof step: generate the authoritative snapshot from Application.module()
-      # even when the committed-snapshot assertion fails. The artifact is used only to bootstrap
-      # the first generated snapshot on this proof branch and is removed before final delivery.
-      - name: Generate OpenAPI snapshot artifact
-        if: always()
-        run: ./gradlew generateOpenApiSpec
-
-      - name: Upload generated OpenAPI snapshot
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-openapi-snapshot
-          path: src/jvmMain/resources/openapi.yaml
