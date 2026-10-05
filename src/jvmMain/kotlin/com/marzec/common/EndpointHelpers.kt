@@ -2,21 +2,15 @@ package com.marzec.common
 
 import com.marzec.Api
 import com.marzec.database.UserPrincipal
-import com.marzec.extensions.emptyString
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
-import io.ktor.server.application.ApplicationCall
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.principal
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.routing.*
-import io.ktor.util.*
-import io.ktor.util.pipeline.PipelineContext
-import kotlin.reflect.KFunction1
+import io.ktor.server.routing.RoutingContext
 
-suspend inline fun <reified T : Any> RoutingContext.respond(response: HttpResponse<T>) {
+suspend fun RoutingContext.respond(response: HttpResponse<*>) {
     when (response) {
         is HttpResponse.Success -> {
             response.headers.forEach { (header, value) ->
@@ -30,72 +24,8 @@ suspend inline fun <reified T : Any> RoutingContext.respond(response: HttpRespon
     }
 }
 
-inline fun <reified T : Any> Route.getByIdEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
-) {
-    get(path) {
-        val httpRequest = receiveHttpRequest(Unit)
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-inline fun <reified T : Any> Route.getAllEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
-) {
-    get(path) {
-        (call.principal<UserPrincipal>()?.id ?: emptyString()).toString()
-        val httpRequest = createHttpRequest(call.principal<UserPrincipal>()?.id)
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-inline fun <reified T : Any> Route.deleteByIdEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
-) {
-    delete(path) {
-        val httpRequest = receiveHttpRequest(Unit)
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.updateByIdEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
-) {
-    patch(path) {
-        val httpRequest = receiveHttpRequest<REQUEST>()
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-inline fun <reified REQUEST : Any, reified RESPONSE : Any> Route.postEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<REQUEST>, HttpResponse<RESPONSE>>
-) {
-    post(path) {
-        val httpRequest = receiveHttpRequest<REQUEST>()
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-inline fun <reified T : Any> Route.getBySessionEndpoint(
-    path: String,
-    apiFunRef: KFunction1<HttpRequest<Unit>, HttpResponse<T>>
-) {
-    get(path) {
-        val httpRequest = receiveHttpRequest(Unit)
-        respond(apiFunRef(httpRequest))
-    }
-}
-
-suspend inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest() =
-    receiveHttpRequest(call.receive<REQUEST>())
-
-inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest(dto: REQUEST) = HttpRequest(
-    data = dto,
+fun <T> RoutingContext.createHttpRequest(data: T): HttpRequest<T> = HttpRequest(
+    data = data,
     parameters = mapOf(
         Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
     ),
