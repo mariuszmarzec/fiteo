@@ -4,15 +4,14 @@ import com.google.common.truth.Truth.assertThat
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.io.File
 
 class OpenApiTest {
 
     @Test
-    fun generatedOpenApi_containsAllRoutesFromApplicationRoutingTree() = runBlocking {
-        withDefaultMockTestApplication(withDbClear = false) {
+    fun generatedOpenApi_containsAllRoutesFromApplicationRoutingTree() {
+        withDefaultMockTestApplication {
             val response = client.get("/swagger/openapi.yaml")
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
