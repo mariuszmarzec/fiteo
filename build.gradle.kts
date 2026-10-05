@@ -194,8 +194,6 @@ kotlin {
             }
         }
     }
-
-    }
 }
 
 // Export the committed OpenAPI snapshot to the repository root.
