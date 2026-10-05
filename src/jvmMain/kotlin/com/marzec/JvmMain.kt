@@ -310,7 +310,9 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
     }
 }
 
-fun Route.register(api: Controller) = postEndpoint(ApiPath.REGISTRATION, api::postRegister)
+fun Route.register(api: Controller) = post(ApiPath.REGISTRATION) {
+    respond(api.postRegister(createHttpRequest(call.receive<LoginRequestDto>())))
+}
 
 fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
@@ -405,6 +407,10 @@ fun Route.logout(di: Di) {
     }
 }
 
-fun Route.user(api: Controller) = getBySessionEndpoint(ApiPath.USER, api::getUser)
+fun Route.user(api: Controller) = get(ApiPath.USER) {
+    respond(api.getUser(createHttpRequest(Unit)))
+}
 
-fun Route.users(api: Controller) = getBySessionEndpoint(ApiPath.USERS, api::getUsers)
+fun Route.users(api: Controller) = get(ApiPath.USERS) {
+    respond(api.getUsers(createHttpRequest(Unit)))
+}
