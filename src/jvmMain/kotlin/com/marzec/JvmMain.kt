@@ -1,5 +1,6 @@
 package com.marzec
 
+import com.marzec.fiteo.BuildKonfig
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.marzec.Api.Auth
