@@ -162,7 +162,6 @@ kotlin {
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
-                implementation("com.h2database:h2:${Dependency.h2_version}")
             }
         }
         val jsMain by getting {
