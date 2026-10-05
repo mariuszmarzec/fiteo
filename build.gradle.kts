@@ -2,7 +2,6 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.gradle.api.tasks.testing.Test
 import java.util.Properties
 
 buildscript {
@@ -25,10 +24,16 @@ buildscript {
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
     id("io.ktor.plugin") version Dependency.ktor_version
+    application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
+    jacoco
+}
+
+application {
+    mainClass.set("com.marzec.JvmMainKt")
 }
 
 val configurationProperties: Properties = Properties()
@@ -73,6 +78,12 @@ kotlin {
             jvmTarget = JvmTarget.fromTarget("17")
         }
 
+        tasks.test {
+            useJUnitPlatform()
+            testLogging {
+                events("passed", "skipped", "failed")
+            }
+        }
     }
     js {
         browser {
@@ -118,6 +129,9 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-swagger:${Dependency.ktor_version}")
 
                 implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
@@ -151,6 +165,7 @@ kotlin {
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
+                implementation("com.h2database:h2:${Dependency.h2_version}")
             }
         }
         val jsMain by getting {
@@ -172,15 +187,6 @@ kotlin {
                 implementation(kotlinWrappers.emotion.styled)
             }
         }
-    }
-}
-
-
-
-tasks.named<Test>("jvmTest") {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
     }
 }
 
@@ -217,6 +223,29 @@ tasks.named<Jar>("jvmJar") {
     )
 }
 
+tasks.getByName<JavaExec>("run") {
+    dependsOn("jvmJar")
+
+    val jvmTarget = kotlin.targets.getByName("jvm")
+    val jvmMain = jvmTarget.compilations.getByName("main")
+    mainClass.set("com.marzec.JvmMainKt")
+
+    classpath = files(tasks["jvmJar"].outputs.files) +
+            jvmMain.runtimeDependencyFiles!! +
+            jvmMain.output.allOutputs
+}
+
+distributions {
+    main {
+        contents {
+            from("$buildDir/libs") {
+                rename("${rootProject.name}-jvm", rootProject.name)
+                into("lib")
+            }
+        }
+    }
+}
+
 flyway {
     if (dbMigration == "test") {
         url = dbTestEndpoint
@@ -251,6 +280,58 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
         buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl ?: "")
     }
+}
+
+tasks.jacocoTestReport {
+
+    val coverageSourceDirs = fileTree(
+        baseDir = project.projectDir
+    ) {
+        include(
+            "**/src/commonMain/**",
+            "**/src/jvmMain/**"
+        )
+    }
+
+    val classFiles = fileTree(
+        baseDir = buildDir
+    ) {
+        include(
+            "**/*.class"
+        )
+        exclude(
+            "**/org/jacoco/**",
+            "**/test/com/**"
+        )
+    }
+
+    classDirectories.setFrom(files(classFiles))
+    sourceDirectories.setFrom(files(coverageSourceDirs))
+
+    executionData
+        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+
+// Generates the runtime OpenAPI document from the real application routing tree.
+tasks.register<Test>("generateOpenApiSnapshot") {
+    val jvmTest = tasks.named<Test>("jvmTest").get()
+    dependsOn(jvmTest)
+    testClassesDirs = jvmTest.testClassesDirs
+    classpath = jvmTest.classpath
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
+    }
+    systemProperty(
+        "openapi.snapshot.output",
+        layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml").asFile.absolutePath
+    )
 }
 
 detekt {
