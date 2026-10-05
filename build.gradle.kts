@@ -24,16 +24,11 @@ buildscript {
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
     id("io.ktor.plugin") version Dependency.ktor_version
-    application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
     jacoco
-}
-
-application {
-    mainClass.set("com.marzec.JvmMainKt")
 }
 
 val configurationProperties: Properties = Properties()
@@ -217,29 +212,6 @@ tasks.named<Jar>("jvmJar") {
         if (project.hasProperty("isProduction")) "jsBrowserProductionWebpack"
         else "jsBrowserDevelopmentWebpack"
     )
-}
-
-tasks.getByName<JavaExec>("run") {
-    dependsOn("jvmJar")
-
-    val jvmTarget = kotlin.targets.getByName("jvm")
-    val jvmMain = jvmTarget.compilations.getByName("main")
-    mainClass.set("com.marzec.JvmMainKt")
-
-    classpath = files(tasks["jvmJar"].outputs.files) +
-            jvmMain.runtimeDependencyFiles!! +
-            jvmMain.output.allOutputs
-}
-
-distributions {
-    main {
-        contents {
-            from("$buildDir/libs") {
-                rename("${rootProject.name}-jvm", rootProject.name)
-                into("lib")
-            }
-        }
-    }
 }
 
 flyway {
