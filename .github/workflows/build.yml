@@ -78,6 +78,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: openapi-snapshot
-          path: |
-            openapi.yaml
-            src/jvmMain/resources/openapi.yaml
+          path: src/jvmMain/resources/openapi.yaml
