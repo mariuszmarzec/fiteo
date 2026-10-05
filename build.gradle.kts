@@ -13,7 +13,6 @@ buildscript {
     }
 
     dependencies {
-    add("kotlinCompilerPluginClasspath", "io.ktor:ktor-compiler-plugin:${Dependency.ktor_version}")
         classpath("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
         classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
         classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
@@ -31,6 +30,10 @@ plugins {
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
     jacoco
+}
+
+dependencies {
+    add("kotlinCompilerPluginClasspath", "io.ktor:ktor-compiler-plugin:${Dependency.ktor_version}")
 }
 
 application {
