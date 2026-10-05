@@ -23,6 +23,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
+    id("io.ktor.plugin") version Dependency.ktor_version
     application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
@@ -61,6 +62,14 @@ repositories {
 }
 group = projectPackageName
 version = "1.0.0"
+
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = true
+        onlyCommented = false
+    }
+}
 
 kotlin {
 
@@ -172,41 +181,6 @@ kotlin {
                 implementation(kotlinWrappers.reactRouter)
                 implementation(kotlinWrappers.emotion.css)
                 implementation(kotlinWrappers.emotion.styled)
-            }
-        }
-    }
-}
-
-// Export the committed openapi.yaml snapshot to the repository root
-tasks.register("exportOpenApiSpec") {
-    group = "documentation"
-    description = "Exports the committed openapi.yaml snapshot to the repository root"
-    doLast {
-        val spec = layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml")
-        if (spec.asFile.exists()) {
-            spec.asFile.copyTo(layout.projectDirectory.file("openapi.yaml").asFile, overwrite = true)
-            println("openapi.yaml snapshot exported to repository root")
-        } else {
-            throw GradleException("src/jvmMain/resources/openapi.yaml not found")
-        }
-    }
-}
-
-// Automatically copy generated OpenAPI spec to repository root during build
-tasks.named("jvmProcessResources") {
-    doLast {
-        val generatedSpec = file("build/processedResources/jvm/main/openapi.yaml")
-        val targetSpec = file("openapi.yaml")
-
-        if (generatedSpec.exists()) {
-            generatedSpec.copyTo(targetSpec, overwrite = true)
-            println("Automatically copied openapi.yaml to repository root")
-            // Replace server URL if configured
-            if (openapiServerUrl != null && openapiServerUrl.isNotBlank()) {
-                val content = targetSpec.readText()
-                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \"${openapiServerUrl}\"")
-                targetSpec.writeText(updated)
-                println("Replaced OpenAPI server URL with ${openapiServerUrl}")
             }
         }
     }
