@@ -1,7 +1,6 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.util.Properties
 import org.gradle.api.tasks.testing.Test
 
@@ -84,6 +83,16 @@ kotlin {
             testLogging {
                 events("passed", "skipped", "failed")
             }
+        }
+
+        // The Ktor OpenAPI compiler extension is only needed for the JVM server source set.
+        // Configure the compilation through the KMP DSL so task creation order does not matter.
+        compilations.getByName("main").compileTaskProvider.configure {
+            compilerOptions.freeCompilerArgs.addAll(
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiEnabled=true",
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiCodeInference=true",
+                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiOnlyCommented=false"
+            )
         }
     }
     js {
@@ -186,15 +195,6 @@ kotlin {
         }
     }
 
-        // The Ktor OpenAPI compiler extension is only needed for the JVM server source set.
-        // Configure the compilation through the KMP DSL so task creation order does not matter.
-        compilations.getByName("main").compileTaskProvider.configure {
-            compilerOptions.freeCompilerArgs.addAll(
-                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiEnabled=true",
-                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiCodeInference=true",
-                "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiOnlyCommented=false"
-            )
-        }
     }
 }
 
