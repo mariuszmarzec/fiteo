@@ -311,7 +311,7 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
 }
 
 fun Route.register(api: Controller) = post(ApiPath.REGISTRATION) {
-    respond(api.postRegister(createHttpRequest(call.receive<LoginRequestDto>())))
+    respond(api.postRegister(createHttpRequest(call.receive<RegisterRequestDto>())))
 }
 
 fun Route.login(api: Controller) {
