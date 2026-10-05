@@ -1,12 +1,14 @@
 package com.marzec.fiteo
 
 import com.marzec.Api
+import com.marzec.core.model.dto.NewFeatureToggleDto
 import com.marzec.common.createHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
 import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.model.http.HttpRequest
+import com.marzec.fiteo.model.dto.*
 import io.ktor.http.ContentType
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
