@@ -80,8 +80,9 @@ kotlin {
         }
 
         tasks.test {
-            useJUnitPlatform {
-                excludeTags("openapi-generator")
+            useJUnitPlatform()
+            filter {
+                excludeTestsMatching("com.marzec.OpenApiSnapshotGeneratorTest")
             }
             testLogging {
                 events("passed", "skipped", "failed")
@@ -216,8 +217,9 @@ tasks.register<Test>("generateOpenApiSpec") {
     testClassesDirs = jvmTestTask.get().testClassesDirs
     classpath = jvmTestTask.get().classpath
 
-    useJUnitPlatform {
-        includeTags("openapi-generator")
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.marzec.OpenApiSnapshotGeneratorTest.generateOpenApiSnapshot")
     }
 }
 
