@@ -321,7 +321,7 @@ tasks.jacocoTestReport {
 // Generates the runtime OpenAPI document from the real application routing tree.
 tasks.register<Test>("generateOpenApiSnapshot") {
     val jvmTest = tasks.named<Test>("jvmTest").get()
-    dependsOn(jvmTest)
+    dependsOn("jvmTestClasses")
     testClassesDirs = jvmTest.testClassesDirs
     classpath = jvmTest.classpath
     useJUnitPlatform()
