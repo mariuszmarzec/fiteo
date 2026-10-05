@@ -131,7 +131,7 @@ fun Application.module() {
         // Exclude test routes, scripts panel and static assets while keeping SSE.
         openAPI(path = "openapi") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            openapiServerUrl?.takeIf { it.isNotBlank() }?.let { url ->
+            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
                 servers { server(url) }
             }
             source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
@@ -140,7 +140,11 @@ fun Application.module() {
         }
         swaggerUI(path = "swagger") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+            remotePath = "openapi.yaml"
+            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
+                servers { server(url) }
+            }
+            source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }
         }
