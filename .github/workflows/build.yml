@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - llm/compile-time-openapi-fix
   pull_request:
     branches:
       - master
