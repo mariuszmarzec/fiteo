@@ -3,9 +3,11 @@ package com.marzec.cheatday
 import com.marzec.common.createHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
+import com.marzec.cheatday.dto.PutWeightDto
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.JsonElement
 
 fun Route.cheatDayApi(
     di: Di,
@@ -29,7 +31,7 @@ fun Route.weight(api: CheatDayController) = get(ApiPath.WEIGHT_BY_ID) {
 }
 
 fun Route.putWeight(api: CheatDayController) = post(ApiPath.WEIGHTS) {
-    respond(api.putWeight(createHttpRequest(call.receive())))
+    respond(api.putWeight(createHttpRequest(call.receive<PutWeightDto>())))
 }
 
 fun Route.removeWeight(api: CheatDayController) = delete(ApiPath.WEIGHT_BY_ID) {
@@ -37,5 +39,5 @@ fun Route.removeWeight(api: CheatDayController) = delete(ApiPath.WEIGHT_BY_ID) {
 }
 
 fun Route.updateWeight(api: CheatDayController) = patch(ApiPath.WEIGHT_BY_ID) {
-    respond(api.updateWeight(createHttpRequest(call.receive())))
+    respond(api.updateWeight(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
 }
