@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import java.util.Properties
+import org.gradle.api.tasks.testing.Test
 
 buildscript {
     repositories {
@@ -28,6 +29,7 @@ plugins {
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
+    id("io.ktor.plugin") version Dependency.ktor_version
     jacoco
 }
 
@@ -62,6 +64,14 @@ repositories {
 group = projectPackageName
 version = "1.0.0"
 
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = true
+        onlyCommented = false
+    }
+}
+
 kotlin {
 
     jvm {
@@ -70,7 +80,9 @@ kotlin {
         }
 
         tasks.test {
-            useJUnitPlatform()
+            useJUnitPlatform {
+                excludeTags("openapi-generator")
+            }
             testLogging {
                 events("passed", "skipped", "failed")
             }
@@ -177,22 +189,39 @@ kotlin {
     }
 }
 
-// Export the committed openapi.yaml snapshot to the repository root
+// Export the committed OpenAPI snapshot to the repository root.
 tasks.register("exportOpenApiSpec") {
     group = "documentation"
-    description = "Exports the committed openapi.yaml snapshot to the repository root"
+    description = "Exports the committed OpenAPI snapshot to the repository root"
     doLast {
         val spec = layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml")
-        if (spec.asFile.exists()) {
-            spec.asFile.copyTo(layout.projectDirectory.file("openapi.yaml").asFile, overwrite = true)
-            println("openapi.yaml snapshot exported to repository root")
-        } else {
+        if (!spec.asFile.exists()) {
             throw GradleException("src/jvmMain/resources/openapi.yaml not found")
         }
+
+        spec.asFile.copyTo(layout.projectDirectory.file("openapi.yaml").asFile, overwrite = true)
+        println("openapi.yaml snapshot exported to repository root")
     }
 }
 
-// Automatically copy generated OpenAPI spec to repository root during build
+// Generate the committed OpenAPI snapshot from the real Application routing tree.
+// This is intentionally opt-in because it updates a tracked source file.
+val jvmTestTask = tasks.named<Test>("jvmTest")
+
+tasks.register<Test>("generateOpenApiSpec") {
+    group = "documentation"
+    description = "Generates the committed OpenAPI snapshot from Application.module()"
+    dependsOn("jvmTestClasses")
+
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
+
+    useJUnitPlatform {
+        includeTags("openapi-generator")
+    }
+}
+
+// Automatically copy the committed OpenAPI snapshot to repository root during build.
 tasks.named("jvmProcessResources") {
     doLast {
         val generatedSpec = file("build/processedResources/jvm/main/openapi.yaml")
@@ -200,18 +229,17 @@ tasks.named("jvmProcessResources") {
 
         if (generatedSpec.exists()) {
             generatedSpec.copyTo(targetSpec, overwrite = true)
-            println("Automatically copied openapi.yaml to repository root")
-            // Replace server URL if configured
+            println("Copied committed openapi.yaml snapshot to repository root")
+
             if (openapiServerUrl != null && openapiServerUrl.isNotBlank()) {
                 val content = targetSpec.readText()
-                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \"${openapiServerUrl}\"")
+                val updated = content.replace(Regex("url:\\s*\"[^\"]*\""), "url: \" + openapiServerUrl + \"")
                 targetSpec.writeText(updated)
-                println("Replaced OpenAPI server URL with ${openapiServerUrl}")
+                println("Replaced OpenAPI server URL with " + openapiServerUrl)
             }
         }
     }
 }
-
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
 tasks.named<Jar>("jvmJar") {
     archiveBaseName.set("fiteo")
