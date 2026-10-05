@@ -1,6 +1,5 @@
 package com.marzec
 
-import com.marzec.TestHelpersKt.withDefaultMockTestApplication
 import io.ktor.http.ContentType
 import org.junit.Test
 import java.io.File
