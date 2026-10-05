@@ -29,7 +29,6 @@ plugins {
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
-    id("io.ktor.plugin") version Dependency.ktor_version
     jacoco
 }
 
@@ -64,6 +63,17 @@ repositories {
 group = projectPackageName
 version = "1.0.0"
 
+
+// Enable Ktor's OpenAPI compiler extension without applying the deployment-oriented Ktor Gradle plugin.
+// This project is Kotlin Multiplatform and still uses Gradle's application plugin for its JVM entrypoint.
+tasks.withType<KotlinCompilationTask<*>>().configureEach {
+    compilerOptions.freeCompilerArgs.addAll(
+        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiEnabled=true",
+        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiCodeInference=true",
+        "-P", "plugin:io.ktor.ktor-compiler-plugin:openApiOnlyCommented=false"
+    )
+}
+
 ktor {
     openApi {
         enabled = true
@@ -73,6 +83,10 @@ ktor {
 }
 
 kotlin {
+
+    dependencies {
+        add("kotlinCompilerPluginClasspath", "io.ktor:ktor-compiler-plugin:${Dependency.ktor_version}")
+    }
 
     jvm {
         compilerOptions {
