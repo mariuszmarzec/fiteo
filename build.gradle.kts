@@ -24,7 +24,6 @@ buildscript {
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
     id("io.ktor.plugin") version Dependency.ktor_version
-    application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
@@ -32,9 +31,6 @@ plugins {
     jacoco
 }
 
-application {
-    mainClass.set("com.marzec.JvmMainKt")
-}
 
 val configurationProperties: Properties = Properties()
 configurationProperties.load(project.rootProject.file("local.properties").inputStream())
