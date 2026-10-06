@@ -26,7 +26,7 @@ echo "==> Generating OpenAPI snapshot..."
 }
 
 echo "==> Updating Markdown API documentation with OpenCode..."
-opencode run "$(cat "$PROMPT_FILE")"
+opencode run --agent build "$(cat "$PROMPT_FILE")"
 
 echo "==> API documentation update finished."
 echo "Review the changes with: git diff -- docs/api"
