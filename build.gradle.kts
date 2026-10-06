@@ -50,7 +50,7 @@ val dbTestPassword = configurationProperties.getProperty("database.testPassword"
 val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
 
 val firebaseServiceAccount = configurationProperties.getProperty("firebaseServiceAccount")
-val openapiServerUrl = configurationProperties.getProperty("openapi.server.url")
+val openapiServerUrl = configurationProperties.getProperty("openapi.server.url", "http://localhost:5000")
 
 val projectPackageName = "com.marzec.fiteo"
 
