@@ -402,7 +402,7 @@ fun Route.logout(di: Di) {
         } else {
             call.sessions.clear<UserSession>()
         }
-        respond(HttpResponse.Success(Unit))
+        call.respond(Unit)
     }
 }
 
