@@ -274,6 +274,41 @@ tasks.register<Test>("generateOpenApiSnapshot") {
     outputs.file("src/jvmMain/resources/openapi.yaml")
 }
 
+tasks.jacocoTestReport {
+
+    val coverageSourceDirs = fileTree(
+        baseDir = project.projectDir
+    ) {
+        include(
+            "**/src/commonMain/**",
+            "**/src/jvmMain/**"
+        )
+    }
+
+    val classFiles = fileTree(
+        baseDir = buildDir
+    ) {
+        include(
+            "**/*.class"
+        )
+        exclude(
+            "**/org/jacoco/**",
+            "**/test/com/**"
+        )
+    }
+
+    classDirectories.setFrom(files(classFiles))
+    sourceDirectories.setFrom(files(coverageSourceDirs))
+
+    executionData
+        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
 detekt {
     source = files(
         "src/commonMain/kotlin",
