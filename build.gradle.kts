@@ -49,6 +49,7 @@ val dbTestPassword = configurationProperties.getProperty("database.testPassword"
 val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
 
 val firebaseServiceAccount = configurationProperties.getProperty("firebaseServiceAccount")
+val openapiServerUrl = configurationProperties.getProperty("openapi.server.url", "http://localhost:5000")
 
 val projectPackageName = "com.marzec.fiteo"
 
@@ -60,6 +61,14 @@ repositories {
 }
 group = projectPackageName
 version = "1.0.0"
+
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = true
+        onlyCommented = false
+    }
+}
 
 kotlin {
 
@@ -285,6 +294,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
+        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl)
     }
 }
 
