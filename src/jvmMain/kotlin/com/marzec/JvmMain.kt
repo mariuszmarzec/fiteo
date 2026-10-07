@@ -8,6 +8,7 @@ import com.marzec.Api.Headers
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.core.currentMillis
@@ -309,12 +310,12 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
 }
 
 fun Route.register(api: Controller) = post(ApiPath.REGISTRATION) {
-    respond(api.postRegister(createHttpRequest(call.receive<RegisterRequestDto>())))
+    respond(api.postRegister(receiveHttpRequest<RegisterRequestDto>()))
 }
 
 fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
-        val loginRequestDto = createHttpRequest(call.receive<LoginRequestDto>())
+        val loginRequestDto = receiveHttpRequest<LoginRequestDto>()
         val httpResponse = api.postLogin(loginRequestDto)
         if (httpResponse is HttpResponse.Success<UserDto>) {
             if (call.request.uri.contains("test/")) {
