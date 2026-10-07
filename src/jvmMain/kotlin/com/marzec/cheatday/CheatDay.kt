@@ -1,6 +1,7 @@
 package com.marzec.cheatday
 
 import com.marzec.common.createHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
 import com.marzec.cheatday.dto.PutWeightDto
@@ -31,7 +32,7 @@ fun Route.weight(api: CheatDayController) = get(ApiPath.WEIGHT_BY_ID) {
 }
 
 fun Route.putWeight(api: CheatDayController) = post(ApiPath.WEIGHTS) {
-    respond(api.putWeight(createHttpRequest(call.receive<PutWeightDto>())))
+    respond(api.putWeight(receiveHttpRequest<PutWeightDto>()))
 }
 
 fun Route.removeWeight(api: CheatDayController) = delete(ApiPath.WEIGHT_BY_ID) {
@@ -39,5 +40,5 @@ fun Route.removeWeight(api: CheatDayController) = delete(ApiPath.WEIGHT_BY_ID) {
 }
 
 fun Route.updateWeight(api: CheatDayController) = patch(ApiPath.WEIGHT_BY_ID) {
-    respond(api.updateWeight(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
+    respond(api.updateWeight(receiveHttpRequest<Map<String, JsonElement?>>()))
 }
