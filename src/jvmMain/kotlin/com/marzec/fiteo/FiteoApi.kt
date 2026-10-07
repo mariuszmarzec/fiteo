@@ -4,6 +4,7 @@ import com.marzec.Api
 import com.marzec.core.model.dto.NewFeatureToggleDto
 import com.marzec.common.createHttpRequest
 import com.marzec.common.receiveHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
 import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
@@ -108,7 +109,7 @@ fun Route.removeTemplate(api: Controller) = delete(TRAINING_TEMPLATE_BY_ID) {
 }
 
 fun Route.updateTemplate(api: Controller) = patch(TRAINING_TEMPLATE_BY_ID) {
-    respond(api.updateTrainingTemplate(createHttpRequest(call.receive<CreateTrainingTemplateDto>())))
+    respond(api.updateTrainingTemplate(receiveHttpRequest<CreateTrainingTemplateDto>()))
 }
 
 fun Route.exercises(api: Controller) = get(ApiPath.EXERCISES) {
@@ -153,7 +154,7 @@ fun Route.createEquipment(api: Controller) = post(ApiPath.EQUIPMENT) {
 }
 
 fun Route.updateEquipment(api: Controller) = patch(ApiPath.EQUIPMENT_BY_ID) {
-    respond(api.updateEquipment(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
+    respond(api.updateEquipment(receiveHttpRequest<Map<String, JsonElement?>>()))
 }
 
 fun Route.deleteEquipment(api: Controller) = delete(ApiPath.EQUIPMENT_BY_ID) {
