@@ -11,7 +11,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 
-suspend inline fun <reified T : Any> RoutingContext.respond(response: HttpResponse<T>) {
+suspend fun RoutingContext.respond(response: HttpResponse<*>) {
     when (response) {
         is HttpResponse.Success -> {
             response.headers.forEach { (header, value) ->
