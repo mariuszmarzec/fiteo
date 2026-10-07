@@ -6,6 +6,7 @@ on:
       - master
       - feature/*
       - bugfix/*
+      - llm/*
   pull_request:
     branches:
       - master
