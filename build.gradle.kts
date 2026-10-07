@@ -257,57 +257,6 @@ buildkonfig {
     }
 }
 
-tasks.jacocoTestReport {
-
-    val coverageSourceDirs = fileTree(
-        baseDir = project.projectDir
-    ) {
-        include(
-            "**/src/commonMain/**",
-            "**/src/jvmMain/**"
-        )
-    }
-
-    val classFiles = fileTree(
-        baseDir = buildDir
-    ) {
-        include(
-            "**/*.class"
-        )
-        exclude(
-            "**/org/jacoco/**",
-            "**/test/com/**"
-        )
-    }
-
-    classDirectories.setFrom(files(classFiles))
-    sourceDirectories.setFrom(files(coverageSourceDirs))
-
-    executionData
-        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
-
-// Generates the runtime OpenAPI document from the real application routing tree.
-tasks.register<Test>("generateOpenApiSnapshot") {
-    val jvmTest = tasks.named<Test>("jvmTest").get()
-    dependsOn("jvmTestClasses")
-    testClassesDirs = jvmTest.testClassesDirs
-    classpath = jvmTest.classpath
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
-    }
-    systemProperty(
-        "openapi.snapshot.output",
-        layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml").asFile.absolutePath
-    )
-}
 
 detekt {
     source = files(
