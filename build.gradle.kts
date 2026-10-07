@@ -2,6 +2,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.util.Properties
 
 buildscript {
@@ -258,8 +259,6 @@ buildkonfig {
 }
 
 
-val jvmTestTask = tasks.named<Test>("jvmTest")
-
 tasks.register<Test>("generateOpenApiSnapshot") {
     description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
     group = "verification"
@@ -274,7 +273,14 @@ tasks.register<Test>("generateOpenApiSnapshot") {
     outputs.file("src/jvmMain/resources/openapi.yaml")
 }
 
-tasks.jacocoTestReport {
+val jvmTestTask = tasks.named<Test>("jvmTest")
+
+jacoco {
+    applyTo(jvmTestTask.get())
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(jvmTestTask)
 
     val coverageSourceDirs = fileTree(
         baseDir = project.projectDir
@@ -299,9 +305,7 @@ tasks.jacocoTestReport {
 
     classDirectories.setFrom(files(classFiles))
     sourceDirectories.setFrom(files(coverageSourceDirs))
-
-    executionData
-        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+    executionData(jvmTestTask)
 
     reports {
         xml.required.set(true)
