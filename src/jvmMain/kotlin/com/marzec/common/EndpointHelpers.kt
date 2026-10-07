@@ -30,7 +30,7 @@ fun <T> RoutingContext.createHttpRequest(data: T): HttpRequest<T> = HttpRequest(
         Api.Args.ARG_ID to call.parameters[Api.Args.ARG_ID],
     ),
     sessions = mapOf(Api.Args.ARG_USER_ID to call.principal<UserPrincipal>()?.id.toString()),
-    queries = call.request.queryParameters.toMap()
+    queries = call.request.queryParameters.entries().associate { it.key to it.value.toList() }
 )
 
 fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
