@@ -2,7 +2,6 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.util.Properties
 
 buildscript {
@@ -274,44 +273,6 @@ tasks.register<Test>("generateOpenApiSnapshot") {
 }
 
 val jvmTestTask = tasks.named<Test>("jvmTest")
-
-jacoco {
-    applyTo(jvmTestTask.get())
-}
-
-tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn(jvmTestTask)
-
-    val coverageSourceDirs = fileTree(
-        baseDir = project.projectDir
-    ) {
-        include(
-            "**/src/commonMain/**",
-            "**/src/jvmMain/**"
-        )
-    }
-
-    val classFiles = fileTree(
-        baseDir = buildDir
-    ) {
-        include(
-            "**/*.class"
-        )
-        exclude(
-            "**/org/jacoco/**",
-            "**/test/com/**"
-        )
-    }
-
-    classDirectories.setFrom(files(classFiles))
-    sourceDirectories.setFrom(files(coverageSourceDirs))
-    executionData(jvmTestTask)
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
 
 detekt {
     source = files(
