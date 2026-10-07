@@ -81,7 +81,7 @@ kotlin {
         }
 
         tasks.withType<Test>().configureEach {
-            useJUnitPlatform()
+            useJUnit()
             testLogging {
                 events("passed", "skipped", "failed")
             }
@@ -151,8 +151,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit5"))
+                implementation(kotlin("test-junit"))
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
 //                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
