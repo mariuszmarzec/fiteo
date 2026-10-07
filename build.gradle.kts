@@ -24,6 +24,7 @@ buildscript {
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
     id("io.ktor.plugin") version Dependency.ktor_version
+    application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
@@ -31,6 +32,9 @@ plugins {
     jacoco
 }
 
+application {
+    mainClass.set("com.marzec.JvmMainKt")
+}
 
 val configurationProperties: Properties = Properties()
 configurationProperties.load(project.rootProject.file("local.properties").inputStream())
@@ -75,7 +79,7 @@ kotlin {
         }
 
         tasks.test {
-            useJUnit()
+            useJUnitPlatform()
             testLogging {
                 events("passed", "skipped", "failed")
             }
@@ -125,10 +129,10 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
+
                 implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-swagger:${Dependency.ktor_version}")
-
                 
                 implementation("org.slf4j:slf4j-api:${Dependency.sl4j_version}")
                 implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")
@@ -158,6 +162,7 @@ kotlin {
 
                 implementation("com.google.truth:truth:${Dependency.truth_version}")
                 implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
+                implementation("com.h2database:h2:${Dependency.h2_version}")
             }
         }
         val jsMain by getting {
@@ -180,6 +185,26 @@ kotlin {
             }
         }
     }
+}
+
+tasks.register<Test>("generateOpenApiSnapshot") {
+    description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
+    group = "verification"
+
+    dependsOn("jvmTest")
+    shouldRunAfter("jvmTest")
+
+    useJUnit()
+    filter {
+        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
+    }
+
+    systemProperty(
+        "openapi.snapshot.output",
+        project.file("src/jvmMain/resources/openapi.yaml").absolutePath
+    )
+
+    outputs.file("src/jvmMain/resources/openapi.yaml")
 }
 
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
@@ -270,7 +295,7 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
-        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl ?: "")
+        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl)
     }
 }
 
@@ -307,23 +332,6 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         html.required.set(true)
     }
-}
-
-
-// Generates the runtime OpenAPI document from the real application routing tree.
-tasks.register<Test>("generateOpenApiSnapshot") {
-    val jvmTest = tasks.named<Test>("jvmTest").get()
-    dependsOn("jvmTestClasses")
-    testClassesDirs = jvmTest.testClassesDirs
-    classpath = jvmTest.classpath
-    useJUnit()
-    filter {
-        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
-    }
-    systemProperty(
-        "openapi.snapshot.output",
-        layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml").asFile.absolutePath
-    )
 }
 
 detekt {
