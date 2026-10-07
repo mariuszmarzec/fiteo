@@ -9,7 +9,6 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
 import com.marzec.common.receiveHttpRequest
-import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.core.currentMillis
@@ -408,9 +407,9 @@ fun Route.logout(di: Di) {
 }
 
 fun Route.user(api: Controller) = get(ApiPath.USER) {
-    respond(api.getUser(createHttpRequest(Unit)))
+    respond(api.getUser(createHttpRequest(call.principal<UserPrincipal>()?.id)))
 }
 
 fun Route.users(api: Controller) = get(ApiPath.USERS) {
-    respond(api.getUsers(createHttpRequest(Unit)))
+    respond(api.getUsers(createHttpRequest(call.principal<UserPrincipal>()?.id)))
 }
