@@ -7,6 +7,7 @@ import com.marzec.fiteo.model.http.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.auth.principal
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 
@@ -38,3 +39,7 @@ fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
     parameters = emptyMap(),
     sessions = mapOf(Api.Args.ARG_USER_ID to userId.toString()),
 )
+
+/** Keeps request decoding outside Ktor/OpenAPI route-builder lambdas. */
+suspend inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest(): HttpRequest<REQUEST> =
+    createHttpRequest(call.receive<REQUEST>())
