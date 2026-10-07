@@ -8,9 +8,9 @@ import com.marzec.di.Di
 import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.model.http.HttpRequest
-import com.marzec.fiteo.model.dto.CreateTrainingDto
-import com.marzec.fiteo.model.dto.UpdateTrainingDto
-import com.marzec.fiteo.model.dto.CreateTrainingTemplateDto
+import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.UpdateTrainingDto
+import com.marzec.fiteo.model.domain.CreateTrainingTemplateDto
 import com.marzec.fiteo.model.dto.CreateExerciseDto
 import com.marzec.fiteo.model.dto.EquipmentDto
 import com.marzec.fiteo.model.dto.CategoryDto
