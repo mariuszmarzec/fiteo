@@ -23,6 +23,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
+    id("io.ktor.plugin") version Dependency.ktor_version
     application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
