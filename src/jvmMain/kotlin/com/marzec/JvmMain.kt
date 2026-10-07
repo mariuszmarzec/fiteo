@@ -9,6 +9,7 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
 import com.marzec.common.receiveHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.core.currentMillis
@@ -332,7 +333,7 @@ fun Route.login(api: Controller) {
 
 private fun Route.loginBearer(api: Controller) {
     post(ApiPath.LOGIN_BEARER) {
-        val loginRequestDto = createHttpRequest(call.receive<LoginRequestDto>())
+        val loginRequestDto = receiveHttpRequest<LoginRequestDto>()
         val httpResponse = api.postLogin(loginRequestDto)
         if (httpResponse is HttpResponse.Success<UserDto>) {
             val secret = "secret"
