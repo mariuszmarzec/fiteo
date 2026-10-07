@@ -172,7 +172,7 @@ fun Route.createCategory(api: Controller) = post(ApiPath.CATEGORIES) {
 }
 
 fun Route.updateCategory(api: Controller) = patch(ApiPath.CATEGORY_BY_ID) {
-    respond(api.updateCategory(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
+    respond(api.updateCategory(receiveHttpRequest<Map<String, JsonElement?>>()))
 }
 
 fun Route.deleteCategory(api: Controller) = delete(ApiPath.CATEGORY_BY_ID) {
@@ -192,7 +192,7 @@ fun Route.createFeatureToggle(api: Controller) = post(ApiPath.FEATURE_TOGGLES) {
 }
 
 fun Route.updateFeatureToggle(api: Controller) = patch(ApiPath.FEATURE_TOGGLE_BY_ID) {
-    respond(api.updateFeatureToggle(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
+    respond(api.updateFeatureToggle(receiveHttpRequest<Map<String, JsonElement?>>()))
 }
 
 fun Route.deleteFeatureToggle(api: Controller) = delete(ApiPath.FEATURE_TOGGLE_BY_ID) {
