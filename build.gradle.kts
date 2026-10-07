@@ -264,8 +264,8 @@ tasks.register<Test>("generateOpenApiSnapshot") {
     description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
     group = "verification"
     dependsOn(jvmTestTask)
-    testClassesDirs = jvmTestTask.map { it.testClassesDirs }
-    classpath = jvmTestTask.map { it.classpath }
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
     useJUnit()
     filter {
         includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
