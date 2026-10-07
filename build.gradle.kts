@@ -184,8 +184,8 @@ tasks.register<Test>("generateOpenApiSnapshot") {
     group = "verification"
 
     dependsOn(jvmTestTask)
-    testClassesDirs = jvmTestTask.get().testClassesDirs
-    classpath = jvmTestTask.get().classpath
+    testClassesDirs = jvmTestTask.map { it.testClassesDirs }
+    classpath = jvmTestTask.map { it.classpath }
 
     useJUnit()
     filter {
