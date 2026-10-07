@@ -1,13 +1,9 @@
 package com.marzec.todo
 
-import com.marzec.common.createHttpRequest
-import com.marzec.common.receiveHttpRequest
-import com.marzec.common.respond
+import com.marzec.common.*
 import com.marzec.di.Di
-import com.marzec.todo.model.*
-import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
-import io.ktor.server.routing.*
+import io.ktor.server.auth.*
+import io.ktor.server.routing.Route
 
 fun Route.todoApi(di: Di, todoController: ToDoApiController) {
     authenticate(di.authToken) {
@@ -21,30 +17,19 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
     }
 }
 
-fun Route.updateTask(api: ToDoApiController) = patch(ApiPath.UPDATE_TASK) {
-    respond(api.updateTask(receiveHttpRequest<UpdateTaskDto>()))
-}
+fun Route.updateTask(api: ToDoApiController) = updateByIdEndpoint(
+    path = ApiPath.UPDATE_TASK,
+    apiFunRef = api::updateTask
+)
 
-fun Route.removeTask(api: ToDoApiController) = delete(ApiPath.DELETE_TASK) {
-    respond(api.removeTask(createHttpRequest(Unit)))
-}
+fun Route.removeTask(api: ToDoApiController) = deleteByIdEndpoint(ApiPath.DELETE_TASK, api::removeTask)
 
-fun Route.tasks(api: ToDoApiController) = get(ApiPath.TASKS) {
-    respond(api.getTasks(createHttpRequest(Unit)))
-}
+fun Route.tasks(api: ToDoApiController) = getAllEndpoint(ApiPath.TASKS, api::getTasks)
 
-fun Route.copyTask(api: ToDoApiController) = get(ApiPath.COPY_TASK) {
-    respond(api.copyTasks(createHttpRequest(Unit)))
-}
+fun Route.copyTask(api: ToDoApiController) = getByIdEndpoint(ApiPath.COPY_TASK, api::copyTasks)
 
-fun Route.addTask(api: ToDoApiController) = post(ApiPath.ADD_TASK) {
-    respond(api.addTask(receiveHttpRequest<CreateTaskDto>()))
-}
+fun Route.addTask(api: ToDoApiController) = postEndpoint(ApiPath.ADD_TASK, api::addTask)
 
-fun Route.markAsToDo(api: ToDoApiController) = post(ApiPath.MARK_AS_TO_DO) {
-    respond(api.markAsToDo(receiveHttpRequest<MarkAsToDoDto>()))
-}
+fun Route.markAsToDo(api: ToDoApiController) = postEndpoint(ApiPath.MARK_AS_TO_DO, api::markAsToDo)
 
-fun Route.leaveShare(api: ToDoApiController) = post(ApiPath.LEAVE_SHARE) {
-    respond(api.leaveShare(receiveHttpRequest<LeaveShareDto>()))
-}
+fun Route.leaveShare(api: ToDoApiController) = postEndpoint(ApiPath.LEAVE_SHARE, api::leaveShare)
