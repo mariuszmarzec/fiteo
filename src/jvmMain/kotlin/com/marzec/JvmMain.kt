@@ -1,5 +1,6 @@
 package com.marzec
 
+import com.marzec.fiteo.BuildKonfig
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.marzec.Api.Auth
@@ -7,8 +8,6 @@ import com.marzec.Api.Headers
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.cheatDayApi
 import com.marzec.common.createHttpRequest
-import com.marzec.common.getBySessionEndpoint
-import com.marzec.common.postEndpoint
 import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.core.CurrentTimeUtil
@@ -25,6 +24,7 @@ import com.marzec.fiteo.fiteoApi
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.scripts.scriptsBasicAuthConfig
@@ -131,13 +131,20 @@ fun Application.module() {
         // Exclude test routes, scripts panel and static assets while keeping SSE.
         openAPI(path = "openapi") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
+                servers { server(url) }
+            }
+            source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }
         }
         swaggerUI(path = "swagger") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
+            remotePath = "openapi.yaml"
+            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
+                servers { server(url) }
+            }
+            source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }
         }
@@ -302,7 +309,9 @@ private fun Route.authorizationApi(api: Controller, di: Di) {
     }
 }
 
-fun Route.register(api: Controller) = postEndpoint(ApiPath.REGISTRATION, api::postRegister)
+fun Route.register(api: Controller) = post(ApiPath.REGISTRATION) {
+    respond(api.postRegister(receiveHttpRequest<RegisterRequestDto>()))
+}
 
 fun Route.login(api: Controller) {
     post(ApiPath.LOGIN) {
@@ -397,6 +406,10 @@ fun Route.logout(di: Di) {
     }
 }
 
-fun Route.user(api: Controller) = getBySessionEndpoint(ApiPath.USER, api::getUser)
+fun Route.user(api: Controller) = get(ApiPath.USER) {
+    respond(api.getUser(createHttpRequest(Unit)))
+}
 
-fun Route.users(api: Controller) = getBySessionEndpoint(ApiPath.USERS, api::getUsers)
+fun Route.users(api: Controller) = get(ApiPath.USERS) {
+    respond(api.getUsers(createHttpRequest(Unit)))
+}
