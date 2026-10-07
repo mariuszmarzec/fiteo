@@ -17,7 +17,7 @@ suspend fun RoutingContext.respond(response: HttpResponse<*>) {
             response.headers.forEach { (header, value) ->
                 call.response.headers.append(header, value)
             }
-            call.respond(response.data)
+            call.respond(response.data as Any?)
         }
         is HttpResponse.Error -> {
             call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)
@@ -43,3 +43,5 @@ fun createHttpRequest(userId: Int?): HttpRequest<Unit> = HttpRequest(
 /** Keeps request decoding outside Ktor/OpenAPI route-builder lambdas. */
 suspend inline fun <reified REQUEST : Any> RoutingContext.receiveHttpRequest(): HttpRequest<REQUEST> =
     createHttpRequest(call.receive<REQUEST>())
+
+fun RoutingContext.createSessionHttpRequest(): HttpRequest<Unit> = createHttpRequest<Unit>(Unit)
