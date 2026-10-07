@@ -1,6 +1,7 @@
 package com.marzec.todo
 
 import com.marzec.common.createHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
 import com.marzec.todo.model.*
@@ -21,7 +22,7 @@ fun Route.todoApi(di: Di, todoController: ToDoApiController) {
 }
 
 fun Route.updateTask(api: ToDoApiController) = patch(ApiPath.UPDATE_TASK) {
-    respond(api.updateTask(createHttpRequest(call.receive<UpdateTaskDto>())))
+    respond(api.updateTask(receiveHttpRequest<UpdateTaskDto>()))
 }
 
 fun Route.removeTask(api: ToDoApiController) = delete(ApiPath.DELETE_TASK) {
@@ -37,13 +38,13 @@ fun Route.copyTask(api: ToDoApiController) = get(ApiPath.COPY_TASK) {
 }
 
 fun Route.addTask(api: ToDoApiController) = post(ApiPath.ADD_TASK) {
-    respond(api.addTask(createHttpRequest(call.receive<CreateTaskDto>())))
+    respond(api.addTask(receiveHttpRequest<CreateTaskDto>()))
 }
 
 fun Route.markAsToDo(api: ToDoApiController) = post(ApiPath.MARK_AS_TO_DO) {
-    respond(api.markAsToDo(createHttpRequest(call.receive<MarkAsToDoDto>())))
+    respond(api.markAsToDo(receiveHttpRequest<MarkAsToDoDto>()))
 }
 
 fun Route.leaveShare(api: ToDoApiController) = post(ApiPath.LEAVE_SHARE) {
-    respond(api.leaveShare(createHttpRequest(call.receive<LeaveShareDto>())))
+    respond(api.leaveShare(receiveHttpRequest<LeaveShareDto>()))
 }
