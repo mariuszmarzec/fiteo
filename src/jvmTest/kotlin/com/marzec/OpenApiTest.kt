@@ -22,7 +22,7 @@ class OpenApiTest {
                 assertThat(document).contains(route)
             }
 
-            assertThat(document).contains("/fiteo/exercises")
+            assertThat(document).contains("/fiteo/api/1/exercises")
             assertThat(document).contains("/cheat/api/1/")
             assertThat(document).contains("/sse")
 
