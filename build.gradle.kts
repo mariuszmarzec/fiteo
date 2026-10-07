@@ -152,9 +152,8 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
+                implementation(kotlin("test-junit5"))
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
-                implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
 //                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
