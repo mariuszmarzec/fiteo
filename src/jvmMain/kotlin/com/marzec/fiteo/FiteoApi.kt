@@ -3,6 +3,7 @@ package com.marzec.fiteo
 import com.marzec.Api
 import com.marzec.core.model.dto.NewFeatureToggleDto
 import com.marzec.common.createHttpRequest
+import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
 import com.marzec.di.Di
 import com.marzec.fiteo.ApiPath.TRAINING_TEMPLATE_BY_ID
@@ -71,7 +72,7 @@ fun Route.users(api: Controller) = get(ApiPath.USERS) {
 }
 
 fun Route.createTraining(api: Controller) = post(ApiPath.TRAININGS) {
-    respond(api.createTraining(createHttpRequest(call.receive<CreateTrainingDto>())))
+    respond(api.createTraining(receiveHttpRequest<CreateTrainingDto>()))
 }
 
 fun Route.getTraining(api: Controller) = get(ApiPath.TRAINING) {
@@ -87,7 +88,7 @@ fun Route.removeTraining(api: Controller) = delete(ApiPath.TRAINING) {
 }
 
 fun Route.updateTraining(api: Controller) = patch(ApiPath.TRAINING) {
-    respond(api.updateTraining(createHttpRequest(call.receive<UpdateTrainingDto>())))
+    respond(api.updateTraining(receiveHttpRequest<UpdateTrainingDto>()))
 }
 
 fun Route.templates(api: Controller) = get(ApiPath.TRAINING_TEMPLATES) {
@@ -99,7 +100,7 @@ fun Route.template(api: Controller) = get(TRAINING_TEMPLATE_BY_ID) {
 }
 
 fun Route.putTemplate(api: Controller) = post(ApiPath.TRAINING_TEMPLATE) {
-    respond(api.addTrainingTemplate(createHttpRequest(call.receive<CreateTrainingTemplateDto>())))
+    respond(api.addTrainingTemplate(receiveHttpRequest<CreateTrainingTemplateDto>()))
 }
 
 fun Route.removeTemplate(api: Controller) = delete(TRAINING_TEMPLATE_BY_ID) {
@@ -123,11 +124,11 @@ fun Route.deleteExercise(api: Controller) = delete(ApiPath.EXERCISE) {
 }
 
 fun Route.putExercise(api: Controller) = post(ApiPath.EXERCISES) {
-    respond(api.createExercise(createHttpRequest(call.receive<CreateExerciseDto>())))
+    respond(api.createExercise(receiveHttpRequest<CreateExerciseDto>()))
 }
 
 fun Route.updateExercise(api: Controller) = patch(ApiPath.EXERCISE) {
-    respond(api.updateExercise(createHttpRequest(call.receive<Map<String, JsonElement?>>())))
+    respond(api.updateExercise(receiveHttpRequest<Map<String, JsonElement?>>()))
 }
 
 fun Route.exercisesPage() {
@@ -148,7 +149,7 @@ fun Route.getEquipment(api: Controller) = get(ApiPath.EQUIPMENT_BY_ID) {
 }
 
 fun Route.createEquipment(api: Controller) = post(ApiPath.EQUIPMENT) {
-    respond(api.createEquipment(createHttpRequest(call.receive<EquipmentDto>())))
+    respond(api.createEquipment(receiveHttpRequest<EquipmentDto>()))
 }
 
 fun Route.updateEquipment(api: Controller) = patch(ApiPath.EQUIPMENT_BY_ID) {
@@ -168,7 +169,7 @@ fun Route.category(api: Controller) = get(ApiPath.CATEGORY_BY_ID) {
 }
 
 fun Route.createCategory(api: Controller) = post(ApiPath.CATEGORIES) {
-    respond(api.createCategory(createHttpRequest(call.receive<CategoryDto>())))
+    respond(api.createCategory(receiveHttpRequest<CategoryDto>()))
 }
 
 fun Route.updateCategory(api: Controller) = patch(ApiPath.CATEGORY_BY_ID) {
@@ -188,7 +189,7 @@ fun Route.featureToggle(api: Controller) = get(ApiPath.FEATURE_TOGGLE_BY_ID) {
 }
 
 fun Route.createFeatureToggle(api: Controller) = post(ApiPath.FEATURE_TOGGLES) {
-    respond(api.createFeatureToggle(createHttpRequest(call.receive<NewFeatureToggleDto>())))
+    respond(api.createFeatureToggle(receiveHttpRequest<NewFeatureToggleDto>()))
 }
 
 fun Route.updateFeatureToggle(api: Controller) = patch(ApiPath.FEATURE_TOGGLE_BY_ID) {
@@ -206,7 +207,7 @@ fun Route.loadForceData(api: Controller) {
 }
 
 fun Route.addFcmToken(api: Controller) = post(ApiPath.FCM_TOKEN) {
-    respond(api.addFcmToken(createHttpRequest(call.receive<CreateFcmTokenDto>())))
+    respond(api.addFcmToken(receiveHttpRequest<CreateFcmTokenDto>()))
 }
 
 fun Route.deleteFcmToken(api: Controller) = delete(ApiPath.DELETE_FCM_TOKEN) {
