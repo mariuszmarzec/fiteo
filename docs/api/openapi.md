@@ -140,28 +140,3 @@ OpenAPI schema
 ```
 
 This avoids manually maintaining schemas and keeps the OpenAPI documentation synchronized with the Kotlin types.
-
-## Synchronizing Markdown API documentation
-
-The generated OpenAPI document is the source of truth for the human-readable API documentation.
-
-Run from the repository root:
-
-```bash
-./scripts/update-api-docs.sh
-```
-
-The script:
-
-1. runs `./gradlew generateOpenApiSnapshot` to regenerate `src/jvmMain/resources/openapi.yaml` from the real application routing tree;
-2. runs local OpenCode in non-interactive mode;
-3. asks OpenCode to compare the generated OpenAPI contract with the existing `docs/api/*.md` files;
-4. updates, creates, or removes Markdown documentation as needed and keeps `docs/api/README.md` links in sync.
-
-The script does not commit changes. Review the result with:
-
-```bash
-git diff -- docs/api
-```
-
-OpenCode can use the user's normal local model/provider setup. The synchronization prompt is stored in `scripts/prompts/update-api-docs.md`.

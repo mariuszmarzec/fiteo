@@ -16,13 +16,13 @@ import io.ktor.util.*
 import io.ktor.util.pipeline.PipelineContext
 import kotlin.reflect.KFunction1
 
-suspend inline fun <reified T : Any> RoutingContext.respond(response: HttpResponse<T>) {
+suspend fun RoutingContext.respond(response: HttpResponse<*>) {
     when (response) {
         is HttpResponse.Success -> {
             response.headers.forEach { (header, value) ->
                 call.response.headers.append(header, value)
             }
-            call.respond(response.data)
+            when (val data = response.data) { is Unit -> call.respond(Unit); else -> call.respond(data) }
         }
         is HttpResponse.Error -> {
             call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)

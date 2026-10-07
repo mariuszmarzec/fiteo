@@ -23,7 +23,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform") version Dependency.kotlin_version
-    id("io.ktor.plugin") version Dependency.ktor_version
+    application
     id("org.flywaydb.flyway") version Dependency.flyway_version
     kotlin("plugin.serialization") version Dependency.kotlin_version
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
@@ -31,6 +31,9 @@ plugins {
     jacoco
 }
 
+application {
+    mainClass.set("com.marzec.JvmMainKt")
+}
 
 val configurationProperties: Properties = Properties()
 configurationProperties.load(project.rootProject.file("local.properties").inputStream())
@@ -46,7 +49,6 @@ val dbTestPassword = configurationProperties.getProperty("database.testPassword"
 val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
 
 val firebaseServiceAccount = configurationProperties.getProperty("firebaseServiceAccount")
-val openapiServerUrl = configurationProperties.getProperty("openapi.server.url", "http://localhost:5000")
 
 val projectPackageName = "com.marzec.fiteo"
 
@@ -59,14 +61,6 @@ repositories {
 group = projectPackageName
 version = "1.0.0"
 
-ktor {
-    openApi {
-        enabled = true
-        codeInferenceEnabled = true
-        onlyCommented = false
-    }
-}
-
 kotlin {
 
     jvm {
@@ -74,14 +68,8 @@ kotlin {
             jvmTarget = JvmTarget.fromTarget("17")
         }
 
-        binaries {
-            executable {
-                mainClass.set("com.marzec.JvmMainKt")
-            }
-        }
-
-        tasks.withType<Test>().configureEach {
-            useJUnit()
+        tasks.test {
+            useJUnitPlatform()
             testLogging {
                 events("passed", "skipped", "failed")
             }
@@ -131,10 +119,10 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
+
                 implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-swagger:${Dependency.ktor_version}")
-
                 
                 implementation("org.slf4j:slf4j-api:${Dependency.sl4j_version}")
                 implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")
@@ -151,8 +139,10 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
+                implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
                 implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
+                implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
 //                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
@@ -185,28 +175,6 @@ kotlin {
             }
         }
     }
-}
-
-val jvmTestTask = tasks.named<Test>("jvmTest")
-
-tasks.register<Test>("generateOpenApiSnapshot") {
-    description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
-    group = "verification"
-
-    testClassesDirs = jvmTestTask.get().testClassesDirs
-    classpath = jvmTestTask.get().classpath
-
-    useJUnit()
-    filter {
-        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
-    }
-
-    systemProperty(
-        "openapi.snapshot.output",
-        project.file("src/jvmMain/resources/openapi.yaml").absolutePath
-    )
-
-    outputs.file("src/jvmMain/resources/openapi.yaml")
 }
 
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
@@ -242,6 +210,29 @@ tasks.named<Jar>("jvmJar") {
     )
 }
 
+tasks.getByName<JavaExec>("run") {
+    dependsOn("jvmJar")
+
+    val jvmTarget = kotlin.targets.getByName("jvm")
+    val jvmMain = jvmTarget.compilations.getByName("main")
+    mainClass.set("com.marzec.JvmMainKt")
+
+    classpath = files(tasks["jvmJar"].outputs.files) +
+            jvmMain.runtimeDependencyFiles!! +
+            jvmMain.output.allOutputs
+}
+
+distributions {
+    main {
+        contents {
+            from("$buildDir/libs") {
+                rename("${rootProject.name}-jvm", rootProject.name)
+                into("lib")
+            }
+        }
+    }
+}
+
 flyway {
     if (dbMigration == "test") {
         url = dbTestEndpoint
@@ -274,10 +265,43 @@ buildkonfig {
         buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
 
         buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
-        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl ?: "")
     }
 }
 
+tasks.jacocoTestReport {
+
+    val coverageSourceDirs = fileTree(
+        baseDir = project.projectDir
+    ) {
+        include(
+            "**/src/commonMain/**",
+            "**/src/jvmMain/**"
+        )
+    }
+
+    val classFiles = fileTree(
+        baseDir = buildDir
+    ) {
+        include(
+            "**/*.class"
+        )
+        exclude(
+            "**/org/jacoco/**",
+            "**/test/com/**"
+        )
+    }
+
+    classDirectories.setFrom(files(classFiles))
+    sourceDirectories.setFrom(files(coverageSourceDirs))
+
+    executionData
+        .setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
 
 detekt {
     source = files(

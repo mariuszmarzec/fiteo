@@ -1,7 +1,5 @@
 package com.marzec
 
-import com.marzec.fiteo.BuildKonfig
-
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.marzec.Api.Auth
@@ -133,20 +131,13 @@ fun Application.module() {
         // Exclude test routes, scripts panel and static assets while keeping SSE.
         openAPI(path = "openapi") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
-                servers { server(url) }
-            }
-            source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }
         }
         swaggerUI(path = "swagger") {
             info = OpenApiInfo("Fiteo API", "1.0")
-            remotePath = "openapi.yaml"
-            BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
-                servers { server(url) }
-            }
-            source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
+            source = OpenApiDocSource.Routing(ContentType.Application.Json) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }
         }
