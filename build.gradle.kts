@@ -177,6 +177,29 @@ kotlin {
     }
 }
 
+val jvmTestTask = tasks.named<Test>("jvmTest")
+
+tasks.register<Test>("generateOpenApiSnapshot") {
+    description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
+    group = "verification"
+
+    dependsOn(jvmTestTask)
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
+
+    useJUnit()
+    filter {
+        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
+    }
+
+    systemProperty(
+        "openapi.snapshot.output",
+        project.file("src/jvmMain/resources/openapi.yaml").absolutePath
+    )
+
+    outputs.file("src/jvmMain/resources/openapi.yaml")
+}
+
 tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
 tasks.named<Jar>("jvmJar") {
     archiveBaseName.set("fiteo")
