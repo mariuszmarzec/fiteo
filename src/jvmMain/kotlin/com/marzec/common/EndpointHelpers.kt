@@ -17,7 +17,7 @@ suspend fun RoutingContext.respond(response: HttpResponse<*>) {
             response.headers.forEach { (header, value) ->
                 call.response.headers.append(header, value)
             }
-            call.respond(response.data as Any?)
+            call.respond(response.data as Any)
         }
         is HttpResponse.Error -> {
             call.respond(HttpStatusCode.fromValue(response.httpStatusCode), response.data)
