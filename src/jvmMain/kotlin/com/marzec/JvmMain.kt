@@ -23,6 +23,7 @@ import com.marzec.fiteo.fiteoApi
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
 import com.marzec.fiteo.model.dto.UserDto
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.scripts.scriptsBasicAuthConfig
@@ -330,7 +331,7 @@ fun Route.login(api: Controller) {
 
 private fun Route.loginBearer(api: Controller) {
     post(ApiPath.LOGIN_BEARER) {
-        val loginRequestDto = receiveHttpRequest<LoginRequestDto>()
+        val loginRequestDto = createHttpRequest(call.receive<LoginRequestDto>())
         val httpResponse = api.postLogin(loginRequestDto)
         if (httpResponse is HttpResponse.Success<UserDto>) {
             val secret = "secret"
