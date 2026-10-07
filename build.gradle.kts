@@ -258,11 +258,14 @@ buildkonfig {
 }
 
 
+val jvmTestTask = tasks.named<Test>("jvmTest")
+
 tasks.register<Test>("generateOpenApiSnapshot") {
     description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
     group = "verification"
-    dependsOn("jvmTest")
-    shouldRunAfter("jvmTest")
+    dependsOn(jvmTestTask)
+    testClassesDirs = jvmTestTask.map { it.testClassesDirs }
+    classpath = jvmTestTask.map { it.classpath }
     useJUnit()
     filter {
         includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
