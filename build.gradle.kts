@@ -62,7 +62,7 @@ version = "1.0.0"
 ktor {
     openApi {
         enabled = true
-        codeInferenceEnabled = false
+        codeInferenceEnabled = true
         onlyCommented = false
     }
 }
@@ -196,7 +196,7 @@ tasks.register<Test>("generateOpenApiSnapshot") {
     testClassesDirs = jvmTestTask.get().testClassesDirs
     classpath = jvmTestTask.get().classpath
 
-    useJUnitPlatform()
+    useJUnit()
     filter {
         includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
     }
