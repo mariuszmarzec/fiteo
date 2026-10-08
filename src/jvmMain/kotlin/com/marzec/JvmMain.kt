@@ -137,6 +137,7 @@ fun Application.module() {
         }
         swaggerUI(path = "swagger") {
             info = OpenApiInfo("Fiteo API", "1.0")
+            servers { server("http://localhost:8080") }
             source = OpenApiDocSource.Routing(ContentType.Application.Json) {
                 routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
             }

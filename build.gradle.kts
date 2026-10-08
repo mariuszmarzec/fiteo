@@ -177,10 +177,26 @@ kotlin {
     }
 }
 
+// Regenerate the committed openapi.yaml snapshot from the routing tree at build time.
+// Boots the Ktor application (with the test database) and writes the swaggerUI-served
+// raw spec to src/jvmMain/resources/openapi.yaml.
+tasks.register<JavaExec>("generateOpenApiSpec") {
+    group = "documentation"
+    description = "Regenerates src/jvmMain/resources/openapi.yaml from the routing tree"
+    dependsOn(tasks.named("jvmTestClasses"))
+    val jvmTestRuntime = configurations.getByName("jvmTestRuntimeClasspath")
+    val jvmTarget = kotlin.targets.getByName("jvm")
+    val jvmTestOutput = jvmTarget.compilations.getByName("test").output
+    classpath = files(jvmTestOutput) + jvmTestRuntime
+    mainClass.set("com.marzec.OpenApiSpecGeneratorKt")
+    args(layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml").asFile.absolutePath)
+}
+
 // Export the committed openapi.yaml snapshot to the repository root
 tasks.register("exportOpenApiSpec") {
     group = "documentation"
     description = "Exports the committed openapi.yaml snapshot to the repository root"
+    dependsOn("generateOpenApiSpec")
     doLast {
         val spec = layout.projectDirectory.file("src/jvmMain/resources/openapi.yaml")
         if (spec.asFile.exists()) {
