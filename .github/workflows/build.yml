@@ -69,3 +69,12 @@ jobs:
 
       - name: Run JVM tests
         run: ./gradlew jvmTest
+
+      - name: Generate OpenAPI snapshot
+        run: ./gradlew generateOpenApiSnapshot
+
+      - name: Upload OpenAPI snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-snapshot
+          path: src/jvmMain/resources/openapi.yaml
