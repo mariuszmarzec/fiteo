@@ -2,6 +2,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import java.util.Properties
 
 buildscript {
@@ -29,6 +30,10 @@ plugins {
     id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
     id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
     jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.15"
 }
 
 
@@ -274,6 +279,68 @@ tasks.register<Test>("generateOpenApiSnapshot") {
 }
 
 val jvmTestTask = tasks.named<Test>("jvmTest")
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(jvmTestTask)
+
+    // JaCoCo's sourceDirectories expects source-root directories (it walks them to
+    // resolve source files by package-relative path for HTML line highlighting).
+    // The verified KMP roots for this project are src/commonMain/kotlin and
+    // src/jvmMain/kotlin (package com.marzec.* lives directly under each).
+    val coverageSourceDirs = files(
+        file("src/commonMain/kotlin"),
+        file("src/jvmMain/kotlin")
+    )
+
+    // Narrow the class input to the intended production JVM compilation outputs for
+    // commonMain/jvmMain only, instead of scanning all of build/**/*.class.
+    val classFiles = fileTree(
+        baseDir = file("build/classes/kotlin/jvm/main")
+    ) {
+        include(
+            "**/*.class"
+        )
+        exclude(
+            "**/org/jacoco/**"
+        )
+    }
+
+    classDirectories.setFrom(files(classFiles))
+    sourceDirectories.setFrom(coverageSourceDirs)
+
+    executionData.setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    // Regression check: verify the report actually covers the narrowed production
+    // class set (and does not silently pick up test classes), and that the HTML
+    // report includes navigable source pages with line-level coverage.
+    doLast {
+        val reportFile = file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        check(reportFile.exists()) { "JaCoCo XML report was not generated at ${reportFile.absolutePath}" }
+        val reportText = reportFile.readText()
+        check(reportText.contains("name=\"com/marzec/fiteo/")) {
+            "JaCoCo report is missing expected production classes (com.marzec.fiteo)"
+        }
+        check(reportText.contains("name=\"com/marzec/JvmMainKt\"")) {
+            "JaCoCo report is missing expected JVM entry point class"
+        }
+        check(!reportText.contains("name=\"com/marzec/OpenApiTest\"")) {
+            "JaCoCo report incorrectly includes test classes"
+        }
+        val htmlDir = file("${buildDir}/reports/jacoco/jacocoTestReport/html")
+        val sourcePages = htmlDir.walk().filter { it.name.endsWith(".kt.html") }.toList()
+        check(sourcePages.isNotEmpty()) {
+            "JaCoCo HTML report is missing navigable .kt.html source pages"
+        }
+        check(sourcePages.any { it.name == "CheatDayService.kt.html" }) {
+            "JaCoCo HTML report is missing an expected source page (CheatDayService.kt.html)"
+        }
+    }
+}
 
 detekt {
     source = files(
