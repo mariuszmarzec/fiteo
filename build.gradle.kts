@@ -292,15 +292,16 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         )
     }
 
+    // Narrow the class input to the intended production JVM compilation outputs for
+    // commonMain/jvmMain only, instead of scanning all of build/**/*.class.
     val classFiles = fileTree(
-        baseDir = buildDir
+        baseDir = file("build/classes/kotlin/jvm/main")
     ) {
         include(
             "**/*.class"
         )
         exclude(
-            "**/org/jacoco/**",
-            "**/test/com/**"
+            "**/org/jacoco/**"
         )
     }
 
@@ -312,6 +313,23 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
         html.required.set(true)
+    }
+
+    // Regression check: verify the report actually covers the narrowed production
+    // class set (and does not silently pick up test classes).
+    doLast {
+        val reportFile = file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        check(reportFile.exists()) { "JaCoCo XML report was not generated at ${reportFile.absolutePath}" }
+        val reportText = reportFile.readText()
+        check(reportText.contains("name=\"com/marzec/fiteo/")) {
+            "JaCoCo report is missing expected production classes (com.marzec.fiteo)"
+        }
+        check(reportText.contains("name=\"com/marzec/JvmMainKt\"")) {
+            "JaCoCo report is missing expected JVM entry point class"
+        }
+        check(!reportText.contains("name=\"com/marzec/OpenApiTest\"")) {
+            "JaCoCo report incorrectly includes test classes"
+        }
     }
 }
 
