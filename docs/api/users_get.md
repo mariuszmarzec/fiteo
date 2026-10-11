@@ -10,6 +10,12 @@ Returns the list of users available in the current authenticated context. The so
 
 Required (session).
 
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
 ## Response
 
 ### Success

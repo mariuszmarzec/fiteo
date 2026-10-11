@@ -10,7 +10,13 @@ Authenticates the user and creates a session for subsequent authenticated reques
 
 Not required.
 
-On success, the server sets a session header or cookie for future requests. The existing documentation notes that the session may be sent in `Authorization` or `Authorization-Test` for test prefix flows.
+On success, the server sets a session header or cookie for future requests. The session may be sent in `Authorization` or `Authorization-Test` for test prefix flows.
+
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
 
 ## Request Body
 

@@ -10,6 +10,12 @@ Creates a new user account using an email and password.
 
 Not required.
 
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
 ## Request Body
 
 `RegisterRequestDto`

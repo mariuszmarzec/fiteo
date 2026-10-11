@@ -12,6 +12,12 @@ Required.
 
 Use the configured session or bearer authentication for the request.
 
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
 ## Request Body
 
 `MarkAsToDoDto`

@@ -165,3 +165,37 @@ git diff -- docs/api
 ```
 
 OpenCode uses the local model/provider configuration. The synchronization prompt is stored in `scripts/prompts/update-api-docs.md`.
+
+## OpenAPI and Swagger UI endpoints
+
+At runtime the application exposes two UI endpoints that are generated from the
+Ktor routing tree:
+
+| Path | Purpose |
+|---|---|
+| `/openapi` | Serves the generated OpenAPI document (`openapi.yaml`). |
+| `/swagger` | Serves the Swagger UI that renders the OpenAPI document. |
+
+Both endpoints filter the routing tree before generating the document. The
+following routes are excluded:
+
+- root static resources (`/`, `/fiteo.js`)
+- the scripts panel (`/scripts`)
+- any test routes (`/test/...`)
+
+The `/sse` endpoint is kept in the generated document.
+
+The server URL and API metadata are configured at build time via
+`BuildKonfig.OPENAPI_SERVER_URL`:
+
+```kotlin
+openAPI(path = "openapi") {
+    info = OpenApiInfo("Fiteo API", "1.0")
+    BuildKonfig.OPENAPI_SERVER_URL.takeIf { it.isNotBlank() }?.let { url ->
+        servers { server(url) }
+    }
+    source = OpenApiDocSource.Routing(ContentType.Application.Yaml) {
+        routingRoot.descendants().filterNot { route -> route.manulExcludedFromOpenApi() }
+    }
+}
+```

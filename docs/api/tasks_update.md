@@ -18,6 +18,12 @@ Use the configured session or bearer authentication for the request.
 |---|---|---|---|
 | id | Int | Yes | Task ID to update. |
 
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
 ## Request Body
 
 `UpdateTaskDto`

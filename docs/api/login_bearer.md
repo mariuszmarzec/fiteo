@@ -10,6 +10,12 @@ Authenticates the user and returns a signed JWT in the `Authorization` header, w
 
 Not required.
 
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
 ## Request Body
 
 `LoginRequestDto`
