@@ -2,7 +2,7 @@
 
 This document explains how to ensure that request and response schemas are generated for the API and what to do when Ktor cannot infer them.
 
-## 3. Make sure request and response schemas are generated
+## Make sure request and response schemas are generated
 
 Ktor can infer OpenAPI schemas from the types used in `call.receive<T>()` and `call.respond(...)`.
 
@@ -21,7 +21,11 @@ data class UserResponse(
     val name: String,
     val email: String
 )
+```
 
+Then use the types directly in your routes:
+
+```kotlin
 post("/users") {
     val request = call.receive<CreateUserRequest>()
 
@@ -46,6 +50,7 @@ components:
       required:
         - name
         - email
+
     UserResponse:
       type: object
       properties:

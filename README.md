@@ -24,7 +24,10 @@ database.endpoint=jdbc:mysql://127.0.0.1:3306/fiteo_database?createDatabaseIfNot
 database.user=admin
 database.password=password
 database.database=fiteo_database
+openapi.server.url=http://localhost:5000
 ```
+
+The `openapi.server.url` property is optional; it configures the server URL of the generated OpenAPI document (default `http://localhost:5000`).
 
 2. After setting database configuration run `flywayMigrate` task to migrate database.
 
