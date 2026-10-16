@@ -45,7 +45,7 @@ interface Controller {
     fun createTrainingDeprecated(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun createTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto>
     fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
-    fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>>
+    fun getTrainings(request: HttpRequest<Unit>): HttpResponse<*>
     fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun updateTraining(request: HttpRequest<UpdateTrainingDto>): HttpResponse<TrainingDto>
     fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit>

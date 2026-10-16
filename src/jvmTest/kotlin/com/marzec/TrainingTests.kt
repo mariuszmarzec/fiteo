@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.TrainingsPageDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.ErrorDto
@@ -286,6 +287,78 @@ class TrainingTests {
                 createTraining(1)
             }
         )
+    }
+
+    @Test
+    fun getTrainings_firstPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3, 2))
+                assertThat(page?.nextCursor).isEqualTo(2)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_nextPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?cursor=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(1))
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_invalidLimit() {
+        listOf("0", "101", "abc").forEach { limit ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?limit=$limit",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("limit")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
+    }
+
+    @Test
+    fun getTrainings_invalidCursor() {
+        listOf("0", "abc").forEach { cursor ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?cursor=$cursor",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("cursor")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
     }
 
     @Test

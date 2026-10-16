@@ -4,7 +4,12 @@ Gets all trainings for the authenticated user.
 
 ## Description
 
-Returns the full list of trainings owned by the authenticated user, including the progress for each exercise.
+Returns the trainings owned by the authenticated user, including the progress for each exercise.
+
+The endpoint supports two response contracts:
+
+1. **Legacy (no pagination)** — when neither `limit` nor `cursor` query parameters are present, the response is a plain JSON array of `TrainingDto` objects ordered by `createDateInMillis DESC`.
+2. **Paginated** — when at least one of `limit` or `cursor` is present, the response is a JSON object `{ "items": [...], "nextCursor": <int|null> }` ordered by `id DESC`. `cursor=C` filters trainings to those with `id < C`. `limit` controls the page size (default 10, accepted range 1–100).
 
 ## Authentication
 
@@ -15,6 +20,8 @@ Required (session).
 | Name | Type | Required | Description |
 |---|---|---|---|
 | id | String | No | Identifier query parameter accepted by the route. |
+| limit | Integer | No | Page size (1–100). Defaults to 10 when `cursor` is provided. Required to be present together with `cursor` for pagination. |
+| cursor | Integer | No | Cursor returned by a previous response. Filters trainings to those with `id < cursor`. |
 
 ## Response
 
@@ -22,9 +29,9 @@ Required (session).
 
 `200 OK`
 
-Returns a list of `TrainingDto` objects.
+Returns either a list of `TrainingDto` objects (legacy contract) or a `TrainingsPageDto` object (paginated contract).
 
-### Response Body
+### Response Body — Legacy
 
 ```json
 [
@@ -56,6 +63,27 @@ Returns a list of `TrainingDto` objects.
   }
 ]
 ```
+
+### Response Body — Paginated
+
+```json
+{
+  "items": [
+    {
+      "id": 1,
+      "templateId": 1,
+      "createDateInMillis": "2026-08-13T10:00:00Z",
+      "finishDateInMillis": "2026-08-13T11:00:00Z",
+      "exercisesWithProgress": []
+    }
+  ],
+  "nextCursor": null
+}
+```
+
+### Error
+
+`400 Bad Request` — returned when `limit` is not an integer in the 1–100 range, or when `cursor` is not a positive integer.
 
 ## Notes
 

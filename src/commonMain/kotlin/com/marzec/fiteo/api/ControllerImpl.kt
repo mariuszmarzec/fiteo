@@ -186,10 +186,15 @@ class ControllerImpl(
         ).toDto()
     }
 
-    override fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>> = serviceCall {
-        trainingService.getTrainings(
-            request.userIdOrThrow()
-        ).map { it.toDto() }
+    override fun getTrainings(request: HttpRequest<Unit>): HttpResponse<*> = serviceCall {
+        val trainingsRequest = TrainingsRequest.from(request.queries)
+        val userId = request.userIdOrThrow()
+        if (trainingsRequest.limit == null && trainingsRequest.cursor == null) {
+            // Legacy contract: no pagination parameters -> plain JSON array.
+            trainingService.getTrainings(userId).map { it.toDto() }
+        } else {
+            trainingService.getTrainings(userId, trainingsRequest).toDto()
+        }
     }
 
     override fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {

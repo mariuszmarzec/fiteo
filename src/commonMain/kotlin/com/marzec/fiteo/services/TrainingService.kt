@@ -1,6 +1,8 @@
 package com.marzec.fiteo.services
 
 import com.marzec.core.TimeProvider
+import com.marzec.fiteo.model.domain.TrainingsPage
+import com.marzec.fiteo.model.domain.TrainingsRequest
 import com.marzec.fiteo.model.domain.UpdateTraining
 import com.marzec.fiteo.model.domain.UpdateTrainingExerciseWithProgress
 import com.marzec.fiteo.model.domain.CreateTrainingTemplate
@@ -24,6 +26,8 @@ interface TrainingService {
     fun getTraining(userId: Int, trainingId: Int): Training
 
     fun getTrainings(userId: Int): List<Training>
+
+    fun getTrainings(userId: Int, request: TrainingsRequest): TrainingsPage
 
     fun removeTraining(userId: Int, trainingId: Int): Training
 
@@ -87,6 +91,14 @@ class TrainingServiceImpl(
         trainingRepository.getTraining(userId, trainingId)
 
     override fun getTrainings(userId: Int): List<Training> = trainingRepository.getTrainings(userId)
+
+    override fun getTrainings(userId: Int, request: TrainingsRequest): TrainingsPage {
+        val limit = request.limit ?: 10
+        val rows = trainingRepository.getTrainings(userId, limit, request.cursor)
+        val items = if (rows.size > limit) rows.take(limit) else rows
+        val nextCursor = if (rows.size > limit) items.lastOrNull()?.id else null
+        return TrainingsPage(items = items, nextCursor = nextCursor)
+    }
 
     override fun removeTraining(userId: Int, trainingId: Int): Training =
         trainingRepository.removeTrainings(userId, trainingId)
