@@ -297,7 +297,8 @@ class TrainingTests {
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
                 assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3, 2))
-                assertThat(page?.nextCursor).isEqualTo(2)
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(1)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
@@ -318,7 +319,8 @@ class TrainingTests {
             uri = "${ApiPath.TRAININGS}?cursor=2",
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
-                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(1))
+                // `cursor=2` filters `id <= 2`, so the cursor row is re-included.
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(2, 1))
                 assertThat(page?.nextCursor).isNull()
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -405,7 +407,8 @@ class TrainingTests {
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
                 assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3))
-                assertThat(page?.nextCursor).isEqualTo(3)
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(2)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
@@ -429,7 +432,8 @@ class TrainingTests {
                 assertThat(page?.items?.size).isEqualTo(100)
                 assertThat(page?.items?.map { it.id })
                     .isEqualTo((101 downTo 2).toList())
-                assertThat(page?.nextCursor).isEqualTo(2)
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(1)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
@@ -512,6 +516,33 @@ class TrainingTests {
             val page = getTrainingsPage(limit = 10)
             assertThat(page.items.map { it.id }).containsExactly(5, 4).inOrder()
             assertThat(page.nextCursor).isNull()
+        }
+    }
+
+    @Test
+    fun getTrainings_fullPagination_withIdGaps_noDuplicates() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            putTemplate(createTrainingTemplateDto)
+            repeat(6) { createTraining(1) } // ids 6..1
+            // Remove ids 3 and 5 to create gaps in the remaining sequence.
+            deleteTraining(id = "3")
+            deleteTraining(id = "5")
+            // Remaining ids: 6, 4, 2, 1
+
+            val allIds = mutableListOf<Int>()
+            var cursor: Int? = null
+            do {
+                val page = getTrainingsPage(limit = 2, cursor = cursor)
+                val ids = page.items.map { it.id }
+                assertThat(ids).isEqualTo(ids.sortedDescending())
+                allIds.addAll(ids)
+                cursor = page.nextCursor
+            } while (cursor != null)
+
+            assertThat(allIds).containsExactly(6, 4, 2, 1).inOrder()
+            assertThat(allIds.toSet().size).isEqualTo(allIds.size)
         }
     }
 

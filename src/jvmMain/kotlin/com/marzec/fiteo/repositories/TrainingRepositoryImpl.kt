@@ -9,6 +9,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SizedIterable
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -48,7 +49,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             TrainingsTable.selectAll()
                 .andWhere { TrainingsTable.userId eq userId }
                 .apply {
-                    cursor?.let { andWhere { TrainingsTable.id less it } }
+                    cursor?.let { andWhere { TrainingsTable.id lessEq it } }
                 }
                 .orderBy(TrainingsTable.id, SortOrder.DESC)
                 .limit(limit + 1)
