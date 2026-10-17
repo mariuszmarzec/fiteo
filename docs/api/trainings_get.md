@@ -20,8 +20,8 @@ Required (session).
 | Name | Type | Required | Description |
 |---|---|---|---|
 | id | String | No | Identifier query parameter accepted by the route. |
-| limit | Integer | No | Page size (1–100). Defaults to 10 when `cursor` is provided. Required to be present together with `cursor` for pagination. |
-| cursor | Integer | No | Cursor returned by a previous response. Filters trainings to those with `id < cursor`. |
+| limit | Integer | No | Page size (1–100). Defaults to 10. When present alone it starts the first page of the paginated response. When present together with `cursor` it applies to that page. An empty value (`?limit=`) returns `400 Bad Request`. |
+| cursor | Integer | No | Cursor returned by a previous response. Filters trainings to those with `id < cursor`. When present alone it continues the next page using the default limit of 10. An empty value (`?cursor=`) returns `400 Bad Request`. |
 
 ## Response
 
@@ -83,7 +83,7 @@ Returns either a list of `TrainingDto` objects (legacy contract) or a `Trainings
 
 ### Error
 
-`400 Bad Request` — returned when `limit` is not an integer in the 1–100 range, or when `cursor` is not a positive integer.
+`400 Bad Request` — returned when `limit` is not an integer in the 1–100 range (or is empty), or when `cursor` is not a positive integer (or is empty).
 
 ## Notes
 

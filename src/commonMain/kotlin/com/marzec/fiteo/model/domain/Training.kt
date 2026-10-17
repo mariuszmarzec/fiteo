@@ -98,11 +98,17 @@ data class TrainingsRequest(
             val cursorRaw = queries[Api.Args.ARG_CURSOR]?.firstOrNull()
 
             // No pagination parameters -> legacy response.
-            if (limitRaw.isNullOrBlank() && cursorRaw.isNullOrBlank()) {
+            if (limitRaw == null && cursorRaw == null) {
                 return TrainingsRequest()
             }
 
             val limit = limitRaw?.let { value ->
+                if (value.isBlank()) {
+                    throw HttpException(
+                        "Argument ${Api.Args.ARG_LIMIT} must be an integer between $MIN_LIMIT and $MAX_LIMIT",
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
                 value.toIntOrNull() ?: throw HttpException(
                     "Argument ${Api.Args.ARG_LIMIT} must be an integer between $MIN_LIMIT and $MAX_LIMIT",
                     HttpStatus.BAD_REQUEST
@@ -116,6 +122,12 @@ data class TrainingsRequest(
             }
 
             val cursor = cursorRaw?.let { value ->
+                if (value.isBlank()) {
+                    throw HttpException(
+                        "Argument ${Api.Args.ARG_CURSOR} must be a positive integer",
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
                 value.toIntOrNull() ?: throw HttpException(
                     "Argument ${Api.Args.ARG_CURSOR} must be a positive integer",
                     HttpStatus.BAD_REQUEST
