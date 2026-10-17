@@ -187,9 +187,12 @@ class ControllerImpl(
     }
 
     override fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>> = serviceCall {
-        trainingService.getTrainings(
-            request.userIdOrThrow()
-        ).map { it.toDto() }
+        trainingService.getTrainings(request.userIdOrThrow()).map { it.toDto() }
+    }
+
+    override fun getPagingTrainings(request: HttpRequest<Unit>): HttpResponse<TrainingsPageDto> = serviceCall {
+        val trainingsRequest = TrainingsRequest.from(request.queries)
+        trainingService.getTrainings(request.userIdOrThrow(), trainingsRequest).toDto()
     }
 
     override fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto> = serviceCall {

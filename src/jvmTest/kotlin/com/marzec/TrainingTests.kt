@@ -4,9 +4,11 @@ import com.google.common.truth.Truth.assertThat
 import com.marzec.core.CurrentTimeUtil
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.TrainingsPageDto
 import com.marzec.fiteo.model.domain.TrainingDto
 import com.marzec.fiteo.model.domain.toDto
 import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
 import org.junit.After
@@ -286,6 +288,262 @@ class TrainingTests {
                 createTraining(1)
             }
         )
+    }
+
+    @Test
+    fun getTrainings_firstPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3, 2))
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(1)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_nextPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?cursor=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                // `cursor=2` filters `id <= 2`, so the cursor row is re-included.
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(2, 1))
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_invalidLimit() {
+        listOf("0", "101", "abc").forEach { limit ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?limit=$limit",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("limit")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
+    }
+
+    @Test
+    fun getTrainings_invalidCursor() {
+        listOf("0", "abc").forEach { cursor ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?cursor=$cursor",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("cursor")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
+    }
+
+    @Test
+    fun getTrainings_emptyLimit() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?limit=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("limit")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyCursor() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?cursor=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("cursor")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyLimitAndCursor() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?limit=&cursor=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("limit")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_limit1() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=1",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3))
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(2)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_limit100() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=100",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.size).isEqualTo(100)
+                assertThat(page?.items?.map { it.id })
+                    .isEqualTo((101 downTo 2).toList())
+                // nextCursor is the id of the extra row (first record of the next page).
+                assertThat(page?.nextCursor).isEqualTo(1)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                // 101 trainings -> ids 101..1, page of 100 leaves one more row.
+                repeat(101) { createTraining(1) }
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_singleResult() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=10",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(1))
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyResult() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=10",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items).isEmpty()
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_fullPagination_noDuplicates() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            putTemplate(createTrainingTemplateDto)
+            repeat(5) { createTraining(1) } // ids 5..1
+
+            val allIds = mutableListOf<Int>()
+            var cursor: Int? = null
+            do {
+                val page = getTrainingsPage(limit = 2, cursor = cursor)
+                val ids = page.items.map { it.id }
+                // Pages must be ordered by id DESC and never overlap.
+                assertThat(ids).isEqualTo(ids.sortedDescending())
+                allIds.addAll(ids)
+                cursor = page.nextCursor
+            } while (cursor != null)
+
+            assertThat(allIds).containsExactly(5, 4, 3, 2, 1).inOrder()
+            assertThat(allIds.toSet().size).isEqualTo(allIds.size)
+        }
+    }
+
+    @Test
+    fun getTrainings_paginationUserIsolation() {
+        withDefaultMockTestApplication {
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            authToken = registerAndLogin()
+            putTemplate(createTrainingTemplateDto)
+            repeat(3) { createTraining(1) } // user1 trainings: ids 3..1
+
+            register(stubRegisterRequestDto("user2@mail.com", "password", "password"))
+            authToken = login(LoginRequestDto("user2@mail.com", "password"))
+            putTemplate(createTrainingTemplateDto) // template id 2
+            repeat(2) { createTraining(2) } // user2 trainings: ids 5..4
+
+            val page = getTrainingsPage(limit = 10)
+            assertThat(page.items.map { it.id }).containsExactly(5, 4).inOrder()
+            assertThat(page.nextCursor).isNull()
+        }
+    }
+
+    @Test
+    fun getTrainings_fullPagination_withIdGaps_noDuplicates() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            putTemplate(createTrainingTemplateDto)
+            repeat(6) { createTraining(1) } // ids 6..1
+            // Remove ids 3 and 5 to create gaps in the remaining sequence.
+            deleteTraining(id = "3")
+            deleteTraining(id = "5")
+            // Remaining ids: 6, 4, 2, 1
+
+            val allIds = mutableListOf<Int>()
+            var cursor: Int? = null
+            do {
+                val page = getTrainingsPage(limit = 2, cursor = cursor)
+                val ids = page.items.map { it.id }
+                assertThat(ids).isEqualTo(ids.sortedDescending())
+                allIds.addAll(ids)
+                cursor = page.nextCursor
+            } while (cursor != null)
+
+            assertThat(allIds).containsExactly(6, 4, 2, 1).inOrder()
+            assertThat(allIds.toSet().size).isEqualTo(allIds.size)
+        }
     }
 
     @Test

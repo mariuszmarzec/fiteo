@@ -46,6 +46,7 @@ interface Controller {
     fun createTraining(request: HttpRequest<CreateTrainingDto>): HttpResponse<TrainingDto>
     fun getTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun getTrainings(request: HttpRequest<Unit>): HttpResponse<List<TrainingDto>>
+    fun getPagingTrainings(request: HttpRequest<Unit>): HttpResponse<TrainingsPageDto>
     fun removeTraining(request: HttpRequest<Unit>): HttpResponse<TrainingDto>
     fun updateTraining(request: HttpRequest<UpdateTrainingDto>): HttpResponse<TrainingDto>
     fun forceLoadData(request: HttpRequest<Unit>): HttpResponse<Unit>
