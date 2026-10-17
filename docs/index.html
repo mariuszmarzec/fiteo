@@ -12225,7 +12225,10 @@ except ApiException as e:
                       <article id="api-Default-fiteoApi1TrainingsGet-0" data-group="User" data-name="fiteoApi1TrainingsGet" data-version="0">
                         <div class="pull-left">
                           <h1>fiteoApi1TrainingsGet</h1>
-                          <p></p>
+                          <p>Single &#x60;GET /trainings&#x60; route that preserves the legacy contract.
+When neither &#x60;limit&#x60; nor &#x60;cursor&#x60; query parameters are present it delegates
+to the untouched &#x60;getTrainings&#x60; (plain JSON array). Otherwise it delegates
+to the new &#x60;getPagingTrainings&#x60; returning &#x60;{ items, nextCursor }&#x60;.</p>
                         </div>
                         <div class="pull-right"></div>
                         <div class="clearfix"></div>
@@ -12256,7 +12259,7 @@ except ApiException as e:
                            <pre class="prettyprint"><code class="language-bsh">curl -X GET\
 -H "Authorization: [[apiKey]]"\
 -H "Accept: application/json"\
-"http://localhost:5000/fiteo/api/1/trainings?id="</code></pre>
+"http://localhost:5000/fiteo/api/1/trainings?limit=&cursor=&id=&id="</code></pre>
                           </div>
                           <div class="tab-pane" id="examples-Default-fiteoApi1TrainingsGet-0-java">
                             <pre class="prettyprint"><code class="language-java">import io.swagger.client.*;
@@ -12279,9 +12282,12 @@ public class DefaultApiExample {
         //fiteo_auth.setApiKeyPrefix("Token");
 
         DefaultApi apiInstance = new DefaultApi();
+         limit = ; //  | 
+         cursor = ; //  | 
+         id = ; //  | 
          id = ; //  | 
         try {
-            ErrorDto result = apiInstance.fiteoApi1TrainingsGet(id);
+            ErrorDto result = apiInstance.fiteoApi1TrainingsGet(limit, cursor, id, id);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#fiteoApi1TrainingsGet");
@@ -12298,9 +12304,12 @@ public class DefaultApiExample {
 
     public static void main(String[] args) {
         DefaultApi apiInstance = new DefaultApi();
+         limit = ; //  | 
+         cursor = ; //  | 
+         id = ; //  | 
          id = ; //  | 
         try {
-            ErrorDto result = apiInstance.fiteoApi1TrainingsGet(id);
+            ErrorDto result = apiInstance.fiteoApi1TrainingsGet(limit, cursor, id, id);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#fiteoApi1TrainingsGet");
@@ -12319,11 +12328,21 @@ public class DefaultApiExample {
 [apiConfig setApiKey:@"YOUR_API_KEY" forApiKeyIdentifier:@"Authorization"];
 // Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
 //[apiConfig setApiKeyPrefix:@"Bearer" forApiKeyIdentifier:@"Authorization"];
+ *limit = ; //  (optional)
+ *cursor = ; //  (optional)
+ *id = ; //  (optional)
  *id = ; //  (optional)
 
 DefaultApi *apiInstance = [[DefaultApi alloc] init];
 
-[apiInstance fiteoApi1TrainingsGetWith:id
+// Single `GET /trainings` route that preserves the legacy contract.
+When neither `limit` nor `cursor` query parameters are present it delegates
+to the untouched `getTrainings` (plain JSON array). Otherwise it delegates
+to the new `getPagingTrainings` returning `{ items, nextCursor }`.
+[apiInstance fiteoApi1TrainingsGetWith:limit
+    cursor:cursor
+    id:id
+    id:id
               completionHandler: ^(ErrorDto output, NSError* error) {
                             if (output) {
                                 NSLog(@"%@", output);
@@ -12347,6 +12366,9 @@ fiteo_auth.apiKey = "YOUR API KEY"
 
 var api = new FiteoApi.DefaultApi()
 var opts = { 
+  'limit': , // {{}} 
+  'cursor': , // {{}} 
+  'id': , // {{}} 
   'id':  // {{}} 
 };
 var callback = function(error, data, response) {
@@ -12383,11 +12405,18 @@ namespace Example
             // Configuration.Default.ApiKeyPrefix.Add("Authorization", "Bearer");
 
             var apiInstance = new DefaultApi();
+            var limit = new (); //  |  (optional) 
+            var cursor = new (); //  |  (optional) 
+            var id = new (); //  |  (optional) 
             var id = new (); //  |  (optional) 
 
             try
             {
-                ErrorDto result = apiInstance.fiteoApi1TrainingsGet(id);
+                // Single `GET /trainings` route that preserves the legacy contract.
+When neither `limit` nor `cursor` query parameters are present it delegates
+to the untouched `getTrainings` (plain JSON array). Otherwise it delegates
+to the new `getPagingTrainings` returning `{ items, nextCursor }`.
+                ErrorDto result = apiInstance.fiteoApi1TrainingsGet(limit, cursor, id, id);
                 Debug.WriteLine(result);
             }
             catch (Exception e)
@@ -12410,10 +12439,13 @@ Swagger\Client\Configuration::getDefaultConfiguration()->setApiKey('Authorizatio
 // Swagger\Client\Configuration::getDefaultConfiguration()->setApiKeyPrefix('Authorization', 'Bearer');
 
 $api_instance = new Swagger\Client\ApiDefaultApi();
+$limit = ; //  | 
+$cursor = ; //  | 
+$id = ; //  | 
 $id = ; //  | 
 
 try {
-    $result = $api_instance->fiteoApi1TrainingsGet($id);
+    $result = $api_instance->fiteoApi1TrainingsGet($limit, $cursor, $id, $id);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling DefaultApi->fiteoApi1TrainingsGet: ', $e->getMessage(), PHP_EOL;
@@ -12432,10 +12464,13 @@ $WWW::SwaggerClient::Configuration::api_key->{'Authorization'} = 'YOUR_API_KEY';
 #$WWW::SwaggerClient::Configuration::api_key_prefix->{'Authorization'} = "Bearer";
 
 my $api_instance = WWW::SwaggerClient::DefaultApi->new();
+my $limit = ; #  | 
+my $cursor = ; #  | 
+my $id = ; #  | 
 my $id = ; #  | 
 
 eval { 
-    my $result = $api_instance->fiteoApi1TrainingsGet(id => $id);
+    my $result = $api_instance->fiteoApi1TrainingsGet(limit => $limit, cursor => $cursor, id => $id, id => $id);
     print Dumper($result);
 };
 if ($@) {
@@ -12457,10 +12492,17 @@ swagger_client.configuration.api_key['Authorization'] = 'YOUR_API_KEY'
 
 # create an instance of the API class
 api_instance = swagger_client.DefaultApi()
+limit =  #  |  (optional)
+cursor =  #  |  (optional)
+id =  #  |  (optional)
 id =  #  |  (optional)
 
 try: 
-    api_response = api_instance.fiteo_api1_trainings_get(id=id)
+    # Single `GET /trainings` route that preserves the legacy contract.
+When neither `limit` nor `cursor` query parameters are present it delegates
+to the untouched `getTrainings` (plain JSON array). Otherwise it delegates
+to the new `getPagingTrainings` returning `{ items, nextCursor }`.
+    api_response = api_instance.fiteo_api1_trainings_get(limit=limit, cursor=cursor, id=id, id=id)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling DefaultApi->fiteoApi1TrainingsGet: %s\n" % e)</code></pre>
@@ -12479,6 +12521,54 @@ except ApiException as e:
                                 <th width="150px">Name</th>
                                 <th>Description</th>
                               </tr>
+                                <tr><td style="width:150px;">limit</td>
+                                <td>
+                                
+                                
+                                    <div id="d2e199_fiteoApi1TrainingsGet_limit">
+                                        <div class="json-schema-view">
+                                            <div class="primitive">
+                                                <span class="type">
+                                                    
+                                                </span>
+                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr><td style="width:150px;">cursor</td>
+                                <td>
+                                
+                                
+                                    <div id="d2e199_fiteoApi1TrainingsGet_cursor">
+                                        <div class="json-schema-view">
+                                            <div class="primitive">
+                                                <span class="type">
+                                                    
+                                                </span>
+                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr><td style="width:150px;">id</td>
+                                <td>
+                                
+                                
+                                    <div id="d2e199_fiteoApi1TrainingsGet_id">
+                                        <div class="json-schema-view">
+                                            <div class="primitive">
+                                                <span class="type">
+                                                    
+                                                </span>
+                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                </tr>
                                 <tr><td style="width:150px;">id</td>
                                 <td>
                                 

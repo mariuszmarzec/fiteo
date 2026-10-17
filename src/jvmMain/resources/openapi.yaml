@@ -883,8 +883,26 @@ paths:
       security:
       - fiteo_auth: []
     get:
-      summary: ""
+      summary: Single `GET /trainings` route that preserves the legacy contract.
+
+        When neither `limit` nor `cursor` query parameters are present it delegates
+
+        to the untouched `getTrainings` (plain JSON array). Otherwise it delegates
+
+        to the new `getPagingTrainings` returning `{ items, nextCursor }`.
       parameters:
+      - name: limit
+        in: query
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        schema:
+          type: string
+      - name: id
+        in: query
+        schema:
+          type: string
       - name: id
         in: query
         schema:

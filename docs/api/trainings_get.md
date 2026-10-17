@@ -6,10 +6,11 @@ Gets all trainings for the authenticated user.
 
 Returns the trainings owned by the authenticated user, including the progress for each exercise.
 
-The endpoint supports two response contracts:
+This route is a single `GET /fiteo/api/1/trainings` endpoint that dispatches to two
+different controller methods depending on the query parameters:
 
-1. **Legacy (no pagination)** — when neither `limit` nor `cursor` query parameters are present, the response is a plain JSON array of `TrainingDto` objects ordered by `createDateInMillis DESC`.
-2. **Paginated** — when at least one of `limit` or `cursor` is present, the response is a JSON object `{ "items": [...], "nextCursor": <int|null> }` ordered by `id DESC`. `cursor=C` filters trainings to those with `id < C`. `limit` controls the page size (default 10, accepted range 1–100).
+1. **Legacy (no pagination)** — when neither `limit` nor `cursor` query parameters are present, the route delegates to the untouched `getTrainings` method and returns a plain JSON array of `TrainingDto` objects ordered by `createDateInMillis DESC`. Existing callers keep working unchanged.
+2. **Paginated** — when at least one of `limit` or `cursor` is present, the route delegates to the new `getPagingTrainings` method and returns a JSON object `{ "items": [...], "nextCursor": <int|null> }` ordered by `id DESC`. `cursor=C` filters trainings to those with `id < C`. `limit` controls the page size (default 10, accepted range 1–100).
 
 ## Authentication
 

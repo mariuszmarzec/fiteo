@@ -33,7 +33,7 @@ fun Route.fiteoApi(di: Di, api: Controller) {
         updateTemplate(api)
         createTraining(api)
         getTraining(api)
-        getTrainings(api)
+        getPagingTrainings(api)
         removeTraining(api)
         updateTraining(api)
         addFcmToken(api)
@@ -78,8 +78,20 @@ fun Route.getTraining(api: Controller) = get(ApiPath.TRAINING) {
     respond(api.getTraining(createHttpRequest(Unit)))
 }
 
-fun Route.getTrainings(api: Controller) = get(ApiPath.TRAININGS) {
-    respond(api.getTrainings(createHttpRequest(Unit)))
+/**
+ * Single `GET /trainings` route that preserves the legacy contract.
+ *
+ * When neither `limit` nor `cursor` query parameters are present it delegates
+ * to the untouched `getTrainings` (plain JSON array). Otherwise it delegates
+ * to the new `getPagingTrainings` returning `{ items, nextCursor }`.
+ */
+fun Route.getPagingTrainings(api: Controller) = get(ApiPath.TRAININGS) {
+    val queries = call.request.queryParameters
+    if (queries[Api.Args.ARG_LIMIT] == null && queries[Api.Args.ARG_CURSOR] == null) {
+        respond(api.getTrainings(createHttpRequest(Unit)))
+    } else {
+        respond(api.getPagingTrainings(createHttpRequest(Unit)))
+    }
 }
 
 fun Route.removeTraining(api: Controller) = delete(ApiPath.TRAINING) {
