@@ -24,7 +24,7 @@ Required (session).
 |---|---|---|---|
 | id | String | No | Identifier query parameter accepted by the route. |
 | limit | Integer | No | Page size (1–100). Defaults to 10. When present alone it starts the first page of the paginated response. When present together with `cursor` it applies to that page. An empty value (`?limit=`) returns `400 Bad Request`. |
-| cursor | Integer | No | Cursor returned by a previous response. Filters trainings to those with `id <= cursor` (the cursor row itself is re-included on the next page, so no record is skipped). When present alone it continues the next page using the default limit of 10. An empty value (`?cursor=`) returns `400 Bad Request`. |
+| cursor | Integer | No | Cursor returned by a previous response. Filters trainings to those with `id < cursor` (the cursor row itself is **not** re-included on the next page). When present alone it continues the next page using the default limit of 10. An empty value (`?cursor=`) returns `400 Bad Request`. |
 
 ## Response
 
