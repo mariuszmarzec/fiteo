@@ -433,6 +433,21 @@ suspend fun ApplicationTestBuilder.getTemplates(): List<TrainingTemplateDto> =
 
 suspend fun ApplicationTestBuilder.getTrainings(): List<TrainingDto> = getWithAuth(ApiPath.TRAININGS)
 
+suspend fun ApplicationTestBuilder.deleteTraining(id: String) {
+    client.request(ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", id)) {
+        this.method = HttpMethod.Delete
+        authToken?.let { header(Headers.AUTHORIZATION, it) }
+    }
+}
+
+suspend fun ApplicationTestBuilder.getTrainingsPage(limit: Int, cursor: Int? = null): TrainingsPageDto {
+    val query = buildString {
+        append("?limit=$limit")
+        cursor?.let { append("&cursor=$it") }
+    }
+    return getWithAuth("${ApiPath.TRAININGS}$query")
+}
+
 suspend fun ApplicationTestBuilder.markAsDone(taskId: Int) {
     val dto = UpdateTaskDto(
         isToDo = false

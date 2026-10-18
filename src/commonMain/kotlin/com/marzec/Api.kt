@@ -7,6 +7,8 @@ object Api {
     object Args {
         const val ARG_ID = "id"
         const val ARG_USER_ID = "userId"
+        const val ARG_LIMIT = "limit"
+        const val ARG_CURSOR = "cursor"
     }
 
     object Headers {

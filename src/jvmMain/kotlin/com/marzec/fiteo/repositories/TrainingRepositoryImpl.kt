@@ -8,6 +8,7 @@ import com.marzec.fiteo.model.domain.Training
 import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SizedIterable
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -38,6 +39,19 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             TrainingsTable.selectAll()
                 .andWhere { TrainingsTable.userId eq userId }
                 .orderBy(TrainingsTable.createDateInMillis, SortOrder.DESC)
+                .map { TrainingEntity.wrapRow(it).toDomain() }
+        }
+    }
+
+    override fun getTrainings(userId: Int, limit: Int, cursor: Int?): List<Training> {
+        return database.dbCall {
+            TrainingsTable.selectAll()
+                .andWhere { TrainingsTable.userId eq userId }
+                .apply {
+                    cursor?.let { andWhere { TrainingsTable.id lessEq it } }
+                }
+                .orderBy(TrainingsTable.id, SortOrder.DESC)
+                .limit(limit + 1)
                 .map { TrainingEntity.wrapRow(it).toDomain() }
         }
     }

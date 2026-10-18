@@ -11,6 +11,8 @@ interface TrainingRepository {
 
     fun getTrainings(userId: Int): List<Training>
 
+    fun getTrainings(userId: Int, limit: Int, cursor: Int?): List<Training>
+
     fun removeTrainings(userId: Int, trainingId: Int): Training
 
     fun updateTraining(userId: Int, trainingId: Int, training: UpdateTraining): Training
