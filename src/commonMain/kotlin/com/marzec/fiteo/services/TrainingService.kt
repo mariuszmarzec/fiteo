@@ -96,7 +96,7 @@ class TrainingServiceImpl(
         val limit = request.limit ?: 10
         val rows = trainingRepository.getTrainings(userId, limit, request.cursor)
         val items = if (rows.size > limit) rows.take(limit) else rows
-        val nextCursor = if (rows.size > limit) rows[limit].id else null
+        val nextCursor = if (rows.size > limit) items.last().id else null
         return TrainingsPage(items = items, nextCursor = nextCursor)
     }
 
