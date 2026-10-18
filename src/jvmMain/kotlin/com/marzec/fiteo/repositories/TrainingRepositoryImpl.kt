@@ -49,7 +49,7 @@ class TrainingRepositoryImpl(private val database: Database) : TrainingRepositor
             TrainingsTable.selectAll()
                 .andWhere { TrainingsTable.userId eq userId }
                 .apply {
-                    cursor?.let { andWhere { TrainingsTable.id lessEq it } }
+                    cursor?.let { andWhere { TrainingsTable.id less it } }
                 }
                 .orderBy(TrainingsTable.id, SortOrder.DESC)
                 .limit(limit + 1)

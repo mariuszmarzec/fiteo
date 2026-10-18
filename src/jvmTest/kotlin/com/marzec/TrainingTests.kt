@@ -297,8 +297,8 @@ class TrainingTests {
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
                 assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3, 2))
-                // nextCursor is the id of the extra row (first record of the next page).
-                assertThat(page?.nextCursor).isEqualTo(1)
+                // nextCursor is the id of the last returned item (next page starts below it).
+                assertThat(page?.nextCursor).isEqualTo(2)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
@@ -319,8 +319,8 @@ class TrainingTests {
             uri = "${ApiPath.TRAININGS}?cursor=2",
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
-                // `cursor=2` filters `id <= 2`, so the cursor row is re-included.
-                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(2, 1))
+                // `cursor=2` filters `id < 2`, so the cursor row is not re-included.
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(1))
                 assertThat(page?.nextCursor).isNull()
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
@@ -407,8 +407,8 @@ class TrainingTests {
             status = HttpStatusCode.OK,
             responseDtoCheck = { page ->
                 assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3))
-                // nextCursor is the id of the extra row (first record of the next page).
-                assertThat(page?.nextCursor).isEqualTo(2)
+                // nextCursor is the id of the last returned item (next page starts below it).
+                assertThat(page?.nextCursor).isEqualTo(3)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
@@ -432,8 +432,8 @@ class TrainingTests {
                 assertThat(page?.items?.size).isEqualTo(100)
                 assertThat(page?.items?.map { it.id })
                     .isEqualTo((101 downTo 2).toList())
-                // nextCursor is the id of the extra row (first record of the next page).
-                assertThat(page?.nextCursor).isEqualTo(1)
+                // nextCursor is the id of the last returned item (next page starts below it).
+                assertThat(page?.nextCursor).isEqualTo(2)
             },
             authorize = ApplicationTestBuilder::registerAndLogin,
             runRequestsBefore = {
