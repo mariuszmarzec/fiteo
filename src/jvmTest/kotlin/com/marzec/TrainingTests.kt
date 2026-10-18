@@ -516,6 +516,13 @@ class TrainingTests {
             val page = getTrainingsPage(limit = 10)
             assertThat(page.items.map { it.id }).containsExactly(5, 4).inOrder()
             assertThat(page.nextCursor).isNull()
+
+            // A cursor request that, without the user filter in SQL, would reveal
+            // user1's trainings (ids 3..1). user2 owns only ids 5 and 4, so with
+            // `id < 3` filtering scoped to userId the result is empty.
+            val cursorPage = getTrainingsPage(limit = 10, cursor = 3)
+            assertThat(cursorPage.items.map { it.id }).isEmpty()
+            assertThat(cursorPage.nextCursor).isNull()
         }
     }
 
