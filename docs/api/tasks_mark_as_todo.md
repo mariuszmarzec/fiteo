@@ -52,8 +52,8 @@ Returns the updated task list.
     "id": 1,
     "ownerId": 42,
     "description": "Buy milk",
-    "addedTime": "2026-08-13T10:00:00Z",
-    "modifiedTime": "2026-08-13T10:05:00Z",
+    "addedTime": "2026-08-13T10:00:00",
+    "modifiedTime": "2026-08-13T10:05:00",
     "parentTaskId": null,
     "subTasks": [],
     "isToDo": true,
@@ -66,8 +66,8 @@ Returns the updated task list.
     "id": 2,
     "ownerId": 42,
     "description": "Pay rent",
-    "addedTime": "2026-08-12T09:00:00Z",
-    "modifiedTime": "2026-08-13T09:15:00Z",
+    "addedTime": "2026-08-12T09:00:00",
+    "modifiedTime": "2026-08-13T09:15:00",
     "parentTaskId": null,
     "subTasks": [],
     "isToDo": true,
@@ -78,3 +78,8 @@ Returns the updated task list.
   }
 ]
 ```
+
+## Date-time format
+
+API date-time values use `yyyy-MM-dd'T'HH:mm:ss` without a `Z` suffix or UTC offset, matching the backend's `Api.DATE_FORMAT`. The current parser does not accept timezone suffixes.
+
