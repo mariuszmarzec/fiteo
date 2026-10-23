@@ -26,6 +26,11 @@ class OpenApiTest {
             assertThat(document).contains("/cheat/api/1/")
             assertThat(document).contains("/sse")
 
+            assertThat(document).contains("Generates and synchronizes a shopping list from the configured meal plan")
+            assertThat(document).contains("Clears the current shopping list")
+            assertThat(document).contains("Generates a shopping list using median product quantities from saved history")
+            assertThat(document).doesNotContain("reszta endpointów /api/run_A")
+
             System.getProperty(SNAPSHOT_OUTPUT_PROPERTY)
                 ?.takeIf { it.isNotBlank() }
                 ?.let { path ->
