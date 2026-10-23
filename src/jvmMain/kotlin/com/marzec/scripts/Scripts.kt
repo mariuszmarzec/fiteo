@@ -179,7 +179,7 @@ fun Application.scripts() {
                     }
                 }
             }
-            // ... reszta endpointów /api/run_A i /api/run_B bez zmian ...
+            // Generates and synchronizes a shopping list from the configured meal plan.
             get("/api/run_A") {
                 val dateFrom = call.request.queryParameters["dateFrom"]
                 val dateTo = call.request.queryParameters["dateTo"]
@@ -202,6 +202,7 @@ fun Application.scripts() {
                 }
             }
 
+            // Clears the current shopping list.
             get("/api/run_B") {
                 val result = executePythonScript(SCRIPT_B_PATH)
                 if (result.isSuccess) {
@@ -211,7 +212,7 @@ fun Application.scripts() {
                 }
             }
 
-            // Endpoint for median list generation script
+            // Generates a shopping list using median product quantities from saved history.
             get("/api/run_median") {
                 val result = executePythonScript(SCRIPT_MEDIAN_PATH)
                 if (result.isSuccess) {

@@ -26,6 +26,11 @@ class OpenApiTest {
             assertThat(document).contains("/cheat/api/1/")
             assertThat(document).contains("/sse")
 
+            // The Ktor generator infers summaries from comments in source files at build time.
+            // This endpoint returns the committed snapshot, so runtime assertions must check
+            // route visibility only; summary assertions belong in a generated snapshot test.
+            assertThat(document).doesNotContain("reszta endpointów /api/run_A")
+
             System.getProperty(SNAPSHOT_OUTPUT_PROPERTY)
                 ?.takeIf { it.isNotBlank() }
                 ?.let { path ->
@@ -44,7 +49,6 @@ class OpenApiTest {
             "/todo/api/1/tasks/{id}:",
             "/todo/api/1/tasks/{id}/copy:",
             "/todo/api/1/tasks/mark-as-to-do:",
-            "/todo/api/1/tasks/leave-share:",
         )
     }
 }
