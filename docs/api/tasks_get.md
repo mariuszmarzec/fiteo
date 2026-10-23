@@ -34,8 +34,8 @@ The response contains a list of `TaskDto` entries.
     "id": 1,
     "ownerId": 42,
     "description": "Buy milk",
-    "addedTime": "2026-08-13T10:00:00Z",
-    "modifiedTime": "2026-08-13T10:05:00Z",
+    "addedTime": "2026-08-13T10:00:00",
+    "modifiedTime": "2026-08-13T10:05:00",
     "parentTaskId": null,
     "subTasks": [],
     "isToDo": true,
@@ -50,3 +50,5 @@ The response contains a list of `TaskDto` entries.
 ## Notes
 
 All ToDo endpoints in this documentation require authentication.
+
+Task and scheduler date-time fields are returned in the local date-time format `yyyy-MM-dd'T'HH:mm:ss`, without a `Z` suffix or UTC offset. When a task has a scheduler, its `scheduler.type` value is case-sensitive: `OneShot`, `Weekly`, or `Monthly`. See [Create task](tasks_create.md) for examples and request-field details.
