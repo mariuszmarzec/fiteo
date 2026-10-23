@@ -34,9 +34,11 @@ Use the configured session or bearer authentication for the request.
 | parentTaskId | NullableFieldDto<Int>? | No | Use this to set or clear the parent task ID. |
 | priority | Int? | No | New priority value. |
 | isToDo | Boolean? | No | Whether the task is marked as a ToDo item. |
-| scheduler | NullableFieldDto<SchedulerDto>? | No | Use this to set or clear the scheduler configuration. |
-| expirationDate | NullableFieldDto<String>? | No | Use this to set or clear the expiration date. |
+| scheduler | NullableFieldDto<SchedulerDto>? | No | Use this to set or clear the scheduler configuration. Scheduler date-time fields must use `yyyy-MM-dd'T'HH:mm:ss` without `Z` or a UTC offset; scheduler types are case-sensitive (`OneShot`, `Weekly`, `Monthly`). |
+| expirationDate | NullableFieldDto<String>? | No | Use this to set or clear the expiration date. When set, use `yyyy-MM-dd'T'HH:mm:ss` without a timezone suffix. |
 | shares | List<UpdateTaskShareDto>? | No | Updated share configuration. |
+
+Date-time example: `2026-08-13T09:00:00`. The current parser rejects suffixes such as `Z` and offsets such as `+02:00`.
 
 ### Example
 
@@ -63,8 +65,8 @@ Returns the updated `TaskDto`.
   "id": 1,
   "ownerId": 42,
   "description": "Buy milk and bread",
-  "addedTime": "2026-08-13T10:00:00Z",
-  "modifiedTime": "2026-08-13T10:30:00Z",
+  "addedTime": "2026-08-13T10:00:00",
+  "modifiedTime": "2026-08-13T10:30:00",
   "parentTaskId": null,
   "subTasks": [],
   "isToDo": false,
