@@ -49,8 +49,8 @@ Returns the updated task after leaving the share.
   "id": 42,
   "ownerId": 9,
   "description": "Shared task",
-  "addedTime": "2026-08-10T13:00:00Z",
-  "modifiedTime": "2026-08-12T14:00:00Z",
+  "addedTime": "2026-08-10T13:00:00",
+  "modifiedTime": "2026-08-12T14:00:00",
   "parentTaskId": null,
   "subTasks": [],
   "isToDo": false,
@@ -60,3 +60,7 @@ Returns the updated task after leaving the share.
   "shares": []
 }
 ```
+
+## Date-time format
+
+API date-time values use `yyyy-MM-dd'T'HH:mm:ss` without a `Z` suffix or UTC offset, matching the backend's `Api.DATE_FORMAT`. The current parser does not accept timezone suffixes. For scheduler type values and request date formats, see [Create task](tasks_create.md).

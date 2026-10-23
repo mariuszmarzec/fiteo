@@ -108,4 +108,3 @@ are excluded from the generated OpenAPI document.
 ## OpenAPI
 
 - [Compile-time OpenAPI and Swagger UI](openapi.md)
-- [OpenAPI and Swagger UI endpoints](openapi.md#openapi-and-swagger-ui-endpoints)

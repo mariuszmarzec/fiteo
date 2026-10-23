@@ -8,7 +8,7 @@ Returns the full list of feature toggles configured in the system.
 
 ## Authentication
 
-Not required.
+Required (session).
 
 ## Query Parameters
 

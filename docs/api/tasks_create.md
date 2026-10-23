@@ -28,10 +28,17 @@ Use the configured session or bearer authentication for the request.
 | parentTaskId | Int? | No | Parent task ID when creating a subtask. |
 | priority | Int? | No | Task priority. |
 | highestPriorityAsDefault | Boolean? | No | Whether to use the highest priority as the default behavior. |
-| scheduler | SchedulerDto? | No | Task scheduling configuration. |
+| scheduler | SchedulerDto | No | Task scheduling configuration. |
 | isToDo | Boolean? | No | Whether the task is a ToDo item. |
 | expirationDate | String? | No | Expiration date as a local date-time string; see the date format note below. |
 | shares | List<TaskShareDto>? | No | Task share configuration. |
+
+### TaskShareDto
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| userId | String | Yes | User ID the task is shared with. |
+| permission | String | Yes | Permission level for the shared user. |
 
 ### SchedulerDto
 
