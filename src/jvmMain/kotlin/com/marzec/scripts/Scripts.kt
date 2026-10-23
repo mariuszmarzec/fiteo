@@ -25,6 +25,9 @@ import kotlinx.html.script
 import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 val SCRIPTS_DIR = "/root/shoppingListGenerator"
 val SCRIPT_A_PATH = "$SCRIPTS_DIR/vitalia.py"
@@ -181,18 +184,14 @@ fun Application.scripts() {
                 val dateFrom = call.request.queryParameters["dateFrom"]
                 val dateTo = call.request.queryParameters["dateTo"]
                 val onlyTodo = call.request.queryParameters["onlyTodo"]
-                val args = mutableListOf<String>()
-
-                fun convertDate(date: String): String {
-                    val parts = date.split("-")
-                    return if (parts.size == 3) "${parts[2]}-${parts[1]}-${parts[0]}" else date
-                }
-
-                if (!dateFrom.isNullOrBlank()) {
-                    args.add(convertDate(dateFrom))
-                    if (!dateTo.isNullOrBlank()) {
-                        args.add(convertDate(dateTo))
-                    }
+                val args = try {
+                    buildRunAScriptArguments(dateFrom, dateTo, onlyTodo)
+                } catch (exception: IllegalArgumentException) {
+                    call.respondText(
+                        exception.message ?: "Dates must use YYYY-MM-DD and dateTo must not precede dateFrom.",
+                        status = HttpStatusCode.BadRequest
+                    )
+                    return@get
                 }
 
                 val result = executePythonScript(SCRIPT_A_PATH, args)
@@ -223,6 +222,56 @@ fun Application.scripts() {
             }
         }
     }
+}
+
+private val SCRIPT_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+/**
+ * Converts the scripts-panel query parameters into the positional date arguments
+ * and flags accepted by vitalia.py.
+ *
+ * If only dateFrom is provided, vitalia.py uses its existing seven-day default.
+ * If only dateTo is provided, use the seven-day window ending on dateTo.
+ */
+internal fun buildRunAScriptArguments(
+    dateFrom: String?,
+    dateTo: String?,
+    onlyTodo: String?
+): List<String> {
+    fun parseDate(value: String?): LocalDate? {
+        if (value.isNullOrBlank()) return null
+        return try {
+            LocalDate.parse(value)
+        } catch (exception: DateTimeParseException) {
+            throw IllegalArgumentException("Dates must use YYYY-MM-DD format.", exception)
+        }
+    }
+
+    val from = parseDate(dateFrom)
+    val to = parseDate(dateTo)
+
+    require(from == null || to == null || !to.isBefore(from)) {
+        "dateTo must be on or after dateFrom."
+    }
+
+    val args = mutableListOf<String>()
+    when {
+        from != null && to != null -> {
+            args += from.format(SCRIPT_DATE_FORMATTER)
+            args += to.format(SCRIPT_DATE_FORMATTER)
+        }
+        from != null -> args += from.format(SCRIPT_DATE_FORMATTER)
+        to != null -> {
+            args += to.minusDays(7).format(SCRIPT_DATE_FORMATTER)
+            args += to.format(SCRIPT_DATE_FORMATTER)
+        }
+    }
+
+    if (onlyTodo.equals("true", ignoreCase = true)) {
+        args += "--only-todo"
+    }
+
+    return args
 }
 
 data class ScriptExecutionResult(val output: String, val isSuccess: Boolean)
