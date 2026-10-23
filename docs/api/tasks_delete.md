@@ -45,8 +45,8 @@ Returns the deleted `TaskDto`.
   "id": 123,
   "ownerId": 42,
   "description": "Old task",
-  "addedTime": "2026-08-10T08:00:00Z",
-  "modifiedTime": "2026-08-10T08:00:00Z",
+  "addedTime": "2026-08-10T08:00:00",
+  "modifiedTime": "2026-08-10T08:00:00",
   "parentTaskId": null,
   "subTasks": [],
   "isToDo": false,
@@ -56,3 +56,5 @@ Returns the deleted `TaskDto`.
   "shares": []
 }
 ```
+
+Task date-time fields use the local date-time format `yyyy-MM-dd'T'HH:mm:ss` without a `Z` suffix or UTC offset. For scheduler type values and request date formats, see [Create task](tasks_create.md).

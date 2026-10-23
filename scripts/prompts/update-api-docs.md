@@ -2,55 +2,49 @@
 
 Update the Markdown API documentation under `docs/api/` so it matches the OpenAPI specification generated immediately before this OpenCode run.
 
-## Source of truth
+## Mandatory reading and sources of truth
 
-Read:
+Read these sources before editing anything:
 
-- `src/jvmMain/resources/openapi.yaml` — authoritative API contract
-- all existing files under `docs/api/`
-- relevant Ktor routing/controller source files when additional human-readable context is useful
+- `src/jvmMain/resources/openapi.yaml` — authoritative generated endpoint contract
+- `docs/api/runtime-behavior.md` — mandatory maintained record of implementation behavior that OpenAPI cannot describe completely
+- all existing endpoint pages under `docs/api/`
+- the relevant Kotlin routing, DTO, model, parser/formatter, and authentication code for details covered by `runtime-behavior.md`
 
-The OpenAPI document is authoritative for:
+The OpenAPI document is authoritative for paths, methods, parameters, request/response schemas, response codes, and content types. The maintained runtime-behavior document and current source code are authoritative for behavioral details such as case-sensitive string values, date parsing/formatting, and authentication headers. These sources complement rather than replace one another.
 
-- paths and HTTP methods
-- path/query parameters
-- request bodies
-- response codes and schemas/content types
-- server URL and API-level metadata
+**Do not infer runtime behavior from an OpenAPI example when it conflicts with the implementation or `docs/api/runtime-behavior.md`.** OpenAPI examples may be illustrative, stale, or unable to represent parser constraints.
 
-Do not invent contract details that are not supported by OpenAPI or the source code.
+## Runtime invariants that must survive every generation
+
+1. **Scheduler types:** `SchedulerDto.type` values are exactly `OneShot`, `Weekly`, and `Monthly`, with the same capitalization. The task creation page must include a JSON example using `"type": "OneShot"`. Do not use lowercase `weekly` or infer values from the current OpenAPI example.
+2. **Date-time strings:** task and scheduler date-time values use `yyyy-MM-dd'T'HH:mm:ss`, with no `Z` suffix or UTC offset. Keep examples in `tasks_create.md`, `tasks_get.md`, `tasks_update.md`, and `tasks_delete.md` consistent with this parser/formatter behavior. Prose may explicitly explain that `Z` or offsets are rejected, but JSON payload examples must not use them.
+3. **Authentication:** `POST /fiteo/api/1/login` returns the session authentication value in the `Authorization` response header, and callers must reuse that complete value unchanged in subsequent `Authorization` request headers. The JSON body contains the user, not the auth value. Keep this distinct from `POST /fiteo/api/1/login-bearer`, whose response header contains the full `Bearer <token>` value and whose token currently expires after 60 seconds.
+4. **Do not generate the invariant source:** never rewrite, remove, or regenerate `docs/api/runtime-behavior.md` from OpenAPI. It is deliberately maintained separately to retain behavior that OpenAPI cannot reliably encode.
 
 ## What to do
 
-1. Compare every OpenAPI path/method with the existing Markdown documentation.
-2. Update existing Markdown files instead of replacing them wholesale when they already document an endpoint.
-3. Preserve useful existing explanations, examples, authentication notes, and terminology when they are still correct.
-4. Correct stale endpoint paths, HTTP methods, parameters, request/response schemas, status codes, and examples.
-5. Create Markdown files for new endpoints that do not have suitable existing documentation.
-6. Remove or repoint documentation for endpoints that no longer exist only when it is clearly obsolete.
-7. Update `docs/api/README.md` so its links and grouping match the resulting documentation.
-8. Keep the current naming/style convention where practical. Prefer descriptive snake_case filenames such as `tasks_get.md`.
-9. Keep endpoint documentation focused and readable. A typical endpoint page should contain:
-   - title
-   - HTTP method and path
-   - purpose/description
-   - authentication requirements when known
-   - path/query parameters
-   - request body
-   - successful response
-   - relevant error responses
-   - a concise request example when the contract/source provides enough information
-10. Use fenced code blocks for JSON/request examples.
-11. Preserve `openapi.md` as documentation about the OpenAPI generation mechanism; update it if the implementation/configuration has materially changed.
+1. Compare every OpenAPI path/method with the existing endpoint documentation.
+2. Update existing Markdown files rather than replacing them wholesale when they already contain useful material.
+3. Preserve correct explanations, examples, authentication notes, runtime caveats, and terminology.
+4. Correct stale paths, methods, parameters, schemas, status codes, and examples.
+5. Create endpoint Markdown files for new paths/methods that do not have a suitable page.
+6. Remove or repoint documentation for obsolete endpoints only when that is clearly justified.
+7. Keep `docs/api/README.md` links and groupings accurate, including its link to `runtime-behavior.md`.
+8. Use descriptive snake_case filenames such as `tasks_get.md`.
+9. Keep pages focused: purpose, authentication, parameters, request/response schemas, successful/error responses, and concise examples when useful.
+10. Use fenced code blocks for request and response examples.
+11. Preserve `openapi.md` as documentation about OpenAPI generation; update it only when that mechanism has materially changed.
 
 ## Constraints
 
 - Do NOT modify application source code.
-- Do NOT modify Gradle/build configuration or scripts.
+- Do NOT modify Gradle/build configuration or any scripts, validators, or prompt files.
 - Do NOT modify `src/jvmMain/resources/openapi.yaml`; it has already been generated by Gradle.
 - Do NOT manually add endpoints to OpenAPI.
-- Do NOT create documentation for routes excluded from the generated OpenAPI document.
-- Do NOT silently delete useful existing documentation just because an endpoint is difficult to map.
+- Do NOT create endpoint docs for routes excluded from the generated OpenAPI document.
+- Do NOT alter `docs/api/runtime-behavior.md`; its owner maintains it separately.
+- Do NOT silently delete useful documentation just because a route or schema is difficult to map.
 - Do NOT commit changes. Leave the working tree ready for review.
 - Keep unrelated files unchanged.
 
@@ -58,9 +52,12 @@ Do not invent contract details that are not supported by OpenAPI or the source c
 
 Before finishing:
 
-- verify every OpenAPI path/method has corresponding documentation somewhere under `docs/api/`
-- verify every endpoint listed in `docs/api/README.md` still exists in OpenAPI
-- verify Markdown links in `docs/api/README.md` point to existing files
+- verify every OpenAPI path/method has corresponding endpoint documentation under `docs/api/`
+- verify every endpoint linked in `docs/api/README.md` still exists and every link resolves
+- inspect the scheduler type and date-time examples against `docs/api/runtime-behavior.md` and relevant source code
+- check that login docs describe the actual response header behavior
 - review the diff and remove accidental/unrelated changes
+
+The `scripts/update-api-docs.sh` caller runs a separate deterministic validator after this agent finishes. Do not alter the validator or ignore a validation failure.
 
 At the end, briefly report which documentation files were created, updated, or removed.

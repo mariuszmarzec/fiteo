@@ -94,12 +94,16 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 ## Scripts
 
 These endpoints are exposed through the scripts panel and use HTTP Basic
-Authentication (`auth-basic`). They are part of the running application but are
-excluded from the generated OpenAPI document.
+Authentication (`auth-basic`). They are part of the running application but
+are excluded from the generated OpenAPI document.
 
 - [Run shopping list generator](scripts_run_a.md)
 - [Clear list](scripts_run_b.md)
 - [Generate median list](scripts_run_median.md)
+
+## Runtime behavior
+
+- [Runtime behavior not fully represented by OpenAPI](runtime-behavior.md)
 
 ## OpenAPI
 

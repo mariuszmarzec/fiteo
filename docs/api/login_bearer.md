@@ -4,11 +4,13 @@ Logs in and receives a bearer token for authenticated requests.
 
 ## Description
 
-Authenticates the user and returns a signed JWT in the `Authorization` header, which can then be used for bearer authentication.
+Authenticates the user and returns a signed JWT in the `Authorization` response header for bearer authentication.
 
 ## Authentication
 
 Not required.
+
+The response header contains the complete value in the form `Bearer <token>`. Reuse that full value unchanged as the `Authorization` header on subsequent requests; do not strip the `Bearer ` prefix or add a second one.
 
 ## Query Parameters
 
@@ -40,7 +42,7 @@ Not required.
 
 `200 OK`
 
-Returns the authenticated user record and creates an Authorization token for bearer-based requests.
+Returns the authenticated user record and includes the bearer token in the `Authorization` response header. In the current implementation, the JWT expires after 60 seconds.
 
 ### Response Body
 
@@ -53,4 +55,4 @@ Returns the authenticated user record and creates an Authorization token for bea
 
 ## Notes
 
-The server creates a signed JWT and appends an `Authorization` header value. The existing documentation notes that the token value is masked in server logs.
+The token is signed by the server and the token value is not included in the JSON response body. For the regular session-based `/fiteo/api/1/login` flow, see [Login](login.md); its `Authorization` header value must likewise be reused exactly as returned.
