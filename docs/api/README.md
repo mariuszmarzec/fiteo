@@ -29,7 +29,6 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 
 - [Get trainings](trainings_get.md)
 - [Create training](trainings_create.md)
-- [Get training](training_templates_create.md)
 - [Get training](trainings_get_by_id.md)
 - [Delete training](trainings_delete.md)
 - [Update training](trainings_update.md)
@@ -64,7 +63,7 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 - [Get categories](categories_get.md)
 - [Create category](categories_create.md)
 - [Get category](categories_get_by_id.md)
-- [Delete category](categories_delete.md)
+- [Delete category](categories_get_by_id.md)
 - [Update category](categories_update.md)
 
 ## Feature toggles
@@ -72,7 +71,7 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 - [Get feature toggles](feature_toggles_get.md)
 - [Create feature toggle](feature_toggles_create.md)
 - [Get feature toggle](feature_toggles_get_by_id.md)
-- [Delete feature toggle](feature_toggles_delete.md)
+- [Delete feature toggle](feature_toggles_get_by_id.md)
 - [Update feature toggle](feature_toggles_update.md)
 
 ## FCM tokens
