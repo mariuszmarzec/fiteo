@@ -18,19 +18,15 @@ Use these exact values in requests and expect these values in responses. Lowerca
 
 When documenting task endpoints, include a `OneShot` example and do not infer allowed values solely from a single OpenAPI example.
 
-## Task date-time format
+## API date-time format (all endpoints)
 
-The backend's shared `Api.DATE_FORMAT` is `yyyy-MM-dd'T'HH:mm:ss`. These fields are parsed/formatted as local date-time strings:
-
-- `scheduler.startDate`
-- `scheduler.creationDate`
-- `scheduler.lastDate`
-- `expirationDate`
-- the date-time fields in task responses, including `addedTime` and `modifiedTime`
+The shared `Api.DATE_FORMAT` is `yyyy-MM-dd'T'HH:mm:ss`. API fields backed by Kotlin `LocalDateTime` use this format for both request parsing and response serialization. The rule is not limited to task endpoints; it also applies to values such as training dates, exercise-series dates, weight-entry dates, FCM token update times, and other response fields formatted via `formatDate()`.
 
 Example: `2026-08-13T09:00:00`.
 
-Do **not** append `Z` or a UTC offset such as `+02:00`. These suffixes are not accepted by the current `LocalDateTime` parser. Keep JSON examples for these task endpoints consistent with this format, including response examples.
+Do **not** append `Z`, a UTC offset such as `+02:00`, or fractional seconds. Those values do not match the backend's current date-time pattern/parser.
+
+When generating or updating any `docs/api/*.md` page, keep every JSON request/response example that represents an API `LocalDateTime` consistent with this format. This includes nested objects and response examples, not just task endpoint examples. If unsure whether a field is a date-time, inspect its DTO/domain type and the relevant mapper/formatter instead of guessing from OpenAPI's generic `string` schema.
 
 ## Login and authentication headers
 

@@ -41,8 +41,8 @@ Returns either a list of `TrainingDto` objects (legacy contract) or a `Trainings
   {
     "id": 1,
     "templateId": 1,
-    "createDateInMillis": "2026-08-13T10:00:00Z",
-    "finishDateInMillis": "2026-08-13T11:00:00Z",
+    "createDateInMillis": "2026-08-13T10:00:00",
+    "finishDateInMillis": "2026-08-13T11:00:00",
     "exercisesWithProgress": [
       {
         "id": 1,
@@ -52,7 +52,7 @@ Returns either a list of `TrainingDto` objects (legacy contract) or a `Trainings
             "seriesId": 1,
             "exerciseId": 1,
             "trainingId": 1,
-            "date": "2026-08-13T10:00:00Z",
+            "date": "2026-08-13T10:00:00",
             "burden": 60.0,
             "timeInMillis": null,
             "repsNumber": 5,
@@ -75,8 +75,8 @@ Returns either a list of `TrainingDto` objects (legacy contract) or a `Trainings
     {
       "id": 1,
       "templateId": 1,
-      "createDateInMillis": "2026-08-13T10:00:00Z",
-      "finishDateInMillis": "2026-08-13T11:00:00Z",
+      "createDateInMillis": "2026-08-13T10:00:00",
+      "finishDateInMillis": "2026-08-13T11:00:00",
       "exercisesWithProgress": []
     }
   ],
@@ -87,6 +87,10 @@ Returns either a list of `TrainingDto` objects (legacy contract) or a `Trainings
 ### Error
 
 `400 Bad Request` — returned when `limit` is not an integer in the 1–100 range (or is empty), or when `cursor` is not a positive integer (or is empty).
+
+## Date-time format
+
+API date-time values use `yyyy-MM-dd'T'HH:mm:ss` without a `Z` suffix or UTC offset, matching the backend's `Api.DATE_FORMAT`. The current parser does not accept timezone suffixes.
 
 ## Notes
 
