@@ -49,4 +49,4 @@ The script failed to execute. The response body is the plain-text error message.
 
 ## Notes
 
-This endpoint is only available through the scripts panel, which is excluded from the generated OpenAPI document but is part of the running application.
+This endpoint is served through the scripts panel and is part of the running application; it is also included in the generated OpenAPI document.
