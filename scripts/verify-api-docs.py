@@ -32,6 +32,13 @@ def read_doc(name: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def read_source(path: Path) -> str:
+    if not path.is_file():
+        ERRORS.append(f"Missing required runtime source: {path.relative_to(ROOT)}")
+        return ""
+    return path.read_text(encoding="utf-8")
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         ERRORS.append(message)
@@ -45,6 +52,10 @@ delete = read_doc("tasks_delete.md")
 login = read_doc("login.md")
 login_bearer = read_doc("login_bearer.md")
 readme = read_doc("README.md")
+feature_toggles = read_doc("feature_toggles_get.md")
+openapi_doc = read_doc("openapi.md")
+fiteo_routes = read_source(ROOT / "src/jvmMain/kotlin/com/marzec/fiteo/FiteoApi.kt")
+task_model = read_source(ROOT / "src/commonMain/kotlin/com/marzec/todo/model/model.kt")
 
 # Keep the durable runtime contract present and linked from the API index.
 for expected in (
@@ -61,10 +72,104 @@ require(
     "[Runtime behavior not fully represented by OpenAPI](runtime-behavior.md)" in readme,
     "docs/api/README.md must link to runtime-behavior.md.",
 )
+require(
+    "[Compile-time OpenAPI and Swagger UI](openapi.md)" in readme,
+    "docs/api/README.md must retain its link to the OpenAPI generation guide.",
+)
+require(
+    "[OpenAPI and Swagger UI endpoints](openapi.md#openapi-and-swagger-ui-endpoints)" in readme,
+    "docs/api/README.md must retain its link to the OpenAPI and Swagger UI endpoints section.",
+)
+require(
+    re.search(r"(?m)^## OpenAPI and Swagger UI endpoints\s*$", openapi_doc) is not None,
+    "openapi.md must contain the 'OpenAPI and Swagger UI endpoints' section linked by README.",
+)
 
 # Every Markdown file linked by the API index must exist.
 for link in README_LINK.findall(readme):
     require((DOCS / link).is_file(), f"docs/api/README.md links to missing file: {link}")
+
+# Check the feature-toggle authentication claim against its actual routing scope.
+auth_scope = re.search(
+    r"authenticate\(di\.authToken\)\s*\{(?P<body>.*?)^[ \t]{4}\}",
+    fiteo_routes,
+    re.MULTILINE | re.DOTALL,
+)
+require(
+    auth_scope is not None,
+    "FiteoApi.kt must contain a parseable authenticate(di.authToken) route block.",
+)
+feature_auth_section = re.search(
+    r"(?im)^## Authentication\s*\n(.*?)(?=^## |\Z)",
+    feature_toggles,
+    re.DOTALL,
+)
+require(
+    feature_auth_section is not None,
+    "feature_toggles_get.md must contain an Authentication section.",
+)
+if auth_scope is not None and feature_auth_section is not None:
+    feature_route_is_authenticated = re.search(
+        r"(?m)^[ \t]*featureToggles\(api\)\s*$",
+        auth_scope.group("body"),
+    ) is not None
+    auth_text = feature_auth_section.group(1)
+    if feature_route_is_authenticated:
+        require(
+            re.search(r"\brequired\b", auth_text, re.IGNORECASE) is not None
+            and re.search(r"\bnot required\b", auth_text, re.IGNORECASE) is None,
+            "feature_toggles_get.md must require authentication when featureToggles(api) is inside authenticate(di.authToken).",
+        )
+    else:
+        require(
+            re.search(r"\bnot required\b", auth_text, re.IGNORECASE) is not None,
+            "feature_toggles_get.md must say 'Not required.' because featureToggles(api) is outside authenticate(di.authToken).",
+        )
+        require(
+            re.search(r"authenticated session|authentication is required", feature_toggles, re.IGNORECASE) is None,
+            "feature_toggles_get.md must not claim that this public route requires an authenticated session.",
+        )
+
+# Match the scheduler field's type and requiredness to the real CreateTaskDto declaration.
+create_task_dto = re.search(
+    r"data class CreateTaskDto\s*\((?P<body>.*?)^[ \t]*\)",
+    task_model,
+    re.MULTILINE | re.DOTALL,
+)
+require(create_task_dto is not None, "model.kt must contain the CreateTaskDto declaration.")
+scheduler_property = None
+if create_task_dto is not None:
+    scheduler_property = re.search(
+        r"^[ \t]*val scheduler:[ \t]*(SchedulerDto\??)(?:[ \t]*=[ \t]*([^,\n]+))?,?[ \t]*$",
+        create_task_dto.group("body"),
+        re.MULTILINE,
+    )
+require(
+    scheduler_property is not None,
+    "CreateTaskDto must declare a scheduler property whose type can be checked.",
+)
+scheduler_row = re.search(
+    r"(?m)^\|\s*scheduler\s*\|\s*([^|]+?)\s*\|\s*(Yes|No)\s*\|",
+    create,
+)
+require(
+    scheduler_row is not None,
+    "tasks_create.md must contain a scheduler row in the CreateTaskDto field table.",
+)
+if scheduler_property is not None and scheduler_row is not None:
+    expected_scheduler_type = scheduler_property.group(1).strip()
+    actual_scheduler_type = scheduler_row.group(1).strip()
+    require(
+        actual_scheduler_type == expected_scheduler_type,
+        f"tasks_create.md documents scheduler as {actual_scheduler_type!r}, but CreateTaskDto declares {expected_scheduler_type!r}.",
+    )
+    has_default = scheduler_property.group(2) is not None
+    expected_required = "No" if has_default else "Yes"
+    actual_required = scheduler_row.group(2)
+    require(
+        actual_required == expected_required,
+        f"tasks_create.md documents scheduler Required={actual_required}, but CreateTaskDto has_default={has_default} implies Required={expected_required}.",
+    )
 
 # The task creation page must show the exact OneShot API value.
 create_json_blocks = JSON_BLOCK.findall(create)

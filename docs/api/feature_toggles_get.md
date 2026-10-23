@@ -8,7 +8,7 @@ Returns the full list of feature toggles configured in the system.
 
 ## Authentication
 
-Required (session).
+Not required.
 
 ## Query Parameters
 
@@ -40,7 +40,3 @@ Returns a list of `FeatureToggleDto` objects.
   }
 ]
 ```
-
-## Notes
-
-This endpoint requires an authenticated session.

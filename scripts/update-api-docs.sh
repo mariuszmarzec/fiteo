@@ -35,6 +35,7 @@ REQUIRED_SOURCE_FILES=(
   "src/commonMain/kotlin/com/marzec/todo/model/model.kt"
   "src/jvmMain/kotlin/com/marzec/todo/database/TasksTable.kt"
   "src/jvmMain/kotlin/com/marzec/JvmMain.kt"
+  "src/jvmMain/kotlin/com/marzec/fiteo/FiteoApi.kt"
   "src/commonMain/kotlin/com/marzec/fiteo/model/domain/Training.kt"
   "src/commonMain/kotlin/com/marzec/fiteo/model/domain/TrainingExerciseWithProgress.kt"
   "src/commonMain/kotlin/com/marzec/cheatday/domain/Weight.kt"

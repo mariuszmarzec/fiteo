@@ -18,6 +18,7 @@ For runtime facts already covered in `runtime-behavior.md`, use it as a trusted 
 - `src/commonMain/kotlin/com/marzec/todo/model/model.kt` — task/scheduler DTO conversion and scheduler type names
 - `src/jvmMain/kotlin/com/marzec/todo/database/TasksTable.kt` — persisted scheduler mapping
 - `src/jvmMain/kotlin/com/marzec/JvmMain.kt` — login routes and authentication headers
+- `src/jvmMain/kotlin/com/marzec/fiteo/FiteoApi.kt` — route registration and which routes are inside `authenticate(di.authToken)`
 - `src/commonMain/kotlin/com/marzec/fiteo/model/domain/Training.kt` — training DTOs and date-time conversion
 - `src/commonMain/kotlin/com/marzec/fiteo/model/domain/TrainingExerciseWithProgress.kt` — exercise-series DTO/date conversion
 - `src/commonMain/kotlin/com/marzec/cheatday/domain/Weight.kt` — weight date conversion
@@ -38,7 +39,10 @@ OpenAPI is authoritative for paths, methods, parameters, request/response schema
 1. **Scheduler types:** `SchedulerDto.type` values are exactly `OneShot`, `Weekly`, and `Monthly`, with the same capitalization. The task creation page must include a JSON example using `"type": "OneShot"`. Do not use lowercase `weekly` or infer values from the current OpenAPI example.
 2. **Date-time strings across the whole API:** values backed by Kotlin `LocalDateTime` use `yyyy-MM-dd'T'HH:mm:ss` with no `Z` suffix, UTC offset, or fractional seconds. This applies beyond tasks, including training dates, exercise-series dates, weight dates, FCM update times, and other values converted through the shared `formatDate()`. Check every JSON request and response example in `docs/api/*.md`, including nested examples; do not limit this to task endpoints. If uncertain about a field, inspect its DTO/domain type and formatter.
 3. **Authentication:** `POST /fiteo/api/1/login` returns the session authentication value in the `Authorization` response header, and callers must reuse that complete value unchanged in subsequent `Authorization` request headers. The JSON body contains the user, not the auth value. Keep this distinct from `POST /fiteo/api/1/login-bearer`, whose response header contains the full `Bearer <token>` value and whose token currently expires after 60 seconds.
-4. **Do not generate the invariant source:** never rewrite, remove, or regenerate `docs/api/runtime-behavior.md` from OpenAPI. It is deliberately maintained separately to retain behavior that OpenAPI cannot reliably encode.
+4. **Feature-toggle authentication:** the current `GET /fiteo/api/1/feature_toggles` route is registered by `featureToggles(api)` in `src/jvmMain/kotlin/com/marzec/fiteo/FiteoApi.kt`, outside the `authenticate(di.authToken) { ... }` block. Document it as `Not required.` and do not add a note claiming that an authenticated session is required. Re-check the actual registration scope if routing changes.
+5. **Task scheduler nullability:** `CreateTaskDto.scheduler` is currently declared as `SchedulerDto? = null` in `src/commonMain/kotlin/com/marzec/todo/model/model.kt`. In `tasks_create.md`, show the type as `SchedulerDto?` and Required as `No`. Derive nullability and requiredness from the DTO declaration, not from assumptions based on its name or an incomplete OpenAPI rendering.
+6. **Preserve key README links:** retain both `[Compile-time OpenAPI and Swagger UI](openapi.md)` and `[OpenAPI and Swagger UI endpoints](openapi.md#openapi-and-swagger-ui-endpoints)`, as well as the maintained runtime-behavior link. Do not delete a working index link unless the linked section was actually removed or renamed; repair its target when necessary.
+7. **Do not generate the invariant source:** never rewrite, remove, or regenerate `docs/api/runtime-behavior.md` from OpenAPI. It is deliberately maintained separately to retain behavior that OpenAPI cannot reliably encode.
 
 ## What to do
 
