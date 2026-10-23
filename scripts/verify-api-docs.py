@@ -15,17 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs" / "api"
 ERRORS: list[str] = []
 
-TASK_DOCS = (
-    "tasks_create.md",
-    "tasks_get.md",
-    "tasks_update.md",
-    "tasks_delete.md",
-)
 ALLOWED_SCHEDULER_TYPES = {"OneShot", "Weekly", "Monthly"}
-ISO_DATETIME_WITH_ZONE = re.compile(
-    r"""["']\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})["']"""
-)
-TYPE_FIELD = re.compile(r"""["']type["']\s*:\s*["']([^"']+)["']""")
+SCHEDULER_TYPE_FIELD = re.compile(r"""["']type["']\s*:\s*["']([^"']+)["']""")
+# Find strings that look like ISO local date-times, then require the exact format
+# accepted by the backend. This rejects Z, offsets, fractional seconds and omissions.
+DATETIME_VALUE = re.compile(r"""["'](\d{4}-\d{2}-\d{2}T[^"']*)["']""")
+VALID_DATETIME = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
 JSON_BLOCK = re.compile(r"\x60\x60\x60json[^\n]*\n(.*?)\x60\x60\x60", re.IGNORECASE | re.DOTALL)
 
 
@@ -66,9 +61,12 @@ require(
     "docs/api/README.md must link to runtime-behavior.md.",
 )
 
-# The generated endpoint docs must preserve the exact scheduler values.
+# The endpoint docs must preserve the exact scheduler values and provide a OneShot JSON example.
+create_json_blocks = JSON_BLOCK.findall(create)
 require(
-    re.search(r"""["']type["']\s*:\s*["']OneShot["']""", create) is not None,
+    any(SCHEDULER_TYPE_FIELD.search(block) and
+        SCHEDULER_TYPE_FIELD.search(block).group(1) == "OneShot"
+        for block in create_json_blocks),
     "tasks_create.md must include a JSON example with the exact scheduler type OneShot.",
 )
 for scheduler_type in ALLOWED_SCHEDULER_TYPES:
@@ -84,14 +82,15 @@ for filename, content in (
         "yyyy-MM-dd'T'HH:mm:ss" in content,
         f"{filename} must document the accepted local date-time format.",
     )
-    # Only inspect JSON examples. Prose is allowed to explain invalid suffixes like Z.
+    # Validate JSON examples only. Prose may explain rejected suffixes like Z.
     for block in JSON_BLOCK.findall(content):
-        match = ISO_DATETIME_WITH_ZONE.search(block)
-        if match:
-            ERRORS.append(
-                f"{filename} contains a timezone-suffixed date-time in a JSON example: {match.group(0)}"
-            )
-        for value in TYPE_FIELD.findall(block):
+        for value in DATETIME_VALUE.findall(block):
+            if VALID_DATETIME.fullmatch(value) is None:
+                ERRORS.append(
+                    f"{filename} contains a date-time that does not match yyyy-MM-dd'T'HH:mm:ss: {value!r}"
+                )
+        for match in SCHEDULER_TYPE_FIELD.finditer(block):
+            value = match.group(1)
             if value not in ALLOWED_SCHEDULER_TYPES:
                 ERRORS.append(
                     f"{filename} contains unsupported/case-mismatched scheduler type {value!r} in a JSON example."
