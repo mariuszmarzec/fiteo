@@ -63,7 +63,7 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 - [Get categories](categories_get.md)
 - [Create category](categories_create.md)
 - [Get category](categories_get_by_id.md)
-- [Delete category](categories_get_by_id.md)
+- [Delete category](categories_delete.md)
 - [Update category](categories_update.md)
 
 ## Feature toggles
@@ -71,7 +71,7 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 - [Get feature toggles](feature_toggles_get.md)
 - [Create feature toggle](feature_toggles_create.md)
 - [Get feature toggle](feature_toggles_get_by_id.md)
-- [Delete feature toggle](feature_toggles_get_by_id.md)
+- [Delete feature toggle](feature_toggles_delete.md)
 - [Update feature toggle](feature_toggles_update.md)
 
 ## FCM tokens
