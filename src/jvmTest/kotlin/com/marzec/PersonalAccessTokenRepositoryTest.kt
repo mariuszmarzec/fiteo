@@ -166,7 +166,6 @@ class PersonalAccessTokenRepositoryTest {
             lastUsedAt = fixedLastUsedAt
         )
         assertEquals(expected, updated)
-        assertEquals(fixedLastUsedAt, updated.lastUsedAt)
     }
 
     @Test
@@ -179,19 +178,21 @@ class PersonalAccessTokenRepositoryTest {
 
         repository.deleteToken(userId = 1, tokenId = token1.id)
 
-        val remainingTokens = repository.getTokensForUser(1)
+        val remainingTokens = repository.getTokensForUser(1).sortedBy { it.id }
 
-        val expectedRemaining = PersonalAccessToken(
-            id = token2.id,
-            userId = 1,
-            name = "Token B",
-            tokenHash = "hashB",
-            tokenPrefix = "preB",
-            createdAt = fixedCreatedAt,
-            expiresAt = null,
-            lastUsedAt = null
+        val expectedRemaining = listOf(
+            PersonalAccessToken(
+                id = token2.id,
+                userId = 1,
+                name = "Token B",
+                tokenHash = "hashB",
+                tokenPrefix = "preB",
+                createdAt = fixedCreatedAt,
+                expiresAt = null,
+                lastUsedAt = null
+            )
         )
-        assertEquals(expectedRemaining, remainingTokens.first())
+        assertEquals(expectedRemaining, remainingTokens)
     }
 
     @Test
@@ -204,31 +205,35 @@ class PersonalAccessTokenRepositoryTest {
 
         repository.deleteToken(userId = 1, tokenId = tokenUser2.id)
 
-        val user2Tokens = repository.getTokensForUser(2)
-        val user1Tokens = repository.getTokensForUser(1)
+        val user1Tokens = repository.getTokensForUser(1).sortedBy { it.id }
+        val user2Tokens = repository.getTokensForUser(2).sortedBy { it.id }
 
-        val expectedUser2Token = PersonalAccessToken(
-            id = tokenUser2.id,
-            userId = 2,
-            name = "Token B",
-            tokenHash = "hashB",
-            tokenPrefix = "preB",
-            createdAt = fixedCreatedAt,
-            expiresAt = null,
-            lastUsedAt = null
+        val expectedUser1Tokens = listOf(
+            PersonalAccessToken(
+                id = tokenUser1.id,
+                userId = 1,
+                name = "Token A",
+                tokenHash = "hashA",
+                tokenPrefix = "preA",
+                createdAt = fixedCreatedAt,
+                expiresAt = null,
+                lastUsedAt = null
+            )
         )
-        val expectedUser1Token = PersonalAccessToken(
-            id = tokenUser1.id,
-            userId = 1,
-            name = "Token A",
-            tokenHash = "hashA",
-            tokenPrefix = "preA",
-            createdAt = fixedCreatedAt,
-            expiresAt = null,
-            lastUsedAt = null
+        val expectedUser2Tokens = listOf(
+            PersonalAccessToken(
+                id = tokenUser2.id,
+                userId = 2,
+                name = "Token B",
+                tokenHash = "hashB",
+                tokenPrefix = "preB",
+                createdAt = fixedCreatedAt,
+                expiresAt = null,
+                lastUsedAt = null
+            )
         )
-        assertEquals(expectedUser2Token, user2Tokens.first())
-        assertEquals(expectedUser1Token, user1Tokens.first())
+        assertEquals(expectedUser1Tokens, user1Tokens)
+        assertEquals(expectedUser2Tokens, user2Tokens)
     }
 
     @Test
@@ -245,20 +250,22 @@ class PersonalAccessTokenRepositoryTest {
         }
 
         val user1Tokens = repository.getTokensForUser(1)
-        val user2Tokens = repository.getTokensForUser(2)
+        val user2Tokens = repository.getTokensForUser(2).sortedBy { it.id }
 
         assertTrue(user1Tokens.isEmpty())
 
-        val expectedUser2Token = PersonalAccessToken(
-            id = token3.id,
-            userId = 2,
-            name = "Token C",
-            tokenHash = "hashC",
-            tokenPrefix = "preC",
-            createdAt = fixedCreatedAt,
-            expiresAt = null,
-            lastUsedAt = null
+        val expectedUser2Tokens = listOf(
+            PersonalAccessToken(
+                id = token3.id,
+                userId = 2,
+                name = "Token C",
+                tokenHash = "hashC",
+                tokenPrefix = "preC",
+                createdAt = fixedCreatedAt,
+                expiresAt = null,
+                lastUsedAt = null
+            )
         )
-        assertEquals(expectedUser2Token, user2Tokens.first())
+        assertEquals(expectedUser2Tokens, user2Tokens)
     }
 }
