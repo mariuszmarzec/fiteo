@@ -4,6 +4,7 @@ import com.marzec.core.currentTime
 import com.marzec.fiteo.model.domain.PersonalAccessToken
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -11,11 +12,13 @@ import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.javatime.datetime
 
 object PersonalAccessTokenTable : IntIdTable("personal_access_tokens") {
-    val userId = reference("user_id", UserTable)
+    val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
     val name = varchar("name", 255)
     val tokenHash = varchar("token_hash", 64).uniqueIndex()
     val tokenPrefix = varchar("token_prefix", 16)
-    val createdAt = datetime("created_at").default(currentTime().toJavaLocalDateTime())
+    val createdAt = datetime("created_at").apply {
+        defaultValueFun = { currentTime().toJavaLocalDateTime() }
+    }
     val expiresAt = datetime("expires_at").nullable()
     val lastUsedAt = datetime("last_used_at").nullable()
 

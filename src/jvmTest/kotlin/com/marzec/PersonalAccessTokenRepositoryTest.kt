@@ -3,8 +3,10 @@ package com.marzec
 import com.marzec.database.PersonalAccessTokenTable
 import com.marzec.database.UserTable
 import com.marzec.fiteo.repositories.PersonalAccessTokenRepositoryImpl
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.junit.Before
@@ -124,5 +126,22 @@ class PersonalAccessTokenRepositoryTest {
         val user1Tokens = repository.getTokensForUser(1)
         assertEquals(1, user1Tokens.size)
         assertEquals(tokenUser1.id, user1Tokens.first().id)
+    }
+
+    @Test
+    fun deleteUserCascadesToTokens() {
+        repository.createToken(1, "Token A", "hashA", "preA", null)
+        repository.createToken(1, "Token B", "hashB", "preB", null)
+        repository.createToken(2, "Token C", "hashC", "preC", null)
+
+        transaction(database) {
+            UserTable.deleteWhere { UserTable.id eq 1 }
+        }
+
+        val user1Tokens = repository.getTokensForUser(1)
+        val user2Tokens = repository.getTokensForUser(2)
+
+        assertTrue(user1Tokens.isEmpty())
+        assertEquals(1, user2Tokens.size)
     }
 }
