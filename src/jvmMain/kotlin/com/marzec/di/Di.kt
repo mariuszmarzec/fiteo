@@ -47,6 +47,8 @@ import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.repositories.WeightsRepositoryImpl
 import com.marzec.fiteo.repositories.FcmTokenRepository
 import com.marzec.fiteo.repositories.FcmTokenRepositoryImpl
+import com.marzec.fiteo.repositories.PersonalAccessTokenRepository
+import com.marzec.fiteo.repositories.PersonalAccessTokenRepositoryImpl
 import com.marzec.fiteo.services.FcmService
 import com.marzec.fiteo.services.FcmServiceImpl
 import com.marzec.fiteo.services.FeatureTogglesService
@@ -267,6 +269,7 @@ val MainModule = module {
 
     factory<FcmTokenRepository> { params -> FcmTokenRepositoryImpl(get { params }) }
     factory<FcmService> { params -> FcmServiceImpl(get { params }) }
+    factory<PersonalAccessTokenRepository> { params -> PersonalAccessTokenRepositoryImpl(get { params }) }
 }
 
 var diModules = listOf(MainModule)
