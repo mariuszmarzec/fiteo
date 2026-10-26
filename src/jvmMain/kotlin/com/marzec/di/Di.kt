@@ -6,6 +6,7 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
 import com.marzec.cheatday.db.WeightEntity
+import com.marzec.core.SecureRandom
 import com.marzec.core.TimeProvider
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
@@ -53,6 +54,8 @@ import com.marzec.fiteo.services.FcmService
 import com.marzec.fiteo.services.FcmServiceImpl
 import com.marzec.fiteo.services.FeatureTogglesService
 import com.marzec.fiteo.services.FeatureTogglesServiceImpl
+import com.marzec.fiteo.services.PersonalAccessTokenService
+import com.marzec.fiteo.services.PersonalAccessTokenServiceImpl
 import com.marzec.todo.TaskConstraints
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.TodoService
@@ -120,6 +123,7 @@ class Di(
 
 val MainModule = module {
     single<Uuid> { UuidImpl() }
+    single<SecureRandom> { SecureRandom() }
 
     single {
         Json {
@@ -270,6 +274,7 @@ val MainModule = module {
     factory<FcmTokenRepository> { params -> FcmTokenRepositoryImpl(get { params }) }
     factory<FcmService> { params -> FcmServiceImpl(get { params }) }
     factory<PersonalAccessTokenRepository> { params -> PersonalAccessTokenRepositoryImpl(get { params }) }
+    factory<PersonalAccessTokenService> { params -> PersonalAccessTokenServiceImpl(get(), get { params }, get { params }) }
 }
 
 var diModules = listOf(MainModule)
