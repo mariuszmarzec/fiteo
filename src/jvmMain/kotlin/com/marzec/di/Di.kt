@@ -6,7 +6,8 @@ import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
 import com.marzec.cheatday.db.WeightEntity
-import com.marzec.core.SecureRandom
+import com.marzec.core.PatTimeProvider
+import com.marzec.core.UtcPatTimeProvider
 import com.marzec.core.TimeProvider
 import com.marzec.core.Uuid
 import com.marzec.core.UuidImpl
@@ -123,7 +124,7 @@ class Di(
 
 val MainModule = module {
     single<Uuid> { UuidImpl() }
-    single<SecureRandom> { SecureRandom() }
+    single<PatTimeProvider> { UtcPatTimeProvider() }
 
     single {
         Json {
@@ -273,8 +274,16 @@ val MainModule = module {
 
     factory<FcmTokenRepository> { params -> FcmTokenRepositoryImpl(get { params }) }
     factory<FcmService> { params -> FcmServiceImpl(get { params }) }
-    factory<PersonalAccessTokenRepository> { params -> PersonalAccessTokenRepositoryImpl(get { params }) }
-    factory<PersonalAccessTokenService> { params -> PersonalAccessTokenServiceImpl(get(), get { params }, get { params }) }
+    factory<PersonalAccessTokenRepository> { params ->
+        PersonalAccessTokenRepositoryImpl(database = get { params }, timeProvider = get())
+    }
+    factory<PersonalAccessTokenService> { params ->
+        PersonalAccessTokenServiceImpl(
+            patRepository = get { params },
+            userRepository = get { params },
+            timeProvider = get()
+        )
+    }
 }
 
 var diModules = listOf(MainModule)
