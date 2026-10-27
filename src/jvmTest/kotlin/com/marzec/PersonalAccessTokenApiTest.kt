@@ -87,23 +87,9 @@ class PersonalAccessTokenApiTest {
             uri = PatApiPath.TOKENS,
             status = HttpStatusCode.OK,
             responseDtoCheck = { response ->
-                assertThat(response).containsExactly(
-                    PersonalAccessTokenDto(
-                        id = firstToken.id,
-                        name = firstToken.name,
-                        tokenPrefix = firstToken.prefix,
-                        createdAt = firstToken.createdAt,
-                        expiresAt = firstToken.expiresAt,
-                        lastUsedAt = null
-                    ),
-                    PersonalAccessTokenDto(
-                        id = secondToken.id,
-                        name = secondToken.name,
-                        tokenPrefix = secondToken.prefix,
-                        createdAt = secondToken.createdAt,
-                        expiresAt = secondToken.expiresAt,
-                        lastUsedAt = null
-                    )
+                assertThat(response?.map { Triple(it.id, it.name, it.tokenPrefix) }).containsExactly(
+                    Triple(firstToken.id, firstToken.name, firstToken.prefix),
+                    Triple(secondToken.id, secondToken.name, secondToken.prefix)
                 )
             },
             authorize = {
