@@ -1,7 +1,5 @@
 package com.marzec
 
-import com.marzec.core.CurrentTimeUtil
-import com.marzec.core.currentTime
 import com.marzec.database.PersonalAccessTokenTable
 import com.marzec.database.UserTable
 import com.marzec.fiteo.model.domain.PersonalAccessToken
@@ -26,6 +24,7 @@ class PersonalAccessTokenRepositoryTest {
         driver = "org.h2.Driver"
     )
     private lateinit var repository: PersonalAccessTokenRepositoryImpl
+    private lateinit var timeProvider: MutablePatTimeProvider
 
     @Before
     fun setUp() {
@@ -43,13 +42,14 @@ class PersonalAccessTokenRepositoryTest {
                 it[UserTable.password] = "password"
             }
         }
-        repository = PersonalAccessTokenRepositoryImpl(database)
+        timeProvider = MutablePatTimeProvider()
+        repository = PersonalAccessTokenRepositoryImpl(database, timeProvider)
     }
 
     @Test
     fun createToken() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val token = repository.createToken(
             userId = 1,
@@ -74,8 +74,8 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun getTokensForUser() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val token1 = repository.createToken(1, "Token A", "hashA", "preA", null)
         val token2 = repository.createToken(1, "Token B", "hashB", "preB", null)
@@ -124,8 +124,8 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun findByTokenHash() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val created = repository.createToken(1, "Token A", "hashA", "preA", null)
 
@@ -148,14 +148,14 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun updateLastUsedAt() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val token = repository.createToken(1, "Token A", "hashA", "preA", null)
         assertNull(token.lastUsedAt)
 
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 5)
-        val fixedLastUsedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 5)
+        val fixedLastUsedAt = timeProvider.currentTime()
 
         repository.updateLastUsedAt(token.id)
 
@@ -170,8 +170,8 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun deleteToken() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val token1 = repository.createToken(1, "Token A", "hashA", "preA", null)
         val token2 = repository.createToken(1, "Token B", "hashB", "preB", null)
@@ -197,8 +197,8 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun deleteTokenDoesNotAffectOtherUser() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val tokenUser1 = repository.createToken(1, "Token A", "hashA", "preA", null)
         val tokenUser2 = repository.createToken(2, "Token B", "hashB", "preB", null)
@@ -238,8 +238,8 @@ class PersonalAccessTokenRepositoryTest {
 
     @Test
     fun deleteUserCascadesToTokens() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val token1 = repository.createToken(1, "Token A", "hashA", "preA", null)
         val token2 = repository.createToken(1, "Token B", "hashB", "preB", null)
