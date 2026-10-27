@@ -1,6 +1,5 @@
 package com.marzec.fiteo
 
-import com.marzec.Api
 import com.marzec.common.createHttpRequest
 import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
