@@ -137,49 +137,65 @@ class PersonalAccessTokenApiTest {
 
     @Test
     fun deletePersonalAccessToken_deletesOwnToken() {
-        withDefaultMockTestApplication {
-            authToken = registerAndLogin()
-            val token = createToken(name = "CLI", expiresIn = "NEVER")
+        lateinit var token: PersonalAccessTokenCreationDto
 
-            val response = client.delete(tokenPath(token.id)) {
-                header(Headers.AUTHORIZATION, authToken!!)
-            }
-
-            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
-                .doesNotContain(token.id)
-        }
+        testDeleteEndpoint(
+            uri = PatApiPath.TOKENS,
+            status = HttpStatusCode.OK,
+            responseDto = Unit,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                token = createToken(name = "CLI", expiresIn = "NEVER")
+            },
+            runRequestsAfter = {
+                assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                    .doesNotContain(token.id)
+            },
+            uriAfterSetup = { tokenPath(token.id) }
+        )
     }
 
     @Test
     fun deletePersonalAccessToken_doesNotDeleteAnotherUsersToken() {
-        withDefaultMockTestApplication {
-            val userAuth = registerAndLogin()
-            authToken = userAuth
-            val userToken = createToken(name = "Mine", expiresIn = "NEVER")
+        lateinit var userAuth: String
+        lateinit var otherUserAuth: String
+        lateinit var userToken: PersonalAccessTokenCreationDto
+        lateinit var otherUsersToken: PersonalAccessTokenCreationDto
 
-            val otherUserCredentials = RegisterRequestDto(
-                email = "other-user@mail.com",
-                password = "1234567890",
-                repeatedPassword = "1234567890"
-            )
-            register(otherUserCredentials)
-            val otherUserAuth = login(LoginRequestDto(email = otherUserCredentials.email, password = otherUserCredentials.password))
-            authToken = otherUserAuth
-            val otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+        testDeleteEndpoint(
+            uri = PatApiPath.TOKENS,
+            status = HttpStatusCode.OK,
+            responseDto = Unit,
+            authorize = {
+                userAuth = registerAndLogin()
+                userAuth
+            },
+            runRequestsBefore = {
+                userToken = createToken(name = "Mine", expiresIn = "NEVER")
 
-            val response = client.delete(tokenPath(otherUsersToken.id)) {
-                header(Headers.AUTHORIZATION, userAuth)
-            }
+                val otherUserCredentials = RegisterRequestDto(
+                    email = "other-user@mail.com",
+                    password = "1234567890",
+                    repeatedPassword = "1234567890"
+                )
+                register(otherUserCredentials)
+                otherUserAuth = login(
+                    LoginRequestDto(email = otherUserCredentials.email, password = otherUserCredentials.password)
+                )
+                authToken = otherUserAuth
+                otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+                authToken = userAuth
+            },
+            runRequestsAfter = {
+                assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                    .containsExactly(userToken.id)
 
-            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
-                .containsExactly(otherUsersToken.id)
-
-            authToken = userAuth
-            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
-                .containsExactly(userToken.id)
-        }
+                authToken = otherUserAuth
+                assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                    .containsExactly(otherUsersToken.id)
+            },
+            uriAfterSetup = { tokenPath(otherUsersToken.id) }
+        )
     }
 
     private fun tokenPath(id: Int) = PatApiPath.TOKEN_BY_ID.replace("{id}", id.toString())
