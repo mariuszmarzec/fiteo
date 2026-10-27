@@ -25,10 +25,16 @@ class OpenApiTest {
             assertThat(document).contains("/fiteo/api/1/exercises")
             assertThat(document).contains("/cheat/api/1/")
             assertThat(document).contains("/sse")
+            assertThat(document).contains("/pat/api/1/tokens:")
+            assertThat(document).contains("Create a personal access token")
+            assertThat(document).contains("Personal access tokens")
+            assertThat(document).contains("CreatePersonalAccessTokenRequestDto")
+            assertThat(document).contains("PersonalAccessTokenCreationDto")
+            assertThat(document).contains("ErrorDto")
+            assertThat(document).contains("The name is blank or the expiration policy is unsupported.")
 
-            // The Ktor generator infers summaries from comments in source files at build time.
-            // This endpoint returns the committed snapshot, so runtime assertions must check
-            // route visibility only; summary assertions belong in a generated snapshot test.
+            // Swagger UI uses the runtime routing source. Keep these assertions here so the
+            // route summary and request/response schemas are verified before snapshot generation.
             assertThat(document).doesNotContain("reszta endpointów /api/run_A")
 
             System.getProperty(SNAPSHOT_OUTPUT_PROPERTY)
