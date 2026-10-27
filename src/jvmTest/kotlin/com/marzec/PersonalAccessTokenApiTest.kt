@@ -1,13 +1,19 @@
 package com.marzec
 
 import com.google.common.truth.Truth.assertThat
+import com.marzec.Api.Headers
 import com.marzec.fiteo.PatApiPath
 import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
+import com.marzec.fiteo.model.dto.PersonalAccessTokenDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
+import kotlinx.serialization.decodeFromString
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -61,6 +67,69 @@ class PersonalAccessTokenApiTest {
             authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
+
+    @Test
+    fun listPersonalAccessTokens_requiresAuthentication() {
+        withDefaultMockTestApplication {
+            val response = client.get(PatApiPath.TOKENS)
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+        }
+    }
+
+    @Test
+    fun listPersonalAccessTokens_returnsOnlyMetadataForAuthenticatedUser() {
+        withDefaultMockTestApplication {
+            val userAuth = registerAndLogin()
+            authToken = userAuth
+            val firstToken = createToken(name = "CLI", expiresIn = "NEVER")
+            val secondToken = createToken(name = "Mobile", expiresIn = "THREE_MONTHS")
+
+            val otherEmail = "other-user@mail.com"
+            register(
+                RegisterRequestDto(
+                    email = otherEmail,
+                    password = "1234567890",
+                    repeatedPassword = "1234567890"
+                )
+            )
+            authToken = login(LoginRequestDto(email = otherEmail, password = "1234567890"))
+            val otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+
+            val response = client.get(PatApiPath.TOKENS) {
+                header(Headers.AUTHORIZATION, userAuth)
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
+            val body = response.bodyAsText()
+            val tokens = json.decodeFromString<List<PersonalAccessTokenDto>>(body)
+
+            assertThat(tokens).hasSize(2)
+            assertThat(tokens.map { it.id }).containsExactly(firstToken.id, secondToken.id)
+            assertThat(tokens.map { it.name }).containsExactly("CLI", "Mobile")
+            assertThat(tokens.map { it.tokenPrefix }).containsExactly(firstToken.prefix, secondToken.prefix)
+            assertThat(tokens.map { it.tokenPrefix }).each().matches("^[0-9a-f]{8}$")
+            assertThat(tokens.map { it.createdAt }).each().matches(DATE_TIME_PATTERN)
+            assertThat(tokens.first { it.id == firstToken.id }.expiresAt).isNull()
+            assertThat(tokens.first { it.id == secondToken.id }.expiresAt).matches(DATE_TIME_PATTERN)
+            assertThat(tokens.all { it.lastUsedAt == null }).isTrue()
+
+            assertThat(body).doesNotContain(firstToken.token)
+            assertThat(body).doesNotContain(secondToken.token)
+            assertThat(body).doesNotContain(otherUsersToken.token)
+            assertThat(body).doesNotContain("Other user's token")
+            assertThat(body).doesNotContain("tokenHash")
+            assertThat(body).doesNotContain("\"token\":")
+        }
+    }
+
+    private suspend fun ApplicationTestBuilder.createToken(
+        name: String,
+        expiresIn: String
+    ): PersonalAccessTokenCreationDto = postWithAuth(
+        PatApiPath.TOKENS,
+        CreatePersonalAccessTokenRequestDto(name = name, expiresIn = expiresIn)
+    )
 
     private fun assertCreatedToken(expiresIn: String, shouldExpire: Boolean) {
         testPostEndpoint<CreatePersonalAccessTokenRequestDto, PersonalAccessTokenCreationDto>(
