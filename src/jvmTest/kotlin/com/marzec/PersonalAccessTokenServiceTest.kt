@@ -1,7 +1,6 @@
 package com.marzec
 
-import com.marzec.core.CurrentTimeUtil
-import com.marzec.core.currentTime
+import com.marzec.core.UtcPatTimeProvider
 import com.marzec.core.sha256Hex
 import com.marzec.database.PersonalAccessTokenTable
 import com.marzec.database.UserTable
@@ -9,12 +8,16 @@ import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.model.domain.PersonalAccessToken
 import com.marzec.fiteo.model.domain.TokenExpiration
+import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.repositories.PersonalAccessTokenRepositoryImpl
 import com.marzec.fiteo.repositories.UserRepositoryImpl
 import com.marzec.fiteo.services.PersonalAccessTokenService
 import com.marzec.fiteo.services.PersonalAccessTokenServiceImpl
-import com.marzec.core.SecureRandom
 import kotlinx.datetime.LocalDateTime
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -38,6 +41,7 @@ class PersonalAccessTokenServiceTest {
     )
     private lateinit var repository: PersonalAccessTokenRepositoryImpl
     private lateinit var service: PersonalAccessTokenService
+    private lateinit var timeProvider: MutablePatTimeProvider
 
     @Before
     fun setUp() {
@@ -50,8 +54,9 @@ class PersonalAccessTokenServiceTest {
                 it[UserTable.password] = "password"
             }
         }
-        repository = PersonalAccessTokenRepositoryImpl(database)
-        service = PersonalAccessTokenServiceImpl(SecureRandom(), repository, UserRepositoryImpl(database))
+        timeProvider = MutablePatTimeProvider()
+        repository = PersonalAccessTokenRepositoryImpl(database, timeProvider)
+        service = PersonalAccessTokenServiceImpl(repository, UserRepositoryImpl(database), timeProvider)
     }
 
     @After
@@ -65,7 +70,7 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create generates random tokens with expected format`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
 
         val a = service.create(userId = 1, name = "A", expiration = TokenExpiration.NEVER)
         val b = service.create(userId = 1, name = "B", expiration = TokenExpiration.NEVER)
@@ -81,8 +86,8 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create persists only the sha256 hash, never the raw secret`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val creation = service.create(userId = 1, name = "My Token", expiration = TokenExpiration.NEVER)
 
@@ -109,7 +114,7 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create stores non-secret prefix of length 8`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
 
         val creation = service.create(userId = 1, name = "Prefix", expiration = TokenExpiration.NEVER)
 
@@ -122,8 +127,8 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create with THREE_MONTHS computes calendar month expiration`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val creation = service.create(userId = 1, name = "Three", expiration = TokenExpiration.THREE_MONTHS)
 
@@ -143,8 +148,8 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create with THREE_MONTHS does not use fixed day count on short months`() {
-        CurrentTimeUtil.setOtherTime(16, 1, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 1, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val creation = service.create(userId = 1, name = "Three", expiration = TokenExpiration.THREE_MONTHS)
 
@@ -155,13 +160,13 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create with THREE_MONTHS clamps day-of-month to end of shorter month`() {
-        CurrentTimeUtil.setOtherTime(31, 12, 2021, 23, 59)
+        timeProvider.setOtherTime(31, 12, 2021, 23, 59)
         val creation = service.create(userId = 1, name = "Three", expiration = TokenExpiration.THREE_MONTHS)
 
         // 2021-12-31 + 3 calendar months = 2022-03-31 (March has 31 days) - keep
         assertEquals(LocalDateTime(2022, 3, 31, 23, 59), creation.pat.expiresAt)
 
-        CurrentTimeUtil.setOtherTime(31, 1, 2021, 23, 59)
+        timeProvider.setOtherTime(31, 1, 2021, 23, 59)
         val creationShort = service.create(userId = 1, name = "ThreeShort", expiration = TokenExpiration.THREE_MONTHS)
         // 2021-01-31 + 3 calendar months = 2021-04-30 (April has 30 days, day clamps)
         assertEquals(LocalDateTime(2021, 4, 30, 23, 59), creationShort.pat.expiresAt)
@@ -169,8 +174,8 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create with SIX_MONTHS computes calendar month expiration`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val creation = service.create(userId = 1, name = "Six", expiration = TokenExpiration.SIX_MONTHS)
 
@@ -190,8 +195,8 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `create with NEVER keeps expiresAt null`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
-        val fixedCreatedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
+        val fixedCreatedAt = timeProvider.currentTime()
 
         val creation = service.create(userId = 1, name = "Forever", expiration = TokenExpiration.NEVER)
 
@@ -203,19 +208,15 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `verify accepts valid token and returns its owner`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Valid", expiration = TokenExpiration.THREE_MONTHS)
 
-        val verified = service.verify(creation.token)
-
-        assertEquals(creation.pat.id, verified.id)
-        assertEquals(1, verified.userId)
-        assertEquals("Valid", verified.name)
+        assertEquals(User(id = 1, email = "user1@test.com"), service.verify(creation.token))
     }
 
     @Test
     fun `verify updates lastUsedAt only on success`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Used", expiration = TokenExpiration.NEVER)
         assertNull(repository.findByTokenHash(creation.pat.tokenHash)!!.lastUsedAt)
 
@@ -223,8 +224,8 @@ class PersonalAccessTokenServiceTest {
         assertFailsWith<HttpException> { service.verify("0".repeat(64)) }
         assertNull(repository.findByTokenHash(creation.pat.tokenHash)!!.lastUsedAt)
 
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 11, 30)
-        val fixedLastUsedAt = currentTime()
+        timeProvider.setOtherTime(16, 5, 2021, 11, 30)
+        val fixedLastUsedAt = timeProvider.currentTime()
 
         service.verify(creation.token)
 
@@ -236,7 +237,7 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `verify rejects unknown token with 401`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         service.create(userId = 1, name = "Some", expiration = TokenExpiration.NEVER)
 
         val ex = assertFailsWith<HttpException> { service.verify("doesnotexist") }
@@ -245,7 +246,7 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `verify rejects token that no longer exists after deletion`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Deleted", expiration = TokenExpiration.NEVER)
 
         service.deleteToken(userId = 1, tokenId = creation.pat.id)
@@ -256,14 +257,14 @@ class PersonalAccessTokenServiceTest {
 
     @Test
     fun `verify rejects expired token`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Expiring", expiration = TokenExpiration.THREE_MONTHS)
 
         // Still valid before expiration
         service.verify(creation.token)
 
         // Just after expiration
-        CurrentTimeUtil.setOtherTime(17, 8, 2021, 10, 0)
+        timeProvider.setOtherTime(17, 8, 2021, 10, 0)
         val ex = assertFailsWith<HttpException> { service.verify(creation.token) }
         assertEquals(HttpStatus.UNAUTHORIZED, ex.httpStatus)
 
@@ -273,21 +274,31 @@ class PersonalAccessTokenServiceTest {
     }
 
     @Test
-    fun `verify accepts token exactly at expiration boundary`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+    fun `verify rejects token exactly at expiration boundary`() {
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Boundary", expiration = TokenExpiration.THREE_MONTHS)
 
-        CurrentTimeUtil.setOtherTime(16, 8, 2021, 10, 0)
-        val verified = service.verify(creation.token)
+        timeProvider.setOtherTime(16, 8, 2021, 10, 0)
+        val ex = assertFailsWith<HttpException> { service.verify(creation.token) }
 
-        assertEquals(creation.pat.id, verified.id)
+        assertEquals(HttpStatus.UNAUTHORIZED, ex.httpStatus)
+        assertNull(repository.findByTokenHash(creation.pat.tokenHash)!!.lastUsedAt)
+    }
+
+    @Test
+    fun `UTC PAT time provider ignores the configured clock zone`() {
+        val instant = Instant.parse("2021-05-16T10:00:00Z")
+        val expected = LocalDateTime(2021, 5, 16, 10, 0)
+
+        assertEquals(expected, UtcPatTimeProvider(Clock.fixed(instant, ZoneId.of("Europe/Warsaw"))).currentTime())
+        assertEquals(expected, UtcPatTimeProvider(Clock.fixed(instant, ZoneOffset.UTC)).currentTime())
     }
 
     // ---- user-scoped operations ----
 
     @Test
     fun `getTokensForUser returns only the user tokens`() {
-        CurrentTimeUtil.setOtherTime(16, 5, 2021, 10, 0)
+        timeProvider.setOtherTime(16, 5, 2021, 10, 0)
         val creation = service.create(userId = 1, name = "Mine", expiration = TokenExpiration.NEVER)
 
         val tokens = service.getTokensForUser(1)
