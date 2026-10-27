@@ -108,10 +108,15 @@ class PersonalAccessTokenApiTest {
             assertThat(tokens.map { it.id }).containsExactly(firstToken.id, secondToken.id)
             assertThat(tokens.map { it.name }).containsExactly("CLI", "Mobile")
             assertThat(tokens.map { it.tokenPrefix }).containsExactly(firstToken.prefix, secondToken.prefix)
-            assertThat(tokens.map { it.tokenPrefix }).each().matches("^[0-9a-f]{8}$")
-            assertThat(tokens.map { it.createdAt }).each().matches(DATE_TIME_PATTERN)
-            assertThat(tokens.first { it.id == firstToken.id }.expiresAt).isNull()
-            assertThat(tokens.first { it.id == secondToken.id }.expiresAt).matches(DATE_TIME_PATTERN)
+            tokens.forEach { token ->
+                assertThat(token.tokenPrefix).matches("^[0-9a-f]{8}$")
+                assertThat(token.createdAt).matches(DATE_TIME_PATTERN)
+            }
+            val listedFirstToken = tokens.first { it.id == firstToken.id }
+            val listedSecondToken = tokens.first { it.id == secondToken.id }
+            assertThat(listedFirstToken.expiresAt).isNull()
+            assertThat(listedSecondToken.expiresAt).isNotNull()
+            assertThat(listedSecondToken.expiresAt!!).matches(DATE_TIME_PATTERN)
             assertThat(tokens.all { it.lastUsedAt == null }).isTrue()
 
             assertThat(body).doesNotContain(firstToken.token)
@@ -126,7 +131,7 @@ class PersonalAccessTokenApiTest {
     private suspend fun ApplicationTestBuilder.createToken(
         name: String,
         expiresIn: String
-    ): PersonalAccessTokenCreationDto = postWithAuth(
+    ): PersonalAccessTokenCreationDto = postWithAuth<CreatePersonalAccessTokenRequestDto, PersonalAccessTokenCreationDto>(
         PatApiPath.TOKENS,
         CreatePersonalAccessTokenRequestDto(name = name, expiresIn = expiresIn)
     )
