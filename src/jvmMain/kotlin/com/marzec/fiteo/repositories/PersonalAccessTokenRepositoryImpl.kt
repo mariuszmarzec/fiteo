@@ -23,7 +23,7 @@ class PersonalAccessTokenRepositoryImpl(
             this.name = name
             this.tokenHash = tokenHash
             this.tokenPrefix = tokenPrefix
-            createdAt = (createdAt ?: timeProvider.currentTime()).toJavaLocalDateTime()
+            this.createdAt = (createdAt ?: timeProvider.currentTime()).toJavaLocalDateTime()
             this.expiresAt = expiresAt?.toJavaLocalDateTime()
             this.lastUsedAt = null
         }.toDomain()
