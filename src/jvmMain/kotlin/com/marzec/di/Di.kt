@@ -2,6 +2,8 @@ package com.marzec.di
 
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.api.ControllerImpl
+import com.marzec.fiteo.PersonalAccessTokenApiController
+import com.marzec.fiteo.PersonalAccessTokenConstraints
 import com.marzec.cheatday.CheatDayController
 import com.marzec.cheatday.CheatDayService
 import com.marzec.cheatday.WeightsRepository
@@ -120,7 +122,7 @@ class Di(
         parametersOf(database, authToken)
     }
     val fcmService by inject<FcmService> { parametersOf(database) }
-    val personalAccessTokenService by inject<PersonalAccessTokenService> { parametersOf(database) }
+    val personalAccessTokenApiController by inject<PersonalAccessTokenApiController> { parametersOf(database) }
 }
 
 val MainModule = module {
@@ -283,6 +285,13 @@ val MainModule = module {
             patRepository = get { params },
             userRepository = get { params },
             timeProvider = get()
+        )
+    }
+    factory { PersonalAccessTokenConstraints() }
+    factory { params ->
+        PersonalAccessTokenApiController(
+            service = get { params },
+            constraints = get()
         )
     }
 }

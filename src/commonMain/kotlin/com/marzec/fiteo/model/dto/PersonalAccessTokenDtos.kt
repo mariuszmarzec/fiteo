@@ -1,6 +1,5 @@
 package com.marzec.fiteo.model.dto
 
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -15,6 +14,6 @@ data class PersonalAccessTokenCreationDto(
     val name: String,
     val token: String,
     val prefix: String,
-    val createdAt: LocalDateTime,
-    val expiresAt: LocalDateTime?
+    val createdAt: String,
+    val expiresAt: String?
 )
