@@ -1,6 +1,7 @@
 package com.marzec.fiteo.repositories
 
-import com.marzec.core.currentTime
+import com.marzec.core.PatTimeProvider
+import com.marzec.core.UtcPatTimeProvider
 import com.marzec.database.PersonalAccessTokenEntity
 import com.marzec.database.PersonalAccessTokenTable
 import com.marzec.database.UserEntity
@@ -11,15 +12,18 @@ import kotlinx.datetime.toJavaLocalDateTime
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 
-class PersonalAccessTokenRepositoryImpl(private val database: Database) : PersonalAccessTokenRepository {
+class PersonalAccessTokenRepositoryImpl(
+    private val database: Database,
+    private val timeProvider: PatTimeProvider = UtcPatTimeProvider()
+) : PersonalAccessTokenRepository {
 
-    override fun createToken(userId: Int, name: String, tokenHash: String, tokenPrefix: String, expiresAt: LocalDateTime?): PersonalAccessToken = database.dbCall {
+    override fun createToken(userId: Int, name: String, tokenHash: String, tokenPrefix: String, expiresAt: LocalDateTime?, createdAt: LocalDateTime?): PersonalAccessToken = database.dbCall {
         PersonalAccessTokenEntity.new {
             user = UserEntity[userId]
             this.name = name
             this.tokenHash = tokenHash
             this.tokenPrefix = tokenPrefix
-            createdAt = currentTime().toJavaLocalDateTime()
+            createdAt = (createdAt ?: timeProvider.currentTime()).toJavaLocalDateTime()
             this.expiresAt = expiresAt?.toJavaLocalDateTime()
             this.lastUsedAt = null
         }.toDomain()
@@ -38,7 +42,7 @@ class PersonalAccessTokenRepositoryImpl(private val database: Database) : Person
     override fun updateLastUsedAt(tokenId: Int) {
         database.dbCall {
             PersonalAccessTokenEntity.findById(tokenId)?.let {
-                it.lastUsedAt = currentTime().toJavaLocalDateTime()
+                it.lastUsedAt = timeProvider.currentTime().toJavaLocalDateTime()
             }
         }
     }
