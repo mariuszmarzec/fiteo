@@ -10,6 +10,14 @@ import io.ktor.server.routing.post
 
 fun Route.patApi(di: Di) {
     authenticate(di.authToken) {
+        /**
+         * Create a personal access token for the authenticated user.
+         *
+         * Tag: Personal access tokens
+         * Body: application/json [CreatePersonalAccessTokenRequestDto] Token name and expiration policy.
+         * Response: 200 application/json [PersonalAccessTokenCreationDto] Created token and metadata. The raw token is returned only in this response.
+         * Response: 400 application/json [ErrorDto] The name is blank or the expiration policy is unsupported.
+         */
         post(PatApiPath.TOKENS) {
             respond(
                 di.personalAccessTokenApiController.createToken(

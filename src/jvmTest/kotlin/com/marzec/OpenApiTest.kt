@@ -25,6 +25,10 @@ class OpenApiTest {
             assertThat(document).contains("/fiteo/api/1/exercises")
             assertThat(document).contains("/cheat/api/1/")
             assertThat(document).contains("/sse")
+            assertThat(document).contains("/pat/api/1/tokens:")
+            assertThat(document).contains("Create a personal access token")
+            assertThat(document).contains("CreatePersonalAccessTokenRequestDto")
+            assertThat(document).contains("PersonalAccessTokenCreationDto")
 
             // The Ktor generator infers summaries from comments in source files at build time.
             // This endpoint returns the committed snapshot, so runtime assertions must check
