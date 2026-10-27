@@ -17,3 +17,13 @@ data class PersonalAccessTokenCreationDto(
     val createdAt: String,
     val expiresAt: String?
 )
+
+@Serializable
+data class PersonalAccessTokenDto(
+    val id: Int,
+    val name: String,
+    val tokenPrefix: String,
+    val createdAt: String,
+    val expiresAt: String?,
+    val lastUsedAt: String?
+)

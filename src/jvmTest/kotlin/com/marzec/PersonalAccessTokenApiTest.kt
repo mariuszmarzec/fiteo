@@ -1,11 +1,16 @@
 package com.marzec
 
 import com.google.common.truth.Truth.assertThat
+import com.marzec.Api.Headers
 import com.marzec.fiteo.PatApiPath
 import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
+import com.marzec.fiteo.model.dto.PersonalAccessTokenDto
+import com.marzec.fiteo.model.dto.RegisterRequestDto
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
 import org.junit.After
@@ -61,6 +66,73 @@ class PersonalAccessTokenApiTest {
             authorize = ApplicationTestBuilder::registerAndLogin
         )
     }
+
+    @Test
+    fun listPersonalAccessTokens_requiresAuthentication() {
+        withDefaultMockTestApplication {
+            val response = client.get(PatApiPath.TOKENS)
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+        }
+    }
+
+    @Test
+    fun listPersonalAccessTokens_returnsOnlyAuthenticatedUsersTokens() {
+        lateinit var userAuth: String
+        lateinit var firstToken: PersonalAccessTokenCreationDto
+        lateinit var secondToken: PersonalAccessTokenCreationDto
+        lateinit var otherUsersToken: PersonalAccessTokenCreationDto
+
+        testGetEndpointCheck<List<PersonalAccessTokenDto>>(
+            uri = PatApiPath.TOKENS,
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { response ->
+                assertThat(response?.map { Triple(it.id, it.name, it.tokenPrefix) }).containsExactly(
+                    Triple(firstToken.id, firstToken.name, firstToken.prefix),
+                    Triple(secondToken.id, secondToken.name, secondToken.prefix)
+                )
+            },
+            authorize = {
+                userAuth = registerAndLogin()
+                userAuth
+            },
+            runRequestsBefore = {
+                firstToken = createToken(name = "CLI", expiresIn = "NEVER")
+                secondToken = createToken(name = "Mobile", expiresIn = "THREE_MONTHS")
+
+                register(
+                    RegisterRequestDto(
+                        email = "other-user@mail.com",
+                        password = "1234567890",
+                        repeatedPassword = "1234567890"
+                    )
+                )
+                authToken = login(LoginRequestDto(email = "other-user@mail.com", password = "1234567890"))
+                otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+                authToken = userAuth
+            },
+            runRequestsAfter = {
+                val responseBody = client.get(PatApiPath.TOKENS) {
+                    header(Headers.AUTHORIZATION, userAuth)
+                }.bodyAsText()
+
+                assertThat(
+                    listOf(firstToken.token, secondToken.token, otherUsersToken.token)
+                        .filter { responseBody.contains(it) }
+                ).isEmpty()
+                assertThat(responseBody).doesNotContain("tokenHash")
+                assertThat(responseBody).doesNotContain("\"token\":")
+            }
+        )
+    }
+
+    private suspend fun ApplicationTestBuilder.createToken(
+        name: String,
+        expiresIn: String
+    ): PersonalAccessTokenCreationDto = postWithAuth(
+        PatApiPath.TOKENS,
+        CreatePersonalAccessTokenRequestDto(name = name, expiresIn = expiresIn)
+    )
 
     private fun assertCreatedToken(expiresIn: String, shouldExpire: Boolean) {
         testPostEndpoint<CreatePersonalAccessTokenRequestDto, PersonalAccessTokenCreationDto>(
