@@ -9,6 +9,7 @@ import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.model.domain.TokenExpiration
 import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
+import com.marzec.fiteo.model.dto.PersonalAccessTokenDto
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.PersonalAccessTokenService
@@ -39,6 +40,19 @@ class PersonalAccessTokenApiController(
             createdAt = creation.pat.createdAt.formatDate(),
             expiresAt = creation.pat.expiresAt?.formatDate()
         )
+    }
+
+    fun getTokens(request: HttpRequest<Unit>): HttpResponse<List<PersonalAccessTokenDto>> = serviceCall {
+        service.getTokensForUser(request.userIdOrThrow()).map { token ->
+            PersonalAccessTokenDto(
+                id = token.id,
+                name = token.name,
+                tokenPrefix = token.tokenPrefix,
+                createdAt = token.createdAt.formatDate(),
+                expiresAt = token.expiresAt?.formatDate(),
+                lastUsedAt = token.lastUsedAt?.formatDate()
+            )
+        }
     }
 }
 
