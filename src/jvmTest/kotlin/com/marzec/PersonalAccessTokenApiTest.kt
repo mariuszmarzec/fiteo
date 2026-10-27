@@ -132,7 +132,7 @@ class PersonalAccessTokenApiTest {
 
                 assertThat(
                     listOf(firstToken.token, secondToken.token, otherUsersToken.token)
-                        .filter(responseBody::contains)
+                        .filter { responseBody.contains(it) }
                 ).isEmpty()
                 assertThat(responseBody).doesNotContain("tokenHash")
                 assertThat(responseBody).doesNotContain("\"token\":")
