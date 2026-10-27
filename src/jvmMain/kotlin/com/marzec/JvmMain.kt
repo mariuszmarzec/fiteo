@@ -21,6 +21,7 @@ import com.marzec.events.Event
 import com.marzec.fiteo.ApiPath
 import com.marzec.fiteo.api.Controller
 import com.marzec.fiteo.fiteoApi
+import com.marzec.fiteo.patApi
 import com.marzec.fiteo.model.domain.TestUserSession
 import com.marzec.fiteo.model.domain.UserSession
 import com.marzec.fiteo.model.dto.LoginRequestDto
@@ -124,6 +125,7 @@ fun Application.module() {
             cheatDayApi(di, cheatDayApi)
             todoApi(di, todoController)
             fiteoApi(di, api)
+            patApi(di)
             sse(di)
         }
 

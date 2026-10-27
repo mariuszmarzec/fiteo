@@ -120,6 +120,7 @@ class Di(
         parametersOf(database, authToken)
     }
     val fcmService by inject<FcmService> { parametersOf(database) }
+    val personalAccessTokenService by inject<PersonalAccessTokenService> { parametersOf(database) }
 }
 
 val MainModule = module {
