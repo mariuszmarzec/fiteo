@@ -6,7 +6,7 @@ import com.marzec.fiteo.PatApiPath
 import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.ErrorDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
-import io.ktor.client.request.post
+import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
