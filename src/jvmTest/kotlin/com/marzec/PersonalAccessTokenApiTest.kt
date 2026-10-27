@@ -126,6 +126,64 @@ class PersonalAccessTokenApiTest {
         )
     }
 
+    @Test
+    fun deletePersonalAccessToken_requiresAuthentication() {
+        withDefaultMockTestApplication {
+            val response = client.delete(tokenPath(1))
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+        }
+    }
+
+    @Test
+    fun deletePersonalAccessToken_deletesOwnToken() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            val token = createToken(name = "CLI", expiresIn = "NEVER")
+
+            val response = client.delete(tokenPath(token.id)) {
+                header(Headers.AUTHORIZATION, authToken!!)
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                .doesNotContain(token.id)
+        }
+    }
+
+    @Test
+    fun deletePersonalAccessToken_doesNotDeleteAnotherUsersToken() {
+        withDefaultMockTestApplication {
+            val userAuth = registerAndLogin()
+            authToken = userAuth
+            val userToken = createToken(name = "Mine", expiresIn = "NEVER")
+
+            val otherUserCredentials = RegisterRequestDto(
+                email = "other-user@mail.com",
+                password = "1234567890",
+                repeatedPassword = "1234567890"
+            )
+            register(otherUserCredentials)
+            val otherUserAuth = login(LoginRequestDto(email = otherUserCredentials.email, password = otherUserCredentials.password))
+            authToken = otherUserAuth
+            val otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+
+            val response = client.delete(tokenPath(otherUsersToken.id)) {
+                header(Headers.AUTHORIZATION, userAuth)
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                .containsExactly(otherUsersToken.id)
+
+            authToken = userAuth
+            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                .containsExactly(userToken.id)
+        }
+    }
+
+    private fun tokenPath(id: Int) = PatApiPath.TOKEN_BY_ID.replace("{id}", id.toString())
+
     private suspend fun ApplicationTestBuilder.createToken(
         name: String,
         expiresIn: String

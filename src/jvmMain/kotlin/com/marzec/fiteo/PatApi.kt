@@ -1,5 +1,6 @@
 package com.marzec.fiteo
 
+import com.marzec.Api
 import com.marzec.common.createHttpRequest
 import com.marzec.common.receiveHttpRequest
 import com.marzec.common.respond
@@ -13,6 +14,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.openapi.jsonSchema
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.openapi.describe
@@ -69,6 +71,22 @@ fun Route.patApi(di: Di) {
                     ContentType.Application.Json {
                         schema = jsonSchema<ErrorDto>()
                     }
+                }
+                HttpStatusCode.Unauthorized {
+                    description = "A valid authenticated session is required."
+                }
+            }
+        }
+
+        delete(PatApiPath.TOKEN_BY_ID) {
+            respond(di.personalAccessTokenApiController.deleteToken(createHttpRequest(Unit)))
+        }.describe {
+            summary = "Delete a personal access token"
+            description = "Deletes the token only when it belongs to the authenticated user. Other users' tokens are not affected."
+            tag("Personal access tokens")
+            responses {
+                HttpStatusCode.OK {
+                    description = "The token was deleted if it belongs to the authenticated user."
                 }
                 HttpStatusCode.Unauthorized {
                     description = "A valid authenticated session is required."
