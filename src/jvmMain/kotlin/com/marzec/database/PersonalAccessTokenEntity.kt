@@ -1,6 +1,6 @@
 package com.marzec.database
 
-import com.marzec.core.currentTime
+import com.marzec.core.UtcPatTimeProvider
 import com.marzec.fiteo.model.domain.PersonalAccessToken
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
@@ -17,7 +17,7 @@ object PersonalAccessTokenTable : IntIdTable("personal_access_tokens") {
     val tokenHash = varchar("token_hash", 64).uniqueIndex()
     val tokenPrefix = varchar("token_prefix", 16)
     val createdAt = datetime("created_at").apply {
-        defaultValueFun = { currentTime().toJavaLocalDateTime() }
+        defaultValueFun = { UtcPatTimeProvider().currentTime().toJavaLocalDateTime() }
     }
     val expiresAt = datetime("expires_at").nullable()
     val lastUsedAt = datetime("last_used_at").nullable()
