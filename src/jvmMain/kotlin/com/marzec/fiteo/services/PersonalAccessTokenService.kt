@@ -64,7 +64,7 @@ class PersonalAccessTokenServiceImpl(
         return PersonalAccessTokenCreation(token = secret, pat = pat)
     }
 
-    override fun verify(token: String): PersonalAccessToken {
+    override fun verify(token: String): User {
         val tokenHash = sha256Hex(token.encodeToByteArray())
         val stored = patRepository.findByTokenHash(tokenHash)
             ?: throw HttpException("Invalid token", HttpStatus.UNAUTHORIZED)
