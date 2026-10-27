@@ -27,8 +27,11 @@ class OpenApiTest {
             assertThat(document).contains("/sse")
             assertThat(document).contains("/pat/api/1/tokens:")
             assertThat(document).contains("Create a personal access token")
-            assertThat(document).contains("#/components/schemas/CreatePersonalAccessTokenRequestDto")
-            assertThat(document).contains("#/components/schemas/PersonalAccessTokenCreationDto")
+            assertThat(document).contains("Personal access tokens")
+            assertThat(document).contains("CreatePersonalAccessTokenRequestDto")
+            assertThat(document).contains("PersonalAccessTokenCreationDto")
+            assertThat(document).contains("ErrorDto")
+            assertThat(document).contains("The name is blank or the expiration policy is unsupported.")
 
             // Swagger UI uses the runtime routing source. Keep these assertions here so the
             // route summary and request/response schemas are verified before snapshot generation.
