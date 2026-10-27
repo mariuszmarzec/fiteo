@@ -13,7 +13,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.*
-import kotlinx.serialization.decodeFromString
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
@@ -78,60 +77,71 @@ class PersonalAccessTokenApiTest {
     }
 
     @Test
-    fun listPersonalAccessTokens_returnsOnlyMetadataForAuthenticatedUser() {
-        withDefaultMockTestApplication {
-            val userAuth = registerAndLogin()
-            authToken = userAuth
-            val firstToken = createToken(name = "CLI", expiresIn = "NEVER")
-            val secondToken = createToken(name = "Mobile", expiresIn = "THREE_MONTHS")
+    fun listPersonalAccessTokens_returnsOnlyAuthenticatedUsersTokens() {
+        lateinit var userAuth: String
+        lateinit var firstToken: PersonalAccessTokenCreationDto
+        lateinit var secondToken: PersonalAccessTokenCreationDto
+        lateinit var otherUsersToken: PersonalAccessTokenCreationDto
 
-            val otherEmail = "other-user@mail.com"
-            register(
-                RegisterRequestDto(
-                    email = otherEmail,
-                    password = "1234567890",
-                    repeatedPassword = "1234567890"
+        testGetEndpointCheck<List<PersonalAccessTokenDto>>(
+            uri = PatApiPath.TOKENS,
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { response ->
+                assertThat(response).containsExactly(
+                    PersonalAccessTokenDto(
+                        id = firstToken.id,
+                        name = firstToken.name,
+                        tokenPrefix = firstToken.prefix,
+                        createdAt = firstToken.createdAt,
+                        expiresAt = firstToken.expiresAt,
+                        lastUsedAt = null
+                    ),
+                    PersonalAccessTokenDto(
+                        id = secondToken.id,
+                        name = secondToken.name,
+                        tokenPrefix = secondToken.prefix,
+                        createdAt = secondToken.createdAt,
+                        expiresAt = secondToken.expiresAt,
+                        lastUsedAt = null
+                    )
                 )
-            )
-            authToken = login(LoginRequestDto(email = otherEmail, password = "1234567890"))
-            val otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+            },
+            authorize = {
+                userAuth = registerAndLogin()
+                userAuth
+            },
+            runRequestsBefore = {
+                firstToken = createToken(name = "CLI", expiresIn = "NEVER")
+                secondToken = createToken(name = "Mobile", expiresIn = "THREE_MONTHS")
 
-            val response = client.get(PatApiPath.TOKENS) {
-                header(Headers.AUTHORIZATION, userAuth)
+                register(
+                    RegisterRequestDto(
+                        email = "other-user@mail.com",
+                        password = "1234567890",
+                        repeatedPassword = "1234567890"
+                    )
+                )
+                authToken = login(LoginRequestDto(email = "other-user@mail.com", password = "1234567890"))
+                otherUsersToken = createToken(name = "Other user's token", expiresIn = "NEVER")
+                authToken = userAuth
+            },
+            runRequestsAfter = {
+                val responseBody = client.get(PatApiPath.TOKENS) {
+                    header(Headers.AUTHORIZATION, userAuth)
+                }.bodyAsText()
+
+                assertThat(responseBody).doesNotContain(firstToken.token)
+                assertThat(responseBody).doesNotContain(otherUsersToken.token)
+                assertThat(responseBody).doesNotContain("tokenHash")
+                assertThat(responseBody).doesNotContain("\"token\":")
             }
-
-            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            val body = response.bodyAsText()
-            val tokens = json.decodeFromString<List<PersonalAccessTokenDto>>(body)
-
-            assertThat(tokens).hasSize(2)
-            assertThat(tokens.map { it.id }).containsExactly(firstToken.id, secondToken.id)
-            assertThat(tokens.map { it.name }).containsExactly("CLI", "Mobile")
-            assertThat(tokens.map { it.tokenPrefix }).containsExactly(firstToken.prefix, secondToken.prefix)
-            tokens.forEach { token ->
-                assertThat(token.tokenPrefix).matches("^[0-9a-f]{8}$")
-                assertThat(token.createdAt).matches(DATE_TIME_PATTERN)
-            }
-            val listedFirstToken = tokens.first { it.id == firstToken.id }
-            val listedSecondToken = tokens.first { it.id == secondToken.id }
-            assertThat(listedFirstToken.expiresAt).isNull()
-            assertThat(listedSecondToken.expiresAt).isNotNull()
-            assertThat(listedSecondToken.expiresAt!!).matches(DATE_TIME_PATTERN)
-            assertThat(tokens.all { it.lastUsedAt == null }).isTrue()
-
-            assertThat(body).doesNotContain(firstToken.token)
-            assertThat(body).doesNotContain(secondToken.token)
-            assertThat(body).doesNotContain(otherUsersToken.token)
-            assertThat(body).doesNotContain("Other user's token")
-            assertThat(body).doesNotContain("tokenHash")
-            assertThat(body).doesNotContain("\"token\":")
-        }
+        )
     }
 
     private suspend fun ApplicationTestBuilder.createToken(
         name: String,
         expiresIn: String
-    ): PersonalAccessTokenCreationDto = postWithAuth<CreatePersonalAccessTokenRequestDto, PersonalAccessTokenCreationDto>(
+    ): PersonalAccessTokenCreationDto = postWithAuth(
         PatApiPath.TOKENS,
         CreatePersonalAccessTokenRequestDto(name = name, expiresIn = expiresIn)
     )
