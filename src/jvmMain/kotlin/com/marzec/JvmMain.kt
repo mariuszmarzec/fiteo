@@ -17,6 +17,7 @@ import com.marzec.database.UserPrincipal
 import com.marzec.database.toPrincipal
 import com.marzec.di.Di
 import com.marzec.di.diModules
+import com.marzec.mcp.McpJsonContentConverter
 import com.marzec.mcp.configureMcpEndpoint
 import com.marzec.events.Event
 import com.marzec.fiteo.ApiPath
@@ -224,6 +225,7 @@ fun Application.configuration(di: Di) {
     }
 
     install(ContentNegotiation) {
+        register(ContentType.Application.Json, McpJsonContentConverter())
         json(
             contentType = ContentType.Application.Json,
             json = di.json
