@@ -155,7 +155,7 @@ class McpEndpointTest {
     }
 
     @Test
-    fun toolsList_returnsAnEmptyToolRegistryWithValidPat() {
+    fun toolsList_exposesTodoListToolWithValidPat() {
         withDefaultMockTestApplication {
             val pat = createPat()
             val response = postMcp(
@@ -171,7 +171,11 @@ class McpEndpointTest {
             )
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(response.bodyAsText()).contains("\"tools\":[]")
+            val body = response.bodyAsText()
+            assertThat(body).contains("\"name\":\"todo_list_tasks\"")
+            assertThat(body).contains("\"inputSchema\"")
+            assertThat(body).contains("\"properties\":{}")
+            assertThat(body).doesNotContain("\"tools\":[]")
         }
     }
 
