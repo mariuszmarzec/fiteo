@@ -132,7 +132,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_mark_tasks",
-        description = "Set every supplied task ID to ToDo or not-ToDo for the owner of the authenticated PAT. Tasks not accessible to that owner are not updated. Returns the resulting TaskDto objects.",
+        description = "Set each supplied task ID to ToDo or not-ToDo using the existing permissions of the authenticated PAT owner. The call fails if any task cannot be edited by that user. Returns the task list visible to the PAT owner after the change.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("isToDo", buildJsonObject { put("type", "boolean") })
