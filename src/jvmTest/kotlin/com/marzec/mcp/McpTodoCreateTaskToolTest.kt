@@ -39,7 +39,7 @@ class McpTodoCreateTaskToolTest {
 
         testApplication {
             application { configureMcpEndpoint({ patService }, { controller }) }
-            val response = callCreateTask("""{"description":"Created via MCP","isToDo":false}""")
+            val response = callCreateTask("""{"task":{"description":"Created via MCP","isToDo":false}}""")
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
             assertThat(body).contains("Created via MCP")
@@ -74,10 +74,10 @@ class McpTodoCreateTaskToolTest {
             application { configureMcpEndpoint({ patService }, { controller }) }
             val blank = callCreateTask("""{"description":"  "}""").bodyAsText()
             assertThat(blank).contains("\"isError\":true")
-            val malformed = callCreateTask("""{"description":"valid","priority":"high"}""").bodyAsText()
+            val malformed = callCreateTask("""{"task":{"description":"valid","priority":"high"}}""").bodyAsText()
             assertThat(malformed).contains("\"isError\":true")
             val malformedScheduler = callCreateTask(
-                """{"description":"valid","scheduler":{"hour":10,"minute":15,"startDate":"not-a-date","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot"}}""",
+                """{"task":{"description":"valid","scheduler":{"hour":10,"minute":15,"startDate":"not-a-date","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot"}}}""",
             ).bodyAsText()
             assertThat(malformedScheduler).contains("\"isError\":true")
             verify(exactly = 0) { controller.addTask(any()) }
@@ -96,7 +96,7 @@ class McpTodoCreateTaskToolTest {
 
         testApplication {
             application { configureMcpEndpoint({ patService }, { controller }) }
-            val body = callCreateTask("""{"description":"Will fail"}""").bodyAsText()
+            val body = callCreateTask("""{"task":{"description":"Will fail"}}""").bodyAsText()
             assertThat(body).contains("internal error")
             assertThat(body).doesNotContain("database host and stack details")
             assertThat(body).doesNotContain("valid-test-token")

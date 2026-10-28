@@ -33,6 +33,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
@@ -92,54 +93,9 @@ internal fun createMcpServer(
         description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. Optional shares are granted to the specified users. Returns the created TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
-                put("description", buildJsonObject { put("type", "string"); put("description", "Non-empty task description.") })
-                put("parentTaskId", buildJsonObject { put("type", typeUnion("integer", "null")) })
-                put("priority", buildJsonObject { put("type", typeUnion("integer", "null")) })
-                put("highestPriorityAsDefault", buildJsonObject { put("type", typeUnion("boolean", "null")) })
-                put("isToDo", buildJsonObject { put("type", typeUnion("boolean", "null")) })
-                put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
-                put("scheduler", buildJsonObject {
-                    put("type", typeUnion("object", "null"))
-                    put("properties", buildJsonObject {
-                        put("hour", buildJsonObject { put("type", "integer") })
-                        put("minute", buildJsonObject { put("type", "integer") })
-                        put("creationDate", buildJsonObject { put("type", typeUnion("string", "null")) })
-                        put("startDate", buildJsonObject { put("type", "string") })
-                        put("lastDate", buildJsonObject { put("type", typeUnion("string", "null")) })
-                        put("daysOfWeek", buildJsonObject { put("type", "array",); put("items", buildJsonObject { put("type", "integer") }) })
-                        put("dayOfMonth", buildJsonObject { put("type", "integer") })
-                        put("repeatCount", buildJsonObject { put("type", "integer") })
-                        put("repeatInEveryPeriod", buildJsonObject { put("type", "integer") })
-                        put("type", buildJsonObject {
-                            put("type", "string")
-                            put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
-                        })
-                        put("options", buildJsonObject { put("type", typeUnion("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
-                    })
-                    put("required", buildJsonArray {
-                        add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
-                        add(JsonPrimitive("daysOfWeek")); add(JsonPrimitive("dayOfMonth")); add(JsonPrimitive("repeatCount"))
-                        add(JsonPrimitive("repeatInEveryPeriod")); add(JsonPrimitive("type"))
-                    })
-                    put("additionalProperties", false)
-                })
-                put("shares", buildJsonObject {
-                    put("type", typeUnion("array", "null"))
-                    put("items", buildJsonObject {
-                        put("type", "object")
-                        put("properties", buildJsonObject {
-                            put("userId", buildJsonObject { put("type", "string") })
-                            put("permission", buildJsonObject {
-                                put("type", "string")
-                                put("enum", buildJsonArray { add(JsonPrimitive("VIEWER")); add(JsonPrimitive("EDITOR_AND_VIEWER")) })
-                            })
-                        })
-                        put("required", buildJsonArray { add(JsonPrimitive("userId")); add(JsonPrimitive("permission")) })
-                        put("additionalProperties", false)
-                    })
-                })
+                put("task", createTaskDtoSchema())
             },
-            required = listOf("description"),
+            required = listOf("task"),
         ),
     ) { request ->
         val arguments = request.params.arguments ?: buildJsonObject {}
@@ -191,41 +147,108 @@ internal fun Application.configureMcpEndpoint(
     }
 }
 
-private fun decodeCreateTaskArguments(arguments: kotlinx.serialization.json.JsonObject): CreateTaskDto {
-    val allowed = setOf("description", "parentTaskId", "priority", "highestPriorityAsDefault", "isToDo", "expirationDate", "scheduler", "shares")
-    require(arguments.keys.all { it in allowed }) { "Unknown fields are not supported" }
+private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
+    put("type", "object")
+    put("description", "Task payload matching CreateTaskDto.")
+    put("properties", buildJsonObject {
+        put("description", buildJsonObject { put("type", "string"); put("description", "Non-empty task description.") })
+        put("parentTaskId", buildJsonObject { put("type", typeUnion("integer", "null")) })
+        put("priority", buildJsonObject { put("type", typeUnion("integer", "null")) })
+        put("highestPriorityAsDefault", buildJsonObject { put("type", typeUnion("boolean", "null")) })
+        put("isToDo", buildJsonObject { put("type", typeUnion("boolean", "null")) })
+        put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
+        put("scheduler", buildJsonObject {
+            put("type", typeUnion("object", "null"))
+            put("properties", buildJsonObject {
+                put("hour", buildJsonObject { put("type", "integer") })
+                put("minute", buildJsonObject { put("type", "integer") })
+                put("creationDate", buildJsonObject { put("type", typeUnion("string", "null")) })
+                put("startDate", buildJsonObject { put("type", "string") })
+                put("lastDate", buildJsonObject { put("type", typeUnion("string", "null")) })
+                put("daysOfWeek", buildJsonObject { put("type", "array",); put("items", buildJsonObject { put("type", "integer") }) })
+                put("dayOfMonth", buildJsonObject { put("type", "integer") })
+                put("repeatCount", buildJsonObject { put("type", "integer") })
+                put("repeatInEveryPeriod", buildJsonObject { put("type", "integer") })
+                put("type", buildJsonObject {
+                    put("type", "string")
+                    put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
+                })
+                put("options", buildJsonObject { put("type", typeUnion("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
+            })
+            put("required", buildJsonArray {
+                add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
+                add(JsonPrimitive("daysOfWeek")); add(JsonPrimitive("dayOfMonth")); add(JsonPrimitive("repeatCount"))
+                add(JsonPrimitive("repeatInEveryPeriod")); add(JsonPrimitive("type"))
+            })
+            put("additionalProperties", false)
+        })
+        put("shares", buildJsonObject {
+            put("type", typeUnion("array", "null"))
+            put("items", buildJsonObject {
+                put("type", "object")
+                put("properties", buildJsonObject {
+                    put("userId", buildJsonObject { put("type", "string") })
+                    put("permission", buildJsonObject {
+                        put("type", "string")
+                        put("enum", buildJsonArray { add(JsonPrimitive("VIEWER")); add(JsonPrimitive("EDITOR_AND_VIEWER")) })
+                    })
+                })
+                put("required", buildJsonArray { add(JsonPrimitive("userId")); add(JsonPrimitive("permission")) })
+                put("additionalProperties", false)
+            })
+        })
+    })
+    put("required", buildJsonArray { add(JsonPrimitive("description")) })
+    put("additionalProperties", false)
+}
 
-    val descriptionValue = arguments["description"] as? JsonPrimitive
+private fun decodeCreateTaskArguments(arguments: JsonObject): CreateTaskDto {
+    require(arguments.keys == setOf("task")) {
+        "todo_create_task expects a single task object"
+    }
+    val taskArguments = arguments["task"] as? JsonObject
+        ?: throw IllegalArgumentException("task must be an object")
+    val allowed = setOf(
+        "description", "parentTaskId", "priority", "highestPriorityAsDefault",
+        "isToDo", "expirationDate", "scheduler", "shares",
+    )
+    require(taskArguments.keys.all { it in allowed }) { "Unknown task fields are not supported" }
+
+    val descriptionValue = taskArguments["description"] as? JsonPrimitive
     require(descriptionValue != null && descriptionValue.isString && descriptionValue.content.isNotBlank()) {
-        "description must be a non-empty string"
+        "task.description must be a non-empty string"
     }
 
     fun intField(name: String): Int? {
-        val value = arguments[name] ?: return null
+        val value = taskArguments[name] ?: return null
         if (value == JsonNull) return null
-        return (value as? JsonPrimitive)?.intOrNull ?: throw IllegalArgumentException("$name must be an integer or null")
+        return (value as? JsonPrimitive)?.intOrNull
+            ?: throw IllegalArgumentException("task.$name must be an integer or null")
     }
     fun boolField(name: String): Boolean? {
-        val value = arguments[name] ?: return null
+        val value = taskArguments[name] ?: return null
         if (value == JsonNull) return null
-        return (value as? JsonPrimitive)?.booleanOrNull ?: throw IllegalArgumentException("$name must be a boolean")
+        return (value as? JsonPrimitive)?.booleanOrNull
+            ?: throw IllegalArgumentException("task.$name must be a boolean or null")
     }
     fun stringField(name: String): String? {
-        val value = arguments[name] ?: return null
+        val value = taskArguments[name] ?: return null
         if (value == JsonNull) return null
         val primitive = value as? JsonPrimitive
-        require(primitive != null && primitive.isString) { "$name must be a string or null" }
+        require(primitive != null && primitive.isString) { "task.$name must be a string or null" }
         return primitive.content
     }
 
-    val schedulerElement: JsonElement? = arguments["scheduler"]
+    val schedulerElement: JsonElement? = taskArguments["scheduler"]
     val scheduler = if (schedulerElement == null || schedulerElement == JsonNull) null else
         McpJson.decodeFromJsonElement(SchedulerDto.serializer(), schedulerElement)
-    val sharesElement: JsonElement? = arguments["shares"]
+    val sharesElement: JsonElement? = taskArguments["shares"]
     val shares = if (sharesElement == null || sharesElement == JsonNull) null else {
         sharesElement.jsonArray.map { item ->
             val share = item.jsonObject
-            require(share.keys == setOf("userId", "permission")) { "Each share must contain only userId and permission" }
+            require(share.keys == setOf("userId", "permission")) {
+                "Each task share must contain only userId and permission"
+            }
             TaskShareDto(
                 userId = (share["userId"] as? JsonPrimitive)?.takeIf { it.isString }?.content
                     ?: throw IllegalArgumentException("share.userId must be a string"),
@@ -233,14 +256,16 @@ private fun decodeCreateTaskArguments(arguments: kotlinx.serialization.json.Json
                     ?: throw IllegalArgumentException("share.permission must be a string"),
             ).also {
                 require(it.userId.toIntOrNull() != null) { "share.userId must be a numeric user ID" }
-                require(it.permission in setOf("VIEWER", "EDITOR_AND_VIEWER")) { "share.permission is unsupported" }
+                require(it.permission in setOf("VIEWER", "EDITOR_AND_VIEWER")) {
+                    "share.permission is unsupported"
+                }
             }
         }
     }
 
     val expirationDate = stringField("expirationDate")
     require(expirationDate == null || runCatching { kotlinx.datetime.LocalDateTime.parse(expirationDate) }.isSuccess) {
-        "expirationDate must use yyyy-MM-dd'T'HH:mm:ss"
+        "task.expirationDate must use yyyy-MM-dd'T'HH:mm:ss"
     }
     return CreateTaskDto(
         description = descriptionValue.content,
@@ -253,6 +278,7 @@ private fun decodeCreateTaskArguments(arguments: kotlinx.serialization.json.Json
         shares = shares,
     )
 }
+
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
 
