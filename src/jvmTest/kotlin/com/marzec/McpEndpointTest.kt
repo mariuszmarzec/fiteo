@@ -37,10 +37,10 @@ class McpEndpointTest {
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
-            assertThat(body).contains("\\"jsonrpc\\":\\"2.0\\"")
-            assertThat(body).contains("\\"protocolVersion\\"")
-            assertThat(body).contains("\\"serverInfo\\"")
-            assertThat(body).contains("\\"name\\":\\"fiteo\\"")
+            assertThat(body).contains("\"jsonrpc\":\"2.0\"")
+            assertThat(body).contains("\"protocolVersion\"")
+            assertThat(body).contains("\"serverInfo\"")
+            assertThat(body).contains("\"name\":\"fiteo\"")
         }
     }
 
@@ -91,7 +91,7 @@ class McpEndpointTest {
             )
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(response.bodyAsText()).contains("\\"tools\\":[]")
+            assertThat(response.bodyAsText()).contains("\"tools\":[]")
         }
     }
 
