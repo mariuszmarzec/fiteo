@@ -92,19 +92,19 @@ internal fun createMcpServer(
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("description", buildJsonObject { put("type", "string"); put("description", "Non-empty task description.") })
-                put("parentTaskId", buildJsonObject { put("type", listOf("integer", "null")) })
-                put("priority", buildJsonObject { put("type", listOf("integer", "null")) })
+                put("parentTaskId", buildJsonObject { put("type", typeUnion("integer", "null")) })
+                put("priority", buildJsonObject { put("type", typeUnion("integer", "null")) })
                 put("highestPriorityAsDefault", buildJsonObject { put("type", "boolean") })
                 put("isToDo", buildJsonObject { put("type", "boolean") })
-                put("expirationDate", buildJsonObject { put("type", listOf("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
+                put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
                 put("scheduler", buildJsonObject {
-                    put("type", listOf("object", "null"))
+                    put("type", typeUnion("object", "null"))
                     put("properties", buildJsonObject {
                         put("hour", buildJsonObject { put("type", "integer") })
                         put("minute", buildJsonObject { put("type", "integer") })
-                        put("creationDate", buildJsonObject { put("type", listOf("string", "null")) })
+                        put("creationDate", buildJsonObject { put("type", typeUnion("string", "null")) })
                         put("startDate", buildJsonObject { put("type", "string") })
-                        put("lastDate", buildJsonObject { put("type", listOf("string", "null")) })
+                        put("lastDate", buildJsonObject { put("type", typeUnion("string", "null")) })
                         put("daysOfWeek", buildJsonObject { put("type", "array",); put("items", buildJsonObject { put("type", "integer") }) })
                         put("dayOfMonth", buildJsonObject { put("type", "integer") })
                         put("repeatCount", buildJsonObject { put("type", "integer") })
@@ -113,7 +113,7 @@ internal fun createMcpServer(
                             put("type", "string")
                             put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
                         })
-                        put("options", buildJsonObject { put("type", listOf("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
+                        put("options", buildJsonObject { put("type", typeUnion("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
                     })
                     put("required", buildJsonArray {
                         add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
@@ -123,7 +123,7 @@ internal fun createMcpServer(
                     put("additionalProperties", false)
                 })
                 put("shares", buildJsonObject {
-                    put("type", listOf("array", "null"))
+                    put("type", typeUnion("array", "null"))
                     put("items", buildJsonObject {
                         put("type", "object")
                         put("properties", buildJsonObject {
@@ -251,6 +251,8 @@ private fun decodeCreateTaskArguments(arguments: kotlinx.serialization.json.Json
         shares = shares,
     )
 }
+
+private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
 
 private fun toolErrorResult(message: String) = CallToolResult(content = listOf(TextContent(text = message)), isError = true)
 
