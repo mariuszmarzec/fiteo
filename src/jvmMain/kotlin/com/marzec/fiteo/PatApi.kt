@@ -49,10 +49,10 @@ fun Route.patApi(di: Di) {
             )
         }.describe {
             summary = "Create a personal access token"
-            description = "Creates a token for the authenticated user. The raw token is returned only in this response."
+            description = "Creates a token for the authenticated user. expiresIn must be THREE_MONTHS, SIX_MONTHS, or NEVER. The raw token is returned only in this response."
             tag("Personal access tokens")
             requestBody {
-                description = "Name and expiration policy for the new token."
+                description = "Name and expiration policy for the new token. expiresIn supports THREE_MONTHS, SIX_MONTHS, or NEVER."
                 required = true
                 ContentType.Application.Json {
                     schema = jsonSchema<CreatePersonalAccessTokenRequestDto>()

@@ -2,6 +2,10 @@ package com.marzec
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.Api.Headers
+import com.marzec.core.sha256Hex
+import com.marzec.database.DbSettings
+import com.marzec.exceptions.HttpException
+import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.PatApiPath
 import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.ErrorDto
@@ -9,6 +13,7 @@ import com.marzec.fiteo.model.dto.LoginRequestDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenDto
 import com.marzec.fiteo.model.dto.RegisterRequestDto
+import com.marzec.fiteo.services.PersonalAccessTokenService
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -16,6 +21,8 @@ import io.ktor.server.testing.*
 import org.junit.After
 import org.junit.Test
 import org.koin.core.context.GlobalContext
+import org.koin.core.parameter.parametersOf
+import kotlin.test.assertFailsWith
 
 class PersonalAccessTokenApiTest {
 
@@ -120,10 +127,51 @@ class PersonalAccessTokenApiTest {
                     listOf(firstToken.token, secondToken.token, otherUsersToken.token)
                         .filter { responseBody.contains(it) }
                 ).isEmpty()
+                assertThat(
+                    listOf(firstToken.token, secondToken.token, otherUsersToken.token)
+                        .map { sha256Hex(it.encodeToByteArray()) }
+                        .filter { responseBody.contains(it) }
+                ).isEmpty()
                 assertThat(responseBody).doesNotContain("tokenHash")
                 assertThat(responseBody).doesNotContain("\"token\":")
             }
         )
+    }
+
+    @Test
+    fun personalAccessTokenLifecycle_createListVerifyAndRevokeToken() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            val token = createToken(name = "Lifecycle test", expiresIn = "NEVER")
+            val tokenService = GlobalContext.get().get<PersonalAccessTokenService> {
+                parametersOf(DbSettings.database)
+            }
+
+            assertThat(tokenService.verify(token.token).id).isGreaterThan(0)
+
+            val listResponse = client.get(PatApiPath.TOKENS) {
+                header(Headers.AUTHORIZATION, authToken!!)
+            }
+            assertThat(listResponse.status).isEqualTo(HttpStatusCode.OK)
+            val listBody = listResponse.bodyAsText()
+            assertThat(listBody).contains(token.id.toString())
+            assertThat(listBody).contains("Lifecycle test")
+            assertThat(listBody).doesNotContain(token.token)
+            assertThat(listBody).doesNotContain(sha256Hex(token.token.encodeToByteArray()))
+            assertThat(listBody).doesNotContain("tokenHash")
+
+            val deleteResponse = client.delete(tokenPath(token.id)) {
+                header(Headers.AUTHORIZATION, authToken!!)
+            }
+            assertThat(deleteResponse.status).isEqualTo(HttpStatusCode.OK)
+
+            assertThat(getWithAuth<List<PersonalAccessTokenDto>>(PatApiPath.TOKENS).map { it.id })
+                .doesNotContain(token.id)
+            val verificationFailure = assertFailsWith<HttpException> {
+                tokenService.verify(token.token)
+            }
+            assertThat(verificationFailure.httpStatus).isEqualTo(HttpStatus.UNAUTHORIZED)
+        }
     }
 
     @Test
