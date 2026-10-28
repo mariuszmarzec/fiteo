@@ -543,8 +543,8 @@ private fun <T> Server.addJsonTool(
             }
         } catch (exception: HttpException) {
             toolErrorResult(exception.message ?: invalidArgumentsMessage)
-        } catch (exception: IllegalArgumentException) {
-            toolErrorResult(exception.message ?: invalidArgumentsMessage)
+        } catch (_: IllegalArgumentException) {
+            toolErrorResult(invalidArgumentsMessage)
         } catch (_: Exception) {
             toolErrorResult(internalErrorMessage)
         }

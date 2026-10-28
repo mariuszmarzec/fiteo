@@ -15,7 +15,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.*
-import io.mockk.capture
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -95,7 +94,7 @@ class McpTodoMarkAsToDoToolTest {
         val patService = mockk<PersonalAccessTokenService>()
         val controller = mockk<ToDoApiController>()
         every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
-        every { controller.markAsToDo(any()) } returns DomainHttpResponse.Error(
+        every { controller.markAsToDo(any()) } returns DomainHttpResponse.Error<List<com.marzec.todo.dto.TaskDto>>(
             data = com.marzec.fiteo.model.dto.ErrorDto("database internals"),
             httpStatusCode = 500,
         )
