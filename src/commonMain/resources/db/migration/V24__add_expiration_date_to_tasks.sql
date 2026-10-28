@@ -1,1 +1,0 @@
-ALTER TABLE todo_tasks ADD COLUMN expiration_date DATETIME DEFAULT NULL;
