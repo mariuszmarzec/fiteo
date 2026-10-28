@@ -10,6 +10,12 @@ generated OpenAPI contract (`src/jvmMain/resources/openapi.yaml`).
 - [Login bearer](login_bearer.md)
 - [Logout](logout.md)
 
+## Personal access tokens
+
+- [Create a personal access token](pat_tokens_create.md)
+- [List personal access tokens](pat_tokens_get.md)
+- [Delete a personal access token](pat_tokens_delete.md)
+
 ## Users
 
 - [Get current user](user_get.md)
