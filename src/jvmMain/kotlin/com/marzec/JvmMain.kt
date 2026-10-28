@@ -111,7 +111,7 @@ fun Application.module() {
     configuration(di)
     sessions(di, testDi)
     scripts()
-    configureMcpEndpoint()
+    configureMcpEndpoint { di.personalAccessTokenService }
     routing {
 
         static {
