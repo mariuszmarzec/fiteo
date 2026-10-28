@@ -37,10 +37,42 @@ class McpEndpointTest {
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
-            assertThat(body).contains("\"jsonrpc\":\"2.0\"")
-            assertThat(body).contains("\"protocolVersion\"")
-            assertThat(body).contains("\"serverInfo\"")
-            assertThat(body).contains("\"name\":\"fiteo\"")
+            assertThat(body).contains("\\"jsonrpc\\":\\"2.0\\"")
+            assertThat(body).contains("\\"protocolVersion\\"")
+            assertThat(body).contains("\\"serverInfo\\"")
+            assertThat(body).contains("\\"name\\":\\"fiteo\\"")
+        }
+    }
+
+    @Test
+    fun endpoint_doesNotApplyAnApplicationHostAllowlist() {
+        withDefaultMockTestApplication {
+            val response = client.post(MCP_ENDPOINT_PATH) {
+                header(HttpHeaders.Host, "mcp.internal.example")
+                header(HttpHeaders.Origin, "https://mcp.internal.example")
+                header(HttpHeaders.Accept, "application/json, text/event-stream")
+                contentType(ContentType.Application.Json)
+                header("Mcp-Protocol-Version", "2025-11-25")
+                setBody(
+                    """
+                    {
+                      "jsonrpc": "2.0",
+                      "id": 1,
+                      "method": "initialize",
+                      "params": {
+                        "protocolVersion": "2025-11-25",
+                        "capabilities": {},
+                        "clientInfo": {
+                          "name": "fiteo-mcp-test",
+                          "version": "1.0.0"
+                        }
+                      }
+                    }
+                    """.trimIndent()
+                )
+            }
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
         }
     }
 
@@ -59,7 +91,7 @@ class McpEndpointTest {
             )
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(response.bodyAsText()).contains("\"tools\":[]")
+            assertThat(response.bodyAsText()).contains("\\"tools\\":[]")
         }
     }
 
