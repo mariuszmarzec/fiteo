@@ -221,11 +221,6 @@ fun Application.configuration(di: Di) {
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Delete)
-        allowHeader(HttpHeaders.Accept)
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader("Mcp-Protocol-Version")
-        allowNonSimpleContentTypes = true
         anyHost()
     }
 
