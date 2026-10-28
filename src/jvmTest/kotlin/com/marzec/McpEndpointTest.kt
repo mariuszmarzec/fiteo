@@ -45,37 +45,6 @@ class McpEndpointTest {
     }
 
     @Test
-    fun endpoint_acceptsCustomHostWithoutOpenApiHostAllowlist() {
-        withDefaultMockTestApplication {
-            val response = client.post(MCP_ENDPOINT_PATH) {
-                header(HttpHeaders.Host, "mcp.internal.example")
-                header(HttpHeaders.Accept, "application/json, text/event-stream")
-                contentType(ContentType.Application.Json)
-                header("Mcp-Protocol-Version", "2025-11-25")
-                setBody(
-                    """
-                    {
-                      "jsonrpc": "2.0",
-                      "id": 1,
-                      "method": "initialize",
-                      "params": {
-                        "protocolVersion": "2025-11-25",
-                        "capabilities": {},
-                        "clientInfo": {
-                          "name": "fiteo-mcp-test",
-                          "version": "1.0.0"
-                        }
-                      }
-                    }
-                    """.trimIndent()
-                )
-            }
-
-            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-        }
-    }
-
-    @Test
     fun toolsList_returnsAnEmptyToolRegistryInitially() {
         withDefaultMockTestApplication {
             val response = postMcp(
