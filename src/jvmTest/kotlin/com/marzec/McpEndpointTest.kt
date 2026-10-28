@@ -37,7 +37,6 @@ class McpEndpointTest {
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
-            println("MCP_INITIALIZE_RESPONSE=$body")
             assertThat(body).contains("\"jsonrpc\":\"2.0\"")
             assertThat(body).contains("\"protocolVersion\"")
             assertThat(body).contains("\"serverInfo\"")
@@ -48,8 +47,7 @@ class McpEndpointTest {
     @Test
     fun endpoint_doesNotApplyAnApplicationHostAllowlist() {
         withDefaultMockTestApplication {
-            val response = client.post(MCP_ENDPOINT_PATH) {
-                header(HttpHeaders.Host, "mcp.internal.example")
+            val response = client.post("http://mcp.internal.example$MCP_ENDPOINT_PATH") {
                 header(HttpHeaders.Origin, "https://mcp.internal.example")
                 header(HttpHeaders.Accept, "application/json, text/event-stream")
                 contentType(ContentType.Application.Json)
@@ -73,7 +71,6 @@ class McpEndpointTest {
                 )
             }
 
-            println("MCP_CUSTOM_HOST_RESPONSE_STATUS=${response.status}")
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
         }
     }
