@@ -124,6 +124,8 @@ class McpTodoCreateTaskToolTest {
             val body = response.bodyAsText()
             assertThat(body).contains("todo_create_task")
             assertThat(body).contains("\"task\"")
+            assertThat(body).contains("\"required\":[\"task\"]")
+            assertThat(body).contains("\"properties\":{\"task\":")
             assertThat(body).contains("CreateTaskDto")
         }
     }
