@@ -68,11 +68,11 @@ internal fun Application.configureMcpEndpoint() {
             }
 
             get {
-                rejectUnsupportedMethod()
+                call.rejectUnsupportedMethod()
             }
 
             delete {
-                rejectUnsupportedMethod()
+                call.rejectUnsupportedMethod()
             }
         }
     }
