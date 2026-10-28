@@ -6,6 +6,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCallPipeline
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.intercept
 import io.ktor.server.request.path
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
@@ -56,7 +58,7 @@ internal fun Application.configureMcpEndpoint(
     }
 }
 
-private fun io.ktor.server.application.ApplicationCall.hasValidMcpPat(
+private fun ApplicationCall.hasValidMcpPat(
     personalAccessTokenService: () -> PersonalAccessTokenService,
 ): Boolean {
     val token = request.headers[HttpHeaders.Authorization].toBearerToken() ?: return false
