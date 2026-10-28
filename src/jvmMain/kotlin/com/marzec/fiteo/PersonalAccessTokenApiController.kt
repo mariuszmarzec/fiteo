@@ -4,6 +4,7 @@ import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.extensions.constraint
 import com.marzec.extensions.formatDate
+import com.marzec.extensions.getIntIdOrThrow
 import com.marzec.extensions.serviceCall
 import com.marzec.extensions.userIdOrThrow
 import com.marzec.fiteo.model.domain.TokenExpiration
@@ -53,6 +54,13 @@ class PersonalAccessTokenApiController(
                 lastUsedAt = token.lastUsedAt?.formatDate()
             )
         }
+    }
+
+    fun deleteToken(request: HttpRequest<Unit>): HttpResponse<Unit> = serviceCall {
+        service.deleteToken(
+            userId = request.userIdOrThrow(),
+            tokenId = request.getIntIdOrThrow()
+        )
     }
 }
 
