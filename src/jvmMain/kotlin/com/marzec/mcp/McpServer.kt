@@ -10,6 +10,7 @@ import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.TaskShareDto
+import com.marzec.todo.model.toDomain
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -94,8 +95,8 @@ internal fun createMcpServer(
                 put("description", buildJsonObject { put("type", "string"); put("description", "Non-empty task description.") })
                 put("parentTaskId", buildJsonObject { put("type", typeUnion("integer", "null")) })
                 put("priority", buildJsonObject { put("type", typeUnion("integer", "null")) })
-                put("highestPriorityAsDefault", buildJsonObject { put("type", "boolean") })
-                put("isToDo", buildJsonObject { put("type", "boolean") })
+                put("highestPriorityAsDefault", buildJsonObject { put("type", typeUnion("boolean", "null")) })
+                put("isToDo", buildJsonObject { put("type", typeUnion("boolean", "null")) })
                 put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
                 put("scheduler", buildJsonObject {
                     put("type", typeUnion("object", "null"))
@@ -145,6 +146,7 @@ internal fun createMcpServer(
         try {
             requestContext.createRequest(data = Unit, arguments = arguments)
             val input = decodeCreateTaskArguments(arguments)
+            input.toDomain() // Validate nested scheduler dates and share values before invoking the controller.
             when (val response = todoController.addTask(requestContext.createRequest(data = input, arguments = arguments))) {
                 is HttpResponse.Success -> CallToolResult(
                     content = listOf(TextContent(text = McpJson.encodeToString(TaskDto.serializer(), response.data))),

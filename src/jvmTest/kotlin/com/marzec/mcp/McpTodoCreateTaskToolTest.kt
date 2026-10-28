@@ -21,7 +21,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.serialization.json.Json
 import org.junit.Test
 
 class McpTodoCreateTaskToolTest {
@@ -44,7 +43,7 @@ class McpTodoCreateTaskToolTest {
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
             assertThat(body).contains("Created via MCP")
-            assertThat(body).contains("\"isToDo\":false")
+            assertThat(body).contains("\\\"isToDo\\\":false")
             verify(exactly = 1) { controller.addTask(any()) }
         }
     }
@@ -77,6 +76,10 @@ class McpTodoCreateTaskToolTest {
             assertThat(blank).contains("\"isError\":true")
             val malformed = callCreateTask("""{"description":"valid","priority":"high"}""").bodyAsText()
             assertThat(malformed).contains("\"isError\":true")
+            val malformedScheduler = callCreateTask(
+                """{"description":"valid","scheduler":{"hour":10,"minute":15,"startDate":"not-a-date","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot"}}""",
+            ).bodyAsText()
+            assertThat(malformedScheduler).contains("\"isError\":true")
             verify(exactly = 0) { controller.addTask(any()) }
         }
     }
@@ -86,7 +89,7 @@ class McpTodoCreateTaskToolTest {
         val patService = mockk<PersonalAccessTokenService>()
         val controller = mockk<ToDoApiController>()
         every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
-        every { controller.addTask(any()) } returns DomainHttpResponse.Error(
+        every { controller.addTask(any()) } returns DomainHttpResponse.Error<TaskDto>(
             data = ErrorDto("database host and stack details"),
             httpStatusCode = 500,
         )
