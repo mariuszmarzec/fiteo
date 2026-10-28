@@ -174,7 +174,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     headers: Map<String, String> = mapOf(),
-    crossinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
+    noinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
 ) = testEndpoint<REQUEST, RESPONSE>(
     method = method,
     uri = uri,
@@ -198,7 +198,7 @@ inline fun <reified REQUEST : Any, reified RESPONSE : Any> testEndpoint(
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     headers: Map<String, String> = mapOf(),
-    crossinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
+    noinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
 ) {
     withDefaultMockTestApplication {
         authToken = authorize()
@@ -270,7 +270,7 @@ inline fun <reified RESPONSE : Any> testDeleteEndpoint(
     crossinline authorize: suspend ApplicationTestBuilder.() -> String? = ApplicationTestBuilder::defStringLambda,
     crossinline runRequestsBefore: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
     crossinline runRequestsAfter: suspend ApplicationTestBuilder.() -> Unit = ApplicationTestBuilder::defLambda,
-    crossinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
+    noinline uriAfterSetup: (suspend ApplicationTestBuilder.() -> String)? = null
 ) = testEndpoint(
     HttpMethod.Delete,
     uri,
