@@ -1,13 +1,9 @@
 package com.marzec.mcp
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
@@ -19,7 +15,6 @@ import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StreamableHttpServerTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
-import io.modelcontextprotocol.kotlin.sdk.types.McpJson
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 
 internal const val MCP_ENDPOINT_PATH = "/mcp"
@@ -49,10 +44,6 @@ internal fun createMcpServer(): Server = Server(
 internal fun Application.configureMcpEndpoint() {
     routing {
         route(MCP_ENDPOINT_PATH) {
-            install(ContentNegotiation) {
-                json(McpJson)
-            }
-
             post {
                 val transport = StreamableHttpServerTransport(
                     StreamableHttpServerTransport.Configuration(enableJsonResponse = true),
