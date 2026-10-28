@@ -72,7 +72,8 @@ class McpTodoCreateTaskToolTest {
 
         testApplication {
             application { configureMcpEndpoint({ patService }, { controller }) }
-            val blank = callCreateTask("""{"description":"  "}""").bodyAsText()
+            val blank = callCreateTask("""{"task":{"description":"  "}}""").bodyAsText()
+            val flatPayload = callCreateTask("""{"description":"flat payload"}""").bodyAsText()
             assertThat(blank).contains("\"isError\":true")
             val malformed = callCreateTask("""{"task":{"description":"valid","priority":"high"}}""").bodyAsText()
             assertThat(malformed).contains("\"isError\":true")
@@ -100,6 +101,29 @@ class McpTodoCreateTaskToolTest {
             assertThat(body).contains("internal error")
             assertThat(body).doesNotContain("database host and stack details")
             assertThat(body).doesNotContain("valid-test-token")
+        }
+    }
+
+
+    @Test
+    fun createTask_isListedWithNestedTaskSchema() {
+        val patService = mockk<PersonalAccessTokenService>()
+        val controller = mockk<ToDoApiController>(relaxed = true)
+        every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
+
+        testApplication {
+            application { configureMcpEndpoint({ patService }, { controller }) }
+            val response = client.post(MCP_ENDPOINT_PATH) {
+                header(HttpHeaders.Accept, "application/json, text/event-stream")
+                contentType(ContentType.Application.Json)
+                header("Mcp-Protocol-Version", "2025-11-25")
+                header(HttpHeaders.Authorization, "Bearer valid-test-token")
+                setBody("""{"jsonrpc":"2.0","id":2,"method":"tools/list"}""")
+            }
+            val body = response.bodyAsText()
+            assertThat(body).contains("todo_create_task")
+            assertThat(body).contains("\"task\"")
+            assertThat(body).contains("CreateTaskDto")
         }
     }
 
