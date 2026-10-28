@@ -2,6 +2,8 @@ package com.marzec.mcp
 
 import com.google.common.truth.Truth.assertThat
 import com.marzec.Api
+import com.marzec.exceptions.HttpException
+import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.model.domain.User
 import com.marzec.fiteo.model.http.HttpRequest
 import com.marzec.fiteo.model.http.HttpResponse as DomainHttpResponse
@@ -105,6 +107,22 @@ class McpTodoMarkAsToDoToolTest {
 
             assertThat(body).contains("internal error")
             assertThat(body).doesNotContain("database internals")
+        }
+    }
+
+    @Test
+    fun markTasks_redactsInternalHttpExceptions() {
+        val patService = mockk<PersonalAccessTokenService>()
+        val controller = mockk<ToDoApiController>()
+        every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
+        every { controller.markAsToDo(any()) } throws HttpException("database host and stack details", HttpStatus.INTERNAL_SERVER_ERROR)
+
+        testApplication {
+            application { configureMcpEndpoint({ patService }, { controller }) }
+            val body = callMarkTasks("""{"isToDo":true,"taskIds":[7]}""").bodyAsText()
+
+            assertThat(body).contains("internal error")
+            assertThat(body).doesNotContain("database host and stack details")
         }
     }
 
