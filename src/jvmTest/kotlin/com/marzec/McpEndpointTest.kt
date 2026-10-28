@@ -89,8 +89,9 @@ class McpEndpointTest {
             )
 
             assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
-            assertThat(response.bodyAsText()).isEmpty()
-            assertThat(response.bodyAsText()).doesNotContain(invalidPat)
+            val body = response.bodyAsText()
+            assertThat(body).isEmpty()
+            assertThat(body).doesNotContain(invalidPat)
         }
     }
 
@@ -191,7 +192,7 @@ class McpEndpointTest {
         expiresIn: String = "NEVER"
     ): PersonalAccessTokenCreationDto {
         authToken = registerAndLogin()
-        return postWithAuth(
+        return postWithAuth<CreatePersonalAccessTokenRequestDto, PersonalAccessTokenCreationDto>(
             PatApiPath.TOKENS,
             CreatePersonalAccessTokenRequestDto(name = "MCP test token", expiresIn = expiresIn)
         )
