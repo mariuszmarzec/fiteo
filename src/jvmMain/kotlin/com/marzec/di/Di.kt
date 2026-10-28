@@ -123,6 +123,7 @@ class Di(
     }
     val fcmService by inject<FcmService> { parametersOf(database) }
     val personalAccessTokenApiController by inject<PersonalAccessTokenApiController> { parametersOf(database) }
+    val personalAccessTokenService by inject<PersonalAccessTokenService> { parametersOf(database) }
 }
 
 val MainModule = module {
