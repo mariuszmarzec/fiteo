@@ -75,6 +75,7 @@ class McpTodoCreateTaskToolTest {
             val blank = callCreateTask("""{"task":{"description":"  "}}""").bodyAsText()
             val flatPayload = callCreateTask("""{"description":"flat payload"}""").bodyAsText()
             assertThat(blank).contains("\"isError\":true")
+            assertThat(flatPayload).contains("\"isError\":true")
             val malformed = callCreateTask("""{"task":{"description":"valid","priority":"high"}}""").bodyAsText()
             assertThat(malformed).contains("\"isError\":true")
             val malformedScheduler = callCreateTask(
