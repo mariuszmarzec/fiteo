@@ -47,7 +47,7 @@ Returns `PersonalAccessTokenCreationDto`.
 | id | Int | Identifier of the created token. |
 | name | String | Token name. |
 | token | String | Full secret. This is the only response in which the full secret is returned. |
-| prefix | String | Non-secret token prefix for identification. |
+| prefix | String | Non-secret 8-character identifier derived from the token hash, not the beginning of the raw token. |
 | createdAt | String | Creation date-time in the API's local date-time format. |
 | expiresAt | String? | Expiration date-time, or `null` for `NEVER`. |
 
