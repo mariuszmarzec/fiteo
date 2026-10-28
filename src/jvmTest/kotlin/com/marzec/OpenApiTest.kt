@@ -41,8 +41,8 @@ class OpenApiTest {
             assertThat(document).contains("THREE_MONTHS")
             assertThat(document).contains("SIX_MONTHS")
             assertThat(document).contains("NEVER")
-            assertThat(Regex("""(?m)^\\s+["']?400["']?:""").containsMatchIn(document)).isTrue()
-            assertThat(Regex("""(?m)^\\s+["']?401["']?:""").containsMatchIn(document)).isTrue()
+            assertThat(Regex("""(?m)^\s+["']?400["']?:""").containsMatchIn(document)).isTrue()
+            assertThat(Regex("""(?m)^\s+["']?401["']?:""").containsMatchIn(document)).isTrue()
 
             // Swagger UI uses the runtime routing source. Keep these assertions here so the
             // route summary and request/response schemas are verified before snapshot generation.
