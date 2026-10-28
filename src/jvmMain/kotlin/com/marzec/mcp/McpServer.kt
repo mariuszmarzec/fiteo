@@ -7,6 +7,9 @@ import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.PersonalAccessTokenService
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.dto.TaskDto
+import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.SchedulerDto
+import com.marzec.todo.model.TaskShareDto
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -27,7 +30,16 @@ import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import io.modelcontextprotocol.kotlin.sdk.types.ToolSchema
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 
 internal const val MCP_ENDPOINT_PATH = "/mcp"
 
@@ -55,41 +67,96 @@ internal fun createMcpServer(
     ) { request ->
         val arguments = request.params.arguments ?: buildJsonObject {}
         try {
-            val httpRequest = requestContext.createRequest(
-                data = Unit,
-                arguments = arguments,
-            )
+            val httpRequest = requestContext.createRequest(data = Unit, arguments = arguments)
             if (arguments.isNotEmpty()) {
-                throw HttpException(
-                    "todo_list_tasks does not accept arguments",
-                    HttpStatus.BAD_REQUEST,
-                )
+                throw HttpException("todo_list_tasks does not accept arguments", HttpStatus.BAD_REQUEST)
             }
-
             when (val response = todoController.getTasks(httpRequest)) {
                 is HttpResponse.Success -> CallToolResult(
-                    content = listOf(
-                        TextContent(
-                            text = McpJson.encodeToString(
-                                ListSerializer(TaskDto.serializer()),
-                                response.data,
-                            ),
-                        ),
-                    ),
+                    content = listOf(TextContent(text = McpJson.encodeToString(ListSerializer(TaskDto.serializer()), response.data))),
                 )
-
                 is HttpResponse.Error -> toolErrorResult(
-                    if (response.httpStatusCode >= 500) {
-                        "Unable to list tasks because of an internal error."
-                    } else {
-                        response.data.reason
-                    },
+                    if (response.httpStatusCode >= 500) "Unable to list tasks because of an internal error." else response.data.reason,
                 )
             }
         } catch (exception: HttpException) {
             toolErrorResult(exception.message ?: "Invalid todo_list_tasks arguments")
         } catch (_: Exception) {
             toolErrorResult("Unable to list tasks because of an internal error.")
+        }
+    }
+
+    addTool(
+        name = "todo_create_task",
+        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. Optional shares are granted to the specified users. Returns the created TaskDto.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("description", buildJsonObject { put("type", "string"); put("description", "Non-empty task description.") })
+                put("parentTaskId", buildJsonObject { put("type", listOf("integer", "null")) })
+                put("priority", buildJsonObject { put("type", listOf("integer", "null")) })
+                put("highestPriorityAsDefault", buildJsonObject { put("type", "boolean") })
+                put("isToDo", buildJsonObject { put("type", "boolean") })
+                put("expirationDate", buildJsonObject { put("type", listOf("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
+                put("scheduler", buildJsonObject {
+                    put("type", listOf("object", "null"))
+                    put("properties", buildJsonObject {
+                        put("hour", buildJsonObject { put("type", "integer") })
+                        put("minute", buildJsonObject { put("type", "integer") })
+                        put("creationDate", buildJsonObject { put("type", listOf("string", "null")) })
+                        put("startDate", buildJsonObject { put("type", "string") })
+                        put("lastDate", buildJsonObject { put("type", listOf("string", "null")) })
+                        put("daysOfWeek", buildJsonObject { put("type", "array",); put("items", buildJsonObject { put("type", "integer") }) })
+                        put("dayOfMonth", buildJsonObject { put("type", "integer") })
+                        put("repeatCount", buildJsonObject { put("type", "integer") })
+                        put("repeatInEveryPeriod", buildJsonObject { put("type", "integer") })
+                        put("type", buildJsonObject {
+                            put("type", "string")
+                            put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
+                        })
+                        put("options", buildJsonObject { put("type", listOf("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
+                    })
+                    put("required", buildJsonArray {
+                        add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
+                        add(JsonPrimitive("daysOfWeek")); add(JsonPrimitive("dayOfMonth")); add(JsonPrimitive("repeatCount"))
+                        add(JsonPrimitive("repeatInEveryPeriod")); add(JsonPrimitive("type"))
+                    })
+                    put("additionalProperties", false)
+                })
+                put("shares", buildJsonObject {
+                    put("type", listOf("array", "null"))
+                    put("items", buildJsonObject {
+                        put("type", "object")
+                        put("properties", buildJsonObject {
+                            put("userId", buildJsonObject { put("type", "string") })
+                            put("permission", buildJsonObject {
+                                put("type", "string")
+                                put("enum", buildJsonArray { add(JsonPrimitive("VIEWER")); add(JsonPrimitive("EDITOR_AND_VIEWER")) })
+                            })
+                        })
+                        put("required", buildJsonArray { add(JsonPrimitive("userId")); add(JsonPrimitive("permission")) })
+                        put("additionalProperties", false)
+                    })
+                })
+            },
+            required = listOf("description"),
+        ),
+    ) { request ->
+        val arguments = request.params.arguments ?: buildJsonObject {}
+        try {
+            requestContext.createRequest(data = Unit, arguments = arguments)
+            val input = decodeCreateTaskArguments(arguments)
+            when (val response = todoController.addTask(requestContext.createRequest(data = input, arguments = arguments))) {
+                is HttpResponse.Success -> CallToolResult(
+                    content = listOf(TextContent(text = McpJson.encodeToString(TaskDto.serializer(), response.data))),
+                )
+                is HttpResponse.Error -> toolErrorResult(
+                    if (response.httpStatusCode >= 500) "Unable to create task because of an internal error." else response.data.reason,
+                )
+            }
+        } catch (exception: HttpException) {
+            toolErrorResult(exception.message ?: "Invalid todo_create_task arguments")
+        } catch (_: Exception) {
+            toolErrorResult("Invalid todo_create_task arguments. Check field types, date-time formats, scheduler type, and share permissions.")
         }
     }
 }
@@ -111,28 +178,81 @@ internal fun Application.configureMcpEndpoint(
                 call.respond(HttpStatusCode.Unauthorized)
                 finish()
             } else {
-                call.attributes.put(
-                    McpRequestContextAttributeKey,
-                    McpRequestContext.fromVerifiedPatOwner(owner),
-                )
+                call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
             }
         }
     }
-
-    mcpStatelessStreamableHttp(
-        path = MCP_ENDPOINT_PATH,
-        enableDnsRebindingProtection = false,
-    ) {
+    mcpStatelessStreamableHttp(path = MCP_ENDPOINT_PATH, enableDnsRebindingProtection = false) {
         val requestContext = call.attributes.getOrNull(McpRequestContextAttributeKey)
             ?: error("MCP request context missing after PAT authentication")
         createMcpServer(requestContext, todoController())
     }
 }
 
-private fun toolErrorResult(message: String) = CallToolResult(
-    content = listOf(TextContent(text = message)),
-    isError = true,
-)
+private fun decodeCreateTaskArguments(arguments: kotlinx.serialization.json.JsonObject): CreateTaskDto {
+    val allowed = setOf("description", "parentTaskId", "priority", "highestPriorityAsDefault", "isToDo", "expirationDate", "scheduler", "shares")
+    require(arguments.keys.all { it in allowed }) { "Unknown fields are not supported" }
+
+    val descriptionValue = arguments["description"] as? JsonPrimitive
+    require(descriptionValue != null && descriptionValue.isString && descriptionValue.content.isNotBlank()) {
+        "description must be a non-empty string"
+    }
+
+    fun intField(name: String): Int? {
+        val value = arguments[name] ?: return null
+        if (value == JsonNull) return null
+        return (value as? JsonPrimitive)?.intOrNull ?: throw IllegalArgumentException("$name must be an integer or null")
+    }
+    fun boolField(name: String): Boolean? {
+        val value = arguments[name] ?: return null
+        if (value == JsonNull) return null
+        return (value as? JsonPrimitive)?.booleanOrNull ?: throw IllegalArgumentException("$name must be a boolean")
+    }
+    fun stringField(name: String): String? {
+        val value = arguments[name] ?: return null
+        if (value == JsonNull) return null
+        val primitive = value as? JsonPrimitive
+        require(primitive != null && primitive.isString) { "$name must be a string or null" }
+        return primitive.content
+    }
+
+    val schedulerElement: JsonElement? = arguments["scheduler"]
+    val scheduler = if (schedulerElement == null || schedulerElement == JsonNull) null else
+        McpJson.decodeFromJsonElement(SchedulerDto.serializer(), schedulerElement)
+    val sharesElement: JsonElement? = arguments["shares"]
+    val shares = if (sharesElement == null || sharesElement == JsonNull) null else {
+        sharesElement.jsonArray.map { item ->
+            val share = item.jsonObject
+            require(share.keys == setOf("userId", "permission")) { "Each share must contain only userId and permission" }
+            TaskShareDto(
+                userId = (share["userId"] as? JsonPrimitive)?.takeIf { it.isString }?.content
+                    ?: throw IllegalArgumentException("share.userId must be a string"),
+                permission = (share["permission"] as? JsonPrimitive)?.takeIf { it.isString }?.content
+                    ?: throw IllegalArgumentException("share.permission must be a string"),
+            ).also {
+                require(it.userId.toIntOrNull() != null) { "share.userId must be a numeric user ID" }
+                require(it.permission in setOf("VIEWER", "EDITOR_AND_VIEWER")) { "share.permission is unsupported" }
+            }
+        }
+    }
+
+    val expirationDate = stringField("expirationDate")
+    require(expirationDate == null || runCatching { kotlinx.datetime.LocalDateTime.parse(expirationDate) }.isSuccess) {
+        "expirationDate must use yyyy-MM-dd'T'HH:mm:ss"
+    }
+    return CreateTaskDto(
+        description = descriptionValue.content,
+        parentTaskId = intField("parentTaskId"),
+        priority = intField("priority"),
+        highestPriorityAsDefault = boolField("highestPriorityAsDefault"),
+        isToDo = boolField("isToDo"),
+        expirationDate = expirationDate,
+        scheduler = scheduler,
+        shares = shares,
+    )
+}
+
+private fun toolErrorResult(message: String) = CallToolResult(content = listOf(TextContent(text = message)), isError = true)
 
 private fun ApplicationCall.verifiedMcpPatOwner(
     personalAccessTokenService: () -> PersonalAccessTokenService,
@@ -149,7 +269,6 @@ private fun String?.toBearerToken(): String? {
     val value = this ?: return null
     val prefix = "Bearer "
     if (!value.startsWith(prefix, ignoreCase = true)) return null
-
     val token = value.substring(prefix.length)
     if (token.isBlank() || token.any(Char::isWhitespace)) return null
     return token
