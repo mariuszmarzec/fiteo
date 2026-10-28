@@ -1,0 +1,38 @@
+package com.marzec.fiteo.repositories
+
+import com.marzec.cheatday.WeightsRepository
+import com.marzec.cheatday.db.WeightEntity
+import com.marzec.cheatday.db.WeightsTable
+import com.marzec.cheatday.domain.CreateWeight
+import com.marzec.cheatday.domain.UpdateWeight
+import com.marzec.cheatday.domain.Weight
+import com.marzec.core.entity.WithUserEntity
+import com.marzec.core.entity.WithUserEntityClass
+import com.marzec.core.repository.CommonWithUserRepository
+import com.marzec.core.repository.CommonWithUserRepositoryImpl
+import com.marzec.database.UserEntity
+import com.marzec.database.dbCall
+import com.marzec.extensions.update
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
+
+class WeightsRepositoryImpl(
+    private val database: Database
+) : CommonWithUserRepositoryImpl<Weight, CreateWeight, UpdateWeight, WeightEntity>(WeightEntity, database),
+    WeightsRepository {
+
+    override fun getAll(userId: Int): List<Weight> {
+        return database.dbCall {
+            WeightsTable.selectAll()
+                .orderBy(WeightsTable.date to SortOrder.DESC)
+                .andWhere { WeightsTable.userId.eq(userId) }.map {
+                    WeightEntity.wrapRow(it).toDomain()
+                }
+        }
+    }
+}

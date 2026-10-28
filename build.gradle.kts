@@ -1,0 +1,362 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.gradle.testing.jacoco.tasks.JacocoReport
+import java.util.Properties
+
+buildscript {
+    repositories {
+        jcenter()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
+        classpath("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
+        classpath("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${Dependency.detekt_version}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Dependency.kotlin_version}")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:${Dependency.kotlin_version}")
+        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:${Dependency.buildkonfig_version}")
+    }
+}
+
+plugins {
+    kotlin("multiplatform") version Dependency.kotlin_version
+    id("io.ktor.plugin") version Dependency.ktor_version
+    id("org.flywaydb.flyway") version Dependency.flyway_version
+    kotlin("plugin.serialization") version Dependency.kotlin_version
+    id("com.codingfeline.buildkonfig") version Dependency.buildkonfig_version
+    id("io.gitlab.arturbosch.detekt") version Dependency.detekt_version
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.15"
+}
+
+
+val configurationProperties: Properties = Properties()
+configurationProperties.load(project.rootProject.file("local.properties").inputStream())
+val dbMigration = configurationProperties.getProperty("database.migration")
+val dbEndpoint = configurationProperties.getProperty("database.endpoint")
+val dbUser = configurationProperties.getProperty("database.user")
+val dbPassword = configurationProperties.getProperty("database.password")
+val dbDatabase = configurationProperties.getProperty("database.database")
+
+val dbTestEndpoint = configurationProperties.getProperty("database.testEndpoint")
+val dbTestUser = configurationProperties.getProperty("database.testUser")
+val dbTestPassword = configurationProperties.getProperty("database.testPassword")
+val dbTestDatabase = configurationProperties.getProperty("database.testDatabase")
+
+val firebaseServiceAccount = configurationProperties.getProperty("firebaseServiceAccount")
+val openapiServerUrl = configurationProperties.getProperty("openapi.server.url", "http://localhost:5000")
+
+val projectPackageName = "com.marzec.fiteo"
+
+repositories {
+    jcenter()
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") // react, styled, ...
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") // react, styled, ...
+    mavenCentral()
+}
+group = projectPackageName
+version = "1.0.0"
+
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = true
+        onlyCommented = false
+    }
+}
+
+kotlin {
+
+    jvm {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget("17")
+        }
+
+        binaries {
+            executable {
+                mainClass.set("com.marzec.JvmMainKt")
+            }
+        }
+
+        tasks.withType<Test>().configureEach {
+            useJUnit()
+            testLogging {
+                events("passed", "skipped", "failed")
+            }
+        }
+    }
+    js {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+        binaries.executable()
+    }
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-common"))
+                api("io.insert-koin:koin-core:${Dependency.koin_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:${Dependency.datetime_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${Dependency.serialization_version}")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Dependency.serialization_version}")
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+                implementation("io.insert-koin:koin-ktor:${Dependency.koin_ktor_version}")
+                implementation("io.insert-koin:koin-logger-slf4j:${Dependency.koin_version}")
+                implementation("io.ktor:ktor-server-html-builder:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-sessions:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-cors:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-call-logging:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-compression:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-content-negotiation:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-default-headers:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-content-negotiation:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-auth:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-swagger:${Dependency.ktor_version}")
+
+                
+                implementation("org.slf4j:slf4j-api:${Dependency.sl4j_version}")
+                implementation("ch.qos.logback:logback-classic:${Dependency.logback_version}")
+
+                implementation("org.jetbrains.exposed:exposed-core:${Dependency.exposed_version}")
+                implementation("org.jetbrains.exposed:exposed-dao:${Dependency.exposed_version}")
+                implementation("org.jetbrains.exposed:exposed-java-time:${Dependency.exposed_version}")
+                implementation("org.jetbrains.exposed:exposed-jdbc:${Dependency.exposed_version}")
+                implementation("mysql:mysql-connector-java:${Dependency.mysql_connector_version}")
+
+                implementation("io.mockk:mockk:${Dependency.mockk_version}")
+                implementation("com.google.firebase:firebase-admin:${Dependency.firebase_admin_version}")
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
+                implementation("io.insert-koin:koin-test:${Dependency.koin_version}")
+                implementation("io.insert-koin:koin-test-junit4:${Dependency.koin_version}")
+//                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
+
+                implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
+                implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
+
+                implementation("com.google.truth:truth:${Dependency.truth_version}")
+                implementation("com.google.truth.extensions:truth-java8-extension:${Dependency.truth_version}")
+                implementation("com.h2database:h2:${Dependency.h2_version}")
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+                implementation("io.ktor:ktor-client-content-negotiation:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-client-js:${Dependency.ktor_version}") //include http&websockets
+                implementation(npm("text-encoding", "0.7.0"))
+                //ktor client js json
+                implementation("io.ktor:ktor-client-json-js:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-client-serialization-js:${Dependency.ktor_version}")
+
+                implementation(kotlinWrappers.js)
+                implementation(kotlinWrappers.react)
+                implementation(kotlinWrappers.reactDom)
+                implementation(kotlinWrappers.reactRouter)
+                implementation(kotlinWrappers.emotion.css)
+                implementation(kotlinWrappers.emotion.styled)
+            }
+        }
+    }
+}
+
+tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE}
+tasks.named<Jar>("jvmJar") {
+    archiveBaseName.set("fiteo")
+    archiveVersion.set("1.0.0")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+    manifest {
+        attributes["Main-Class"] = "com.marzec.JvmMainKt"
+    }
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
+    doFirst {
+        val runtimeClasspath = configurations.getByName("jvmRuntimeClasspath")
+        from(runtimeClasspath.map { if (it.isDirectory) it else zipTree(it) })
+
+        val taskName = if (project.hasProperty("isProduction")) {
+            "jsBrowserProductionWebpack"
+        } else {
+            "jsBrowserDevelopmentWebpack"
+        }
+
+        val webpackTask = tasks.named<KotlinWebpack>(taskName).get()
+        from(File(webpackTask.outputDirectory.get().asFile, webpackTask.mainOutputFileName.get()))
+    }
+
+    dependsOn(
+        if (project.hasProperty("isProduction")) "jsBrowserProductionWebpack"
+        else "jsBrowserDevelopmentWebpack"
+    )
+}
+
+flyway {
+    if (dbMigration == "test") {
+        url = dbTestEndpoint
+        user = dbTestUser
+        password = dbTestPassword
+        createSchemas = true
+        placeholders = mapOf("database_name" to dbTestDatabase)
+    } else {
+        cleanDisabled = true
+        url = dbEndpoint
+        user = dbUser
+        password = dbPassword
+        createSchemas = true
+        placeholders = mapOf("database_name" to dbDatabase)
+    }
+    locations = arrayOf("filesystem:/$projectDir/src/commonMain/resources/db/migration")
+}
+
+buildkonfig {
+    packageName = projectPackageName
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "DB_ENDPOINT", dbEndpoint)
+        buildConfigField(FieldSpec.Type.STRING, "DB_USER", dbUser)
+        buildConfigField(FieldSpec.Type.STRING, "DB_PASSWORD", dbPassword)
+        buildConfigField(FieldSpec.Type.STRING, "DB_DATABASE", dbDatabase)
+
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_ENDPOINT", dbTestEndpoint)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_USER", dbTestUser)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_PASSWORD", dbTestPassword)
+        buildConfigField(FieldSpec.Type.STRING, "DB_TEST_DATABASE", dbTestDatabase)
+
+        buildConfigField(FieldSpec.Type.STRING, "FIREBASE_SERVICE_ACCOUNT", firebaseServiceAccount)
+        buildConfigField(FieldSpec.Type.STRING, "OPENAPI_SERVER_URL", openapiServerUrl ?: "")
+    }
+}
+
+
+tasks.register<Test>("generateOpenApiSnapshot") {
+    description = "Runs the OpenAPI regression test and writes the generated YAML snapshot."
+    group = "verification"
+    dependsOn(jvmTestTask)
+    testClassesDirs = jvmTestTask.get().testClassesDirs
+    classpath = jvmTestTask.get().classpath
+    useJUnit()
+    filter {
+        includeTestsMatching("com.marzec.OpenApiTest.generatedOpenApi_containsAllRoutesFromApplicationRoutingTree")
+    }
+    systemProperty("openapi.snapshot.output", project.file("src/jvmMain/resources/openapi.yaml").absolutePath)
+    outputs.file("src/jvmMain/resources/openapi.yaml")
+}
+
+val jvmTestTask = tasks.named<Test>("jvmTest")
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn(jvmTestTask)
+
+    // JaCoCo's sourceDirectories expects source-root directories (it walks them to
+    // resolve source files by package-relative path for HTML line highlighting).
+    // The verified KMP roots for this project are src/commonMain/kotlin and
+    // src/jvmMain/kotlin (package com.marzec.* lives directly under each).
+    val coverageSourceDirs = files(
+        file("src/commonMain/kotlin"),
+        file("src/jvmMain/kotlin")
+    )
+
+    // Narrow the class input to the intended production JVM compilation outputs for
+    // commonMain/jvmMain only, instead of scanning all of build/**/*.class.
+    val classFiles = fileTree(
+        baseDir = file("build/classes/kotlin/jvm/main")
+    ) {
+        include(
+            "**/*.class"
+        )
+        exclude(
+            "**/org/jacoco/**"
+        )
+    }
+
+    classDirectories.setFrom(files(classFiles))
+    sourceDirectories.setFrom(coverageSourceDirs)
+
+    executionData.setFrom(files("${buildDir}/jacoco/jvmTest.exec"))
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    // Regression check: verify the report actually covers the narrowed production
+    // class set (and does not silently pick up test classes), and that the HTML
+    // report includes navigable source pages with line-level coverage.
+    doLast {
+        val reportFile = file("${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        check(reportFile.exists()) { "JaCoCo XML report was not generated at ${reportFile.absolutePath}" }
+        val reportText = reportFile.readText()
+        check(reportText.contains("name=\"com/marzec/fiteo/")) {
+            "JaCoCo report is missing expected production classes (com.marzec.fiteo)"
+        }
+        check(reportText.contains("name=\"com/marzec/JvmMainKt\"")) {
+            "JaCoCo report is missing expected JVM entry point class"
+        }
+        check(!reportText.contains("name=\"com/marzec/OpenApiTest\"")) {
+            "JaCoCo report incorrectly includes test classes"
+        }
+        val htmlDir = file("${buildDir}/reports/jacoco/jacocoTestReport/html")
+        val sourcePages = htmlDir.walk().filter { it.name.endsWith(".kt.html") }.toList()
+        check(sourcePages.isNotEmpty()) {
+            "JaCoCo HTML report is missing navigable .kt.html source pages"
+        }
+        check(sourcePages.any { it.name == "CheatDayService.kt.html" }) {
+            "JaCoCo HTML report is missing an expected source page (CheatDayService.kt.html)"
+        }
+    }
+}
+
+detekt {
+    source = files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin",
+        "src/jsMain/kotlin",
+        "src/commonTest/kotlin",
+        "src/jvmTest/kotlin",
+        "src/jsTest/kotlin"
+    )
+
+    config = files("config/detekt/detekt.yml")
+}
+
+configurations.all {
+    resolutionStrategy.capabilitiesResolution.withCapability("com.google.guava:listenablefuture") {
+        select("com.google.guava:guava:0") // 0 selects the version of Guava explicitly requested in dependencies
+    }
+}

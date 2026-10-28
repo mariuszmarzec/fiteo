@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS fcm_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    fcm_token VARCHAR(255) NOT NULL,
+    platform VARCHAR(50),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_fcm_tokens_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT uq_fcm_token UNIQUE (fcm_token)
+);

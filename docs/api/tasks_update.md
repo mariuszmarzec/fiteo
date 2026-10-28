@@ -1,0 +1,78 @@
+# PATCH /todo/api/1/tasks/{id}
+
+Updates an existing task by ID.
+
+## Description
+
+Updates a task for the authenticated user. The request can change fields such as description, priority, scheduling, and expiration date.
+
+## Authentication
+
+Required.
+
+Use the configured session or bearer authentication for the request.
+
+## Path Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | Int | Yes | Task ID to update. |
+
+## Query Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| id | String | No | Identifier query parameter accepted by the route. |
+
+## Request Body
+
+`UpdateTaskDto`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| description | String? | No | New task description. |
+| parentTaskId | NullableFieldDto<Int>? | No | Use this to set or clear the parent task ID. |
+| priority | Int? | No | New priority value. |
+| isToDo | Boolean? | No | Whether the task is marked as a ToDo item. |
+| scheduler | NullableFieldDto<SchedulerDto>? | No | Use this to set or clear the scheduler configuration. Scheduler date-time fields must use `yyyy-MM-dd'T'HH:mm:ss` without `Z` or a UTC offset; scheduler types are case-sensitive (`OneShot`, `Weekly`, `Monthly`). |
+| expirationDate | NullableFieldDto<String>? | No | Use this to set or clear the expiration date. When set, use `yyyy-MM-dd'T'HH:mm:ss` without a timezone suffix. |
+| shares | List<UpdateTaskShareDto>? | No | Updated share configuration. |
+
+Date-time example: `2026-08-13T09:00:00`. The current parser rejects suffixes such as `Z` and offsets such as `+02:00`.
+
+### Example
+
+```json
+{
+  "description": "Buy milk and bread",
+  "priority": 2,
+  "isToDo": false
+}
+```
+
+## Response
+
+### Success
+
+`200 OK`
+
+Returns the updated `TaskDto`.
+
+### Response Body
+
+```json
+{
+  "id": 1,
+  "ownerId": 42,
+  "description": "Buy milk and bread",
+  "addedTime": "2026-08-13T10:00:00",
+  "modifiedTime": "2026-08-13T10:30:00",
+  "parentTaskId": null,
+  "subTasks": [],
+  "isToDo": false,
+  "priority": 2,
+  "scheduler": null,
+  "expirationDate": null,
+  "shares": []
+}
+```

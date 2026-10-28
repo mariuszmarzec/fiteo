@@ -1,0 +1,620 @@
+package com.marzec
+
+import com.google.common.truth.Truth.assertThat
+import com.marzec.core.CurrentTimeUtil
+import com.marzec.fiteo.ApiPath
+import com.marzec.fiteo.model.domain.CreateTrainingDto
+import com.marzec.fiteo.model.domain.TrainingsPageDto
+import com.marzec.fiteo.model.domain.TrainingDto
+import com.marzec.fiteo.model.domain.toDto
+import com.marzec.fiteo.model.dto.ErrorDto
+import com.marzec.fiteo.model.dto.LoginRequestDto
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.testing.*
+import org.junit.After
+import org.junit.Test
+import org.koin.core.context.GlobalContext
+
+class TrainingTests {
+
+    private val createTrainingTemplateDto = stubCreateTrainingTemplateDto(
+        name = "trainingTemplate",
+        exercises = listOf(
+            stubCreateTrainingTemplatePartDto(
+                name = "part_one",
+                pinnedExerciseId = null,
+                categoryIds = listOf("1"),
+                excludedExercisesIds = listOf(2),
+                excludedEquipmentIds = listOf(),
+            ),
+            stubCreateTrainingTemplatePartDto(
+                name = "part_two",
+                pinnedExerciseId = null,
+                categoryIds = listOf("2"),
+                excludedExercisesIds = listOf(),
+                excludedEquipmentIds = listOf("5")
+            )
+        ),
+        availableEquipmentIds = listOf("4", "5")
+    )
+
+    private val createTrainingTemplateDto2 = stubCreateTrainingTemplateDto(
+        name = "trainingTemplate",
+        exercises = listOf(
+            stubCreateTrainingTemplatePartDto(
+                name = "part_one",
+                pinnedExerciseId = null,
+                categoryIds = listOf(),
+                excludedExercisesIds = listOf(2),
+                excludedEquipmentIds = listOf(),
+            )
+        ),
+        availableEquipmentIds = listOf("4", "5")
+    )
+
+    private val trainingDto = stubTraining(
+        id = 1,
+        templateId = 1,
+        exercisesWithProgress = listOf(
+            stubTrainingExerciseWithProgressDto(
+                id = 1,
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                templatePartId = 1,
+                name = "part_one"
+            ),
+            stubTrainingExerciseWithProgressDto(
+                id = 2,
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                templatePartId = 2,
+                name = "part_two"
+            )
+        )
+    )
+
+    private val updateDto = stubUpdateTrainingDto(
+        exercisesWithProgress = listOf(
+            stubUpdateTrainingExerciseWithProgressDto(
+                id = 1,
+                exerciseId = 1,
+                series = listOf(
+                    stubSeriesDto(
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                ),
+                trainingPartId = 1,
+                name = "part_one",
+            ),
+            stubUpdateTrainingExerciseWithProgressDto(
+                exerciseId = 4,
+                series = listOf(
+                    stubSeriesDto(
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 10,
+                        note = "note"
+                    )
+                ),
+                trainingPartId = 2,
+                name = "part_updated"
+            )
+        )
+    )
+
+    private val updatedTraining = stubTraining(
+        id = 1,
+        templateId = 1,
+        exercisesWithProgress = listOf(
+            stubTrainingExerciseWithProgressDto(
+                id = 1,
+                templatePartId = 1,
+                name = "part_one",
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                )
+            ),
+            stubTrainingExerciseWithProgressDto(
+                id = 3,
+                templatePartId = 2,
+                name = "part_updated",
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 2,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 10,
+                        note = "note"
+                    )
+                )
+            )
+        )
+    )
+
+    private val updateWithExistedSeriesDto = stubUpdateTrainingDto(
+        exercisesWithProgress = listOf(
+            stubUpdateTrainingExerciseWithProgressDto(
+                id = 1,
+                exerciseId = 1,
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                ),
+                trainingPartId = 1,
+                name = "part_one",
+            ),
+            stubUpdateTrainingExerciseWithProgressDto(
+                id = 3,
+                exerciseId = 4,
+                series = listOf(
+                    stubSeriesDto(
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 12,
+                        note = "note_new_series"
+                    )
+                ),
+                trainingPartId = 2,
+                name = "part_updated_again"
+            )
+        )
+    )
+
+    private val updatedTrainingWithExistedSeries = stubTraining(
+        id = 1,
+        templateId = 1,
+        exercisesWithProgress = listOf(
+            stubTrainingExerciseWithProgressDto(
+                id = 1,
+                templatePartId = 1,
+                name = "part_one",
+                exercise = exerciseCategoryOneEquipment0ne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 1,
+                        exerciseId = 1,
+                        trainingId = 1,
+                        burden = 10.4f
+                    )
+                )
+            ),
+            stubTrainingExerciseWithProgressDto(
+                id = 3,
+                templatePartId = 2,
+                name = "part_updated_again",
+                exercise = exerciseCategoryTwoEquipmentOne.toDto(),
+                series = listOf(
+                    stubSeriesDto(
+                        seriesId = 3,
+                        exerciseId = 4,
+                        trainingId = 1,
+                        burden = 3f,
+                        repsNumber = 12,
+                        note = "note_new_series"
+                    )
+                )
+            )
+        )
+    )
+
+
+    @Test
+    fun createTraining() {
+        testPostEndpoint(
+            uri = ApiPath.TRAININGS,
+            dto = CreateTrainingDto(1),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+            }
+        )
+    }
+
+    @Test
+    fun createTraining_doNotCreateTrainingInCaseOfError() {
+        testPostEndpoint<CreateTrainingDto, ErrorDto>(
+            uri = ApiPath.TRAININGS,
+            dto = CreateTrainingDto(1),
+            status = HttpStatusCode.InternalServerError,
+            responseDtoCheck = {
+                assertThat(it).isInstanceOf(ErrorDto::class.java)
+                assertThat((it as ErrorDto).reason).contains("No exercise for training part with: 1")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto2)
+            }, runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
+            }
+        )
+    }
+
+    @Test
+    fun getTraining() {
+        testGetEndpoint(
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings() {
+        testGetEndpoint(
+            uri = ApiPath.TRAININGS,
+            status = HttpStatusCode.OK,
+            responseDto = listOf(
+                trainingDto.copy(
+                    id = 2,
+                    createDateInMillis = dateTime4,
+                    finishDateInMillis = dateTime4,
+                    exercisesWithProgress = listOf(
+                        trainingDto.exercisesWithProgress.first().copy(id = 3),
+                        trainingDto.exercisesWithProgress[1].copy(id = 4)
+                    )
+                ),
+                trainingDto
+            ),
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(19, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_firstPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3, 2))
+                // nextCursor is the id of the extra row fetched with limit + 1
+                // (the first record of the following page), so the next request
+                // uses `id <= nextCursor` and re-includes it without skipping.
+                assertThat(page?.nextCursor).isEqualTo(1)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_nextPage() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?cursor=2",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                // `cursor=2` filters `id <= 2`, so the cursor row is re-included
+                // on the next page and no record is skipped.
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(2, 1))
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_invalidLimit() {
+        listOf("0", "101", "abc").forEach { limit ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?limit=$limit",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("limit")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
+    }
+
+    @Test
+    fun getTrainings_invalidCursor() {
+        listOf("0", "abc").forEach { cursor ->
+            testGetEndpointCheck<ErrorDto>(
+                uri = "${ApiPath.TRAININGS}?cursor=$cursor",
+                status = HttpStatusCode.BadRequest,
+                responseDtoCheck = { error ->
+                    assertThat(error?.reason).contains("cursor")
+                },
+                authorize = ApplicationTestBuilder::registerAndLogin
+            )
+        }
+    }
+
+    @Test
+    fun getTrainings_emptyLimit() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?limit=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("limit")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyCursor() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?cursor=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("cursor")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyLimitAndCursor() {
+        testGetEndpointCheck<ErrorDto>(
+            uri = "${ApiPath.TRAININGS}?limit=&cursor=",
+            status = HttpStatusCode.BadRequest,
+            responseDtoCheck = { error ->
+                assertThat(error?.reason).contains("limit")
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_limit1() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=1",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(3))
+                // nextCursor is the id of the extra row fetched with limit + 1
+                // (the first record of the following page).
+                assertThat(page?.nextCursor).isEqualTo(2)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(17, 5, 2021)
+                createTraining(1)
+                CurrentTimeUtil.setOtherTime(18, 5, 2021)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_limit100() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=100",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.size).isEqualTo(100)
+                assertThat(page?.items?.map { it.id })
+                    .isEqualTo((101 downTo 2).toList())
+                // nextCursor is the id of the extra row fetched with limit + 1
+                // (the first record of the following page).
+                assertThat(page?.nextCursor).isEqualTo(1)
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                // 101 trainings -> ids 101..1, page of 100 leaves one more row.
+                repeat(101) { createTraining(1) }
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_singleResult() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=10",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items?.map { it.id }).isEqualTo(listOf(1))
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+            }
+        )
+    }
+
+    @Test
+    fun getTrainings_emptyResult() {
+        testGetEndpointCheck<TrainingsPageDto>(
+            uri = "${ApiPath.TRAININGS}?limit=10",
+            status = HttpStatusCode.OK,
+            responseDtoCheck = { page ->
+                assertThat(page?.items).isEmpty()
+                assertThat(page?.nextCursor).isNull()
+            },
+            authorize = ApplicationTestBuilder::registerAndLogin
+        )
+    }
+
+    @Test
+    fun getTrainings_fullPagination_noDuplicates() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            putTemplate(createTrainingTemplateDto)
+            repeat(5) { createTraining(1) } // ids 5..1
+
+            val allIds = mutableListOf<Int>()
+            var cursor: Int? = null
+            do {
+                val page = getTrainingsPage(limit = 2, cursor = cursor)
+                val ids = page.items.map { it.id }
+                // Pages must be ordered by id DESC and never overlap.
+                assertThat(ids).isEqualTo(ids.sortedDescending())
+                allIds.addAll(ids)
+                cursor = page.nextCursor
+            } while (cursor != null)
+
+            assertThat(allIds).containsExactly(5, 4, 3, 2, 1).inOrder()
+            assertThat(allIds.toSet().size).isEqualTo(allIds.size)
+        }
+    }
+
+    @Test
+    fun getTrainings_paginationUserIsolation() {
+        withDefaultMockTestApplication {
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            authToken = registerAndLogin()
+            putTemplate(createTrainingTemplateDto)
+            repeat(3) { createTraining(1) } // user1 trainings: ids 3..1
+
+            register(stubRegisterRequestDto("user2@mail.com", "password", "password"))
+            authToken = login(LoginRequestDto("user2@mail.com", "password"))
+            putTemplate(createTrainingTemplateDto) // template id 2
+            repeat(2) { createTraining(2) } // user2 trainings: ids 5..4
+
+            val page = getTrainingsPage(limit = 10)
+            assertThat(page.items.map { it.id }).containsExactly(5, 4).inOrder()
+            assertThat(page.nextCursor).isNull()
+
+            // A cursor request that, without the user filter in SQL, would reveal
+            // user1's trainings (ids 3..1). user2 owns only ids 5 and 4, so with
+            // `id <= 3` filtering scoped to userId the result is empty.
+            val cursorPage = getTrainingsPage(limit = 10, cursor = 3)
+            assertThat(cursorPage.items.map { it.id }).isEmpty()
+            assertThat(cursorPage.nextCursor).isNull()
+        }
+    }
+
+    @Test
+    fun getTrainings_fullPagination_withIdGaps_noDuplicates() {
+        withDefaultMockTestApplication {
+            authToken = registerAndLogin()
+            CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            putTemplate(createTrainingTemplateDto)
+            repeat(6) { createTraining(1) } // ids 6..1
+            // Remove ids 3 and 5 to create gaps in the remaining sequence.
+            deleteTraining(id = "3")
+            deleteTraining(id = "5")
+            // Remaining ids: 6, 4, 2, 1
+
+            val allIds = mutableListOf<Int>()
+            var cursor: Int? = null
+            do {
+                val page = getTrainingsPage(limit = 2, cursor = cursor)
+                val ids = page.items.map { it.id }
+                assertThat(ids).isEqualTo(ids.sortedDescending())
+                allIds.addAll(ids)
+                cursor = page.nextCursor
+            } while (cursor != null)
+
+            assertThat(allIds).containsExactly(6, 4, 2, 1).inOrder()
+            assertThat(allIds.toSet().size).isEqualTo(allIds.size)
+        }
+    }
+
+    @Test
+    fun deleteTraining() {
+        testDeleteEndpoint(
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            status = HttpStatusCode.OK,
+            responseDto = trainingDto,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+            },
+            runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(emptyList<TrainingDto>())
+            }
+        )
+    }
+
+    @Test
+    fun updateTraining() {
+        testPatchEndpoint(
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = updateDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTraining,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+            },
+            runRequestsAfter = {
+                assertThat(getTrainings()).isEqualTo(listOf(updatedTraining))
+            }
+        )
+    }
+
+    @Test
+    fun updateTraining_withoutSeriesRecreation() {
+        testPatchEndpoint(
+            uri = ApiPath.TRAINING.replace("{${Api.Args.ARG_ID}}", "1"),
+            dto = updateWithExistedSeriesDto,
+            status = HttpStatusCode.OK,
+            responseDto = updatedTrainingWithExistedSeries,
+            authorize = ApplicationTestBuilder::registerAndLogin,
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+                putTemplate(createTrainingTemplateDto)
+                createTraining(1)
+                runPatchEndpoint(id = "1", endpointUrl = ApiPath.TRAINING, dto = updateDto)
+            }
+        )
+    }
+
+
+    @After
+    fun tearDown() {
+        GlobalContext.stopKoin()
+    }
+}

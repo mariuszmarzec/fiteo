@@ -1,0 +1,90 @@
+package com.marzec.fiteo.services
+
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingException
+import com.google.firebase.messaging.Message
+import com.google.firebase.messaging.MessagingErrorCode
+import com.marzec.fiteo.FiteoConfig
+import com.marzec.fiteo.model.domain.FcmToken
+import com.marzec.fiteo.repositories.FcmTokenRepository
+import com.marzec.todo.dto.TaskDto
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.slf4j.LoggerFactory
+import java.io.FileInputStream
+
+class FcmServiceImpl(
+    private val fcmTokenRepository: FcmTokenRepository
+) : FcmService {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
+    init {
+        try {
+            val serviceAccountPath = FiteoConfig.FIREBASE_SERVICE_ACCOUNT
+            
+            if (!serviceAccountPath.isNullOrBlank()) {
+                val serviceAccount = FileInputStream(serviceAccountPath)
+                val options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build()
+
+                if (FirebaseApp.getApps().isEmpty()) {
+                    FirebaseApp.initializeApp(options)
+                    logger.info("Firebase initialized successfully with config: $serviceAccountPath")
+                }
+            } else {
+                logger.warn("Firebase service account path is empty")
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to initialize Firebase: ${e.message}")
+        }
+    }
+
+    override fun addToken(userId: Int, fcmToken: String, platform: String?): FcmToken {
+        return fcmTokenRepository.addToken(userId, fcmToken, platform)
+    }
+
+    override fun deleteToken(userId: Int, fcmToken: String) {
+        fcmTokenRepository.deleteToken(userId, fcmToken)
+    }
+
+    override fun deleteTokensForUser(userId: Int) {
+        fcmTokenRepository.deleteTokensForUser(userId)
+    }
+
+    override fun sendPushNotification(userId: Int, taskDto: TaskDto, type: NotificationType) {
+        val tokens = fcmTokenRepository.getTokensForUser(userId)
+        if (tokens.isEmpty()) {
+            logger.info("No FCM tokens found for user $userId")
+            return
+        }
+
+        val payload = mapOf(
+            "type" to type.toString(),
+            "data" to Json.encodeToString(taskDto)
+        )
+
+        tokens.forEach { token ->
+            try {
+                val message = Message.builder()
+                    .setToken(token.fcmToken)
+                    .putAllData(payload)
+                    .build()
+
+                val response = FirebaseMessaging.getInstance().send(message)
+                logger.info("Successfully sent message: $response to token: ${token.fcmToken}")
+            } catch (e: Exception) {
+                if (e is FirebaseMessagingException) {
+                    if (e.messagingErrorCode == MessagingErrorCode.UNREGISTERED) {
+                        fcmTokenRepository.deleteToken(userId, token.fcmToken)
+                    }
+                }
+                logger.error("Error sending message to token ${token.fcmToken}: ${e.message}")
+            }
+        }
+    }
+}
