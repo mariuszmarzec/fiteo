@@ -28,7 +28,7 @@ Returns a list of `PersonalAccessTokenDto` objects.
 |---|---|---|
 | id | Int | Token identifier. |
 | name | String | Name chosen when creating the token. |
-| tokenPrefix | String | Non-secret prefix that helps identify the token. |
+| tokenPrefix | String | Non-secret 8-character identifier derived from the token hash, not the beginning of the raw token. |
 | createdAt | String | Creation date-time. |
 | expiresAt | String? | Expiration date-time, or `null` for `NEVER`. |
 | lastUsedAt | String? | Last successful verification time, or `null` if the token has not been used successfully. |
