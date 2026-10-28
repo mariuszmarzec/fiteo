@@ -1013,6 +1013,77 @@ paths:
                 $ref: "#/components/schemas/ErrorDto"
       security:
       - fiteo_auth: []
+  /pat/api/1/tokens:
+    get:
+      summary: List personal access tokens
+      description: Returns metadata for the authenticated user's personal access tokens without exposing token secrets or hashes.
+      parameters:
+      - name: id
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The authenticated user's personal access tokens.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonalAccessTokenDto"
+        "401":
+          description: A valid authenticated session is required.
+      security:
+      - fiteo_auth: []
+    post:
+      summary: Create a personal access token
+      description: Creates a token for the authenticated user. expiresIn must be THREE_MONTHS, SIX_MONTHS, or NEVER. The raw token is returned only in this response.
+      parameters:
+      - name: id
+        in: query
+        schema:
+          type: string
+      requestBody:
+        description: Name and expiration policy for the new token. expiresIn supports THREE_MONTHS, SIX_MONTHS, or NEVER.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePersonalAccessTokenRequestDto"
+      responses:
+        "200":
+          description: The personal access token was created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonalAccessTokenCreationDto"
+        "400":
+          description: The name is blank or the expiration policy is unsupported.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorDto"
+        "401":
+          description: A valid authenticated session is required.
+      security:
+      - fiteo_auth: []
+  /pat/api/1/tokens/{id}:
+    delete:
+      summary: Delete a personal access token
+      description: Deletes the token only when it belongs to the authenticated user. Other users' tokens are not affected.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: The token was deleted if it belongs to the authenticated user.
+        "401":
+          description: A valid authenticated session is required.
+      security:
+      - fiteo_auth: []
   /sse:
     get:
       summary: ""
@@ -1464,6 +1535,66 @@ components:
         fcmToken:
           type: string
         platform:
+          type:
+          - string
+          - "null"
+    CreatePersonalAccessTokenRequestDto:
+      type: object
+      title: CreatePersonalAccessTokenRequestDto
+      required:
+      - name
+      - expiresIn
+      properties:
+        name:
+          type: string
+        expiresIn:
+          type: string
+    PersonalAccessTokenCreationDto:
+      type: object
+      title: PersonalAccessTokenCreationDto
+      required:
+      - id
+      - name
+      - token
+      - prefix
+      - createdAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        token:
+          type: string
+        prefix:
+          type: string
+        createdAt:
+          type: string
+        expiresAt:
+          type:
+          - string
+          - "null"
+    PersonalAccessTokenDto:
+      type: object
+      title: PersonalAccessTokenDto
+      required:
+      - id
+      - name
+      - tokenPrefix
+      - createdAt
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        tokenPrefix:
+          type: string
+        createdAt:
+          type: string
+        expiresAt:
+          type:
+          - string
+          - "null"
+        lastUsedAt:
           type:
           - string
           - "null"
