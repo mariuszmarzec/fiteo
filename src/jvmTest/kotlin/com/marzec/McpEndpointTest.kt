@@ -73,8 +73,7 @@ class McpEndpointTest {
                 )
             }
 
-            val body = response.bodyAsText()
-            println("MCP_CUSTOM_HOST_RESPONSE_STATUS=${response.status} BODY=$body")
+            println("MCP_CUSTOM_HOST_RESPONSE_STATUS=${response.status}")
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
         }
     }
