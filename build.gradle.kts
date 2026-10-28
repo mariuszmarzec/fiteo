@@ -135,6 +135,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-auth:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-auth-jwt:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
+                implementation("io.modelcontextprotocol:kotlin-sdk-server:${Dependency.mcp_version}")
                 implementation("io.ktor:ktor-server-sse-jvm:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-routing-openapi:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-openapi:${Dependency.ktor_version}")
