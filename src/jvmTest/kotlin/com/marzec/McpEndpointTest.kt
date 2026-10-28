@@ -45,9 +45,9 @@ class McpEndpointTest {
     }
 
     @Test
-    fun endpoint_doesNotApplyAnApplicationHostAllowlist() {
+    fun endpoint_acceptsCustomOriginWithoutOpenApiHostAllowlist() {
         withDefaultMockTestApplication {
-            val response = client.post("http://mcp.internal.example$MCP_ENDPOINT_PATH") {
+            val response = client.post(MCP_ENDPOINT_PATH) {
                 header(HttpHeaders.Origin, "https://mcp.internal.example")
                 header(HttpHeaders.Accept, "application/json, text/event-stream")
                 contentType(ContentType.Application.Json)
