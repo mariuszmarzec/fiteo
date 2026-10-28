@@ -37,6 +37,7 @@ class McpEndpointTest {
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
+            println("MCP_INITIALIZE_RESPONSE=$body")
             assertThat(body).contains("\"jsonrpc\":\"2.0\"")
             assertThat(body).contains("\"protocolVersion\"")
             assertThat(body).contains("\"serverInfo\"")
@@ -72,6 +73,8 @@ class McpEndpointTest {
                 )
             }
 
+            val body = response.bodyAsText()
+            println("MCP_CUSTOM_HOST_RESPONSE_STATUS=${response.status} BODY=$body")
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
         }
     }
