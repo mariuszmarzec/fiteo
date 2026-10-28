@@ -100,7 +100,7 @@ class McpTodoListToolTest {
             id = 42,
             email = "owner@example.test",
         )
-        every { controller.getTasks(any()) } returns DomainHttpResponse.Error(
+        every { controller.getTasks(any()) } returns DomainHttpResponse.Error<List<TaskDto>>(
             data = ErrorDto("Access denied"),
             httpStatusCode = 403,
         )
@@ -119,6 +119,38 @@ class McpTodoListToolTest {
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             assertThat(body).contains("Access denied")
             assertThat(body).contains("\"isError\":true")
+            assertThat(body).doesNotContain("stackTrace")
+            assertThat(body).doesNotContain("valid-test-token")
+        }
+    }
+
+    @Test
+    fun todoList_redactsInternalControllerErrors() {
+        val patService = mockk<PersonalAccessTokenService>()
+        val controller = mockk<ToDoApiController>()
+        every { patService.verify("valid-test-token") } returns User(
+            id = 42,
+            email = "owner@example.test",
+        )
+        every { controller.getTasks(any()) } returns DomainHttpResponse.Error<List<TaskDto>>(
+            data = ErrorDto("database host and stack details"),
+            httpStatusCode = 500,
+        )
+
+        testApplication {
+            application {
+                configureMcpEndpoint(
+                    personalAccessTokenService = { patService },
+                    todoController = { controller },
+                )
+            }
+
+            val response = callTodoListTool()
+            val body = response.bodyAsText()
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(body).contains("internal error")
+            assertThat(body).doesNotContain("database host and stack details")
             assertThat(body).doesNotContain("stackTrace")
             assertThat(body).doesNotContain("valid-test-token")
         }
