@@ -504,14 +504,20 @@ private fun decodeMarkAsToDoArguments(arguments: JsonObject): MarkAsToDoDto {
     require(arguments.keys == setOf("isToDo", "taskIds")) {
         "todo_mark_tasks expects only isToDo and taskIds"
     }
-    val isToDo = (arguments["isToDo"] as? JsonPrimitive)?.booleanOrNull
-        ?: throw IllegalArgumentException("isToDo must be a boolean")
-    val taskIds = (arguments["taskIds"] as? JsonArray)
+    val isToDoPrimitive = arguments["isToDo"] as? JsonPrimitive
+    require(isToDoPrimitive != null && !isToDoPrimitive.isString && isToDoPrimitive.booleanOrNull != null) {
+        "isToDo must be a boolean"
+    }
+    val isToDo = isToDoPrimitive.booleanOrNull!!
+    val taskIds = arguments["taskIds"] as? JsonArray
         ?: throw IllegalArgumentException("taskIds must be an array")
     require(taskIds.isNotEmpty()) { "taskIds must not be empty" }
     val ids = taskIds.mapIndexed { index, element ->
-        val id = (element as? JsonPrimitive)?.intOrNull
-            ?: throw IllegalArgumentException("taskIds[$index] must be an integer")
+        val primitive = element as? JsonPrimitive
+        require(primitive != null && !primitive.isString && primitive.intOrNull != null) {
+            "taskIds[$index] must be an integer"
+        }
+        val id = primitive.intOrNull!!
         require(id > 0) { "taskIds[$index] must be greater than zero" }
         id
     }
