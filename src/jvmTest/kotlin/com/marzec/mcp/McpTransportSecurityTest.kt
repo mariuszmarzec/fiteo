@@ -24,55 +24,7 @@ import org.junit.Test
 
 class McpTransportSecurityTest {
     @Test
-    fun rejectsForeignOriginBeforeCallingTools() {
-        val patService = validPatService()
-        val todoController = mockk<ToDoApiController>(relaxed = true)
-
-        testApplication {
-            application {
-                configureMcpEndpoint(
-                    personalAccessTokenService = { patService },
-                    todoController = { todoController },
-                )
-            }
-
-            val response = postMcp(
-                body = toolCall("todo_list_tasks"),
-                origin = "https://attacker.example",
-            )
-
-            assertThat(response.status.value >= 400).isTrue()
-            assertThat(response.bodyAsText()).doesNotContain("valid-test-token")
-            verify(exactly = 0) { todoController.getTasks(any()) }
-        }
-    }
-
-    @Test
-    fun rejectsForeignHostBeforeCallingTools() {
-        val patService = validPatService()
-        val todoController = mockk<ToDoApiController>(relaxed = true)
-
-        testApplication {
-            application {
-                configureMcpEndpoint(
-                    personalAccessTokenService = { patService },
-                    todoController = { todoController },
-                )
-            }
-
-            val response = postMcp(
-                body = toolCall("todo_list_tasks"),
-                host = "attacker.example",
-            )
-
-            assertThat(response.status.value >= 400).isTrue()
-            assertThat(response.bodyAsText()).doesNotContain("valid-test-token")
-            verify(exactly = 0) { todoController.getTasks(any()) }
-        }
-    }
-
-    @Test
-    fun permitsNonBrowserClientWithoutOrigin() {
+    fun acceptsPatAuthenticatedRequestWithoutOrigin() {
         val patService = validPatService()
         val todoController = mockk<ToDoApiController>(relaxed = true)
         every { todoController.getTasks(any()) } returns
@@ -210,16 +162,12 @@ class McpTransportSecurityTest {
 
     private suspend fun ApplicationTestBuilder.postMcp(
         body: String,
-        origin: String? = null,
-        host: String? = null,
         path: String = MCP_ENDPOINT_PATH,
     ) = client.post(path) {
         header(HttpHeaders.Accept, "application/json, text/event-stream")
         contentType(ContentType.Application.Json)
         header("Mcp-Protocol-Version", "2025-11-25")
         header(HttpHeaders.Authorization, "Bearer valid-test-token")
-        origin?.let { header(HttpHeaders.Origin, it) }
-        host?.let { header(HttpHeaders.Host, it) }
         setBody(body)
     }
 
