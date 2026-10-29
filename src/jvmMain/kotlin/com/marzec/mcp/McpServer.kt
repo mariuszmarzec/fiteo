@@ -5,6 +5,7 @@ import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.model.domain.User
 import com.marzec.cheatday.CheatDayController
+import com.marzec.cheatday.dto.PutWeightDto
 import com.marzec.cheatday.dto.WeightDto
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.PersonalAccessTokenService
@@ -282,6 +283,30 @@ internal fun createMcpServer(
                     parameters = mapOf(Api.Args.ARG_ID to weightId.toString()),
                 ),
             )
+        }
+
+        addJsonTool(
+            name = "cheatday_create_weight",
+            description = "Create a weight entry for the owner of the authenticated PAT. Supply the numeric value and a local date-time without a timezone suffix. This operation creates a record and returns its WeightDto.",
+            inputSchema = ToolSchema(
+                properties = buildJsonObject {
+                    put("value", buildJsonObject {
+                        put("type", "number")
+                        put("description", "Weight value as a finite JSON number.")
+                    })
+                    put("date", buildJsonObject {
+                        put("type", "string")
+                        put("description", "Local date-time, typically yyyy-MM-dd'T'HH:mm:ss, with no timezone suffix.")
+                    })
+                },
+                required = listOf("value", "date"),
+            ),
+            serializer = WeightDto.serializer(),
+            invalidArgumentsMessage = "Invalid cheatday_create_weight arguments. Supply a finite numeric value and a valid local date-time without a timezone suffix.",
+            internalErrorMessage = "Unable to create weight because of an internal error.",
+        ) { arguments ->
+            val input = decodeCreateWeightArguments(arguments)
+            weightController.putWeight(requestContext.createRequest(data = input, arguments = arguments))
         }
     }
 
@@ -715,6 +740,25 @@ private fun decodeGetWeightArguments(arguments: JsonObject): Int {
     val weightId = idPrimitive.intOrNull!!
     require(weightId > 0) { "id must be greater than zero" }
     return weightId
+}
+
+
+private fun decodeCreateWeightArguments(arguments: JsonObject): PutWeightDto {
+    require(arguments.keys == setOf("value", "date")) {
+        "cheatday_create_weight expects only value and date"
+    }
+    val valueElement = arguments["value"] as? JsonPrimitive
+    require(valueElement != null && !valueElement.isString) { "value must be a JSON number" }
+    val value = valueElement.content.toFloatOrNull()
+    require(value != null && value.isFinite()) { "value must be a finite number" }
+
+    val dateElement = arguments["date"] as? JsonPrimitive
+    require(dateElement != null && dateElement.isString) { "date must be a string" }
+    val date = dateElement.content
+    require(runCatching { kotlinx.datetime.LocalDateTime.parse(date) }.isSuccess) {
+        "date must be a valid local date-time without a timezone suffix"
+    }
+    return PutWeightDto(value = value, date = date)
 }
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
