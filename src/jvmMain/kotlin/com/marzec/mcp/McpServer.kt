@@ -391,9 +391,9 @@ internal fun Application.configureMcpEndpoint(
                 call.response.header(HttpHeaders.CacheControl, "no-store")
                 call.respond(HttpStatusCode.Unauthorized)
                 finish()
-            } else {
-                call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
+                return@intercept
             }
+            call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
         }
     }
     mcpStatelessStreamableHttp(path = MCP_ENDPOINT_PATH, enableDnsRebindingProtection = false) {
