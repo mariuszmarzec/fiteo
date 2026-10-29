@@ -55,6 +55,7 @@ import kotlinx.serialization.json.put
 internal const val MCP_ENDPOINT_PATH = "/mcp"
 
 private const val MCP_ALLOWED_HOSTS_ENV = "MCP_ALLOWED_HOSTS"
+private const val MCP_ALLOWED_ORIGINS_ENV = "MCP_ALLOWED_ORIGINS"
 private val DEFAULT_MCP_ALLOWED_HOSTS = listOf("localhost", "127.0.0.1", "[::1]")
 
 internal fun createMcpServer(
@@ -400,11 +401,12 @@ internal fun Application.configureMcpEndpoint(
         }
     }
     val allowedHosts = configuredMcpAllowedHosts()
+    val allowedOrigins = configuredMcpAllowedOrigins(allowedHosts)
     mcpStatelessStreamableHttp(
         path = MCP_ENDPOINT_PATH,
         enableDnsRebindingProtection = true,
         allowedHosts = allowedHosts,
-        allowedOrigins = allowedHosts.map { "http://$it" },
+        allowedOrigins = allowedOrigins,
     ) {
         val requestContext = call.attributes.getOrNull(McpRequestContextAttributeKey)
             ?: error("MCP request context missing after PAT authentication")
@@ -922,8 +924,7 @@ private fun toolErrorResult(message: String) = CallToolResult(content = listOf(T
  * Configures the allowed hostnames for the MCP endpoint.
  *
  * Set MCP_ALLOWED_HOSTS to a comma-separated list of hostnames for deployed environments.
- * The safe default is loopback-only. Origin validation uses the same hostname allowlist;
- * the SDK compares Origin by hostname and permits requests that omit Origin.
+ * The safe default is loopback-only.
  */
 private fun configuredMcpAllowedHosts(): List<String> =
     System.getenv(MCP_ALLOWED_HOSTS_ENV)
@@ -933,6 +934,20 @@ private fun configuredMcpAllowedHosts(): List<String> =
         ?.distinct()
         ?.takeIf { it.isNotEmpty() }
         ?: DEFAULT_MCP_ALLOWED_HOSTS
+
+/**
+ * Configures allowed Origin URLs. Set MCP_ALLOWED_ORIGINS to a comma-separated list of
+ * origin URLs when browser clients originate from a different hostname than the MCP server.
+ * The SDK compares Origin by hostname and permits requests that omit Origin.
+ */
+private fun configuredMcpAllowedOrigins(allowedHosts: List<String>): List<String> =
+    System.getenv(MCP_ALLOWED_ORIGINS_ENV)
+        ?.split(',')
+        ?.map(String::trim)
+        ?.filter(String::isNotEmpty)
+        ?.distinct()
+        ?.takeIf { it.isNotEmpty() }
+        ?: allowedHosts.map { "http://$it" }
 
 private fun ApplicationCall.verifiedMcpPatOwner(
     personalAccessTokenService: () -> PersonalAccessTokenService,
