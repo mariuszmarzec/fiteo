@@ -47,7 +47,7 @@ class McpTransportSecurityTest {
     }
 
     @Test
-    fun advertisesOnlyExplicitlyAllowlistedTodoAndCheatDayTools() {
+    fun advertisesOnlySupportedTodoAndCheatDayTools() {
         val patService = validPatService()
         val todoController = mockk<ToDoApiController>(relaxed = true)
         val cheatDayController = mockk<CheatDayController>(relaxed = true)
