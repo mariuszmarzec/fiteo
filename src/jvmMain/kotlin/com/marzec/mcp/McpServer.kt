@@ -182,6 +182,37 @@ internal fun createMcpServer(
         )
     }
 
+    addJsonTool(
+        name = "todo_delete_task",
+        description = "Destructive operation: permanently delete the task identified by id for the authenticated PAT owner. By default, subtasks are not removed; set removeWithSubtasks to true to remove them as well. Tasks the owner cannot access cannot be deleted.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("id", buildJsonObject {
+                    put("type", "integer")
+                    put("minimum", 1)
+                })
+                put("removeWithSubtasks", buildJsonObject { put("type", "boolean") })
+            },
+            required = listOf("id"),
+        ),
+        serializer = TaskDto.serializer(),
+        invalidArgumentsMessage = "Invalid todo_delete_task arguments. Supply a positive integer task ID and an optional boolean removeWithSubtasks.",
+        internalErrorMessage = "Unable to delete task because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val (taskId, removeWithSubtasks) = decodeDeleteTaskArguments(arguments)
+        todoController.removeTask(
+            requestContext.createRequest(
+                data = Unit,
+                arguments = arguments,
+                parameters = mapOf(Api.Args.ARG_ID to taskId.toString()),
+                queries = removeWithSubtasks?.let {
+                    mapOf("removeWithSubtasks" to listOf(it.toString()))
+                } ?: emptyMap(),
+            ),
+        )
+    }
+
 }
 
 /**
@@ -563,6 +594,28 @@ private fun decodeCopyTaskArguments(arguments: JsonObject): Int {
     val taskId = idPrimitive.intOrNull!!
     require(taskId > 0) { "id must be greater than zero" }
     return taskId
+}
+
+private fun decodeDeleteTaskArguments(arguments: JsonObject): Pair<Int, Boolean?> {
+    require(arguments.keys.all { it in setOf("id", "removeWithSubtasks") }) {
+        "todo_delete_task accepts only id and removeWithSubtasks"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val taskId = idPrimitive.intOrNull!!
+    require(taskId > 0) { "id must be greater than zero" }
+
+    val removeWithSubtasksPrimitive = arguments["removeWithSubtasks"] as? JsonPrimitive
+    if ("removeWithSubtasks" in arguments) {
+        require(
+            removeWithSubtasksPrimitive != null &&
+                !removeWithSubtasksPrimitive.isString &&
+                removeWithSubtasksPrimitive.booleanOrNull != null,
+        ) { "removeWithSubtasks must be a boolean" }
+    }
+    return taskId to removeWithSubtasksPrimitive?.booleanOrNull
 }
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
