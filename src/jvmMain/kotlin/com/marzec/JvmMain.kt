@@ -111,7 +111,7 @@ fun Application.module() {
     configuration(di)
     sessions(di, testDi)
     scripts()
-    configureMcpEndpoint({ di.personalAccessTokenService }, { di.todoController })
+    configureMcpEndpoint({ di.personalAccessTokenService }, { di.todoController }, { di.cheatDayController })
     routing {
 
         static {
