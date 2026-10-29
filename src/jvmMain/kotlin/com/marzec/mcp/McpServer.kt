@@ -4,6 +4,8 @@ import com.marzec.Api
 import com.marzec.exceptions.HttpException
 import com.marzec.exceptions.HttpStatus
 import com.marzec.fiteo.model.domain.User
+import com.marzec.cheatday.CheatDayController
+import com.marzec.cheatday.dto.WeightDto
 import com.marzec.fiteo.model.http.HttpResponse
 import com.marzec.fiteo.services.PersonalAccessTokenService
 import com.marzec.todo.ToDoApiController
@@ -54,6 +56,7 @@ internal const val MCP_ENDPOINT_PATH = "/mcp"
 internal fun createMcpServer(
     requestContext: McpRequestContext,
     todoController: ToDoApiController,
+    cheatDayController: CheatDayController? = null,
 ): Server = Server(
     serverInfo = Implementation(
         name = "fiteo",
@@ -235,6 +238,53 @@ internal fun createMcpServer(
         todoController.leaveShare(requestContext.createRequest(data = input, arguments = arguments))
     }
 
+    cheatDayController?.let { weightController ->
+        addJsonTool(
+            name = "cheatday_list_weights",
+            description = "List weight entries belonging to the owner of the authenticated PAT. Returns a JSON array of WeightDto objects. This tool accepts no arguments.",
+            inputSchema = ToolSchema(
+                properties = buildJsonObject {},
+                required = emptyList(),
+            ),
+            serializer = ListSerializer(WeightDto.serializer()),
+            invalidArgumentsMessage = "Invalid cheatday_list_weights arguments",
+            internalErrorMessage = "Unable to list weights because of an internal error.",
+        ) { arguments ->
+            requestContext.createRequest(data = Unit, arguments = arguments)
+            if (arguments.isNotEmpty()) {
+                throw HttpException("cheatday_list_weights does not accept arguments", HttpStatus.BAD_REQUEST)
+            }
+            weightController.getWeights(requestContext.createRequest(data = Unit, arguments = arguments))
+        }
+
+        addJsonTool(
+            name = "cheatday_get_weight",
+            description = "Get a single weight entry by ID for the owner of the authenticated PAT. Entries belonging to other users are not accessible.",
+            inputSchema = ToolSchema(
+                properties = buildJsonObject {
+                    put("id", buildJsonObject {
+                        put("type", "integer")
+                        put("minimum", 1)
+                    })
+                },
+                required = listOf("id"),
+            ),
+            serializer = WeightDto.serializer(),
+            invalidArgumentsMessage = "Invalid cheatday_get_weight arguments. Supply a positive integer weight ID.",
+            internalErrorMessage = "Unable to get weight because of an internal error.",
+        ) { arguments ->
+            requestContext.createRequest(data = Unit, arguments = arguments)
+            val weightId = decodeGetWeightArguments(arguments)
+            weightController.getWeight(
+                requestContext.createRequest(
+                    data = Unit,
+                    arguments = arguments,
+                    parameters = mapOf(Api.Args.ARG_ID to weightId.toString()),
+                ),
+            )
+        }
+    }
+
 }
 
 /**
@@ -244,6 +294,7 @@ internal fun createMcpServer(
 internal fun Application.configureMcpEndpoint(
     personalAccessTokenService: () -> PersonalAccessTokenService,
     todoController: () -> ToDoApiController,
+    cheatDayController: (() -> CheatDayController)? = null,
 ) {
     intercept(ApplicationCallPipeline.Plugins) {
         if (call.request.path() == MCP_ENDPOINT_PATH) {
@@ -261,7 +312,7 @@ internal fun Application.configureMcpEndpoint(
     mcpStatelessStreamableHttp(path = MCP_ENDPOINT_PATH, enableDnsRebindingProtection = false) {
         val requestContext = call.attributes.getOrNull(McpRequestContextAttributeKey)
             ?: error("MCP request context missing after PAT authentication")
-        createMcpServer(requestContext, todoController())
+        createMcpServer(requestContext, todoController(), cheatDayController?.invoke())
     }
 }
 
@@ -651,6 +702,19 @@ private fun decodeLeaveShareArguments(arguments: JsonObject): LeaveShareDto {
     val taskId = idPrimitive.intOrNull!!
     require(taskId > 0) { "id must be greater than zero" }
     return LeaveShareDto(id = taskId)
+}
+
+private fun decodeGetWeightArguments(arguments: JsonObject): Int {
+    require(arguments.keys == setOf("id")) {
+        "cheatday_get_weight expects only an id"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val weightId = idPrimitive.intOrNull!!
+    require(weightId > 0) { "id must be greater than zero" }
+    return weightId
 }
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
