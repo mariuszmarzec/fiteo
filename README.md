@@ -42,3 +42,6 @@ To generate test coverage report use `verification:jacocoTestReport`.
 
 # Api documentation
 Api documentation is under [this doc](docs/api/README.md)
+## Remote MCP (ToDo and CheatDay)
+
+See [docs/mcp.md](docs/mcp.md) for client configuration, PAT authentication, the supported tool catalog, and the security boundary of the remote MCP endpoint.
