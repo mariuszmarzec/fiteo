@@ -13,6 +13,7 @@ import com.marzec.todo.model.MarkAsToDoDto
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.TaskShareDto
 import com.marzec.todo.model.UpdateTaskDto
+import com.marzec.todo.model.LeaveShareDto
 import com.marzec.todo.model.toDomain
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -211,6 +212,27 @@ internal fun createMcpServer(
                 } ?: emptyMap(),
             ),
         )
+    }
+
+    addJsonTool(
+        name = "todo_leave_shared_task",
+        description = "Leave a task shared with the authenticated PAT owner. This removes the owner's share and may change or remove their access to that task; it does not act on behalf of the task owner or another user.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("id", buildJsonObject {
+                    put("type", "integer")
+                    put("minimum", 1)
+                })
+            },
+            required = listOf("id"),
+        ),
+        serializer = TaskDto.serializer(),
+        invalidArgumentsMessage = "Invalid todo_leave_shared_task arguments. Supply a positive integer task ID.",
+        internalErrorMessage = "Unable to leave shared task because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val input = decodeLeaveShareArguments(arguments)
+        todoController.leaveShare(requestContext.createRequest(data = input, arguments = arguments))
     }
 
 }
@@ -616,6 +638,19 @@ private fun decodeDeleteTaskArguments(arguments: JsonObject): Pair<Int, Boolean?
         ) { "removeWithSubtasks must be a boolean" }
     }
     return taskId to removeWithSubtasksPrimitive?.booleanOrNull
+}
+
+private fun decodeLeaveShareArguments(arguments: JsonObject): LeaveShareDto {
+    require(arguments.keys == setOf("id")) {
+        "todo_leave_shared_task expects only an id"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val taskId = idPrimitive.intOrNull!!
+    require(taskId > 0) { "id must be greater than zero" }
+    return LeaveShareDto(id = taskId)
 }
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
