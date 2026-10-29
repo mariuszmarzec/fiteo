@@ -47,7 +47,7 @@ class McpCheatDayWeightCreateToolTest {
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
             val body = response.bodyAsText()
-            assertThat(body).contains("\"id\":88")
+            assertThat(body).contains("\\\"id\\\":88")
             assertThat(body).contains("72.5")
             assertThat(body).contains("2026-10-29T08:30:00")
             assertThat(requestSlot.captured.data).isEqualTo(
