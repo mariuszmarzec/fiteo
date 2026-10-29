@@ -124,8 +124,8 @@ class McpTodoCopyTaskToolTest {
 
             assertThat(body).contains("todo_copy_task")
             assertThat(body).contains("not a read-only lookup")
-            assertThat(body).contains("\\\"required\\\":[\\\"id\\\"]")
-            assertThat(body).contains("\\\"minimum\\\":1")
+            assertThat(body).contains("\"required\":[\"id\"]")
+            assertThat(body).contains("\"minimum\":1")
         }
     }
 
