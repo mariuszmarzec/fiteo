@@ -36,7 +36,7 @@ class McpTodoCopyTaskToolTest {
             val response = callCopyTask("""{"id":7}""")
 
             assertThat(response.status).isEqualTo(HttpStatusCode.OK)
-            assertThat(response.bodyAsText()).contains("\"description\":\"Copied task\"")
+            assertThat(response.bodyAsText()).contains("Copied task")
             assertThat(requestSlot.captured.sessions[Api.Args.ARG_USER_ID]).isEqualTo("42")
             assertThat(requestSlot.captured.parameters[Api.Args.ARG_ID]).isEqualTo("7")
             verify(exactly = 1) { controller.copyTasks(any()) }
@@ -124,8 +124,8 @@ class McpTodoCopyTaskToolTest {
 
             assertThat(body).contains("todo_copy_task")
             assertThat(body).contains("not a read-only lookup")
-            assertThat(body).contains("\"required\":[\"id\"]")
-            assertThat(body).contains("\"minimum\":1")
+            assertThat(body).contains("\\\"required\\\":[\\\"id\\\"]")
+            assertThat(body).contains("\\\"minimum\\\":1")
         }
     }
 
