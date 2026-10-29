@@ -54,7 +54,6 @@ import kotlinx.serialization.json.put
 
 internal const val MCP_ENDPOINT_PATH = "/mcp"
 
-
 internal fun createMcpServer(
     requestContext: McpRequestContext,
     todoController: ToDoApiController,
