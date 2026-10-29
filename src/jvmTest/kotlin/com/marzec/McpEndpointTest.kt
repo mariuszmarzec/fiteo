@@ -140,6 +140,16 @@ class McpEndpointTest {
     }
 
     @Test
+    fun missingPat_cannotCallTool() {
+        withDefaultMockTestApplication {
+            val response = postMcp(body = listTasksToolCall)
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+            assertThat(response.bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
     fun expiredPat_cannotCallTool() {
         withDefaultMockTestApplication {
             val pat = createPat(expiresIn = "THREE_MONTHS")
