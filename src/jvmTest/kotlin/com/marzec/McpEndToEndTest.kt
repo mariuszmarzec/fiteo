@@ -7,7 +7,7 @@ import com.marzec.fiteo.model.dto.CreatePersonalAccessTokenRequestDto
 import com.marzec.fiteo.model.dto.PersonalAccessTokenCreationDto
 import com.marzec.mcp.MCP_ENDPOINT_PATH
 import com.marzec.todo.ApiPath as TodoApiPath
-import io.ktor.client.config
+import io.ktor.client.*
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.sse.SSE
 import io.ktor.client.request.*
