@@ -402,6 +402,7 @@ internal fun Application.configureMcpEndpoint(
                 call.response.header(HttpHeaders.CacheControl, "no-store")
                 call.respond(HttpStatusCode.Forbidden)
                 finish()
+                return@intercept
             }
 
             val originHeader = call.request.headers[HttpHeaders.Origin]
@@ -412,6 +413,7 @@ internal fun Application.configureMcpEndpoint(
                     call.response.header(HttpHeaders.CacheControl, "no-store")
                     call.respond(HttpStatusCode.Forbidden)
                     finish()
+                    return@intercept
                 }
             }
 
@@ -421,6 +423,7 @@ internal fun Application.configureMcpEndpoint(
                 call.response.header(HttpHeaders.CacheControl, "no-store")
                 call.respond(HttpStatusCode.Unauthorized)
                 finish()
+                return@intercept
             } else {
                 call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
             }
@@ -973,7 +976,7 @@ private fun configuredMcpAllowedOrigins(allowedHosts: List<String>): List<String
 
 private fun mcpHostName(authority: String): String? {
     val value = authority.trim()
-    if (value.isEmpty() || value.any { it.isWhitespace() || it == '@' || it == '/' || it == '?' || it == '#' || it == '\\\\' }) {
+    if (value.isEmpty() || value.any { it.isWhitespace() || it == '@' || it == '/' || it == '?' || it == '#' || it == '\\' }) {
         return null
     }
     val parsed = runCatching { Url("http://$value") }.getOrNull() ?: return null
