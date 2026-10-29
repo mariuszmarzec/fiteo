@@ -54,7 +54,7 @@ The tools reuse the existing controller/domain behavior and return JSON-serializ
 
 The effective user is derived exclusively from the owner of the verified PAT. Callers cannot select another user by passing a `userId`. Existing per-user permissions and access checks continue to apply; guessing another user's task or weight ID does not grant access.
 
-Each MCP request, including initialization and tool discovery, requires `Authorization: Bearer <PAT>`. Missing, malformed, invalid, expired, and deleted/revoked tokens are rejected. Keep the endpoint behind HTTPS. Host/Origin allowlists are not enforced by the MCP application; network exposure and transport-level protections belong to the deployment/server layer.
+Each MCP request, including initialization and tool discovery, requires `Authorization: Bearer <PAT>`. Missing, malformed, invalid, expired, and deleted/revoked tokens are rejected. Keep the endpoint behind HTTPS; network exposure and transport-level protections are handled by the deployment/server layer.
 
 ## Explicit exclusions
 
