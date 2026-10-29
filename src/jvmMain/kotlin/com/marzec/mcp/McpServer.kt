@@ -286,6 +286,33 @@ internal fun createMcpServer(
         }
 
         addJsonTool(
+            name = "cheatday_delete_weight",
+            description = "Destructive operation: permanently delete the weight entry identified by id for the owner of the authenticated PAT. Entries the owner cannot access cannot be deleted. Returns the removed WeightDto.",
+            inputSchema = ToolSchema(
+                properties = buildJsonObject {
+                    put("id", buildJsonObject {
+                        put("type", "integer")
+                        put("minimum", 1)
+                        put("description", "ID of the weight entry to permanently delete.")
+                    })
+                },
+                required = listOf("id"),
+            ),
+            serializer = WeightDto.serializer(),
+            invalidArgumentsMessage = "Invalid cheatday_delete_weight arguments. Supply a positive integer weight ID.",
+            internalErrorMessage = "Unable to delete weight because of an internal error.",
+        ) { arguments ->
+            val weightId = decodeDeleteWeightArguments(arguments)
+            weightController.removeWeight(
+                requestContext.createRequest(
+                    data = Unit,
+                    arguments = arguments,
+                    parameters = mapOf(Api.Args.ARG_ID to weightId.toString()),
+                ),
+            )
+        }
+
+        addJsonTool(
             name = "cheatday_update_weight",
             description = "Partially update a weight entry belonging to the owner of the authenticated PAT. Supply id and either or both of value and date; omitted fields remain unchanged. This operation mutates a record and returns the updated WeightDto.",
             inputSchema = ToolSchema(
@@ -777,6 +804,19 @@ private fun decodeGetWeightArguments(arguments: JsonObject): Int {
     return weightId
 }
 
+
+private fun decodeDeleteWeightArguments(arguments: JsonObject): Int {
+    require(arguments.keys == setOf("id")) {
+        "cheatday_delete_weight expects only an id"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val weightId = idPrimitive.intOrNull!!
+    require(weightId > 0) { "id must be greater than zero" }
+    return weightId
+}
 
 private fun decodeUpdateWeightArguments(arguments: JsonObject): Pair<Int, Map<String, JsonElement?>> {
     require(arguments.keys.all { it in setOf("id", "value", "date") } && "id" in arguments) {
