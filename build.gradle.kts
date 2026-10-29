@@ -164,6 +164,8 @@ kotlin {
 //                implementation("io.ktor:ktor-server-tests:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-test-host:${Dependency.ktor_version}")
                 implementation("io.ktor:ktor-server-netty:${Dependency.ktor_version}")
+                implementation("io.ktor:ktor-client-sse:${Dependency.ktor_version}")
+                implementation("io.modelcontextprotocol:kotlin-sdk-client:${Dependency.mcp_version}")
 
                 implementation("org.flywaydb:flyway-core:${Dependency.flyway_version}")
                 implementation("org.flywaydb:flyway-mysql:${Dependency.flyway_version}")
