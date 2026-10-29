@@ -984,7 +984,7 @@ private fun mcpHostName(authority: String): String? {
         return null
     }
     val parsed = runCatching { Url("http://$value") }.getOrNull() ?: return null
-    if (parsed.user.isNotEmpty() || parsed.password.isNotEmpty() || parsed.encodedPath != "/") return null
+    if (parsed.user?.isNotEmpty() == true || parsed.password?.isNotEmpty() == true || parsed.encodedPath != "/") return null
     return parsed.host.lowercase().takeIf(String::isNotEmpty)
 }
 
@@ -992,7 +992,7 @@ private fun mcpOriginHostName(origin: String): String? {
     val parsed = runCatching { Url(origin) }.getOrNull() ?: return null
     if (parsed.protocol.name !in setOf("http", "https")) return null
     if (parsed.user.isNotEmpty() || parsed.password.isNotEmpty()) return null
-    if (parsed.encodedPath !in setOf("", "/") || parsed.parameters.isNotEmpty() || parsed.fragment.isNotEmpty()) return null
+    if (parsed.encodedPath !in setOf("", "/") || parsed.parameters?.isNotEmpty() == true || parsed.fragment?.isNotEmpty() == true) return null
     return parsed.host.lowercase().takeIf(String::isNotEmpty)
 }
 
