@@ -64,9 +64,7 @@ class McpCheatDayWeightUpdateToolTest {
         val controller = mockk<CheatDayController>()
         val requests = mutableListOf<HttpRequest<Map<String, kotlinx.serialization.json.JsonElement?>>>()
         every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
-        every { controller.updateWeight(capture(slot<HttpRequest<Map<String, kotlinx.serialization.json.JsonElement?>>>().also {
-            // Capture requests one at a time because MockK slots retain only the last captured request.
-        })) } answers {
+        every { controller.updateWeight(any()) } answers {
             val request = firstArg<HttpRequest<Map<String, kotlinx.serialization.json.JsonElement?>>>()
             requests += request
             DomainHttpResponse.Success(WeightDto(17, 70.0f, "2026-10-28T11:00:00"))
