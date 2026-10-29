@@ -396,9 +396,13 @@ internal fun Application.configureMcpEndpoint(
             // legitimate Ktor test/non-browser clients omit it, so validate an explicit
             // Host strictly and use the server-side local host only when the header is absent.
             val hostHeader = call.request.headers[HttpHeaders.Host]
-            val requestHost = hostHeader?.let(::mcpHostName) ?: call.request.local.serverHost.lowercase()
+            val requestHost = if (hostHeader == null) {
+                call.request.local.serverHost.lowercase()
+            } else {
+                mcpHostName(hostHeader)
+            }
             val allowedHostNames = allowedHosts.mapNotNull(::mcpHostName).toSet()
-            if (requestHost !in allowedHostNames) {
+            if (requestHost == null || requestHost !in allowedHostNames) {
                 call.response.header(HttpHeaders.CacheControl, "no-store")
                 call.respond(HttpStatusCode.Forbidden)
                 finish()
