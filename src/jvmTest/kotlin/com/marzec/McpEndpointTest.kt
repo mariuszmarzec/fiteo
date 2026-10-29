@@ -140,6 +140,49 @@ class McpEndpointTest {
     }
 
     @Test
+    fun expiredPat_cannotCallTool() {
+        withDefaultMockTestApplication {
+            val pat = createPat(expiresIn = "THREE_MONTHS")
+            transaction(DbSettings.database) {
+                PersonalAccessTokenTable.update(
+                    where = { PersonalAccessTokenTable.id eq pat.id }
+                ) {
+                    it[expiresAt] = LocalDateTime.now(ZoneOffset.UTC).minusDays(1)
+                }
+            }
+
+            val response = postMcp(
+                body = listTasksToolCall,
+                authorization = "Bearer ${pat.token}"
+            )
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+            assertThat(response.bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
+    fun deletedPat_cannotCallTool() {
+        withDefaultMockTestApplication {
+            val pat = createPat()
+            val deleteResponse = client.delete(
+                PatApiPath.TOKEN_BY_ID.replace("{id}", pat.id.toString())
+            ) {
+                header(Headers.AUTHORIZATION, authToken!!)
+            }
+            assertThat(deleteResponse.status).isEqualTo(HttpStatusCode.OK)
+
+            val response = postMcp(
+                body = listTasksToolCall,
+                authorization = "Bearer ${pat.token}"
+            )
+
+            assertThat(response.status).isEqualTo(HttpStatusCode.Unauthorized)
+            assertThat(response.bodyAsText()).isEmpty()
+        }
+    }
+
+    @Test
     fun initialize_acceptsValidPat() {
         withDefaultMockTestApplication {
             val pat = createPat()
@@ -232,6 +275,18 @@ class McpEndpointTest {
                   "name": "fiteo-mcp-test",
                   "version": "1.0.0"
                 }
+              }
+            }
+        """.trimIndent()
+
+        val listTasksToolCall = """
+            {
+              "jsonrpc": "2.0",
+              "id": 3,
+              "method": "tools/call",
+              "params": {
+                "name": "todo_list_tasks",
+                "arguments": {}
               }
             }
         """.trimIndent()
