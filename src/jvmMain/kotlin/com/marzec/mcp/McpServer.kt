@@ -9,6 +9,7 @@ import com.marzec.fiteo.services.PersonalAccessTokenService
 import com.marzec.todo.ToDoApiController
 import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
+import com.marzec.todo.model.MarkAsToDoDto
 import com.marzec.todo.model.SchedulerDto
 import com.marzec.todo.model.TaskShareDto
 import com.marzec.todo.model.UpdateTaskDto
@@ -31,8 +32,10 @@ import io.modelcontextprotocol.kotlin.sdk.types.McpJson
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import io.modelcontextprotocol.kotlin.sdk.types.ToolSchema
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -61,36 +64,25 @@ internal fun createMcpServer(
         ),
     ),
 ).apply {
-    addTool(
+    addJsonTool(
         name = "todo_list_tasks",
         description = "List ToDo tasks belonging to the owner of the authenticated PAT. Returns a JSON array of TaskDto objects. This tool accepts no arguments.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {},
             required = emptyList(),
         ),
-    ) { request ->
-        val arguments = request.params.arguments ?: buildJsonObject {}
-        try {
-            val httpRequest = requestContext.createRequest(data = Unit, arguments = arguments)
-            if (arguments.isNotEmpty()) {
-                throw HttpException("todo_list_tasks does not accept arguments", HttpStatus.BAD_REQUEST)
-            }
-            when (val response = todoController.getTasks(httpRequest)) {
-                is HttpResponse.Success -> CallToolResult(
-                    content = listOf(TextContent(text = McpJson.encodeToString(ListSerializer(TaskDto.serializer()), response.data))),
-                )
-                is HttpResponse.Error -> toolErrorResult(
-                    if (response.httpStatusCode >= 500) "Unable to list tasks because of an internal error." else response.data.reason,
-                )
-            }
-        } catch (exception: HttpException) {
-            toolErrorResult(exception.message ?: "Invalid todo_list_tasks arguments")
-        } catch (_: Exception) {
-            toolErrorResult("Unable to list tasks because of an internal error.")
+        serializer = ListSerializer(TaskDto.serializer()),
+        invalidArgumentsMessage = "Invalid todo_list_tasks arguments",
+        internalErrorMessage = "Unable to list tasks because of an internal error.",
+    ) { arguments ->
+        val httpRequest = requestContext.createRequest(data = Unit, arguments = arguments)
+        if (arguments.isNotEmpty()) {
+            throw HttpException("todo_list_tasks does not accept arguments", HttpStatus.BAD_REQUEST)
         }
+        todoController.getTasks(httpRequest)
     }
 
-    addTool(
+    addJsonTool(
         name = "todo_create_task",
         description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. Optional shares are granted to the specified users. Returns the created TaskDto.",
         inputSchema = ToolSchema(
@@ -99,27 +91,17 @@ internal fun createMcpServer(
             },
             required = listOf("task"),
         ),
-    ) { request ->
-        val arguments = request.params.arguments ?: buildJsonObject {}
-        try {
-            requestContext.createRequest(data = Unit, arguments = arguments)
-            val input = decodeCreateTaskArguments(arguments)
-            input.toDomain() // Validate nested scheduler dates and share values before invoking the controller.
-            when (val response = todoController.addTask(requestContext.createRequest(data = input, arguments = arguments))) {
-                is HttpResponse.Success -> CallToolResult(
-                    content = listOf(TextContent(text = McpJson.encodeToString(TaskDto.serializer(), response.data))),
-                )
-                is HttpResponse.Error -> toolErrorResult(
-                    if (response.httpStatusCode >= 500) "Unable to create task because of an internal error." else response.data.reason,
-                )
-            }
-        } catch (exception: HttpException) {
-            toolErrorResult(exception.message ?: "Invalid todo_create_task arguments")
-        } catch (_: Exception) {
-            toolErrorResult("Invalid todo_create_task arguments. Check field types, date-time formats, scheduler type, and share permissions.")
-        }
+        serializer = TaskDto.serializer(),
+        invalidArgumentsMessage = "Invalid todo_create_task arguments. Check field types, date-time formats, scheduler type, and share permissions.",
+        internalErrorMessage = "Unable to create task because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val input = decodeCreateTaskArguments(arguments)
+        input.toDomain()
+        todoController.addTask(requestContext.createRequest(data = input, arguments = arguments))
     }
-    addTool(
+
+    addJsonTool(
         name = "todo_update_task",
         description = "Update a task owned by the authenticated PAT. Supply id and a task object matching UpdateTaskDto. Only supplied fields are changed. For parentTaskId, scheduler and expirationDate use {\"value\": ...}; set value to null to clear that field. Scheduled tasks cannot have a parent, and a task cannot be its own parent. Returns the updated TaskDto.",
         inputSchema = ToolSchema(
@@ -132,34 +114,47 @@ internal fun createMcpServer(
             },
             required = listOf("id", "task"),
         ),
-    ) { request ->
-        val arguments = request.params.arguments ?: buildJsonObject {}
-        try {
-            requestContext.createRequest(data = Unit, arguments = arguments)
-            val (taskId, input) = decodeUpdateTaskArguments(arguments)
-            input.toDomain() // Validate date-times, scheduler type and share values before controller dispatch.
-            when (val response = todoController.updateTask(
-                requestContext.createRequest(
-                    data = input,
-                    arguments = arguments,
-                    parameters = mapOf(Api.Args.ARG_ID to taskId.toString()),
-                ),
-            )) {
-                is HttpResponse.Success -> CallToolResult(
-                    content = listOf(TextContent(text = McpJson.encodeToString(TaskDto.serializer(), response.data))),
-                )
-                is HttpResponse.Error -> toolErrorResult(
-                    if (response.httpStatusCode >= 500) "Unable to update task because of an internal error."
-                    else response.data.reason,
-                )
-            }
-        } catch (exception: HttpException) {
-            toolErrorResult(exception.message ?: "Invalid todo_update_task arguments")
-        } catch (_: Exception) {
-            toolErrorResult("Invalid todo_update_task arguments. Check the task ID, partial-update wrappers, date-time formats, scheduler type and share permissions.")
-        }
+        serializer = TaskDto.serializer(),
+        invalidArgumentsMessage = "Invalid todo_update_task arguments. Check the task ID, partial-update wrappers, date-time formats, scheduler type and share permissions.",
+        internalErrorMessage = "Unable to update task because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val (taskId, input) = decodeUpdateTaskArguments(arguments)
+        input.toDomain()
+        todoController.updateTask(
+            requestContext.createRequest(
+                data = input,
+                arguments = arguments,
+                parameters = mapOf(Api.Args.ARG_ID to taskId.toString()),
+            ),
+        )
     }
 
+    addJsonTool(
+        name = "todo_mark_tasks",
+        description = "Set each supplied task ID to ToDo or not-ToDo using the existing permissions of the authenticated PAT owner. The call fails if any task cannot be edited by that user. Returns the task list visible to the PAT owner after the change.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("isToDo", buildJsonObject { put("type", "boolean") })
+                put("taskIds", buildJsonObject {
+                    put("type", "array")
+                    put("minItems", 1)
+                    put("items", buildJsonObject {
+                        put("type", "integer")
+                        put("minimum", 1)
+                    })
+                })
+            },
+            required = listOf("isToDo", "taskIds"),
+        ),
+        serializer = ListSerializer(TaskDto.serializer()),
+        invalidArgumentsMessage = "Invalid todo_mark_tasks arguments. Supply a boolean isToDo and a non-empty array of positive integer task IDs.",
+        internalErrorMessage = "Unable to update task status because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val input = decodeMarkAsToDoArguments(arguments)
+        todoController.markAsToDo(requestContext.createRequest(data = input, arguments = arguments))
+    }
 }
 
 /**
@@ -505,7 +500,66 @@ private fun validateUpdateTaskShares(element: JsonElement?) {
         }
     }
 }
+private fun decodeMarkAsToDoArguments(arguments: JsonObject): MarkAsToDoDto {
+    require(arguments.keys == setOf("isToDo", "taskIds")) {
+        "todo_mark_tasks expects only isToDo and taskIds"
+    }
+    val isToDoPrimitive = arguments["isToDo"] as? JsonPrimitive
+    require(isToDoPrimitive != null && !isToDoPrimitive.isString && isToDoPrimitive.booleanOrNull != null) {
+        "isToDo must be a boolean"
+    }
+    val isToDo = isToDoPrimitive.booleanOrNull!!
+    val taskIds = arguments["taskIds"] as? JsonArray
+        ?: throw IllegalArgumentException("taskIds must be an array")
+    require(taskIds.isNotEmpty()) { "taskIds must not be empty" }
+    val ids = taskIds.mapIndexed { index, element ->
+        val primitive = element as? JsonPrimitive
+        require(primitive != null && !primitive.isString && primitive.intOrNull != null) {
+            "taskIds[$index] must be an integer"
+        }
+        val id = primitive.intOrNull!!
+        require(id > 0) { "taskIds[$index] must be greater than zero" }
+        id
+    }
+    return MarkAsToDoDto(isToDo = isToDo, taskIds = ids)
+}
+
+
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
+
+private fun <T> Server.addJsonTool(
+    name: String,
+    description: String,
+    inputSchema: ToolSchema,
+    serializer: KSerializer<T>,
+    invalidArgumentsMessage: String,
+    internalErrorMessage: String,
+    execute: (JsonObject) -> HttpResponse<T>,
+) {
+    addTool(name = name, description = description, inputSchema = inputSchema) { request ->
+        val arguments = request.params.arguments ?: buildJsonObject {}
+        try {
+            when (val response = execute(arguments)) {
+                is HttpResponse.Success -> CallToolResult(
+                    content = listOf(TextContent(text = McpJson.encodeToString(serializer, response.data))),
+                )
+                is HttpResponse.Error -> toolErrorResult(
+                    if (response.httpStatusCode >= 500) internalErrorMessage else response.data.reason,
+                )
+            }
+        } catch (exception: HttpException) {
+            toolErrorResult(
+                if (exception.httpStatus >= 500) internalErrorMessage
+                else exception.message ?: invalidArgumentsMessage,
+            )
+        } catch (_: IllegalArgumentException) {
+            toolErrorResult(invalidArgumentsMessage)
+        } catch (_: Exception) {
+            toolErrorResult(internalErrorMessage)
+        }
+    }
+}
+
 
 private fun toolErrorResult(message: String) = CallToolResult(content = listOf(TextContent(text = message)), isError = true)
 
