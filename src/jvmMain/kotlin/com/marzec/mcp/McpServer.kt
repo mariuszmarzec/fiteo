@@ -20,7 +20,6 @@ import com.marzec.todo.model.LeaveShareDto
 import com.marzec.todo.model.toDomain
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.Url
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationCallPipeline
@@ -55,9 +54,6 @@ import kotlinx.serialization.json.put
 
 internal const val MCP_ENDPOINT_PATH = "/mcp"
 
-private const val MCP_ALLOWED_HOSTS_ENV = "MCP_ALLOWED_HOSTS"
-private const val MCP_ALLOWED_ORIGINS_ENV = "MCP_ALLOWED_ORIGINS"
-private val DEFAULT_MCP_ALLOWED_HOSTS = listOf("localhost", "127.0.0.1", "[::1]")
 
 internal fun createMcpServer(
     requestContext: McpRequestContext,
@@ -388,39 +384,8 @@ internal fun Application.configureMcpEndpoint(
     todoController: () -> ToDoApiController,
     cheatDayController: (() -> CheatDayController)? = null,
 ) {
-    val allowedHosts = configuredMcpAllowedHosts()
-    val allowedOrigins = configuredMcpAllowedOrigins(allowedHosts)
     intercept(ApplicationCallPipeline.Plugins) {
         if (call.request.path() == MCP_ENDPOINT_PATH) {
-            // The SDK's transport-level validator rejects a missing Host header. Some
-            // legitimate Ktor test/non-browser clients omit it, so validate an explicit
-            // Host strictly and use the server-side local host only when the header is absent.
-            val hostHeader = call.request.headers[HttpHeaders.Host]
-            val requestHost = if (hostHeader == null) {
-                call.request.local.serverHost.lowercase()
-            } else {
-                mcpHostName(hostHeader)
-            }
-            val allowedHostNames = allowedHosts.mapNotNull(::mcpHostName).toSet()
-            if (requestHost == null || requestHost !in allowedHostNames) {
-                call.response.header(HttpHeaders.CacheControl, "no-store")
-                call.respond(HttpStatusCode.Forbidden)
-                finish()
-                return@intercept
-            }
-
-            val originHeader = call.request.headers[HttpHeaders.Origin]
-            if (originHeader != null) {
-                val originHost = mcpOriginHostName(originHeader)
-                val allowedOriginNames = allowedOrigins.mapNotNull(::mcpOriginHostName).toSet()
-                if (originHost == null || originHost !in allowedOriginNames) {
-                    call.response.header(HttpHeaders.CacheControl, "no-store")
-                    call.respond(HttpStatusCode.Forbidden)
-                    finish()
-                    return@intercept
-                }
-            }
-
             val owner = call.verifiedMcpPatOwner(personalAccessTokenService)
             if (owner == null) {
                 call.response.header(HttpHeaders.WWWAuthenticate, "Bearer")
@@ -428,14 +393,10 @@ internal fun Application.configureMcpEndpoint(
                 call.respond(HttpStatusCode.Unauthorized)
                 finish()
                 return@intercept
-            } else {
-                call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
             }
+            call.attributes.put(McpRequestContextAttributeKey, McpRequestContext.fromVerifiedPatOwner(owner))
         }
     }
-    // The explicit request middleware above implements the same host/origin policy while
-    // tolerating absent Host headers from non-browser/test clients. The JSON transport
-    // itself remains stateless.
     mcpStatelessStreamableHttp(path = MCP_ENDPOINT_PATH, enableDnsRebindingProtection = false) {
         val requestContext = call.attributes.getOrNull(McpRequestContextAttributeKey)
             ?: error("MCP request context missing after PAT authentication")
@@ -948,53 +909,6 @@ private fun <T> Server.addJsonTool(
 
 
 private fun toolErrorResult(message: String) = CallToolResult(content = listOf(TextContent(text = message)), isError = true)
-
-/**
- * Configures the allowed hostnames for the MCP endpoint.
- *
- * Set MCP_ALLOWED_HOSTS to a comma-separated list of hostnames for deployed environments.
- * The safe default is loopback-only.
- */
-private fun configuredMcpAllowedHosts(): List<String> =
-    System.getenv(MCP_ALLOWED_HOSTS_ENV)
-        ?.split(',')
-        ?.map(String::trim)
-        ?.filter(String::isNotEmpty)
-        ?.distinct()
-        ?.takeIf { it.isNotEmpty() }
-        ?: DEFAULT_MCP_ALLOWED_HOSTS
-
-/**
- * Configures allowed Origin URLs. Set MCP_ALLOWED_ORIGINS to a comma-separated list of
- * origin URLs when browser clients originate from a different hostname than the MCP server.
- * The default allows the corresponding HTTP origin for each allowed host.
- */
-private fun configuredMcpAllowedOrigins(allowedHosts: List<String>): List<String> =
-    System.getenv(MCP_ALLOWED_ORIGINS_ENV)
-        ?.split(',')
-        ?.map(String::trim)
-        ?.filter(String::isNotEmpty)
-        ?.distinct()
-        ?.takeIf { it.isNotEmpty() }
-        ?: allowedHosts.map { "http://$it" }
-
-private fun mcpHostName(authority: String): String? {
-    val value = authority.trim()
-    if (value.isEmpty() || value.any { it.isWhitespace() || it == '@' || it == '/' || it == '?' || it == '#' || it == '\\' }) {
-        return null
-    }
-    val parsed = runCatching { Url("http://$value") }.getOrNull() ?: return null
-    if (parsed.user?.isNotEmpty() == true || parsed.password?.isNotEmpty() == true || parsed.encodedPath !in setOf("", "/")) return null
-    return parsed.host.lowercase().takeIf(String::isNotEmpty)
-}
-
-private fun mcpOriginHostName(origin: String): String? {
-    val parsed = runCatching { Url(origin) }.getOrNull() ?: return null
-    if (parsed.protocol.name !in setOf("http", "https")) return null
-    if (parsed.user?.isNotEmpty() == true || parsed.password?.isNotEmpty() == true) return null
-    if (parsed.encodedPath !in setOf("", "/") || parsed.parameters?.isEmpty() == false || parsed.fragment?.isNotEmpty() == true) return null
-    return parsed.host.lowercase().takeIf(String::isNotEmpty)
-}
 
 private fun ApplicationCall.verifiedMcpPatOwner(
     personalAccessTokenService: () -> PersonalAccessTokenService,
