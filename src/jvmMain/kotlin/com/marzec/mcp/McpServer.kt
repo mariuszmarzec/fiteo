@@ -54,6 +54,9 @@ import kotlinx.serialization.json.put
 
 internal const val MCP_ENDPOINT_PATH = "/mcp"
 
+private const val MCP_ALLOWED_HOSTS_ENV = "MCP_ALLOWED_HOSTS"
+private val DEFAULT_MCP_ALLOWED_HOSTS = listOf("localhost", "127.0.0.1", "[::1]")
+
 internal fun createMcpServer(
     requestContext: McpRequestContext,
     todoController: ToDoApiController,
@@ -396,7 +399,13 @@ internal fun Application.configureMcpEndpoint(
             }
         }
     }
-    mcpStatelessStreamableHttp(path = MCP_ENDPOINT_PATH, enableDnsRebindingProtection = false) {
+    val allowedHosts = configuredMcpAllowedHosts()
+    mcpStatelessStreamableHttp(
+        path = MCP_ENDPOINT_PATH,
+        enableDnsRebindingProtection = true,
+        allowedHosts = allowedHosts,
+        allowedOrigins = allowedHosts.map { "http://$it" },
+    ) {
         val requestContext = call.attributes.getOrNull(McpRequestContextAttributeKey)
             ?: error("MCP request context missing after PAT authentication")
         createMcpServer(requestContext, todoController(), cheatDayController?.invoke())
@@ -908,6 +917,22 @@ private fun <T> Server.addJsonTool(
 
 
 private fun toolErrorResult(message: String) = CallToolResult(content = listOf(TextContent(text = message)), isError = true)
+
+/**
+ * Configures the allowed hostnames for the MCP endpoint.
+ *
+ * Set MCP_ALLOWED_HOSTS to a comma-separated list of hostnames for deployed environments.
+ * The safe default is loopback-only. Origin validation uses the same hostname allowlist;
+ * the SDK compares Origin by hostname and permits requests that omit Origin.
+ */
+private fun configuredMcpAllowedHosts(): List<String> =
+    System.getenv(MCP_ALLOWED_HOSTS_ENV)
+        ?.split(',')
+        ?.map(String::trim)
+        ?.filter(String::isNotEmpty)
+        ?.distinct()
+        ?.takeIf { it.isNotEmpty() }
+        ?: DEFAULT_MCP_ALLOWED_HOSTS
 
 private fun ApplicationCall.verifiedMcpPatOwner(
     personalAccessTokenService: () -> PersonalAccessTokenService,
