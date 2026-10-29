@@ -286,6 +286,41 @@ internal fun createMcpServer(
         }
 
         addJsonTool(
+            name = "cheatday_update_weight",
+            description = "Partially update a weight entry belonging to the owner of the authenticated PAT. Supply id and either or both of value and date; omitted fields remain unchanged. This operation mutates a record and returns the updated WeightDto.",
+            inputSchema = ToolSchema(
+                properties = buildJsonObject {
+                    put("id", buildJsonObject {
+                        put("type", "integer")
+                        put("minimum", 1)
+                        put("description", "ID of the weight entry to update.")
+                    })
+                    put("value", buildJsonObject {
+                        put("type", "number")
+                        put("description", "Optional finite weight value. Omit to keep the current value.")
+                    })
+                    put("date", buildJsonObject {
+                        put("type", "string")
+                        put("description", "Optional local date-time without a timezone suffix. Omit to keep the current date.")
+                    })
+                },
+                required = listOf("id"),
+            ),
+            serializer = WeightDto.serializer(),
+            invalidArgumentsMessage = "Invalid cheatday_update_weight arguments. Supply a positive integer id and optional finite numeric value and valid local date-time.",
+            internalErrorMessage = "Unable to update weight because of an internal error.",
+        ) { arguments ->
+            val (weightId, payload) = decodeUpdateWeightArguments(arguments)
+            weightController.updateWeight(
+                requestContext.createRequest(
+                    data = payload,
+                    arguments = arguments,
+                    parameters = mapOf(Api.Args.ARG_ID to weightId.toString()),
+                ),
+            )
+        }
+
+        addJsonTool(
             name = "cheatday_create_weight",
             description = "Create a weight entry for the owner of the authenticated PAT. Supply the numeric value and a local date-time without a timezone suffix. This operation creates a record and returns its WeightDto.",
             inputSchema = ToolSchema(
@@ -742,6 +777,41 @@ private fun decodeGetWeightArguments(arguments: JsonObject): Int {
     return weightId
 }
 
+
+private fun decodeUpdateWeightArguments(arguments: JsonObject): Pair<Int, Map<String, JsonElement?>> {
+    require(arguments.keys.all { it in setOf("id", "value", "date") } && "id" in arguments) {
+        "cheatday_update_weight expects id and optional value and date"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val weightId = idPrimitive.intOrNull!!
+    require(weightId > 0) { "id must be greater than zero" }
+
+    if ("value" in arguments) {
+        val valuePrimitive = arguments["value"] as? JsonPrimitive
+        require(valuePrimitive != null && !valuePrimitive.isString) {
+            "value must be a JSON number"
+        }
+        val value = valuePrimitive.content.toFloatOrNull()
+        require(value != null && value.isFinite()) { "value must be a finite number" }
+    }
+
+    if ("date" in arguments) {
+        val datePrimitive = arguments["date"] as? JsonPrimitive
+        require(datePrimitive != null && datePrimitive.isString) { "date must be a string" }
+        require(runCatching { kotlinx.datetime.LocalDateTime.parse(datePrimitive.content) }.isSuccess) {
+            "date must be a valid local date-time without a timezone suffix"
+        }
+    }
+
+    val payload = buildMap<String, JsonElement?> {
+        arguments["value"]?.let { put("value", it) }
+        arguments["date"]?.let { put("date", it) }
+    }
+    return weightId to payload
+}
 
 private fun decodeCreateWeightArguments(arguments: JsonObject): PutWeightDto {
     require(arguments.keys == setOf("value", "date")) {
