@@ -749,7 +749,9 @@ private fun decodeCreateWeightArguments(arguments: JsonObject): PutWeightDto {
     }
     val input = McpJson.decodeFromJsonElement(PutWeightDto.serializer(), arguments)
     require(input.value.isFinite()) { "value must be a finite number" }
-    kotlinx.datetime.LocalDateTime.parse(input.date)
+    require(runCatching { kotlinx.datetime.LocalDateTime.parse(input.date) }.isSuccess) {
+        "date must be a valid local date-time without a timezone suffix"
+    }
     return input
 }
 
