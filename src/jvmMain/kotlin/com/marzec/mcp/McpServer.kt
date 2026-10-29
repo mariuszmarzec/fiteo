@@ -747,12 +747,18 @@ private fun decodeCreateWeightArguments(arguments: JsonObject): PutWeightDto {
     require(arguments.keys == setOf("value", "date")) {
         "cheatday_create_weight expects only value and date"
     }
-    val input = McpJson.decodeFromJsonElement(PutWeightDto.serializer(), arguments)
-    require(input.value.isFinite()) { "value must be a finite number" }
-    require(runCatching { kotlinx.datetime.LocalDateTime.parse(input.date) }.isSuccess) {
+    val valueElement = arguments["value"] as? JsonPrimitive
+    require(valueElement != null && !valueElement.isString) { "value must be a JSON number" }
+    val value = valueElement.content.toFloatOrNull()
+    require(value != null && value.isFinite()) { "value must be a finite number" }
+
+    val dateElement = arguments["date"] as? JsonPrimitive
+    require(dateElement != null && dateElement.isString) { "date must be a string" }
+    val date = dateElement.content
+    require(runCatching { kotlinx.datetime.LocalDateTime.parse(date) }.isSuccess) {
         "date must be a valid local date-time without a timezone suffix"
     }
-    return input
+    return PutWeightDto(value = value, date = date)
 }
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
