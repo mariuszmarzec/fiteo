@@ -155,6 +155,33 @@ internal fun createMcpServer(
         val input = decodeMarkAsToDoArguments(arguments)
         todoController.markAsToDo(requestContext.createRequest(data = input, arguments = arguments))
     }
+    addJsonTool(
+        name = "todo_copy_task",
+        description = "Create and return a copy of the task identified by id for the authenticated PAT owner. This operation creates a new task; it is not a read-only lookup. Tasks the owner cannot access cannot be copied.",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("id", buildJsonObject {
+                    put("type", "integer")
+                    put("minimum", 1)
+                })
+            },
+            required = listOf("id"),
+        ),
+        serializer = TaskDto.serializer(),
+        invalidArgumentsMessage = "Invalid todo_copy_task arguments. Supply a positive integer task ID.",
+        internalErrorMessage = "Unable to copy task because of an internal error.",
+    ) { arguments ->
+        requestContext.createRequest(data = Unit, arguments = arguments)
+        val taskId = decodeCopyTaskArguments(arguments)
+        todoController.copyTasks(
+            requestContext.createRequest(
+                data = Unit,
+                arguments = arguments,
+                parameters = mapOf(Api.Args.ARG_ID to taskId.toString()),
+            ),
+        )
+    }
+
 }
 
 /**
@@ -524,6 +551,19 @@ private fun decodeMarkAsToDoArguments(arguments: JsonObject): MarkAsToDoDto {
     return MarkAsToDoDto(isToDo = isToDo, taskIds = ids)
 }
 
+
+private fun decodeCopyTaskArguments(arguments: JsonObject): Int {
+    require(arguments.keys == setOf("id")) {
+        "todo_copy_task expects only an id"
+    }
+    val idPrimitive = arguments["id"] as? JsonPrimitive
+    require(idPrimitive != null && !idPrimitive.isString && idPrimitive.intOrNull != null) {
+        "id must be an integer"
+    }
+    val taskId = idPrimitive.intOrNull!!
+    require(taskId > 0) { "id must be greater than zero" }
+    return taskId
+}
 
 private fun typeUnion(vararg types: String) = buildJsonArray { types.forEach { add(JsonPrimitive(it)) } }
 
