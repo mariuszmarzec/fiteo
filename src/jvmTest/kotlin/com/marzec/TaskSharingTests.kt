@@ -52,6 +52,43 @@ class TaskSharingTests {
     }
 
     @Test
+    fun getTasks_includesSharesOnNestedTasks() {
+        val editorShare = listOf(TaskShareDto("3", "EDITOR_AND_VIEWER"))
+        testPostEndpoint(
+            uri = ApiPath.ADD_TASK,
+            dto = createTaskDto.copy(shares = editorShare),
+            status = HttpStatusCode.OK,
+            responseDto = taskDto.copy(id = 1, ownerId = 2, shares = editorShare),
+            authorize = {
+                register(user1Register)
+                register(user2Register)
+                login(user1Login)
+            },
+            runRequestsBefore = {
+                CurrentTimeUtil.setOtherTime(16, 5, 2021)
+            },
+            runRequestsAfter = {
+                addTask(
+                    createTaskDto.copy(
+                        description = "shared child",
+                        parentTaskId = 1,
+                        shares = editorShare
+                    )
+                )
+
+                val ownerTree = getTasks()
+                assertThat(ownerTree.single().subTasks).hasSize(1)
+                assertThat(ownerTree.single().subTasks.single().shares).isEqualTo(editorShare)
+
+                authToken = login(user2Login)
+                val sharedRoot = getTasks().first { it.id == 1 }
+                assertThat(sharedRoot.subTasks).hasSize(1)
+                assertThat(sharedRoot.subTasks.single().shares).isEqualTo(editorShare)
+            }
+        )
+    }
+
+    @Test
     fun updateTask_ownerModifiesShares() {
         testPatchEndpoint(
             uri = ApiPath.UPDATE_TASK.replace("{id}", "1"),
