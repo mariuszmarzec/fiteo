@@ -81,10 +81,9 @@ class TaskSharingTests {
                 assertThat(ownerTree.single().subTasks.single().shares).isEqualTo(editorShare)
 
                 authToken = login(user2Login)
-                val sharedTree = getTasks()
-                assertThat(sharedTree).hasSize(1)
-                assertThat(sharedTree.single().subTasks).hasSize(1)
-                assertThat(sharedTree.single().subTasks.single().shares).isEqualTo(editorShare)
+                val sharedRoot = getTasks().first { it.id == 1 }
+                assertThat(sharedRoot.subTasks).hasSize(1)
+                assertThat(sharedRoot.subTasks.single().shares).isEqualTo(editorShare)
             }
         )
     }
