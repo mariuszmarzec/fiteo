@@ -12,6 +12,7 @@ import com.marzec.todo.extensions.sortTasks
 import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.Task
 import com.marzec.todo.model.TaskShare
+import com.marzec.todo.model.SharePermission
 import com.marzec.todo.model.getHighestPriorityAsDefault
 import com.marzec.todo.model.getRemoveScheduled
 import com.marzec.todo.model.getShowNotification
