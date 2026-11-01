@@ -28,6 +28,8 @@ import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.javatime.datetime
 
 object TasksTable : IntIdWithUserTable("todo_tasks") {
@@ -56,6 +58,23 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
     override var user by UserEntity referencedOn TasksTable.userId
 
     fun toDomain(shares: List<TaskShare> = emptyList()): Task {
+        val childEntities = subtasks.toList()
+        val childSharesByTaskId = if (childEntities.isEmpty()) {
+            emptyMap()
+        } else {
+            TaskSharesTable.selectAll()
+                .where { TaskSharesTable.taskId inList childEntities.map { it.id } }
+                .toList()
+                .groupBy(
+                    keySelector = { it[TaskSharesTable.taskId].value },
+                    valueTransform = { row ->
+                        TaskShare(
+                            userId = row[TaskSharesTable.userId].value,
+                            permission = SharePermission.valueOf(row[TaskSharesTable.permission].uppercase())
+                        )
+                    }
+                )
+        }
         return Task(
             id = id.value,
             ownerId = user.id.value,
@@ -63,7 +82,9 @@ class TaskEntity(id: EntityID<Int>) : IntEntityWithUser(id) {
             addedTime = addedTime.toKotlinLocalDateTime(),
             modifiedTime = modifiedTime.toKotlinLocalDateTime(),
             parentTaskId = parents.firstOrNull()?.id?.value,
-            subTasks = subtasks.toList().map { it.toDomain() }.sortTasks(),
+            subTasks = childEntities.map { child ->
+                child.toDomain(childSharesByTaskId[child.id.value].orEmpty())
+            }.sortTasks(),
             isToDo = isToDo,
             priority = priority,
             scheduler = scheduler,
