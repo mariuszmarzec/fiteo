@@ -90,7 +90,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_create_task",
-        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. Optional shares are granted to the specified users. Returns the created TaskDto.",
+        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. For OneShot schedules, removeScheduled defaults to true; set scheduler.options.removeScheduled to the string \\"false\\" to keep the source task. Optional shares are granted to the specified users. Returns the created TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("task", createTaskDtoSchema())
@@ -416,6 +416,7 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
         put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
         put("scheduler", buildJsonObject {
             put("type", typeUnion("object", "null"))
+            put("description", "For OneShot schedules, removeScheduled defaults to true in MCP; set options.removeScheduled to the string \\"false\\" to keep the source task.")
             put("properties", buildJsonObject {
                 put("hour", buildJsonObject { put("type", "integer") })
                 put("minute", buildJsonObject { put("type", "integer") })
@@ -431,10 +432,10 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
                     put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
                 })
                 put("options", buildJsonObject {
-    put("type", typeUnion("object", "null"))
-    put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; pass false to keep the source task.")
-    put("additionalProperties", buildJsonObject { put("type", "string") })
-})
+                    put("type", typeUnion("object", "null"))
+                    put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string \\"false\\" to keep the source task.")
+                    put("additionalProperties", buildJsonObject { put("type", "string") })
+                })
             })
             put("required", buildJsonArray {
                 add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
@@ -615,7 +616,7 @@ private fun schedulerDtoSchema(): JsonObject = buildJsonObject {
         })
         put("options", buildJsonObject {
             put("type", typeUnion("object", "null"))
-            put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; pass false to keep the source task.")
+            put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string \\"false\\" to keep the source task.")
             put("additionalProperties", buildJsonObject { put("type", "string") })
         })
     })
