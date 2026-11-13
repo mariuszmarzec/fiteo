@@ -109,7 +109,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_update_task",
-        description = "Update a task owned by the authenticated PAT. Supply id and a task object matching UpdateTaskDto. Only supplied fields are changed. For parentTaskId, scheduler and expirationDate use {\"value\": ...}; set value to null to clear that field. Scheduled tasks cannot have a parent, and a task cannot be its own parent. Returns the updated TaskDto.",
+        description = "Update a task owned by the authenticated PAT. Supply id and a task object matching UpdateTaskDto. Only supplied fields are changed. For parentTaskId, scheduler and expirationDate use the value wrapper; set value to null to clear that field. For OneShot schedules, removeScheduled defaults to true; set scheduler.value.options.removeScheduled to the string value false to keep the source task. Scheduled tasks cannot have a parent, and a task cannot be its own parent. Returns the updated TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("id", buildJsonObject {
@@ -416,7 +416,7 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
         put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
         put("scheduler", buildJsonObject {
             put("type", typeUnion("object", "null"))
-            put("description", "For OneShot schedules, removeScheduled defaults to true in MCP; set options.removeScheduled to the string \\"false\\" to keep the source task.")
+            put("description", "For OneShot schedules, removeScheduled defaults to true in MCP; set options.removeScheduled to the string value false to keep the source task.")
             put("properties", buildJsonObject {
                 put("hour", buildJsonObject { put("type", "integer") })
                 put("minute", buildJsonObject { put("type", "integer") })
