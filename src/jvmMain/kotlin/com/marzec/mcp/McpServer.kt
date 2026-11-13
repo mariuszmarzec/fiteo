@@ -14,6 +14,7 @@ import com.marzec.todo.dto.TaskDto
 import com.marzec.todo.model.CreateTaskDto
 import com.marzec.todo.model.MarkAsToDoDto
 import com.marzec.todo.model.SchedulerDto
+import com.marzec.todo.model.Scheduler
 import com.marzec.todo.model.TaskShareDto
 import com.marzec.todo.model.UpdateTaskDto
 import com.marzec.todo.model.LeaveShareDto
@@ -89,7 +90,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_create_task",
-        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. Optional shares are granted to the specified users. Returns the created TaskDto.",
+        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. For OneShot schedules, removeScheduled defaults to true; set scheduler.options.removeScheduled to the string value false to keep the source task. Optional shares are granted to the specified users. Returns the created TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("task", createTaskDtoSchema())
@@ -108,7 +109,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_update_task",
-        description = "Update a task owned by the authenticated PAT. Supply id and a task object matching UpdateTaskDto. Only supplied fields are changed. For parentTaskId, scheduler and expirationDate use {\"value\": ...}; set value to null to clear that field. Scheduled tasks cannot have a parent, and a task cannot be its own parent. Returns the updated TaskDto.",
+        description = "Update a task owned by the authenticated PAT. Supply id and a task object matching UpdateTaskDto. Only supplied fields are changed. For parentTaskId, scheduler and expirationDate use the value wrapper; set value to null to clear that field. For OneShot schedules, removeScheduled defaults to true; set scheduler.value.options.removeScheduled to the string value false to keep the source task. Scheduled tasks cannot have a parent, and a task cannot be its own parent. Returns the updated TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("id", buildJsonObject {
@@ -415,6 +416,7 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
         put("expirationDate", buildJsonObject { put("type", typeUnion("string", "null")); put("description", "yyyy-MM-dd'T'HH:mm:ss") })
         put("scheduler", buildJsonObject {
             put("type", typeUnion("object", "null"))
+            put("description", "For OneShot schedules, removeScheduled defaults to true in MCP; set options.removeScheduled to the string value false to keep the source task.")
             put("properties", buildJsonObject {
                 put("hour", buildJsonObject { put("type", "integer") })
                 put("minute", buildJsonObject { put("type", "integer") })
@@ -429,7 +431,11 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
                     put("type", "string")
                     put("enum", buildJsonArray { add(JsonPrimitive("OneShot")); add(JsonPrimitive("Weekly")); add(JsonPrimitive("Monthly")) })
                 })
-                put("options", buildJsonObject { put("type", typeUnion("object", "null")); put("additionalProperties", buildJsonObject { put("type", "string") }) })
+                put("options", buildJsonObject {
+                    put("type", typeUnion("object", "null"))
+                    put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string value false to keep the source task.")
+                    put("additionalProperties", buildJsonObject { put("type", "string") })
+                })
             })
             put("required", buildJsonArray {
                 add(JsonPrimitive("hour")); add(JsonPrimitive("minute")); add(JsonPrimitive("startDate"))
@@ -497,7 +503,7 @@ private fun decodeCreateTaskArguments(arguments: JsonObject): CreateTaskDto {
 
     val schedulerElement: JsonElement? = taskArguments["scheduler"]
     val scheduler = if (schedulerElement == null || schedulerElement == JsonNull) null else
-        McpJson.decodeFromJsonElement(SchedulerDto.serializer(), schedulerElement)
+        McpJson.decodeFromJsonElement(SchedulerDto.serializer(), schedulerElement).withMcpDefaults()
     val sharesElement: JsonElement? = taskArguments["shares"]
     val shares = if (sharesElement == null || sharesElement == JsonNull) null else {
         sharesElement.jsonArray.map { item ->
@@ -610,6 +616,7 @@ private fun schedulerDtoSchema(): JsonObject = buildJsonObject {
         })
         put("options", buildJsonObject {
             put("type", typeUnion("object", "null"))
+            put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string value false to keep the source task.")
             put("additionalProperties", buildJsonObject { put("type", "string") })
         })
     })
@@ -625,6 +632,13 @@ private fun schedulerDtoSchema(): JsonObject = buildJsonObject {
     })
     put("additionalProperties", false)
 }
+
+private fun SchedulerDto.withMcpDefaults(): SchedulerDto =
+    if (type == Scheduler.OneShot::class.simpleName && options?.containsKey("removeScheduled") != true) {
+        copy(options = options.orEmpty() + ("removeScheduled" to "true"))
+    } else {
+        this
+    }
 
 private fun decodeUpdateTaskArguments(arguments: JsonObject): Pair<Int, UpdateTaskDto> {
     require(arguments.keys == setOf("id", "task")) {
@@ -662,7 +676,12 @@ private fun decodeUpdateTaskArguments(arguments: JsonObject): Pair<Int, UpdateTa
     }
     validateUpdateTaskShares(taskArguments["shares"])
 
-    val update = McpJson.decodeFromJsonElement(UpdateTaskDto.serializer(), taskArguments)
+    val decodedUpdate = McpJson.decodeFromJsonElement(UpdateTaskDto.serializer(), taskArguments)
+    val update = decodedUpdate.copy(
+        scheduler = decodedUpdate.scheduler?.let { schedulerField ->
+            schedulerField.copy(value = schedulerField.value?.withMcpDefaults())
+        },
+    )
     require(
         update.description != null ||
             update.parentTaskId != null ||

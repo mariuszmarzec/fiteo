@@ -48,6 +48,42 @@ class McpTodoCreateTaskToolTest {
         }
     }
 
+
+    @Test
+    fun createTask_defaultsOneShotRemoveScheduledToTrueAndPreservesExplicitFalse() {
+        val patService = mockk<PersonalAccessTokenService>()
+        val controller = mockk<ToDoApiController>()
+        val requestSlot = slot<HttpRequest<CreateTaskDto>>()
+        every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
+        every { controller.addTask(capture(requestSlot)) } answers {
+            val request = firstArg<HttpRequest<CreateTaskDto>>()
+            DomainHttpResponse.Success(task(request.data.description, request.data.isToDo ?: true))
+        }
+
+        val schedulerWithoutRemoveOption =
+            """{"hour":10,"minute":15,"startDate":"2026-11-20T00:00:00","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot"}"""
+        val schedulerWithRemoveFalse =
+            """{"hour":10,"minute":15,"startDate":"2026-11-20T00:00:00","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot","options":{"removeScheduled":"false"}}"""
+
+        testApplication {
+            application { configureMcpEndpoint({ patService }, { controller }) }
+
+            val defaultResponse = callCreateTask(
+                """{"task":{"description":"Scheduled by MCP","scheduler":$schedulerWithoutRemoveOption}}""",
+            )
+            assertThat(defaultResponse.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(requestSlot.captured.data.scheduler?.options?.get("removeScheduled")).isEqualTo("true")
+
+            val explicitFalseResponse = callCreateTask(
+                """{"task":{"description":"Keep source task","scheduler":$schedulerWithRemoveFalse}}""",
+            )
+            assertThat(explicitFalseResponse.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(requestSlot.captured.data.scheduler?.options?.get("removeScheduled")).isEqualTo("false")
+
+            verify(exactly = 2) { controller.addTask(any()) }
+        }
+    }
+
     @Test
     fun createTask_rejectsCallerIdentityOverrideBeforeCallingController() {
         val patService = mockk<PersonalAccessTokenService>()
