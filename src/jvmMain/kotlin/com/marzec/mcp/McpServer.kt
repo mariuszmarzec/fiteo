@@ -90,7 +90,7 @@ internal fun createMcpServer(
 
     addJsonTool(
         name = "todo_create_task",
-        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. For OneShot schedules, removeScheduled defaults to true; set scheduler.options.removeScheduled to the string \\"false\\" to keep the source task. Optional shares are granted to the specified users. Returns the created TaskDto.",
+        description = "Create a task for the owner of the authenticated PAT using existing ToDo rules. Scheduled tasks cannot have a parent. For OneShot schedules, removeScheduled defaults to true; set scheduler.options.removeScheduled to the string value false to keep the source task. Optional shares are granted to the specified users. Returns the created TaskDto.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("task", createTaskDtoSchema())
@@ -433,7 +433,7 @@ private fun createTaskDtoSchema(): JsonObject = buildJsonObject {
                 })
                 put("options", buildJsonObject {
                     put("type", typeUnion("object", "null"))
-                    put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string \\"false\\" to keep the source task.")
+                    put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string value false to keep the source task.")
                     put("additionalProperties", buildJsonObject { put("type", "string") })
                 })
             })
@@ -616,7 +616,7 @@ private fun schedulerDtoSchema(): JsonObject = buildJsonObject {
         })
         put("options", buildJsonObject {
             put("type", typeUnion("object", "null"))
-            put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string \\"false\\" to keep the source task.")
+            put("description", "Scheduler-specific string options. For OneShot, removeScheduled defaults to true in MCP; set it to the string value false to keep the source task.")
             put("additionalProperties", buildJsonObject { put("type", "string") })
         })
     })
