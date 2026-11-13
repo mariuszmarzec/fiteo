@@ -51,6 +51,41 @@ class McpTodoUpdateTaskToolTest {
         }
     }
 
+
+    @Test
+    fun updateTask_defaultsOneShotRemoveScheduledToTrueAndPreservesExplicitFalse() {
+        val patService = mockk<PersonalAccessTokenService>()
+        val controller = mockk<ToDoApiController>()
+        val requestSlot = slot<HttpRequest<UpdateTaskDto>>()
+        every { patService.verify("valid-test-token") } returns User(id = 42, email = "owner@example.test")
+        every { controller.updateTask(capture(requestSlot)) } answers {
+            DomainHttpResponse.Success(task(description = "Updated schedule", parentTaskId = null))
+        }
+
+        val schedulerWithoutRemoveOption =
+            """{"hour":10,"minute":15,"startDate":"2026-11-20T00:00:00","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot"}"""
+        val schedulerWithRemoveFalse =
+            """{"hour":10,"minute":15,"startDate":"2026-11-20T00:00:00","daysOfWeek":[],"dayOfMonth":0,"repeatCount":-1,"repeatInEveryPeriod":1,"type":"OneShot","options":{"removeScheduled":"false"}}"""
+
+        testApplication {
+            application { configureMcpEndpoint({ patService }, { controller }) }
+
+            val defaultResponse = callUpdateTask(
+                """{"id":7,"task":{"scheduler":{"value":$schedulerWithoutRemoveOption}}}""",
+            )
+            assertThat(defaultResponse.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(requestSlot.captured.data.scheduler?.value?.options?.get("removeScheduled")).isEqualTo("true")
+
+            val explicitFalseResponse = callUpdateTask(
+                """{"id":7,"task":{"scheduler":{"value":$schedulerWithRemoveFalse}}}""",
+            )
+            assertThat(explicitFalseResponse.status).isEqualTo(HttpStatusCode.OK)
+            assertThat(requestSlot.captured.data.scheduler?.value?.options?.get("removeScheduled")).isEqualTo("false")
+
+            verify(exactly = 2) { controller.updateTask(any()) }
+        }
+    }
+
     @Test
     fun updateTask_rejectsCallerIdentityOverrideBeforeCallingController() {
         val patService = mockk<PersonalAccessTokenService>()
